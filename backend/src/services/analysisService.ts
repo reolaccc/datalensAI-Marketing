@@ -1,11 +1,18 @@
 import type { AnalysisResult } from "../analytics/types.js";
 import { createAnalysisSession } from "./analysisSessionStore.js";
 import { detectKpis } from "../analytics/detectKpis.js";
-import { generateEdaSummary, generateExecutiveSummary } from "../ai/generateExecutiveSummary.js";
+import { generateEdaSummary } from "../ai/generateExecutiveSummary.js";
 import { loadRowsIntoDuckDb } from "../providers/duckdbProvider.js";
 import { parseDataset } from "../profiling/datasetParser.js";
 import { profileDataset } from "../profiling/profileDataset.js";
 import { selectRuleBasedCharts } from "./analytics/chart-selection/selectRuleBasedCharts.js";
+import {
+  applyChartNarratives,
+  buildAnalyticsFactsFromAnalysis,
+  generateChartExplanations,
+  generateExecutiveInsights,
+  mapExecutiveInsightToLegacy
+} from "../llm/insightService.js";
 
 export async function analyzeUploadedDataset(buffer: Buffer, fileName: string): Promise<AnalysisResult> {
   const parsed = parseDataset(buffer, fileName);
@@ -25,11 +32,18 @@ export async function analyzeUploadedDataset(buffer: Buffer, fileName: string): 
   }).charts;
   const edaSummary = generateEdaSummary(profile, kpis);
   const duckDbSnapshot = await loadRowsIntoDuckDb(parsed.rows);
-  const executiveSummary = await generateExecutiveSummary(profile, kpis, {
-    mode: "local",
+  const facts = buildAnalyticsFactsFromAnalysis({
     fileName: parsed.fileName,
-    edaSummary
+    profile,
+    kpis,
+    charts
   });
+  const [executiveSummaryNarrative, chartNarratives] = await Promise.all([
+    generateExecutiveInsights(facts),
+    generateChartExplanations(facts, charts)
+  ]);
+  const executiveSummary = mapExecutiveInsightToLegacy(executiveSummaryNarrative);
+  const chartsWithNarratives = applyChartNarratives(charts, chartNarratives);
 
   return {
     analysisId: session.analysisId,
@@ -41,7 +55,7 @@ export async function analyzeUploadedDataset(buffer: Buffer, fileName: string): 
     },
     profile,
     kpis,
-    charts,
+    charts: chartsWithNarratives,
     edaSummary,
     executiveSummary
   };

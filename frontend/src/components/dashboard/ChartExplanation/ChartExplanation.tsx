@@ -16,6 +16,7 @@ export function ChartExplanation({ questionAnswer }: Props) {
 
       {questionAnswer.analysisSummary ? <p>{questionAnswer.analysisSummary}</p> : null}
       {questionAnswer.chartSelectionSummary ? <p>{questionAnswer.chartSelectionSummary}</p> : null}
+      {questionAnswer.narrative?.warning ? <p className="workspace-meta">{questionAnswer.narrative.warning}</p> : null}
 
       {questionAnswer.missingFieldWarnings?.length ? (
         <div className="chart-warning-block">

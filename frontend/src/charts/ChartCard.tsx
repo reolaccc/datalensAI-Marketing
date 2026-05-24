@@ -174,7 +174,7 @@ export function ChartCard({ chart, highlighted = false }: Props) {
       </div>
 
       <div className="chart-explanation-block">
-        <p>{chart.reason}</p>
+        <p>{chart.description || chart.reason}</p>
       </div>
     </article>
   );

@@ -107,6 +107,9 @@ export interface AnalysisResponse {
     anomalySummary: string;
     trendSummary: string;
     suggestedQuestions: string[];
+    bullets?: string[];
+    warning?: string;
+    source?: "llm" | "fallback";
   };
 }
 
@@ -130,6 +133,14 @@ export interface QuestionAnswer {
   missingFieldWarnings?: string[];
   suggestedFollowUps?: string[];
   recommendedCharts?: AnalysisResponse["charts"];
+  narrative?: {
+    directAnswer: string;
+    evidence: string[];
+    caution?: string;
+    suggestedNextQuestion?: string;
+    warning?: string;
+    source: "llm" | "fallback";
+  };
   supportingData: Array<{
     label: string;
     value: string | number;
@@ -171,4 +182,5 @@ export interface QuestionContextInput {
   selectedCategory?: string;
   selectedSegmentA?: string;
   selectedSegmentB?: string;
+  useAi?: boolean;
 }

@@ -10,6 +10,10 @@ export function InsightPanel({ analysis }: Props) {
   const { executiveSummary } = analysis;
   const setDraftQuestion = useAnalysisStore((state) => state.setDraftQuestion);
   const questionSuggestions = buildQuestionSuggestions(analysis);
+  const insightBullets =
+    executiveSummary.bullets && executiveSummary.bullets.length > 0
+      ? executiveSummary.bullets
+      : [executiveSummary.overview, executiveSummary.kpiSummary, executiveSummary.anomalySummary, executiveSummary.trendSummary].filter(Boolean) as string[];
 
   return (
     <article className="panel insight-panel">
@@ -21,11 +25,11 @@ export function InsightPanel({ analysis }: Props) {
 
       <div className="insight-list">
         <ol className="executive-summary-list">
-          <li>{executiveSummary.overview}</li>
-          <li>{executiveSummary.kpiSummary}</li>
-          <li>{executiveSummary.anomalySummary}</li>
-          <li>{executiveSummary.trendSummary}</li>
+          {insightBullets.map((bullet) => (
+            <li key={bullet}>{bullet}</li>
+          ))}
         </ol>
+        {executiveSummary.warning ? <p className="workspace-meta">{executiveSummary.warning}</p> : null}
       </div>
 
       <div>

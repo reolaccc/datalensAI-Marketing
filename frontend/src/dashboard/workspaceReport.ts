@@ -58,6 +58,18 @@ function buildQuestionEntry(questionAnswer: QuestionAnswer, label: string) {
     lines.push(`**Planner:** ${questionAnswer.interpretation}`);
   }
 
+  if (questionAnswer.narrative?.evidence.length) {
+    lines.push("**Evidence:**", ...questionAnswer.narrative.evidence.map((entry) => `- ${entry}`));
+  }
+
+  if (questionAnswer.narrative?.caution) {
+    lines.push(`**Caution:** ${questionAnswer.narrative.caution}`);
+  }
+
+  if (questionAnswer.narrative?.suggestedNextQuestion) {
+    lines.push(`**Suggested next question:** ${questionAnswer.narrative.suggestedNextQuestion}`);
+  }
+
   if (questionAnswer.supportingData.length > 0) {
     lines.push(
       "**Supporting data:**",
@@ -79,6 +91,15 @@ function buildQuestionEntry(questionAnswer: QuestionAnswer, label: string) {
 }
 
 export function buildWorkspaceReportMarkdown(source: WorkspaceReportSource) {
+  const executiveBullets =
+    source.analysis.executiveSummary.bullets && source.analysis.executiveSummary.bullets.length > 0
+      ? source.analysis.executiveSummary.bullets
+      : [
+          source.analysis.executiveSummary.overview,
+          source.analysis.executiveSummary.kpiSummary,
+          source.analysis.executiveSummary.anomalySummary,
+          source.analysis.executiveSummary.trendSummary
+        ].filter(Boolean) as string[];
   const savedAt = formatSavedAt(source.savedAt);
   const reportSections = [
     `# DataLens Report`,
@@ -91,10 +112,8 @@ export function buildWorkspaceReportMarkdown(source: WorkspaceReportSource) {
     `**EDA summary:** ${source.analysis.edaSummary}`,
     sectionDivider(),
     `## Executive summary`,
-    `1. ${source.analysis.executiveSummary.overview}`,
-    `2. ${source.analysis.executiveSummary.kpiSummary}`,
-    `3. ${source.analysis.executiveSummary.anomalySummary}`,
-    `4. ${source.analysis.executiveSummary.trendSummary}`,
+    ...executiveBullets.map((bullet, index) => `${index + 1}. ${bullet}`),
+    source.analysis.executiveSummary.warning ? `**Warning:** ${source.analysis.executiveSummary.warning}` : null,
     `### Suggested analytical questions`,
     ...source.analysis.executiveSummary.suggestedQuestions.map((question) => `- ${question}`),
     sectionDivider(),

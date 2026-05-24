@@ -101,7 +101,7 @@ async function runQuestionCase(
   verify?: (result: QuestionAnswer) => boolean
 ) {
   const { parsed, profile } = await loadDataset(fileName);
-  const result = answerDatasetQuestion(question, {
+  const result = await answerDatasetQuestion(question, {
     rows: parsed.rows,
     profile,
     input

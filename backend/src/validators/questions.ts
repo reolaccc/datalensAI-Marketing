@@ -11,7 +11,8 @@ export const questionRequestSchema = z.object({
       selectedDimension: z.string().min(1).optional(),
       selectedCategory: z.string().min(1).optional(),
       selectedSegmentA: z.string().min(1).optional(),
-      selectedSegmentB: z.string().min(1).optional()
+      selectedSegmentB: z.string().min(1).optional(),
+      useAi: z.boolean().optional()
     })
     .optional()
 });

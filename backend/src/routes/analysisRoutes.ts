@@ -31,7 +31,7 @@ analysisRouter.post("/analyze", upload.single("file"), async (request, response)
   }
 });
 
-analysisRouter.post("/questions", (request, response) => {
+analysisRouter.post("/questions", async (request, response) => {
   try {
     const { analysisId, question, context } = questionRequestSchema.parse(request.body);
     const session = getAnalysisSession(analysisId);
@@ -41,7 +41,8 @@ analysisRouter.post("/questions", (request, response) => {
       return;
     }
 
-    const answer = answerDatasetQuestion(question, {
+    const answer = await answerDatasetQuestion(question, {
+      fileName: session.fileName,
       rows: session.rows,
       profile: session.profile,
       input: context

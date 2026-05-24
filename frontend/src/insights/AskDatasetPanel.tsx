@@ -48,6 +48,7 @@ export function AskDatasetPanel() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSegmentA, setSelectedSegmentA] = useState("");
   const [selectedSegmentB, setSelectedSegmentB] = useState("");
+  const [askAiEnabled, setAskAiEnabled] = useState(false);
   const askQuestion = useAnalysisStore((state) => state.askQuestion);
   const asking = useAnalysisStore((state) => state.asking);
   const error = useAnalysisStore((state) => state.error);
@@ -121,7 +122,8 @@ export function AskDatasetPanel() {
       selectedDimension: selectedDimension || undefined,
       selectedCategory: selectedCategory || undefined,
       selectedSegmentA: selectedSegmentA || undefined,
-      selectedSegmentB: selectedSegmentB || undefined
+      selectedSegmentB: selectedSegmentB || undefined,
+      useAi: askAiEnabled
     });
   }
 
@@ -137,9 +139,23 @@ export function AskDatasetPanel() {
 
       <div className="question-composer">
         <input value={draftQuestion} onChange={(event) => setDraftQuestion(event.target.value)} />
-        <button onClick={submitQuestion} disabled={asking}>
-          {asking ? "Thinking..." : "Ask"}
-        </button>
+        <div className="question-composer-actions">
+          <button onClick={submitQuestion} disabled={asking}>
+            {asking ? "Thinking..." : "Ask"}
+          </button>
+          <button
+            aria-checked={askAiEnabled}
+            className={`ask-ai-toggle ${askAiEnabled ? "ask-ai-toggle-on" : ""}`}
+            onClick={() => setAskAiEnabled((value) => !value)}
+            role="switch"
+            type="button"
+          >
+            <span className="ask-ai-toggle-track">
+              <span className="ask-ai-toggle-thumb" />
+            </span>
+            <span>ASK AI</span>
+          </button>
+        </div>
       </div>
 
       <div className={`ask-status ${asking ? "ask-status-active" : ""}`}>
@@ -156,118 +172,121 @@ export function AskDatasetPanel() {
 
       <div className="ask-workspace">
         <div className="ask-workflow-main">
-          <div className="context-grid">
-            <label className="date-context-field">
-              <span>Selected date context</span>
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(event) => setSelectedDate(event.target.value)}
-              />
-            </label>
+          <details className="advanced-debug-panel">
+            <summary>Advanced / Debug</summary>
+            <div className="context-grid">
+              <label className="date-context-field">
+                <span>Selected date context</span>
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(event) => setSelectedDate(event.target.value)}
+                />
+              </label>
 
-            <label className="date-context-field">
-              <span>Selected threshold</span>
-              <input
-                type="number"
-                value={selectedThreshold}
-                onChange={(event) => setSelectedThreshold(event.target.value)}
-                placeholder="Enter threshold"
-              />
-            </label>
+              <label className="date-context-field">
+                <span>Selected threshold</span>
+                <input
+                  type="number"
+                  value={selectedThreshold}
+                  onChange={(event) => setSelectedThreshold(event.target.value)}
+                  placeholder="Enter threshold"
+                />
+              </label>
 
-            <label className="date-context-field">
-              <span>Selected metric</span>
-              <input
-                list="metric-options"
-                value={selectedMetric}
-                onChange={(event) => setSelectedMetric(event.target.value)}
-                placeholder="e.g. cost"
-              />
-              <datalist id="metric-options">
-                {numericColumns.map((column) => (
-                  <option key={column} value={column} />
-                ))}
-              </datalist>
-            </label>
+              <label className="date-context-field">
+                <span>Selected metric</span>
+                <input
+                  list="metric-options"
+                  value={selectedMetric}
+                  onChange={(event) => setSelectedMetric(event.target.value)}
+                  placeholder="e.g. cost"
+                />
+                <datalist id="metric-options">
+                  {numericColumns.map((column) => (
+                    <option key={column} value={column} />
+                  ))}
+                </datalist>
+              </label>
 
-            <label className="date-context-field">
-              <span>Selected dimension</span>
-              <input
-                list="dimension-options"
-                value={selectedDimension}
-                onChange={(event) => setSelectedDimension(event.target.value)}
-                placeholder="e.g. device"
-              />
-              <datalist id="dimension-options">
-                {categoricalColumns.map((column) => (
-                  <option key={column} value={column} />
-                ))}
-              </datalist>
-            </label>
+              <label className="date-context-field">
+                <span>Selected dimension</span>
+                <input
+                  list="dimension-options"
+                  value={selectedDimension}
+                  onChange={(event) => setSelectedDimension(event.target.value)}
+                  placeholder="e.g. device"
+                />
+                <datalist id="dimension-options">
+                  {categoricalColumns.map((column) => (
+                    <option key={column} value={column} />
+                  ))}
+                </datalist>
+              </label>
 
-            <label className="date-context-field">
-              <span>Selected category</span>
-              <input
-                list="category-options"
-                value={selectedCategory}
-                onChange={(event) => setSelectedCategory(event.target.value)}
-                placeholder="e.g. Paid Search"
-              />
-              <datalist id="category-options">
-                {categoricalValues.map((value) => (
-                  <option key={value} value={value} />
-                ))}
-              </datalist>
-            </label>
+              <label className="date-context-field">
+                <span>Selected category</span>
+                <input
+                  list="category-options"
+                  value={selectedCategory}
+                  onChange={(event) => setSelectedCategory(event.target.value)}
+                  placeholder="e.g. Paid Search"
+                />
+                <datalist id="category-options">
+                  {categoricalValues.map((value) => (
+                    <option key={value} value={value} />
+                  ))}
+                </datalist>
+              </label>
 
-            <label className="date-context-field">
-              <span>Selected segment A</span>
-              <input
-                list="segment-options-a"
-                value={selectedSegmentA}
-                onChange={(event) => setSelectedSegmentA(event.target.value)}
-                placeholder="e.g. Desktop"
-              />
-              <datalist id="segment-options-a">
-                {categoricalValues.map((value) => (
-                  <option key={value} value={value} />
-                ))}
-              </datalist>
-            </label>
+              <label className="date-context-field">
+                <span>Selected segment A</span>
+                <input
+                  list="segment-options-a"
+                  value={selectedSegmentA}
+                  onChange={(event) => setSelectedSegmentA(event.target.value)}
+                  placeholder="e.g. Desktop"
+                />
+                <datalist id="segment-options-a">
+                  {categoricalValues.map((value) => (
+                    <option key={value} value={value} />
+                  ))}
+                </datalist>
+              </label>
 
-            <label className="date-context-field">
-              <span>Selected segment B</span>
-              <input
-                list="segment-options-b"
-                value={selectedSegmentB}
-                onChange={(event) => setSelectedSegmentB(event.target.value)}
-                placeholder="e.g. Mobile"
-              />
-              <datalist id="segment-options-b">
-                {categoricalValues.map((value) => (
-                  <option key={value} value={value} />
-                ))}
-              </datalist>
-            </label>
-          </div>
-
-          {questionHistory.length > 0 ? (
-            <div className="history-row">
-              {questionHistory.map((entry) => (
-                <button
-                  className="history-chip"
-                  key={`${entry.question}-${entry.answer}`}
-                  onClick={() => {
-                    setDraftQuestion(entry.question);
-                  }}
-                  type="button"
-                >
-                  {entry.question}
-                </button>
-              ))}
+              <label className="date-context-field">
+                <span>Selected segment B</span>
+                <input
+                  list="segment-options-b"
+                  value={selectedSegmentB}
+                  onChange={(event) => setSelectedSegmentB(event.target.value)}
+                  placeholder="e.g. Mobile"
+                />
+                <datalist id="segment-options-b">
+                  {categoricalValues.map((value) => (
+                    <option key={value} value={value} />
+                  ))}
+                </datalist>
+              </label>
             </div>
-          ) : null}
+
+            {questionHistory.length > 0 ? (
+              <div className="history-row">
+                {questionHistory.map((entry) => (
+                  <button
+                    className="history-chip"
+                    key={`${entry.question}-${entry.answer}`}
+                    onClick={() => {
+                      setDraftQuestion(entry.question);
+                    }}
+                    type="button"
+                  >
+                    {entry.question}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </details>
 
           {asking && !questionAnswer ? (
             <div className="answer-skeleton" aria-label="Loading answer preview">
@@ -282,7 +301,7 @@ export function AskDatasetPanel() {
             </div>
           ) : null}
 
-          {questionAnswer ? (
+      {questionAnswer ? (
             <div className="answer-grid" id="analysis-answer-region" ref={answerRegionRef} tabIndex={-1}>
               <div className="answer-copy">
                 <div className="answer-toolbar">
@@ -291,20 +310,46 @@ export function AskDatasetPanel() {
                     Pin to board
                   </button>
                 </div>
-                {questionAnswer.interpretation ? (
-                  <p className="interpretation-text">Planner: {questionAnswer.interpretation}</p>
-                ) : null}
                 <p>{questionAnswer.answer}</p>
 
-                {questionAnswer.supportingData.length > 0 ? (
-                  <div className="support-grid">
-                    {questionAnswer.supportingData.map((item) => (
-                      <div className="support-card" key={`${item.label}-${item.value}`}>
-                        <span>{item.label}</span>
-                        <strong>{item.value}</strong>
+                {questionAnswer.narrative ? (
+                  <div className="answer-narrative">
+                    {questionAnswer.narrative.warning ? <p className="workspace-meta">{questionAnswer.narrative.warning}</p> : null}
+                    {questionAnswer.narrative.evidence.length > 0 ? (
+                      <div className="support-grid">
+                        {questionAnswer.narrative.evidence.map((evidence, index) => (
+                          <div className="support-card" key={`${evidence}-${index}`}>
+                            <span>Evidence</span>
+                            <strong>{evidence}</strong>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    ) : null}
+                    {questionAnswer.narrative.caution ? <p className="workspace-meta">{questionAnswer.narrative.caution}</p> : null}
+                    {questionAnswer.narrative.suggestedNextQuestion ? (
+                      <p className="workspace-meta">Next question: {questionAnswer.narrative.suggestedNextQuestion}</p>
+                    ) : null}
                   </div>
+                ) : null}
+
+                {questionAnswer.supportingData.length > 0 || questionAnswer.interpretation || questionAnswer.detectedIntent ? (
+                  <details className="advanced-debug-panel">
+                    <summary>Advanced / Debug</summary>
+                    {questionAnswer.interpretation ? <p className="interpretation-text">Planner: {questionAnswer.interpretation}</p> : null}
+                    {questionAnswer.detectedIntent ? (
+                      <p className="workspace-meta">
+                        Intent: {questionAnswer.detectedIntent.primaryIntent.replace(/_/g, " ")}
+                      </p>
+                    ) : null}
+                    <div className="support-grid">
+                      {questionAnswer.supportingData.map((item) => (
+                        <div className="support-card" key={`${item.label}-${item.value}`}>
+                          <span>{item.label}</span>
+                          <strong>{item.value}</strong>
+                        </div>
+                      ))}
+                    </div>
+                  </details>
                 ) : null}
 
                 {questionAnswer.resultTable ? (
@@ -346,26 +391,29 @@ export function AskDatasetPanel() {
             <div className="sidebar-summary">
               <p className="sidebar-question">{latestQuestionAnswer.question}</p>
               <p className="sidebar-answer">{latestQuestionAnswer.answer}</p>
-              {latestQuestionAnswer.interpretation ? (
-                <p className="workspace-meta">Planner: {latestQuestionAnswer.interpretation}</p>
-              ) : null}
-              <button className="secondary-action" onClick={jumpToQuestionResult} type="button">
-                Jump to main result
-              </button>
-              <div className="sidebar-stats">
-                <div>
-                  <span>History items</span>
-                  <strong>{questionHistory.length}</strong>
+              <details className="advanced-debug-panel">
+                <summary>Advanced / Debug</summary>
+                {latestQuestionAnswer.interpretation ? (
+                  <p className="workspace-meta">Planner: {latestQuestionAnswer.interpretation}</p>
+                ) : null}
+                <button className="secondary-action" onClick={jumpToQuestionResult} type="button">
+                  Jump to main result
+                </button>
+                <div className="sidebar-stats">
+                  <div>
+                    <span>History items</span>
+                    <strong>{questionHistory.length}</strong>
+                  </div>
+                  <div>
+                    <span>Has chart</span>
+                    <strong>{latestQuestionAnswer.chartSuggestion ? "Yes" : "No"}</strong>
+                  </div>
+                  <div>
+                    <span>Has table</span>
+                    <strong>{latestQuestionAnswer.resultTable ? "Yes" : "No"}</strong>
+                  </div>
                 </div>
-                <div>
-                  <span>Has chart</span>
-                  <strong>{latestQuestionAnswer.chartSuggestion ? "Yes" : "No"}</strong>
-                </div>
-                <div>
-                  <span>Has table</span>
-                  <strong>{latestQuestionAnswer.resultTable ? "Yes" : "No"}</strong>
-                </div>
-              </div>
+              </details>
             </div>
           ) : (
             <div className="sidebar-empty">

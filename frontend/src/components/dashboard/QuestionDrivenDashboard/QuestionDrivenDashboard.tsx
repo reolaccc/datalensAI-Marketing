@@ -1,4 +1,5 @@
 import { DynamicChartGrid } from "../DynamicChartGrid/DynamicChartGrid";
+import { ChartExplanation } from "../ChartExplanation/ChartExplanation";
 import { IntentSummary } from "../IntentSummary/IntentSummary";
 import type { QuestionAnswer } from "../../../types";
 
@@ -13,6 +14,7 @@ export function QuestionDrivenDashboard({ questionAnswer }: Props) {
 
   return (
     <section className="question-driven-dashboard">
+      <ChartExplanation questionAnswer={questionAnswer} />
       <IntentSummary questionAnswer={questionAnswer} />
       <DynamicChartGrid charts={questionAnswer.recommendedCharts} />
     </section>

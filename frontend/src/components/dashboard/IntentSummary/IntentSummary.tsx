@@ -16,14 +16,17 @@ export function IntentSummary({ questionAnswer }: Props) {
   }
 
   return (
-    <article className="panel question-intent-summary">
-      <p className="eyebrow">Detected intent</p>
-      <h3>{humanizeIntent(intent.primaryIntent)}</h3>
-      <p>
-        Confidence {(intent.confidence * 100).toFixed(0)}%
-        {intent.targetMetrics.length ? ` · Metrics: ${intent.targetMetrics.join(", ")}` : ""}
-        {intent.targetDimensions.length ? ` · Dimensions: ${intent.targetDimensions.join(", ")}` : ""}
-      </p>
-    </article>
+    <details className="panel question-intent-summary advanced-debug-panel">
+      <summary>Advanced / Debug</summary>
+      <div className="intent-summary-body">
+        <p className="eyebrow">Detected intent</p>
+        <h3>{humanizeIntent(intent.primaryIntent)}</h3>
+        <p>
+          Confidence {(intent.confidence * 100).toFixed(0)}%
+          {intent.targetMetrics.length ? ` · Metrics: ${intent.targetMetrics.join(", ")}` : ""}
+          {intent.targetDimensions.length ? ` · Dimensions: ${intent.targetDimensions.join(", ")}` : ""}
+        </p>
+      </div>
+    </details>
   );
 }
