@@ -19,10 +19,19 @@ import {
 } from "recharts";
 import type { AnalysisResponse } from "../types";
 import { AXIS_COLOR, CHART_PALETTE, GRID_COLOR } from "./chartPalette";
+import { formatCompactNumber } from "../utils/numberFormatting";
 
 interface Props {
   chart: AnalysisResponse["charts"][number];
   highlighted?: boolean;
+}
+
+function tooltipFormatter(value: unknown) {
+  return typeof value === "number" ? formatCompactNumber(value) : String(value ?? "");
+}
+
+function axisTickFormatter(value: unknown) {
+  return typeof value === "number" ? formatCompactNumber(value) : String(value ?? "");
 }
 
 export function ChartCard({ chart, highlighted = false }: Props) {
@@ -32,8 +41,8 @@ export function ChartCard({ chart, highlighted = false }: Props) {
         <LineChart data={chart.data}>
           <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
           <XAxis dataKey={chart.xKey} stroke={AXIS_COLOR} />
-          <YAxis stroke={AXIS_COLOR} />
-          <Tooltip />
+          <YAxis stroke={AXIS_COLOR} tickFormatter={axisTickFormatter} />
+          <Tooltip formatter={tooltipFormatter} />
           {chart.series?.length ? <Legend /> : null}
           {chart.series?.length ? (
             chart.series.map((seriesKey, index) =>
@@ -70,13 +79,15 @@ export function ChartCard({ chart, highlighted = false }: Props) {
             dataKey={chart.chartType === "horizontal_bar" ? undefined : chart.xKey}
             type={chart.chartType === "horizontal_bar" ? "number" : "category"}
             stroke={AXIS_COLOR}
+            tickFormatter={chart.chartType === "horizontal_bar" ? axisTickFormatter : undefined}
           />
           <YAxis
             dataKey={chart.chartType === "horizontal_bar" ? chart.xKey : undefined}
             type={chart.chartType === "horizontal_bar" ? "category" : "number"}
             stroke={AXIS_COLOR}
+            tickFormatter={chart.chartType !== "horizontal_bar" ? axisTickFormatter : undefined}
           />
-          <Tooltip />
+          <Tooltip formatter={tooltipFormatter} />
           {chart.series?.length ? <Legend /> : null}
           {chart.series?.length ? (
             chart.series.map((seriesKey, index) => (
@@ -102,7 +113,7 @@ export function ChartCard({ chart, highlighted = false }: Props) {
     if (chart.chartType === "donut") {
       return (
         <PieChart>
-          <Tooltip />
+          <Tooltip formatter={tooltipFormatter} />
           <Legend />
           <Pie
             data={chart.data}
@@ -123,7 +134,7 @@ export function ChartCard({ chart, highlighted = false }: Props) {
     if (chart.chartType === "funnel") {
       return (
         <FunnelChart>
-          <Tooltip />
+          <Tooltip formatter={tooltipFormatter} />
           <Funnel dataKey={chart.yKey!} data={chart.data} isAnimationActive={false}>
             {chart.data.map((_entry, index) => (
               <Cell key={`${chart.id}-${index}`} fill={CHART_PALETTE[index % CHART_PALETTE.length]} />
@@ -138,7 +149,7 @@ export function ChartCard({ chart, highlighted = false }: Props) {
       return (
         <div className="chart-kpi-card">
           <span>{chart.metric ?? chart.title}</span>
-          <strong>{String(value)}</strong>
+          <strong>{typeof value === "number" ? formatCompactNumber(value) : String(value)}</strong>
         </div>
       );
     }
@@ -146,9 +157,9 @@ export function ChartCard({ chart, highlighted = false }: Props) {
     return (
       <ScatterChart>
         <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
-        <XAxis dataKey={chart.xKey} stroke={AXIS_COLOR} type="number" />
-        <YAxis dataKey={chart.yKey!} stroke={AXIS_COLOR} type="number" />
-        <Tooltip cursor={{ strokeDasharray: "3 3" }} />
+        <XAxis dataKey={chart.xKey} stroke={AXIS_COLOR} type="number" tickFormatter={axisTickFormatter} />
+        <YAxis dataKey={chart.yKey!} stroke={AXIS_COLOR} type="number" tickFormatter={axisTickFormatter} />
+        <Tooltip cursor={{ strokeDasharray: "3 3" }} formatter={tooltipFormatter} />
         <Scatter data={chart.data} fill={CHART_PALETTE[5]} />
       </ScatterChart>
     );

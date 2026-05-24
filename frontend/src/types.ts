@@ -63,6 +63,21 @@ export interface AnalysisResponse {
     summary: string;
     aggregateValue: number;
   }>;
+  kpiCards: Array<{
+    id: string;
+    label: string;
+    value: number;
+    formattedValue: string;
+    unit: string;
+    metricType: "currency" | "percentage" | "count" | "ratio" | "rate" | "duration" | "generic_number";
+    description: string;
+    formula: string;
+    reliability: "high" | "medium" | "low";
+    priority: number;
+    warnings?: string[];
+    relatedDimension?: string;
+    contextLine?: string;
+  }>;
   charts: Array<{
     id: string;
     title: string;

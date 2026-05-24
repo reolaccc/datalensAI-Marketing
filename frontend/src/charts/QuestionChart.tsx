@@ -12,10 +12,19 @@ import {
 } from "recharts";
 import type { QuestionAnswer } from "../types";
 import { AXIS_COLOR, CHART_PALETTE, GRID_COLOR } from "./chartPalette";
+import { formatCompactNumber } from "../utils/numberFormatting";
 
 interface Props {
   chartSuggestion: NonNullable<QuestionAnswer["chartSuggestion"]>;
   height?: number;
+}
+
+function tooltipFormatter(value: unknown) {
+  return typeof value === "number" ? formatCompactNumber(value) : String(value ?? "");
+}
+
+function axisTickFormatter(value: unknown) {
+  return typeof value === "number" ? formatCompactNumber(value) : String(value ?? "");
 }
 
 export function QuestionChart({ chartSuggestion, height = 240 }: Props) {
@@ -25,8 +34,8 @@ export function QuestionChart({ chartSuggestion, height = 240 }: Props) {
         <LineChart data={chartSuggestion.data}>
           <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
           <XAxis dataKey={chartSuggestion.xKey} stroke={AXIS_COLOR} />
-          <YAxis stroke={AXIS_COLOR} />
-          <Tooltip />
+          <YAxis stroke={AXIS_COLOR} tickFormatter={axisTickFormatter} />
+          <Tooltip formatter={tooltipFormatter} />
           {chartSuggestion.series?.length ? <Legend /> : null}
           {chartSuggestion.series?.length ? (
             chartSuggestion.series.map((seriesKey, index) => (
@@ -53,8 +62,8 @@ export function QuestionChart({ chartSuggestion, height = 240 }: Props) {
         <BarChart data={chartSuggestion.data}>
           <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
           <XAxis dataKey={chartSuggestion.xKey} stroke={AXIS_COLOR} />
-          <YAxis stroke={AXIS_COLOR} />
-          <Tooltip />
+          <YAxis stroke={AXIS_COLOR} tickFormatter={axisTickFormatter} />
+          <Tooltip formatter={tooltipFormatter} />
           {chartSuggestion.series?.length ? <Legend /> : null}
           {chartSuggestion.series?.length ? (
             chartSuggestion.series.map((seriesKey, index) => (

@@ -37,7 +37,7 @@ interface AnalysisState {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
 const STORAGE_KEY = "analytics-copilot.workspace-state";
-const DEFAULT_DRAFT_QUESTION = "Which channel has the highest revenue?";
+const DEFAULT_DRAFT_QUESTION = "";
 const noopStorage = {
   getItem: () => null,
   setItem: () => undefined,
@@ -283,7 +283,7 @@ export const useAnalysisStore = create<AnalysisState>()(
         set({
           fileName: snapshot.fileName,
           lastFile: null,
-          draftQuestion: snapshot.questionAnswer?.question ?? "Which channel has the highest revenue?",
+          draftQuestion: snapshot.questionAnswer?.question ?? "",
           loading: false,
           asking: false,
           error: null,
@@ -338,7 +338,7 @@ export const useAnalysisStore = create<AnalysisState>()(
             ),
             fileName: snapshot.fileName,
             lastFile: null,
-            draftQuestion: snapshot.questionAnswer?.question ?? state.draftQuestion,
+            draftQuestion: snapshot.questionAnswer?.question ?? "",
             loading: false,
             asking: false,
             error: null,

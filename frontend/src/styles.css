@@ -187,9 +187,81 @@ h1 {
   padding: 24px;
 }
 
+.kpi-card {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.kpi-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.kpi-card .eyebrow {
+  margin-bottom: 0;
+}
+
 .kpi-card h2 {
   margin-bottom: 12px;
   font-size: 2rem;
+}
+
+.kpi-value-row {
+  display: block;
+}
+
+.kpi-value-row h2 {
+  margin-bottom: 0;
+  line-height: 1;
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
+}
+
+.kpi-unit {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 0.58em;
+  font-weight: 600;
+  color: #61ddd8;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  vertical-align: super;
+  line-height: 1;
+}
+
+.kpi-context,
+.kpi-description {
+  margin-bottom: 0;
+  word-break: normal;
+  overflow-wrap: break-word;
+  hyphens: none;
+  letter-spacing: normal;
+  line-height: 1.45;
+}
+
+.kpi-context {
+  color: #61ddd8;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.kpi-description {
+  color: rgba(236, 250, 248, 0.9);
+  font-size: 0.95rem;
+}
+
+.kpi-warning-note {
+  margin-bottom: 0;
+  color: #ffd39b;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  word-break: normal;
+  overflow-wrap: break-word;
+  hyphens: none;
 }
 
 .summary-stats {
@@ -377,8 +449,7 @@ small {
   align-items: start;
 }
 
-.question-intent-summary,
-.chart-explanation-panel {
+.question-intent-summary {
   padding: 18px;
 }
 
@@ -413,8 +484,7 @@ small {
   gap: 10px;
 }
 
-.question-intent-summary p:last-child,
-.chart-explanation-panel p {
+.question-intent-summary p:last-child {
   margin-bottom: 0;
 }
 
@@ -432,10 +502,6 @@ small {
 
 .chart-explanation-block small {
   color: #a8d8d4;
-}
-
-.chart-warning-block {
-  margin-top: 18px;
 }
 
 .answer-skeleton {
@@ -1441,6 +1507,16 @@ small,
 
 .kpi-card h2 {
   color: #ecfaf8;
+}
+
+.kpi-card .eyebrow,
+.kpi-context,
+.kpi-description,
+.kpi-warning-note,
+.kpi-unit {
+  word-break: normal;
+  overflow-wrap: break-word;
+  hyphens: none;
 }
 
 .workspace-library-grid,

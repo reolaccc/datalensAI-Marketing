@@ -1,6 +1,4 @@
 import type { AnalysisResponse } from "../types";
-import { useAnalysisStore } from "../stores/analysisStore";
-import { buildQuestionSuggestions } from "../utils/questionSuggestions";
 
 interface Props {
   analysis: AnalysisResponse;
@@ -8,8 +6,6 @@ interface Props {
 
 export function InsightPanel({ analysis }: Props) {
   const { executiveSummary } = analysis;
-  const setDraftQuestion = useAnalysisStore((state) => state.setDraftQuestion);
-  const questionSuggestions = buildQuestionSuggestions(analysis);
   const insightBullets =
     executiveSummary.bullets && executiveSummary.bullets.length > 0
       ? executiveSummary.bullets
@@ -30,27 +26,6 @@ export function InsightPanel({ analysis }: Props) {
           ))}
         </ol>
       </div>
-
-      <label className="question-suggestion-field">
-        <select
-          aria-label="Choose a guided question"
-          defaultValue=""
-          onChange={(event) => {
-            if (event.target.value) {
-              setDraftQuestion(event.target.value);
-            }
-          }}
-        >
-          <option value="" disabled>
-            Select a question
-          </option>
-          {questionSuggestions.map((question) => (
-            <option key={question} value={question}>
-              {question}
-            </option>
-          ))}
-        </select>
-      </label>
     </article>
   );
 }

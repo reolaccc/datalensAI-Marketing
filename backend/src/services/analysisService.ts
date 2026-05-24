@@ -1,6 +1,7 @@
 import type { AnalysisResult } from "../analytics/types.js";
 import { createAnalysisSession } from "./analysisSessionStore.js";
 import { detectKpis } from "../analytics/detectKpis.js";
+import { buildKpiCards } from "../analytics/kpiCards.js";
 import { generateEdaSummary } from "../ai/generateExecutiveSummary.js";
 import { loadRowsIntoDuckDb } from "../providers/duckdbProvider.js";
 import { parseDataset } from "../profiling/datasetParser.js";
@@ -24,6 +25,7 @@ export async function analyzeUploadedDataset(buffer: Buffer, fileName: string): 
     profile
   });
   const kpis = detectKpis(parsed.rows, profile);
+  const kpiCards = buildKpiCards(parsed.rows, profile);
   const charts = selectRuleBasedCharts({
     question: "",
     rows: parsed.rows,
@@ -55,6 +57,7 @@ export async function analyzeUploadedDataset(buffer: Buffer, fileName: string): 
     },
     profile,
     kpis,
+    kpiCards,
     charts: chartsWithNarratives,
     edaSummary,
     executiveSummary

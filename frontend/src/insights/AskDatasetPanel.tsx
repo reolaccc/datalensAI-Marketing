@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { QuestionChart } from "../charts/QuestionChart";
 import { findRelevantChartId } from "../dashboard/chartMatching";
 import { useAnalysisStore } from "../stores/analysisStore";
+import { buildQuestionSuggestions } from "../utils/questionSuggestions";
 
 function formatDateForInput(value?: string | number | null) {
   if (!value) {
@@ -57,6 +58,7 @@ export function AskDatasetPanel() {
   const pinCurrentAnswer = useAnalysisStore((state) => state.pinCurrentAnswer);
   const setDraftQuestion = useAnalysisStore((state) => state.setDraftQuestion);
   const analysis = useAnalysisStore((state) => state.analysis);
+  const questionSuggestions = analysis ? buildQuestionSuggestions(analysis) : [];
   const answerRegionRef = useRef<HTMLDivElement | null>(null);
   const answerChartRef = useRef<HTMLDivElement | null>(null);
   const relevantChartId = findRelevantChartId(analysis, questionAnswer);
@@ -120,6 +122,29 @@ export function AskDatasetPanel() {
 
       <div className="question-composer">
         <input value={draftQuestion} onChange={(event) => setDraftQuestion(event.target.value)} />
+        {questionSuggestions.length > 0 ? (
+          <label className="question-suggestion-field">
+            <span>Suggested questions</span>
+            <select
+              aria-label="Suggested business questions"
+              defaultValue=""
+              onChange={(event) => {
+                if (event.target.value) {
+                  setDraftQuestion(event.target.value);
+                }
+              }}
+            >
+              <option value="" disabled>
+                Pick a business question
+              </option>
+              {questionSuggestions.map((question) => (
+                <option key={question} value={question}>
+                  {question}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
         <div className="question-composer-actions">
           <button onClick={submitQuestion} disabled={asking}>
             {asking ? "Thinking..." : "Ask"}

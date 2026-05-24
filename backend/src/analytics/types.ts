@@ -48,6 +48,26 @@ export interface KpiCandidate {
   aggregateValue: number;
 }
 
+export type KpiMetricType = "currency" | "percentage" | "count" | "ratio" | "rate" | "duration" | "generic_number";
+
+export type KpiReliability = "high" | "medium" | "low";
+
+export interface KpiCard {
+  id: string;
+  label: string;
+  value: number;
+  formattedValue: string;
+  unit: string;
+  metricType: KpiMetricType;
+  description: string;
+  formula: string;
+  reliability: KpiReliability;
+  priority: number;
+  warnings?: string[];
+  relatedDimension?: string;
+  contextLine?: string;
+}
+
 export type IntentType =
   | "trend_analysis"
   | "comparison"
@@ -135,6 +155,7 @@ export interface AnalysisResult {
   };
   profile: DatasetProfile;
   kpis: KpiCandidate[];
+  kpiCards: KpiCard[];
   charts: ChartConfig[];
   edaSummary: string;
   executiveSummary: {

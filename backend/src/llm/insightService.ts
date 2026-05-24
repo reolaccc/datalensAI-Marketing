@@ -635,6 +635,9 @@ export function buildAnalyticsFactsFromAnalysis(params: {
 
 function buildFallbackExecutiveInsightNarrative(facts: AnalyticsFacts): ExecutiveInsightNarrative {
   const bullets: string[] = [];
+  const top3RevenueEntities = facts.concentration.top3RevenueEntities ?? [];
+  const top3RevenueNames = top3RevenueEntities.map((entry) => entry.name).filter(Boolean);
+  const top3RevenueDimension = top3RevenueEntities[0]?.dimension;
   if (facts.topFindings.topRevenueSegment) {
     bullets.push(
       `${facts.topFindings.topRevenueSegment.name} generated the strongest revenue result, contributing ${formatPercent(facts.topFindings.topRevenueSegment.share)} of total revenue.`
@@ -648,8 +651,12 @@ function buildFallbackExecutiveInsightNarrative(facts: AnalyticsFacts): Executiv
   if (facts.comparisons.revenueVsEfficiencyMismatches.length > 0) {
     bullets.push(facts.comparisons.revenueVsEfficiencyMismatches[0].note);
   } else if (facts.concentration.top3RevenueShare !== undefined) {
+    const segmentLabel =
+      top3RevenueNames.length > 0
+        ? `${top3RevenueDimension ? `The top 3 ${top3RevenueDimension} segments` : "The top 3 segments"} (${top3RevenueNames.join(", ")})`
+        : "The top 3 segments";
     bullets.push(
-      `The top 3 segments contribute ${formatPercent(facts.concentration.top3RevenueShare)}, which suggests the result is concentrated rather than evenly spread.`
+      `${segmentLabel} contribute ${formatPercent(facts.concentration.top3RevenueShare)} of revenue, which suggests the result is concentrated rather than evenly spread.`
     );
   }
   if (facts.kpis.overallRoas !== undefined || facts.kpis.totalRevenue !== undefined || facts.kpis.totalCost !== undefined) {

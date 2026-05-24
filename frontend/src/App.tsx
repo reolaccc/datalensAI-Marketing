@@ -73,11 +73,13 @@ export default function App() {
               </section>
 
               <section className="panel report-page" id="chart-grid">
-                <div className="report-section-header">
-                  <div>
-                    <h3>{hasQuestionDrivenCharts ? "Question-driven dashboard" : "Charts"}</h3>
+                {hasQuestionDrivenCharts ? (
+                  <div className="report-section-header">
+                    <div>
+                      <h3>Question-driven dashboard</h3>
+                    </div>
                   </div>
-                </div>
+                ) : null}
 
                 {hasQuestionDrivenCharts && questionAnswer ? (
                   <QuestionDrivenDashboard questionAnswer={questionAnswer} />
