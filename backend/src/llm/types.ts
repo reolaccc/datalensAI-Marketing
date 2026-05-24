@@ -57,6 +57,105 @@ export interface AnalyticsFacts {
     overallConversionRate?: number;
     additionalMetrics: Array<{ name: string; value: number }>;
   };
+  concentration: {
+    top1RevenueShare?: number;
+    top3RevenueShare?: number;
+    top1RevenueEntity?: {
+      dimension: string;
+      name: string;
+      revenue: number;
+      share: number;
+    };
+    top3RevenueEntities?: Array<{
+      dimension: string;
+      name: string;
+      revenue: number;
+      share: number;
+    }>;
+  };
+  rankings: {
+    topRevenueEntities: Array<{
+      dimension: string;
+      name: string;
+      revenue: number;
+      share?: number;
+    }>;
+    topRoasEntities: Array<{
+      dimension: string;
+      name: string;
+      roas: number;
+      deltaFromAverage?: number;
+    }>;
+    topConversionEntities: Array<{
+      dimension: string;
+      name: string;
+      conversionRate: number;
+    }>;
+    bottomRevenueEntities: Array<{
+      dimension: string;
+      name: string;
+      revenue: number;
+      share?: number;
+    }>;
+    bottomRoasEntities: Array<{
+      dimension: string;
+      name: string;
+      roas: number;
+    }>;
+  };
+  comparisons: {
+    revenueVsEfficiencyMismatches: Array<{
+      highRevenueName: string;
+      highRevenueValue: number;
+      highRevenueShare?: number;
+      lowerEfficiencyName?: string;
+      lowerEfficiencyValue?: number;
+      note: string;
+    }>;
+    benchmarkComparison: Array<{
+      dimension: string;
+      name: string;
+      revenue?: number;
+      roas?: number;
+      conversionRate?: number;
+      vsAverage?: string;
+    }>;
+  };
+  segments: {
+    strongestSegment?: {
+      dimension: string;
+      name: string;
+      metric: string;
+      value: number;
+    };
+    weakestSegment?: {
+      dimension: string;
+      name: string;
+      metric: string;
+      value: number;
+    };
+    segmentSpread?: {
+      metric: string;
+      maxValue: number;
+      minValue: number;
+      ratio?: number;
+    };
+  };
+  trends: {
+    hasDateField: boolean;
+    recentDirection?: "up" | "down" | "flat" | "mixed";
+    recentChange?: {
+      metric: string;
+      absoluteChange: number;
+      percentChange?: number;
+      periodLabel: string;
+    };
+  };
+  qualitySignals: {
+    hasMissingData: boolean;
+    hasDuplicates: boolean;
+    otherWarnings: string[];
+  };
   topFindings: {
     topRevenueSegment?: {
       dimension: string;
@@ -69,10 +168,17 @@ export interface AnalyticsFacts {
       name: string;
       roas: number;
     };
+    bestConversionSegment?: {
+      dimension: string;
+      name: string;
+      conversionRate: number;
+    };
     weakestSegment?: {
       dimension: string;
       name: string;
       reason: string;
+      metric?: string;
+      value?: number;
     };
   };
   charts: Array<{
@@ -85,6 +191,7 @@ export interface AnalyticsFacts {
     reasonCode: string;
     reason: string;
     dataPreview: Array<Record<string, PrimitiveValue>>;
+    keyObservation?: string;
   }>;
   profile: {
     numericColumns: string[];
@@ -93,6 +200,15 @@ export interface AnalyticsFacts {
     outliers: DatasetProfile["outliers"];
     correlations: DatasetProfile["correlations"];
   };
+  recommendedActions: string[];
+  chartContext: Array<{
+    title: string;
+    chartType: ChartConfig["chartType"];
+    metric: string;
+    dimension?: string | null;
+    reasonCode: string;
+    keyObservation?: string;
+  }>;
 }
 
 export interface ExecutiveInsightNarrative {

@@ -4,7 +4,7 @@ import type { LlmMessage, LlmTextGenerationRequest } from "./types.js";
 
 function buildSystemPrompt(scope: string) {
   return [
-    "You are a senior data analyst and marketing strategist.",
+    "You are a senior data analyst and performance marketing lead.",
     "Write for business stakeholders, not for developers.",
     "Use only the provided structured facts.",
     "Do not invent numbers, labels, or relationships.",
@@ -42,10 +42,13 @@ export function buildExecutiveInsightPrompt(facts: AnalyticsFacts): LlmTextGener
           facts,
           desiredStyle: {
             bullets: "3-5 short bullets",
-            tone: "senior analyst and marketing lead",
+            tone: "senior data analyst and marketing staff",
             expectations: [
               "mention specific metrics and dimensions",
+              "prioritize concentration, efficiency tradeoffs, and rank gaps",
               "compare performance where possible",
+              "mention trend direction if available",
+              "use the provided chart context and recommended actions when helpful",
               "include a cautious recommendation",
               "briefly mention data quality issues if relevant"
             ]
@@ -227,4 +230,3 @@ export interface AskAnswerJson {
   chartSelectionSummary?: string;
   warning?: string;
 }
-
