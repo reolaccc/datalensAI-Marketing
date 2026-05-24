@@ -1,0 +1,8 @@
+date,campaign,channel,device,impressions,clicks,cost,revenue,conversion_rate,roas
+2026-03-01,Brand Search,Organic Search,Desktop,12100,950,1190,5480,0.079,4.61
+2026-03-02,Brand Search,Organic Search,Mobile,14700,1035,1335,,0.07,
+2026-03-03,Spring Launch,Paid Search,Desktop,18200,1110,2215,6760,,3.05
+2026-03-04,Spring Launch,Paid Search,,19800,1265,2470,7065,0.057,2.86
+2026-03-05,Remarketing,Display,Desktop,,710,1085,4650,0.05,4.29
+2026-03-06,Remarketing,Display,Mobile,17100,,1175,4815,0.047,4.1
+2026-03-07,Social Burst,Paid Social,Desktop,21450,972,2040,5210,0.043,2.55

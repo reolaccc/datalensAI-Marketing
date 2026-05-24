@@ -1,0 +1,5 @@
+{
+  "expectedKpis": ["revenue", "roas", "cost"],
+  "expectedInsightSnippets": ["duplicate rows", "outlier"],
+  "expectedAnomalyColumns": ["impressions", "cost"]
+}

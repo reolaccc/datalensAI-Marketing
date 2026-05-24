@@ -1,0 +1,5 @@
+{
+  "expectedKpis": ["revenue", "roas", "cost"],
+  "expectedInsightSnippets": ["outlier", "correlation"],
+  "expectedAnomalyColumns": ["impressions", "clicks", "cost", "revenue", "conversion_rate"]
+}

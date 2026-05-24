@@ -1,0 +1,5 @@
+{
+  "expectedKpis": ["revenue", "roas", "cost"],
+  "expectedInsightSnippets": ["dataset contains", "kpi candidate"],
+  "expectedAnomalyColumns": []
+}

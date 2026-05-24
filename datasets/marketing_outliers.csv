@@ -1,0 +1,9 @@
+date,campaign,channel,device,impressions,clicks,cost,revenue,conversion_rate,roas
+2026-05-01,Brand Search,Organic Search,Desktop,12200,955,1185,5500,0.078,4.64
+2026-05-02,Brand Search,Organic Search,Mobile,14600,1045,1345,5795,0.072,4.31
+2026-05-03,Spring Launch,Paid Search,Desktop,18500,1135,2250,6840,0.061,3.04
+2026-05-04,Spring Launch,Paid Search,Mobile,19800,1275,2480,7075,0.057,2.85
+2026-05-05,Influencer Push,Paid Social,Mobile,24000,1110,2285,5520,0.038,2.42
+2026-05-06,Influencer Push,Paid Social,Desktop,24300,1128,2300,5550,0.039,2.41
+2026-05-07,Flash Sale,Email,Mobile,98000,5100,12000,38400,0.13,3.2
+2026-05-08,Flash Sale,Email,Desktop,21000,980,2050,5240,0.043,2.56

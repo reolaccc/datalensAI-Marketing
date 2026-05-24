@@ -1,0 +1,5 @@
+{
+  "expectedKpis": ["revenue", "roas", "conversion_rate", "clicks"],
+  "expectedInsightSnippets": ["dataset contains", "revenue emerges as the strongest kpi candidate"],
+  "expectedAnomalyColumns": []
+}
