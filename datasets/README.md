@@ -1,6 +1,6 @@
 # Test Datasets for Analytics Copilot
 
-This folder contains three purpose-built Excel workbooks for testing the current analytics prototype.
+This folder contains purpose-built datasets for testing the current analytics prototype.
 
 ## 1. `analytics_testdata_channel_bias.xlsx`
 
@@ -74,6 +74,42 @@ Expected behavior:
 - Blank campaign values should surface in profiling or summaries.
 - `Paid Search` and `paid search` should resolve consistently.
 
+## 4. `analytics_testdata_complex_mixed_quality.xlsx`
+
+Use this dataset to test:
+
+- trend analysis across time
+- channel, campaign, device, region, and segment comparisons
+- ranking questions
+- anomaly detection and outlier handling
+- correlation between revenue and cost
+- distribution analysis
+- funnel-stage analysis
+- noisy production-style data quality issues
+
+Recommended questions:
+
+- Show revenue trend by channel
+- Which channel has the highest revenue?
+- Compare Paid Search vs Paid Social revenue
+- Top campaigns by revenue
+- Show revenue by channel and campaign
+- Show revenue trend by device
+- Which channel has the highest ROAS?
+- Lowest conversion rate by funnel stage
+- What anomalies should I investigate?
+
+Expected behavior:
+
+- The dataset includes a clear time field, multiple categorical dimensions, and several numeric KPIs.
+- One row contains an obvious revenue spike/outlier.
+- One row contains negative cost.
+- One row contains a malformed date value.
+- One row has missing numeric values.
+- One row has an invalid conversion rate above `1.0`.
+- One exact duplicate row is present for duplicate detection.
+- Several categorical values use inconsistent casing to test normalization.
+
 ## Suggested Testing Flow
 
 1. Upload `analytics_testdata_channel_bias.xlsx`.
@@ -82,6 +118,8 @@ Expected behavior:
 4. Validate device trends, comparisons, and anomaly detection.
 5. Upload `analytics_testdata_funnel_quality.xlsx`.
 6. Validate conversion rate, ROAS, anomaly detection, and invalid-value handling.
+7. Upload `analytics_testdata_complex_mixed_quality.xlsx`.
+8. Validate trend, comparison, ranking, anomaly, correlation, distribution, funnel, and data-quality flows in one workbook.
 
 ## Notes
 

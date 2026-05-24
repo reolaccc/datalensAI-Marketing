@@ -29,35 +29,28 @@ export function InsightPanel({ analysis }: Props) {
             <li key={bullet}>{bullet}</li>
           ))}
         </ol>
-        {executiveSummary.warning ? <p className="workspace-meta">{executiveSummary.warning}</p> : null}
       </div>
 
-      <div>
-        <p className="eyebrow">Suggested analytical questions</p>
-        <label className="question-suggestion-field">
-          <span>Choose a guided question</span>
-          <select
-            defaultValue=""
-            onChange={(event) => {
-              if (event.target.value) {
-                setDraftQuestion(event.target.value);
-              }
-            }}
-          >
-            <option value="" disabled>
-              Select a question
+      <label className="question-suggestion-field">
+        <select
+          aria-label="Choose a guided question"
+          defaultValue=""
+          onChange={(event) => {
+            if (event.target.value) {
+              setDraftQuestion(event.target.value);
+            }
+          }}
+        >
+          <option value="" disabled>
+            Select a question
+          </option>
+          {questionSuggestions.map((question) => (
+            <option key={question} value={question}>
+              {question}
             </option>
-            {questionSuggestions.map((question) => (
-              <option key={question} value={question}>
-                {question}
-              </option>
-            ))}
-          </select>
-        </label>
-        <p className="question-suggestion-note">
-          Pick one question to load it into Ask, then use the single Ask button there.
-        </p>
-      </div>
+          ))}
+        </select>
+      </label>
     </article>
   );
 }

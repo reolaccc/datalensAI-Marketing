@@ -75,7 +75,6 @@ export default function App() {
               <section className="panel report-page" id="chart-grid">
                 <div className="report-section-header">
                   <div>
-                    <p className="eyebrow">Data Visualization</p>
                     <h3>{hasQuestionDrivenCharts ? "Question-driven dashboard" : "Charts"}</h3>
                   </div>
                 </div>

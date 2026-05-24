@@ -1,0 +1,86 @@
+date,channel,campaign,device,region,customer_segment,funnel_stage,impressions,clicks,sessions,conversions,revenue,cost,conversion_rate,roas
+2026-04-01,Paid Search,Spring Launch,Desktop,North America,Enterprise,awareness,19665,1372,2555,127,4673.17,1425.53,0.093,3.28
+2026-04-01,Paid Search,Brand Defense,Desktop,North America,SMB,consideration,14260,968,2019,95,3653.1,1273.32,0.098,2.87
+2026-04-01,Organic Search,Evergreen,Desktop,Europe,Consumer,consideration,11610,826,1627,71,2778.12,405.66,0.086,6.85
+2026-04-01,Paid Social,Social Burst,Mobile,North America,Consumer,awareness,15774,1043,1905,54,3094.8,1691.19,0.052,1.83
+2026-04-01,Paid Social,Lookalike,Mobile,Europe,SMB,awareness,13056,827,1546,58,2538.09,1384.44,0.07,1.83
+2026-04-01,Email,Remarketing,Desktop,APAC,Enterprise,conversion,6849,606,1307,118,4826.51,395.43,0.195,12.21
+2026-04-01,Display,Awareness Burst,Tablet,APAC,Consumer,awareness,21163,526,994,33,1550.09,915.04,0.063,1.69
+2026-04-02,paid search,Spring Launch,desktop,North America,Enterprise,awareness,20369,1421,2636,132,5078.34,1513.37,0.093,3.36
+2026-04-02,Paid Search,Brand Defense,Desktop,North America,SMB,consideration,14258,968,2024,96,3686.54,1283.58,0.099,2.87
+2026-04-02,Organic Search,Evergreen,Desktop,Europe,Consumer,consideration,11238,797,1589,70,2682.32,389.56,0.088,6.89
+2026-04-02,Paid Social,Social Burst,Mobile,North America,Consumer,awareness,14949,985,1833,53,2894.57,1584.9,0.054,1.83
+2026-04-02,Paid Social,Lookalike,Mobile,Europe,SMB,awareness,12366,780,1488,56,2361.84,1296.53,0.072,1.82
+2026-04-02,Email,Remarketing,Desktop,APAC,Enterprise,conversion,6620,583,1279,118,4601.78,379.09,0.202,12.14
+2026-04-02,Display,Awareness Burst,Tablet,APAC,Consumer,awareness,20920,520,992,33,1535.36,909.68,0.063,1.69
+2026-04-03,Paid Search,Spring Launch,Desktop,North America,Enterprise,awareness,20649,1438,2672,135,5346.13,1564.77,0.094,3.42
+2026-04-03,Paid Search,Brand Defense,Desktop,North America,SMB,consideration,13911,942,1989,96,3601.13,1257.6,0.102,2.86
+2026-04-03,Organic Search,Evergreen,Desktop,Europe,Consumer,consideration,10681,754,1530,68,,365.9,0.09,
+2026-04-03,Paid Social,Social Burst,Mobile,North America,Consumer,awareness,14132,927,1762,51,2696.41,1479.61,0.055,1.82
+2026-04-03,Paid Social,Lookalike,Mobile,Europe,SMB,awareness,11926,750,1454,56,2253.63,1240.41,0.075,1.82
+2026-04-03,Email,Remarketing,Desktop,APAC,Enterprise,conversion,6615,583,1285,122,4601.82,378.37,0.209,12.16
+2026-04-03,Display,Awareness Burst,Tablet,APAC,Consumer,awareness,21442,535,1018,35,1600.96,944.48,0.065,1.7
+2026-04-04,Paid Search,Spring Launch,Desktop,North America,Enterprise,awareness,20466,1420,2659,136,5464.38,1576.49,0.096,3.47
+2026-04-04,Paid Search,Brand Defense,Desktop,North America,SMB,consideration,13331,899,1927,95,3435.09,1207.05,0.106,2.85
+2026-04-04,Organic Search,Evergreen,Desktop,Europe,Consumer,consideration,10126,711,1471,66,2372.33,342.27,0.093,6.93
+2026-04-04,Paid Social,Social Burst,Mobile,north america,Consumer,awareness,13646,893,1724,51,2587.4,1416.53,0.057,1.83
+2026-04-04,Paid Social,Lookalike,Mobile,Europe,SMB,awareness,12004,756,1470,57,2286.92,1250.41,0.075,1.83
+2026-04-04,Email,Remarketing,Desktop,APAC,Enterprise,conversion,6945,615,1341,129,4939.47,401.11,0.21,12.31
+2026-04-04,Display,Awareness Burst,Tablet,APAC,Consumer,awareness,22919,576,1079,37,1766.81,1029.41,0.064,1.72
+2026-04-05,Paid Search,Spring Launch,Desktop,North America,Enterprise,awareness,19910,1373,2607,135,5462.45,1556.32,0.098,3.51
+2026-04-05,Paid Search,Brand Defense,Desktop,North America,SMB,consideration,12691,851,1859,93,3248.94,1150.38,0.109,2.82
+2026-04-05,Organic Search,Evergreen,Desktop,Europe,Consumer,consideration,9756,682,1433,65,2277.3,326.26,0.095,6.98
+2026-04-05,Paid Social,Social Burst,Mobile,North America,Consumer,awareness,13708,898,1738,52,2625.62,1423.16,0.058,1.84
+2026-04-05,Paid Social,lookalike,Mobile,Europe,SMB,awareness,12659,802,1540,59,2477.17,1333.74,0.074,1.86
+2026-04-05,Email,Remarketing,Desktop,APAC,Enterprise,conversion,7525,672,1436,139,5529.9,441.41,0.207,12.53
+2026-04-05,Display,Awareness Burst,Tablet,APAC,Consumer,awareness,24647,624,1150,40,1958.95,1127.47,0.064,1.74
+2026-04-06,Paid Search,Spring Launch,Desktop,North America,Enterprise,awareness,19178,1313,2537,134,5403.34,1520.99,0.102,3.55
+2026-04-06,Paid Search,Brand Defense,Desktop,North America,SMB,consideration,12186,814,1805,92,3109.11,-120,0.113,-25.91
+2026-04-06,Organic Search,Evergreen,Desktop,Europe,Consumer,consideration,9703,678,1431,65,2284.51,323.3,0.096,7.07
+2026-04-06,Paid Social,Social Burst,Mobile,North America,Consumer,awareness,14350,946,1810,54,2819.36,1503.43,0.057,1.88
+2026-04-06,Paid Social,Lookalike,Mobile,Europe,SMB,awareness,13691,875,1645,63,2770.18,1465.08,0.072,1.89
+2026-04-06,Email,Remarketing,Desktop,APAC,Enterprise,conversion,8105,728,1530,149,6119.76,481.68,0.205,12.71
+2026-04-06,Display,Awareness Burst,Tablet,APAC,Consumer,awareness,25525,649,1190,42,2061.88,1180.94,0.065,1.75
+2026-04-07,Paid Search,Spring Launch,Desktop,North America,Enterprise,awareness,18513,1258,2473,133,5365.94,1491.41,0.106,3.6
+2026-04-07,Paid Search,Brand Defense,Desktop,North America,SMB,consideration,11973,798,1786,93,3069.76,1095.89,0.117,2.8
+2026-04-07,Organic Search,Evergreen,Desktop,Europe,Consumer,consideration,10008,701,1471,67,2407.18,335.05,0.096,7.18
+2026-04-07,Paid Social,Social Burst,Mobile,North America,Consumer,awareness,15403,1023,1921,57,3123.76,1636.11,0.056,1.91
+2026-04-07,Paid Social,Lookalike,Mobile,Europe,SMB,awareness,14727,948,1751,67,3064.44,1597.01,0.071,1.92
+2026-04-07,Email,Remarketing,Desktop,APAC,Enterprise,conversion,8416,759,1584,156,6438.54,503.11,0.206,12.8
+2026-04-07,Display,Awareness Burst,Tablet,APAC,Consumer,awareness,24991,635,1177,42,2016.57,1160.28,0.066,1.74
+2026-04-08,Paid Search,Spring Launch,Desktop,North America,Enterprise,awareness,18140,1225,2440,133,5422.71,1486.82,0.109,3.65
+2026-04-08,Paid Search,Brand Defense,Desktop,North America,SMB,consideration,12131,810,1810,95,3158.09,1122.86,0.117,2.81
+2026-04-08,Organic Search,Evergreen,Desktop,Europe,Consumer,consideration,10610,748,1544,71,2625.55,359.01,0.095,7.31
+2026-04-08,Paid Social,Social Burst,Mobile,North America,Consumer,awareness,28100,2600,5400,320,14135,490,0.123,28.85
+2026-04-08,Paid Social,Lookalike,Mobile,Europe,SMB,awareness,15391,995,1822,70,3257.34,1681.58,0.07,1.94
+2026-04-08,Email,Remarketing,Desktop,APAC,Enterprise,conversion,8341,751,1579,158,6368.43,497.51,0.21,12.8
+2026-04-08,Display,Awareness Burst,Tablet,APAC,Consumer,awareness,23511,595,1128,42,1872,1090,0.071,1.72
+2026-04-09,Paid Search,Spring Launch,Desktop,North America,Enterprise,awareness,18199,1226,2453,135,5619.22,1519.3,0.11,3.7
+2026-04-09,Paid Search,Brand Defense,Desktop,North America,SMB,consideration,12638,847,1874,99,3367.15,1186.64,0.117,2.84
+2026-04-09,Organic Search,Evergreen,Desktop,Europe,Consumer,consideration,11362,806,1634,75,2892.62,389.18,0.093,7.43
+2026-04-09,Paid Social,Social Burst,Mobile,North America,Consumer,awareness,17475,1176,2141,64,3723.59,1897.22,0.054,1.96
+2026-04-09,Paid Social,Lookalike,Mobile,Europe,SMB,awareness,15475,1002,1837,70,3292.04,,0.07,
+2026-04-09,Email,Remarketing,Desktop,APAC,Enterprise,conversion,7983,716,1531,157,6012.98,472.08,0.219,12.74
+2026-04-09,Display,Awareness Burst,Tablet,APAC,Consumer,awareness,22165,558,1085,41,1741.37,1026.69,0.073,1.7
+2026-04-10,Paid Search,Spring Launch,Desktop,North America,Enterprise,awareness,18709,1260,2514,139,5961.57,1590.48,0.11,3.75
+2026-04-10,Paid Search,Brand Defense,Desktop,North America,SMB,consideration,13384,902,1965,104,3658.24,1275.41,0.115,2.87
+2026-04-10,Organic Search,Evergreen,Desktop,Europe,Consumer,consideration,12077,861,1721,78,3147.56,417.8,0.091,7.53
+2026-04-10,Paid Social,Social Burst,Mobile,North America,Consumer,awareness,17892,1207,2191,65,3857,1948.93,0.054,1.98
+2026-04-10,Paid Social,Lookalike,Mobile,Europe,SMB,awareness,15027,971,1803,70,3181.75,1635.15,0.072,1.95
+2026-04-10,Email,,Desktop,APAC,Enterprise,conversion,7585,677,1478,156,5617.97,443.91,0.23,12.66
+2026-04-10,Display,Awareness Burst,Tablet,APAC,Consumer,awareness,21714,546,1075,41,1704.86,1010.43,0.075,1.69
+2026-04-11,Paid Search,Spring Launch,Desktop,North America,Enterprise,awareness,19564,1321,2611,145,6415.36,1691.22,0.11,3.79
+2026-04-11,Paid Search,Brand Defense,Desktop,North America,SMB,consideration,14196,962,2064,109,3972.01,1371.09,0.113,2.9
+2026-04-11,Organic Search,Evergreen,Desktop,Europe,Consumer,consideration,12577,900,1782,81,3333.2,437.59,0.09,7.62
+2026-04-11,Paid Social,Social Burst,Mobile,North America,Consumer,awareness,17721,1196,2183,66,3832.65,1925.93,0.055,1.99
+2026-04-11,Paid Social,Lookalike,Mobile,Europe,SMB,awareness,14316,922,1743,68,2999.74,1544.55,0.074,1.94
+2026-04-11,Email,Remarketing,Desktop,APAC,Enterprise,conversion,7369,656,1452,157,5405.58,428.42,0.239,12.62
+not_a_date,Display,Awareness Burst,Tablet,APAC,Consumer,awareness,22048,556,1094,43,1750.66,1035.33,0.077,1.69
+2026-04-12,Paid Search,Spring Launch,Desktop,North America,Enterprise,awareness,20566,1393,2723,152,6916.4,1804.49,0.109,3.83
+2026-04-12,Paid Search,Brand Defense,Desktop,North America,SMB,consideration,14890,1013,2150,114,4245.22,1454.41,0.113,2.92
+2026-04-12,Organic Search,Evergreen,Desktop,Europe,Consumer,consideration,12746,913,1806,82,3412.27,443.78,0.09,7.69
+2026-04-12,Paid Social,Social Burst,Mobile,North America,Consumer,awareness,17076,1150,2128,65,3680.78,1842.55,0.057,2
+2026-04-12,Paid Social,Lookalike,Mobile,Europe,SMB,awareness,13692,880,1692,67,2841.71,1465.16,0.076,1.94
+2026-04-12,Email,Remarketing,Desktop,APAC,Enterprise,conversion,7400,860,1463,1180,5442.69,430.27,1.372,12.65
+2026-04-12,Display,Awareness Burst,Tablet,APAC,Consumer,awareness,22478,569,1117,44,1806.59,1065.3,0.077,1.7
+2026-04-02,Paid Search,Brand Defense,Desktop,North America,SMB,consideration,14258,968,2024,96,3686.54,1283.58,0.099,2.87

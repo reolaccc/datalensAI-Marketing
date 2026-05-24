@@ -356,70 +356,13 @@ small {
 
 .ask-workspace {
   display: grid;
-  grid-template-columns: minmax(0, 1.8fr) minmax(280px, 0.9fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 18px;
   align-items: start;
 }
 
 .ask-workflow-main {
   min-width: 0;
-}
-
-.ask-sidebar {
-  display: grid;
-  gap: 16px;
-  padding: 20px;
-  border-radius: 24px;
-}
-
-.sidebar-summary,
-.sidebar-empty {
-  display: grid;
-  gap: 12px;
-}
-
-.sidebar-question {
-  font-weight: 700;
-  font-size: 1rem;
-}
-
-.sidebar-answer {
-  color: #17313a;
-}
-
-.sidebar-summary .secondary-action {
-  justify-self: start;
-}
-
-.sidebar-stats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.sidebar-stats div {
-  padding: 12px;
-  border-radius: 14px;
-  background: rgba(245, 255, 253, 0.92);
-}
-
-.sidebar-stats span {
-  color: #47626c;
-  font-size: 0.78rem;
-  display: block;
-  margin-bottom: 6px;
-}
-
-.sidebar-stats strong {
-  font-size: 1.05rem;
-}
-
-.quick-note {
-  margin-top: 16px;
-  padding: 14px 16px;
-  border-radius: 16px;
-  background: rgba(245, 255, 253, 0.92);
-  color: #47626c;
 }
 
 .question-driven-dashboard {
@@ -639,10 +582,10 @@ small {
   gap: 10px;
   min-width: 124px;
   padding: 0 14px 0 12px;
-  border: 1px solid rgba(145, 242, 236, 0.18);
+  border: 1px solid rgba(241, 117, 117, 0.34);
   border-radius: 999px;
-  background: rgba(6, 73, 69, 0.26);
-  color: #a8d8d4;
+  background: rgba(111, 30, 30, 0.28);
+  color: #f8e7e7;
   cursor: pointer;
   justify-content: flex-start;
 }
@@ -658,7 +601,7 @@ small {
   width: 38px;
   height: 22px;
   border-radius: 999px;
-  background: rgba(145, 242, 236, 0.18);
+  background: rgba(241, 117, 117, 0.42);
   flex: 0 0 auto;
   transition: background 180ms ease;
 }
@@ -676,13 +619,13 @@ small {
 }
 
 .ask-ai-toggle-on {
-  border-color: rgba(123, 211, 158, 0.34);
+  border-color: rgba(123, 211, 158, 0.42);
   background: rgba(11, 143, 142, 0.18);
   color: #ecfaf8;
 }
 
 .ask-ai-toggle-on .ask-ai-toggle-track {
-  background: rgba(123, 211, 158, 0.38);
+  background: rgba(123, 211, 158, 0.48);
 }
 
 .ask-ai-toggle-on .ask-ai-toggle-thumb {
@@ -834,6 +777,13 @@ small {
   font-size: 0.78rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+.chart-suggestion-tag {
+  background: rgba(4, 30, 31, 0.92);
+  border: 1px solid rgba(145, 242, 236, 0.16);
+  color: #ecfaf8;
+  font-weight: 700;
 }
 
 .chart-card-highlighted {
@@ -1425,8 +1375,7 @@ small,
 }
 
 .right-rail {
-  position: sticky;
-  top: 92px;
+  position: static;
   display: grid;
   gap: 16px;
   align-self: start;
@@ -1571,6 +1520,15 @@ small,
 .ask-status {
   background: rgba(12, 46, 48, 0.93);
   border: 1px solid rgba(125, 235, 230, 0.16);
+  color: #ecfaf8;
+}
+
+.ask-status strong {
+  color: #ffffff;
+}
+
+.ask-status p {
+  color: inherit;
 }
 
 .summary-stats div,
