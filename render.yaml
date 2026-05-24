@@ -2,6 +2,7 @@ services:
   - type: web
     name: datalens-api
     runtime: node
+    plan: free
     buildCommand: npm install && npm run build --workspace backend
     startCommand: npm run start --workspace backend
     healthCheckPath: /health
