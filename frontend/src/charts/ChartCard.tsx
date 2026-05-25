@@ -34,8 +34,15 @@ function tooltipFormatter(value: unknown, name: unknown) {
 export function ChartCard({ chart, highlighted = false }: Props) {
   const metricLabel = chart.metric ?? chart.yAxis ?? chart.yKey ?? null;
   const dimensionLabel = chart.dimension ?? chart.xAxis ?? chart.xKey ?? null;
-  const xAxisLabel = getAxisLabel(chart.chartType === "horizontal_bar" ? chart.metric ?? chart.yAxis : chart.xAxis, chart.chartType === "horizontal_bar" ? null : dimensionLabel);
-  const yAxisLabel = getAxisLabel(metricLabel, dimensionLabel);
+  const isHistogram = chart.chartType === "histogram";
+  const xAxisLabel = isHistogram
+    ? getAxisLabel(chart.xAxis ?? chart.xKey, dimensionLabel)
+    : getAxisLabel(
+        chart.chartType === "horizontal_bar" ? chart.metric ?? chart.yAxis : chart.xAxis,
+        chart.chartType === "horizontal_bar" ? null : dimensionLabel
+      );
+  const yAxisLabel = isHistogram ? getAxisLabel(chart.yAxis ?? chart.yKey, null) : getAxisLabel(metricLabel, dimensionLabel);
+  const chartValueMetric = isHistogram ? chart.yKey : metricLabel;
   const legendPayload = buildChartLegendPayload(chart);
 
   function renderChart() {
@@ -108,7 +115,7 @@ export function ChartCard({ chart, highlighted = false }: Props) {
             dataKey={chart.chartType === "horizontal_bar" ? chart.xKey : undefined}
             type={chart.chartType === "horizontal_bar" ? "category" : "number"}
             stroke={AXIS_COLOR}
-            tickFormatter={chart.chartType !== "horizontal_bar" ? (value) => formatChartValue(value, metricLabel) : undefined}
+            tickFormatter={chart.chartType !== "horizontal_bar" ? (value) => formatChartValue(value, chartValueMetric) : undefined}
             label={{
               value: chart.chartType === "horizontal_bar" ? chart.xAxis ?? "Category" : yAxisLabel,
               angle: -90,
@@ -130,7 +137,7 @@ export function ChartCard({ chart, highlighted = false }: Props) {
               />
             ))
           ) : (
-            <Bar dataKey={chart.yKey!} name={humanizeLabel(chart.metric ?? chart.yKey ?? chart.title)} radius={[8, 8, 0, 0]}>
+            <Bar dataKey={chart.yKey!} name={humanizeLabel(chartValueMetric ?? chart.yKey ?? chart.title)} radius={[8, 8, 0, 0]}>
               {chart.data.map((_entry, index) => (
                 <Cell
                   key={`${chart.id}-${index}`}
