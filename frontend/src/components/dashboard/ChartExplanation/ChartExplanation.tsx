@@ -11,6 +11,7 @@ export function ChartExplanation({ questionAnswer }: Props) {
 
   return (
     <div className="chart-warning-block">
+      <p className="eyebrow chart-warning-title">Suggested further exploration</p>
       <ul className="eda-summary-list">
         {questionAnswer.suggestedFollowUps.map((followUp) => (
           <li key={followUp}>{followUp}</li>

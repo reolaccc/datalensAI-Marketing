@@ -22,7 +22,6 @@ export function buildCompactEdaHighlights(analysis: AnalysisResponse) {
   const topSignals = analysis.kpis.slice(0, 3).map((kpi) => kpi.label);
   return [
     `${analysis.datasetSummary.rowCount} rows · ${analysis.datasetSummary.columnCount} columns`,
-    `${analysis.profile.numericColumns.length} numeric · ${analysis.profile.categoricalColumns.length} categorical · ${analysis.profile.datetimeColumns.length} datetime columns`,
     analysis.profile.missingCells > 0
       ? `${analysis.profile.missingCells} missing cell${analysis.profile.missingCells === 1 ? "" : "s"}`
       : "No missing cells",

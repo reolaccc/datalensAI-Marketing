@@ -25,6 +25,29 @@ function legacyKpiCards(analysis: AnalysisResponse) {
 export function KpiCardGrid({ analysis }: Props) {
   const cards = analysis.kpiCards?.length ? analysis.kpiCards : legacyKpiCards(analysis);
 
+  function renderContextLine(contextLine?: string) {
+    if (!contextLine) {
+      return null;
+    }
+
+    const parts = contextLine
+      .split("·")
+      .map((part) => part.trim())
+      .filter(Boolean);
+
+    if (parts.length <= 1) {
+      return <p className="kpi-context">{contextLine}</p>;
+    }
+
+    return (
+      <p className="kpi-context kpi-context-stack">
+        {parts.map((part) => (
+          <span key={part}>{part}</span>
+        ))}
+      </p>
+    );
+  }
+
   return (
     <section className="kpi-grid">
       {cards.map((card) => (
@@ -46,7 +69,7 @@ export function KpiCardGrid({ analysis }: Props) {
             </h2>
           </div>
 
-          {card.contextLine ? <p className="kpi-context">{card.contextLine}</p> : null}
+          {renderContextLine(card.contextLine)}
           <p className="kpi-description">{card.description}</p>
           {card.warnings?.length ? <p className="kpi-warning-note">{card.warnings[0]}</p> : null}
         </article>

@@ -110,6 +110,7 @@ export interface DatasetCapabilities {
 export interface ChartConfig {
   id: string;
   title: string;
+  subtitle?: string;
   chartType:
     | "kpi_card"
     | "line"

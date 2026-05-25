@@ -81,6 +81,7 @@ export interface AnalysisResponse {
   charts: Array<{
     id: string;
     title: string;
+    subtitle?: string;
     chartType:
       | "kpi_card"
       | "line"

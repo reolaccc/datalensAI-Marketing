@@ -18,7 +18,8 @@ import {
   YAxis
 } from "recharts";
 import type { AnalysisResponse } from "../types";
-import { AXIS_COLOR, CHART_PALETTE, GRID_COLOR } from "./chartPalette";
+import { AXIS_COLOR, GRID_COLOR, getChartColorForKey } from "./chartPalette";
+import { buildChartLegendPayload, formatChartValue, getAxisLabel, humanizeLabel } from "./chartFormatting";
 import { formatCompactNumber } from "../utils/numberFormatting";
 
 interface Props {
@@ -26,41 +27,57 @@ interface Props {
   highlighted?: boolean;
 }
 
-function tooltipFormatter(value: unknown) {
-  return typeof value === "number" ? formatCompactNumber(value) : String(value ?? "");
-}
-
-function axisTickFormatter(value: unknown) {
-  return typeof value === "number" ? formatCompactNumber(value) : String(value ?? "");
+function tooltipFormatter(value: unknown, name: unknown) {
+  return [formatChartValue(value, String(name ?? "")), humanizeLabel(String(name ?? ""))];
 }
 
 export function ChartCard({ chart, highlighted = false }: Props) {
+  const metricLabel = chart.metric ?? chart.yAxis ?? chart.yKey ?? null;
+  const dimensionLabel = chart.dimension ?? chart.xAxis ?? chart.xKey ?? null;
+  const xAxisLabel = getAxisLabel(chart.chartType === "horizontal_bar" ? chart.metric ?? chart.yAxis : chart.xAxis, chart.chartType === "horizontal_bar" ? null : dimensionLabel);
+  const yAxisLabel = getAxisLabel(metricLabel, dimensionLabel);
+  const legendPayload = buildChartLegendPayload(chart);
+
   function renderChart() {
     if (chart.chartType === "line" || chart.chartType === "anomaly_trend") {
       return (
         <LineChart data={chart.data}>
           <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
-          <XAxis dataKey={chart.xKey} stroke={AXIS_COLOR} />
-          <YAxis stroke={AXIS_COLOR} tickFormatter={axisTickFormatter} />
-          <Tooltip formatter={tooltipFormatter} />
-          {chart.series?.length ? <Legend /> : null}
+          <XAxis dataKey={chart.xKey} stroke={AXIS_COLOR} label={{ value: xAxisLabel || "Date", position: "insideBottom", offset: -6, fill: AXIS_COLOR }} />
+          <YAxis stroke={AXIS_COLOR} tickFormatter={(value) => formatChartValue(value, metricLabel)} label={{ value: yAxisLabel, angle: -90, position: "insideLeft", fill: AXIS_COLOR }} />
+          <Tooltip formatter={tooltipFormatter} labelFormatter={(label) => humanizeLabel(String(label ?? ""))} />
+          {legendPayload.length ? <Legend payload={legendPayload as never} /> : null}
           {chart.series?.length ? (
             chart.series.map((seriesKey, index) =>
               seriesKey === "anomaly_marker" ? (
-                <Scatter key={seriesKey} data={chart.data} dataKey={seriesKey} fill={CHART_PALETTE[0]} />
+                <Scatter
+                  key={seriesKey}
+                  data={chart.data}
+                  dataKey={seriesKey}
+                  name={humanizeLabel(seriesKey)}
+                  fill={getChartColorForKey(seriesKey)}
+                />
               ) : (
                 <Line
                   key={seriesKey}
                   type="monotone"
                   dataKey={seriesKey}
-                  stroke={CHART_PALETTE[index % CHART_PALETTE.length]}
+                  name={humanizeLabel(seriesKey)}
+                  stroke={getChartColorForKey(seriesKey)}
                   strokeWidth={3}
                   dot={false}
                 />
               )
             )
           ) : (
-            <Line type="monotone" dataKey={chart.yKey!} stroke={CHART_PALETTE[4]} strokeWidth={3} dot={false} />
+            <Line
+              type="monotone"
+              dataKey={chart.yKey!}
+              name={humanizeLabel(chart.metric ?? chart.yKey ?? chart.title)}
+              stroke={getChartColorForKey(chart.yKey)}
+              strokeWidth={3}
+              dot={false}
+            />
           )}
         </LineChart>
       );
@@ -79,30 +96,46 @@ export function ChartCard({ chart, highlighted = false }: Props) {
             dataKey={chart.chartType === "horizontal_bar" ? undefined : chart.xKey}
             type={chart.chartType === "horizontal_bar" ? "number" : "category"}
             stroke={AXIS_COLOR}
-            tickFormatter={chart.chartType === "horizontal_bar" ? axisTickFormatter : undefined}
+            tickFormatter={chart.chartType === "horizontal_bar" ? (value) => formatChartValue(value, metricLabel) : undefined}
+            label={{
+              value: chart.chartType === "horizontal_bar" ? yAxisLabel : xAxisLabel || "Category",
+              position: "insideBottom",
+              offset: -6,
+              fill: AXIS_COLOR
+            }}
           />
           <YAxis
             dataKey={chart.chartType === "horizontal_bar" ? chart.xKey : undefined}
             type={chart.chartType === "horizontal_bar" ? "category" : "number"}
             stroke={AXIS_COLOR}
-            tickFormatter={chart.chartType !== "horizontal_bar" ? axisTickFormatter : undefined}
+            tickFormatter={chart.chartType !== "horizontal_bar" ? (value) => formatChartValue(value, metricLabel) : undefined}
+            label={{
+              value: chart.chartType === "horizontal_bar" ? chart.xAxis ?? "Category" : yAxisLabel,
+              angle: -90,
+              position: "insideLeft",
+              fill: AXIS_COLOR
+            }}
           />
-          <Tooltip formatter={tooltipFormatter} />
-          {chart.series?.length ? <Legend /> : null}
+          <Tooltip formatter={tooltipFormatter} labelFormatter={(label) => humanizeLabel(String(label ?? ""))} />
+          {legendPayload.length ? <Legend payload={legendPayload as never} /> : null}
           {chart.series?.length ? (
             chart.series.map((seriesKey, index) => (
               <Bar
                 key={seriesKey}
                 dataKey={seriesKey}
+                name={humanizeLabel(seriesKey)}
                 stackId={chart.chartType === "stacked_bar" ? "stack" : undefined}
-                fill={CHART_PALETTE[index % CHART_PALETTE.length]}
+                fill={getChartColorForKey(seriesKey)}
                 radius={[8, 8, 0, 0]}
               />
             ))
           ) : (
-            <Bar dataKey={chart.yKey!} radius={[8, 8, 0, 0]}>
+            <Bar dataKey={chart.yKey!} name={humanizeLabel(chart.metric ?? chart.yKey ?? chart.title)} radius={[8, 8, 0, 0]}>
               {chart.data.map((_entry, index) => (
-                <Cell key={`${chart.id}-${index}`} fill={CHART_PALETTE[index % CHART_PALETTE.length]} />
+                <Cell
+                  key={`${chart.id}-${index}`}
+                  fill={getChartColorForKey(String(chart.data[index]?.[chart.xKey] ?? index))}
+                />
               ))}
             </Bar>
           )}
@@ -113,18 +146,19 @@ export function ChartCard({ chart, highlighted = false }: Props) {
     if (chart.chartType === "donut") {
       return (
         <PieChart>
-          <Tooltip formatter={tooltipFormatter} />
-          <Legend />
+          <Tooltip formatter={tooltipFormatter} labelFormatter={(label) => humanizeLabel(String(label ?? ""))} />
+          {legendPayload.length ? <Legend payload={legendPayload as never} /> : null}
           <Pie
             data={chart.data}
             dataKey={chart.yKey!}
+            name={humanizeLabel(chart.metric ?? chart.yKey ?? chart.title)}
             nameKey={chart.xKey}
             innerRadius={56}
             outerRadius={92}
             paddingAngle={2}
           >
             {chart.data.map((_entry, index) => (
-              <Cell key={`${chart.id}-${index}`} fill={CHART_PALETTE[index % CHART_PALETTE.length]} />
+              <Cell key={`${chart.id}-${index}`} fill={getChartColorForKey(String(chart.data[index]?.[chart.xKey] ?? index))} />
             ))}
           </Pie>
         </PieChart>
@@ -134,10 +168,11 @@ export function ChartCard({ chart, highlighted = false }: Props) {
     if (chart.chartType === "funnel") {
       return (
         <FunnelChart>
-          <Tooltip formatter={tooltipFormatter} />
-          <Funnel dataKey={chart.yKey!} data={chart.data} isAnimationActive={false}>
+          <Tooltip formatter={tooltipFormatter} labelFormatter={(label) => humanizeLabel(String(label ?? ""))} />
+          {legendPayload.length ? <Legend payload={legendPayload as never} /> : null}
+          <Funnel dataKey={chart.yKey!} name={humanizeLabel(chart.metric ?? chart.yKey ?? chart.title)} data={chart.data} isAnimationActive={false}>
             {chart.data.map((_entry, index) => (
-              <Cell key={`${chart.id}-${index}`} fill={CHART_PALETTE[index % CHART_PALETTE.length]} />
+              <Cell key={`${chart.id}-${index}`} fill={getChartColorForKey(String(chart.data[index]?.[chart.xKey] ?? index))} />
             ))}
           </Funnel>
         </FunnelChart>
@@ -157,19 +192,21 @@ export function ChartCard({ chart, highlighted = false }: Props) {
     return (
       <ScatterChart>
         <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
-        <XAxis dataKey={chart.xKey} stroke={AXIS_COLOR} type="number" tickFormatter={axisTickFormatter} />
-        <YAxis dataKey={chart.yKey!} stroke={AXIS_COLOR} type="number" tickFormatter={axisTickFormatter} />
-        <Tooltip cursor={{ strokeDasharray: "3 3" }} formatter={tooltipFormatter} />
-        <Scatter data={chart.data} fill={CHART_PALETTE[5]} />
+        <XAxis dataKey={chart.xKey} stroke={AXIS_COLOR} type="number" tickFormatter={(value) => formatChartValue(value, chart.xKey)} label={{ value: getAxisLabel(chart.xKey), position: "insideBottom", offset: -6, fill: AXIS_COLOR }} />
+        <YAxis dataKey={chart.yKey!} stroke={AXIS_COLOR} type="number" tickFormatter={(value) => formatChartValue(value, chart.yKey)} label={{ value: getAxisLabel(chart.yKey), angle: -90, position: "insideLeft", fill: AXIS_COLOR }} />
+        <Tooltip cursor={{ strokeDasharray: "3 3" }} formatter={tooltipFormatter} labelFormatter={(label) => humanizeLabel(String(label ?? ""))} />
+        {legendPayload.length ? <Legend payload={legendPayload as never} /> : null}
+        <Scatter data={chart.data} name={humanizeLabel(chart.metric ?? chart.yKey ?? chart.title)} fill={getChartColorForKey(chart.id)} />
       </ScatterChart>
     );
   }
 
   return (
-      <article className={`panel chart-card ${highlighted ? "chart-card-highlighted" : ""}`} id={`analysis-chart-${chart.id}`}>
+    <article className={`panel chart-card ${highlighted ? "chart-card-highlighted" : ""}`} id={`analysis-chart-${chart.id}`}>
       <div className="chart-header">
-        <div>
+        <div className="chart-header-copy">
           <h3>{chart.title}</h3>
+          {chart.subtitle ? <p className="chart-subtitle">{chart.subtitle}</p> : null}
           {highlighted ? <span className="chart-tag">Relevant to this question</span> : null}
         </div>
       </div>

@@ -41,7 +41,7 @@ export function TopBar() {
       <div className="top-bar-body">
         <div className="upload-hero">
           <p className="workflow-line">
-            CSV Upload → Data Profiling → KPI Detection → Dashboard Preview → AI Summary
+            Data Upload → Data Profiling → KPI Detection → Dashboard Preview → AI Summary
           </p>
 
           <label

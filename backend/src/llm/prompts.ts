@@ -13,7 +13,7 @@ function buildSystemPrompt(scope: string) {
     "If evidence is insufficient, say so plainly.",
     "Keep the tone concise, specific, and commercially useful.",
     "Every insight must include at least one metric or dimension.",
-    "If data quality warnings exist, mention them briefly and explain the impact.",
+    "Do not discuss EDA, profiling, missing values, duplicates, or data quality issues in Executive Insight.",
     `Task focus: ${scope}.`
   ].join(" ");
 }
@@ -41,16 +41,17 @@ export function buildExecutiveInsightPrompt(facts: AnalyticsFacts): LlmTextGener
         {
           facts,
           desiredStyle: {
-            bullets: "3-5 short bullets",
+            bullets: "3-6 short bullets",
             tone: "senior data analyst and marketing staff",
             expectations: [
+              "focus first on commercial implications and decision guidance",
               "mention specific metrics and dimensions",
-              "prioritize concentration, efficiency tradeoffs, and rank gaps",
+              "prioritize concentration, efficiency tradeoffs, rank gaps, and budget implications",
               "compare performance where possible",
               "mention trend direction if available",
               "use the provided chart context and recommended actions when helpful",
               "include a cautious recommendation",
-              "briefly mention data quality issues if relevant"
+              "do not mention EDA or data quality issues"
             ]
           },
           outputSchema: {
@@ -98,6 +99,7 @@ export function buildChartExplanationsPrompt(
           charts: charts.map((chart) => ({
             id: chart.id,
             title: chart.title,
+            subtitle: chart.subtitle ?? null,
             chartType: chart.chartType,
             metric: chart.metric,
             dimension: chart.dimension,
@@ -106,11 +108,13 @@ export function buildChartExplanationsPrompt(
             dataPreview: chart.data.slice(0, 3)
           })),
           requirements: [
-            "Explain why each chart was selected.",
-            "Explain what question the chart helps answer.",
-            "Explain what the chart shows.",
-            "Explain what the user should compare next.",
-            "Keep each explanation short and concrete.",
+            "Write like a modern BI product for marketing and sales teams.",
+            "Do not say 'this chart compares', 'this bar chart', or explain chart mechanics.",
+            "Lead with the business meaning, not the chart type.",
+            "Use the actual metric values, units, and segment names when available.",
+            "Mention trends, concentration, efficiency gaps, anomalies, or trade-offs when the data supports it.",
+            "Keep each explanation to 1-2 short paragraphs or up to 3 bullets.",
+            "If confidence is low, be careful and avoid overstating the pattern.",
             "Use only the provided facts."
           ],
           outputSchema: {

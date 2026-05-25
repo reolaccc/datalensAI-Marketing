@@ -32,8 +32,46 @@ function formatNumber(value: number) {
   }).format(value);
 }
 
+function formatCompactNumber(value: number) {
+  return new Intl.NumberFormat(undefined, {
+    notation: "compact",
+    maximumFractionDigits: 1
+  }).format(value);
+}
+
 function formatPercent(value: number) {
   return `${(value * 100).toFixed(1)}%`;
+}
+
+function humanizeLabel(value?: string | null) {
+  if (!value) {
+    return "";
+  }
+
+  const stopWords = new Set(["and", "or", "of", "the", "by", "to", "for", "with", "in", "on", "at", "per"]);
+  const acronyms = new Set(["roas", "roi", "ctr", "cvr", "cpc", "cpa", "aov", "gmv", "ltv", "kpi"]);
+  return value
+    .replace(/_/g, " ")
+    .trim()
+    .split(/\s+/)
+    .map((part, index) => {
+      const lower = part.toLowerCase();
+      if (lower === "vs") {
+        return "vs";
+      }
+      if (acronyms.has(lower)) {
+        return lower.toUpperCase();
+      }
+      if (index > 0 && stopWords.has(lower)) {
+        return lower;
+      }
+      return lower.charAt(0).toUpperCase() + lower.slice(1);
+    })
+    .join(" ");
+}
+
+function isCommercialInsightText(value: string) {
+  return !/(data quality|missing cell|missing cells|duplicate row|duplicate rows|outlier|outliers|eda|profiling|dirty data|warning)/i.test(value);
 }
 
 interface ChartSummaryEntry {
@@ -179,6 +217,38 @@ function buildChartSummary(chart: ChartConfig): ChartSummary | null {
   };
 }
 
+function formatObservationValue(metricLabel: string, value: number) {
+  const normalized = normalizeName(metricLabel);
+  if (normalized.includes("roas") || normalized.includes("roi")) {
+    return `${formatCompactNumber(value)}x`;
+  }
+  if (normalized.includes("ctr") || normalized.includes("cvr") || normalized.includes("conversion rate") || normalized.includes("rate")) {
+    const percentValue = Math.abs(value) <= 1.5 ? value * 100 : value;
+    return `${formatNumber(percentValue)}%`;
+  }
+  return formatCompactNumber(value);
+}
+
+function estimateCorrelation(points: Array<{ x: number; y: number }>) {
+  if (points.length < 3) {
+    return 0;
+  }
+
+  const meanX = points.reduce((sum, entry) => sum + entry.x, 0) / points.length;
+  const meanY = points.reduce((sum, entry) => sum + entry.y, 0) / points.length;
+  let numerator = 0;
+  let denominatorX = 0;
+  let denominatorY = 0;
+
+  for (const point of points) {
+    numerator += (point.x - meanX) * (point.y - meanY);
+    denominatorX += (point.x - meanX) ** 2;
+    denominatorY += (point.y - meanY) ** 2;
+  }
+
+  return numerator / Math.sqrt(denominatorX * denominatorY || 1);
+}
+
 function pickChartSummary(charts: ChartConfig[], labels: string[], options?: { preferUngrouped?: boolean }) {
   const wanted = labels.map(normalizeName);
   const matches = charts.filter((chart) => wanted.some((label) => normalizeName(chart.metric ?? chart.title).includes(label)));
@@ -198,40 +268,127 @@ function buildChartObservation(
   summary: ChartSummary,
   facts?: { topRevenueSegment?: { name: string; share: number }; bestRoasSegment?: { name: string } }
 ) {
-  const metricLabel = chart.metric ?? chart.title;
-  const dimensionLabel = chart.dimension ?? chart.xAxis ?? "segment";
+  const metricLabel = humanizeLabel(chart.metric ?? chart.title) || "Metric";
+  const dimensionLabel = humanizeLabel(chart.dimension ?? chart.xAxis ?? "segment") || "segment";
 
   if (chart.chartType === "line" || chart.chartType === "anomaly_trend") {
-    if (summary.trend) {
-      const change = summary.trend.percentChange !== undefined ? ` (${summary.trend.percentChange >= 0 ? "+" : ""}${summary.trend.percentChange}%)` : "";
-      return `${metricLabel} moved ${summary.trend.direction} across ${summary.trend.periodLabel}${change}.`;
+    if (summary.orderedEntries.length >= 2) {
+      const first = summary.orderedEntries[0];
+      const last = summary.orderedEntries[summary.orderedEntries.length - 1];
+      const peak = summary.rankedEntries[0];
+      const direction =
+        summary.trend?.direction === "down"
+          ? "eased"
+          : summary.trend?.direction === "flat"
+            ? "held steady"
+            : summary.trend?.direction === "mixed"
+              ? "moved unevenly"
+              : "improved";
+      const pieces = [
+        `${metricLabel} ${direction} from ${formatObservationValue(metricLabel, first.value)} on ${first.label} to ${formatObservationValue(metricLabel, last.value)} on ${last.label}`
+      ];
+      if (peak && peak.label !== first.label && peak.label !== last.label) {
+        pieces.push(`with a peak at ${formatObservationValue(metricLabel, peak.value)} on ${peak.label}`);
+      }
+      return `${pieces.join(", ")}.`;
     }
   }
 
+  if (chart.chartType === "scatter" || chart.chartType === "heatmap") {
+    const pairs = chart.data
+      .map((row) => ({
+        x: parseNumber(row[chart.xKey]),
+        y: parseNumber(row[chart.yKey ?? ""])
+      }))
+      .filter((entry): entry is { x: number; y: number } => entry.x !== null && entry.y !== null) as Array<{ x: number; y: number }>;
+    const correlation = estimateCorrelation(pairs);
+    if (correlation >= 0.55) {
+      return `${metricLabel} and ${humanizeLabel(chart.yKey ?? "") || "the secondary metric"} move together across the main cluster, with a few campaigns standing above the pack.`;
+    }
+    if (correlation <= -0.55) {
+      return `${metricLabel} and ${humanizeLabel(chart.yKey ?? "") || "the secondary metric"} move in opposite directions, so scale and efficiency are pulling apart.`;
+    }
+    return `The relationship between ${metricLabel} and ${humanizeLabel(chart.yKey ?? "") || "the secondary metric"} is loose, so the main signal sits in the outliers rather than the overall cluster.`;
+  }
+
+  if (chart.chartType === "histogram" || chart.chartType === "box_plot") {
+    const topBucket = summary.rankedEntries[0];
+    const shareText = summary.top3Share !== undefined ? `, with the top 3 buckets holding ${formatPercent(summary.top3Share)} of the displayed values` : "";
+    if (topBucket) {
+      return `${metricLabel} is concentrated around ${topBucket.label}${shareText}.`;
+    }
+    return `${metricLabel} is spread across several ranges, so the key signal is concentration rather than a single peak.`;
+  }
+
+  if (chart.chartType === "funnel") {
+    if (summary.orderedEntries.length >= 2) {
+      const first = summary.rankedEntries[0];
+      const last = summary.rankedEntries[summary.rankedEntries.length - 1];
+      return `The funnel narrows quickly from ${first?.label ?? "the first stage"} to ${last?.label ?? "the final stage"}, so the biggest leak is early in the journey.`;
+    }
+    return `The funnel shows where the journey tightens, which helps isolate the biggest drop-off point.`;
+  }
+
   if (isRevenueMetric(chart.metric)) {
-    const shareText = summary.top?.share !== undefined ? `, contributing ${formatPercent(summary.top.share)} of the displayed total` : "";
-    const concentrationText = summary.top3Share !== undefined ? ` The top 3 segments account for ${formatPercent(summary.top3Share)} of the displayed total.` : "";
-    const tradeoffText =
-      facts?.topRevenueSegment && facts?.bestRoasSegment && facts.topRevenueSegment.name !== facts.bestRoasSegment.name
-        ? ` Revenue and efficiency point in different directions, so ${facts.topRevenueSegment.name} should be judged against ${facts.bestRoasSegment.name}.`
-        : "";
-    return `${summary.top?.label ?? "The leading segment"} leads ${metricLabel} by ${dimensionLabel}${shareText}.${concentrationText}${tradeoffText}`;
+    const top = summary.top;
+    const bottom = summary.bottom;
+    const topName = facts?.topRevenueSegment?.name ?? top?.label ?? "the leading segment";
+    const topShare = facts?.topRevenueSegment?.share ?? top?.share;
+    const efficiencyLeader = facts?.bestRoasSegment?.name;
+    const topShareText = topShare !== undefined ? ` (${formatPercent(topShare)})` : "";
+    const leadText = top ? `${topName} leads revenue with ${formatObservationValue(metricLabel, top.value)}${topShareText}` : `${metricLabel} is concentrated in a small set of segments`;
+    const tailText = bottom && bottom.label !== topName ? `; ${bottom.label} trails at ${formatObservationValue(metricLabel, bottom.value)}` : "";
+    const alignmentText =
+      efficiencyLeader && efficiencyLeader !== topName
+        ? ` Efficiency is stronger in ${efficiencyLeader}, so scale and return are not aligned.`
+        : summary.top3Share !== undefined
+          ? ` The top 3 segments contribute ${formatPercent(summary.top3Share)} of the displayed total.`
+          : "";
+    return `${leadText}${tailText}.${alignmentText}`;
   }
 
   if (isEfficiencyMetric(chart.metric)) {
-    const averageText = summary.average ? `, above the average of ${formatNumber(summary.average)}` : "";
-    return `${summary.top?.label ?? "The leading segment"} has the strongest ${metricLabel}${averageText}, so efficiency should be weighed against scale.`;
+    const top = summary.top;
+    const bottom = summary.bottom;
+    const topLabel = top?.label ?? "the leading segment";
+    const topValue = top ? formatObservationValue(metricLabel, top.value) : null;
+    const bottomText = bottom && bottom.label !== top?.label ? ` ${bottom.label} sits lowest, which is where the budget pressure is highest.` : "";
+    return topValue
+      ? `${metricLabel} is strongest in ${topLabel} at ${topValue}, so efficiency should be judged against scale rather than volume alone.${bottomText}`
+      : `${metricLabel} varies across segments, so the budget story depends on which channel or campaign leads.`;
   }
 
   if (isConversionMetric(chart.metric)) {
-    return `${summary.top?.label ?? "The leading segment"} has the strongest ${metricLabel}, which should be checked against revenue before changing budget.`;
+    const top = summary.top;
+    const bottom = summary.bottom;
+    const topLabel = top?.label ?? "the leading segment";
+    const topValue = top ? formatObservationValue(metricLabel, top.value) : null;
+    const bottomText = bottom && bottom.label !== top?.label ? ` ${bottom.label} converts least efficiently.` : "";
+    return topValue
+      ? `${metricLabel} peaks in ${topLabel} at ${topValue}, so traffic quality is uneven across segments.${bottomText}`
+      : `${metricLabel} helps separate high-traffic segments from the ones that actually convert.`;
   }
 
-  if ((chart.chartType === "bar" || chart.chartType === "horizontal_bar" || chart.chartType === "stacked_bar") && summary.top3Share !== undefined) {
-    return `The top 3 ${dimensionLabel} segments account for ${formatPercent(summary.top3Share)} of the displayed ${metricLabel}, so the result is concentrated.`;
+  if (chart.chartType === "bar" || chart.chartType === "horizontal_bar" || chart.chartType === "stacked_bar" || chart.chartType === "donut") {
+    const top = summary.top;
+    const bottom = summary.bottom;
+    const topText = top ? `${top.label} leads at ${formatObservationValue(metricLabel, top.value)}` : `${metricLabel} is led by a small number of segments`;
+    const bottomText = bottom && bottom.label !== top?.label ? `${bottom.label} trails at ${formatObservationValue(metricLabel, bottom.value)}` : "";
+    const concentrationText =
+      summary.top3Share !== undefined
+        ? ` The top 3 ${dimensionLabel} segments contribute ${formatPercent(summary.top3Share)} of the displayed total.`
+        : "";
+    const pieces = [topText];
+    if (bottomText) {
+      pieces.push(bottomText);
+    }
+    if (concentrationText) {
+      pieces.push(concentrationText.trim());
+    }
+    return pieces.join(". ") + ".";
   }
 
-  return `This chart compares ${metricLabel} by ${dimensionLabel} to answer which segment is driving the result.`;
+  return `${metricLabel} stands out across ${dimensionLabel}, so the main decision is whether to scale the leader or fix the lagging segments.`;
 }
 
 function getKpi(kpis: KpiCandidate[], ...labels: string[]) {
@@ -668,16 +825,46 @@ function buildFallbackExecutiveInsightNarrative(facts: AnalyticsFacts): Executiv
     bullets.push(`Data quality needs a quick check: ${facts.qualitySignals.otherWarnings.slice(0, 2).join(" ")}`);
   }
   if (facts.recommendedActions.length > 0) {
-    bullets.push(facts.recommendedActions[0]);
+    const commercialAction = facts.recommendedActions.find(isCommercialInsightText);
+    if (commercialAction) {
+      bullets.push(commercialAction);
+    }
   }
   if (bullets.length < 3) {
     bullets.push(
       `The dataset spans ${facts.datasetSummary.rowCount} rows and ${facts.datasetSummary.columnCount} columns, so the next step is to validate whether the strongest signals hold across channels, campaigns, or other segments.`
     );
   }
+  if (bullets.length < 5 && facts.trends.recentChange) {
+    const direction =
+      facts.trends.recentDirection === "down" ? "declining" : facts.trends.recentDirection === "up" ? "improving" : "changing";
+    bullets.push(
+      `The ${direction} ${facts.trends.recentChange.metric} trend across ${facts.trends.recentChange.periodLabel} should be watched before committing budget to the current pattern.`
+    );
+  }
+  if (bullets.length < 5 && facts.topFindings.bestConversionSegment) {
+    bullets.push(
+      `${facts.topFindings.bestConversionSegment.name} converts best at ${formatPercent(facts.topFindings.bestConversionSegment.conversionRate)}, so traffic quality should be benchmarked against that segment.`
+    );
+  }
+  if (bullets.length < 5 && facts.segments.strongestSegment) {
+    bullets.push(
+      `${facts.segments.strongestSegment.name} remains the strongest ${facts.segments.strongestSegment.metric} segment, making it the clearest reference point for scale decisions.`
+    );
+  }
+  if (bullets.length < 5 && facts.segments.weakestSegment) {
+    bullets.push(
+      `${facts.segments.weakestSegment.name} is the weakest ${facts.segments.weakestSegment.metric} segment, so it deserves review before budget is reallocated.`
+    );
+  }
+  if (bullets.length < 5) {
+    bullets.push(
+      `The current signal points to a commercial review of revenue concentration, efficiency, and budget allocation rather than a broad exploratory analysis.`
+    );
+  }
 
   return {
-    bullets: bullets.slice(0, 5),
+    bullets: bullets.filter(isCommercialInsightText).slice(0, 6),
     suggestedQuestions: [
       facts.topFindings.topRevenueSegment
         ? `How does ${facts.topFindings.topRevenueSegment.name} compare on ROAS and conversion efficiency?`
@@ -687,13 +874,9 @@ function buildFallbackExecutiveInsightNarrative(facts: AnalyticsFacts): Executiv
         : "Which segment deserves more budget and which one needs corrective action?",
       facts.concentration.top3RevenueShare !== undefined
         ? `Why do the top 3 segments contribute ${formatPercent(facts.concentration.top3RevenueShare)} of revenue?`
-        : "Where is performance concentrated across the strongest segments?",
-      "Where do data quality issues affect confidence in the headline results?"
+        : "Where is performance concentrated across the strongest segments?"
     ],
-    warning:
-      ["AI explanation unavailable; showing rule-based summary.", ...facts.datasetSummary.warnings]
-        .filter(Boolean)
-        .join(" "),
+    warning: undefined,
     source: "fallback"
   };
 }
@@ -716,7 +899,7 @@ function parseExecutiveInsightNarrative(text: string): ExecutiveInsightNarrative
   }
 
   return {
-    bullets: parsed.bullets.slice(0, 5),
+    bullets: parsed.bullets.slice(0, 6),
     suggestedQuestions: parsed.suggestedQuestions.slice(0, 5),
     warning: typeof parsed.warning === "string" && parsed.warning.trim() ? parsed.warning : undefined,
     source: "llm"
@@ -781,25 +964,21 @@ export function buildFallbackChartExplanations(
   charts: ChartConfig[]
 ): ChartExplanationNarrative[] {
   return charts.map((chart) => {
-    const metricLabel = chart.metric ?? "the selected metric";
-    const dimensionLabel = chart.dimension ?? "the selected dimension";
-    const topFinding =
-      chart.metric && facts.topFindings.topRevenueSegment && normalizeName(chart.metric).includes("revenue")
-        ? facts.topFindings.topRevenueSegment
-        : chart.metric && facts.topFindings.bestRoasSegment && normalizeName(chart.metric).includes("roas")
-          ? facts.topFindings.bestRoasSegment
-          : null;
-
-    const nextStep =
-      facts.topFindings.bestRoasSegment && !normalizeName(metricLabel).includes("roas")
-        ? `compare it with ${facts.topFindings.bestRoasSegment.name}'s efficiency before changing budget`
+    const summary = buildChartSummary(chart);
+    const observation = summary ? buildChartObservation(chart, summary, { topRevenueSegment: facts.topFindings.topRevenueSegment, bestRoasSegment: facts.topFindings.bestRoasSegment }) : "";
+    const metricLabel = humanizeLabel(chart.metric ?? chart.title) || "This metric";
+    const decisionLine =
+      facts.topFindings.bestRoasSegment && chart.metric && !normalizeName(chart.metric).includes("roas")
+        ? `Use ${facts.topFindings.bestRoasSegment.name} as the efficiency benchmark before changing budget.`
         : facts.kpis.overallRoas !== undefined
-          ? "compare it with ROAS before making a budget decision"
-          : "compare it with a complementary segment or time view";
+          ? "Use ROAS alongside this view before making a budget call."
+          : "Use this alongside the strongest segment or a time view to decide what to scale next.";
 
     return {
       id: chart.id,
-      explanation: `This ${chart.chartType.replace(/_/g, " ")} chart compares ${metricLabel} by ${dimensionLabel} to answer which ${dimensionLabel} drives the strongest business outcome. ${topFinding ? `${topFinding.name} leads the displayed segment comparison.` : ""} The next check should be to ${nextStep}.`
+      explanation: observation
+        ? `${observation} ${decisionLine}`
+        : `${metricLabel} should be read as a decision signal, with the strongest segment and the efficiency benchmark viewed together before making a budget call.`
     };
   });
 }
@@ -846,7 +1025,24 @@ export async function generateExecutiveInsights(facts: AnalyticsFacts): Promise<
       const result = await provider.generateText(buildExecutiveInsightPrompt(facts));
       const parsed = parseExecutiveInsightNarrative(result.text);
       if (parsed) {
-        return parsed;
+        const fallback = buildFallbackExecutiveInsightNarrative(facts);
+        const cleanedBullets = parsed.bullets.filter(isCommercialInsightText);
+        const mergedBullets = [...cleanedBullets];
+        for (const bullet of fallback.bullets) {
+          if (mergedBullets.length >= 5) {
+            break;
+          }
+          if (isCommercialInsightText(bullet) && !mergedBullets.includes(bullet)) {
+            mergedBullets.push(bullet);
+          }
+        }
+
+        return {
+          bullets: mergedBullets.slice(0, 6),
+          suggestedQuestions: parsed.suggestedQuestions.filter(isCommercialInsightText).slice(0, 5),
+          warning: undefined,
+          source: "llm"
+        };
       }
     } catch {
       // fall through to deterministic summary
@@ -915,7 +1111,7 @@ export function buildQuestionNarrativeInput(params: {
 }
 
 export function mapExecutiveInsightToLegacy(narrative: ExecutiveInsightNarrative) {
-  const bullets = narrative.bullets.slice(0, 5);
+  const bullets = narrative.bullets.slice(0, 6);
   return {
     overview: bullets[0] ?? "No executive insight available.",
     kpiSummary: bullets[1] ?? bullets[0] ?? "No KPI insight available.",

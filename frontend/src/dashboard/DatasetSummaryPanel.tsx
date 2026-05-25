@@ -12,13 +12,12 @@ export function DatasetSummaryPanel({ analysis }: Props) {
     <article className="panel summary-panel">
       <div className="panel-heading">
         <div>
-          <p className="eyebrow">Dataset summary</p>
+          <p className="eyebrow">Data Profiling</p>
           <h3>{analysis.fileName}</h3>
         </div>
       </div>
 
       <div className="eda-summary-block">
-        <p className="eyebrow">EDA summary</p>
         <ul className="eda-summary-list">
           {edaSummaryBullets.length > 0 ? (
             edaSummaryBullets.map((item) => <li key={item}>{item}</li>)
