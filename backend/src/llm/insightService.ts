@@ -39,6 +39,30 @@ function formatCompactNumber(value: number) {
   }).format(value);
 }
 
+function formatMetricValue(metricLabel: string, value: number) {
+  const normalized = normalizeName(metricLabel);
+  if (normalized.includes("roas") || normalized.includes("roi")) {
+    return `${formatNumber(value)}x`;
+  }
+  if (normalized.includes("ctr") || normalized.includes("cvr") || normalized.includes("conversion rate") || normalized.includes("rate")) {
+    const percentValue = Math.abs(value) <= 1.5 ? value * 100 : value;
+    return `${formatNumber(percentValue)}%`;
+  }
+  if (normalized.includes("revenue")) {
+    return `${formatCompactNumber(value)} revenue units`;
+  }
+  if (normalized.includes("cost") || normalized.includes("spend")) {
+    return `${formatCompactNumber(value)} cost units`;
+  }
+  if (normalized.includes("impression")) {
+    return `${formatCompactNumber(value)} impressions`;
+  }
+  if (normalized.includes("click")) {
+    return `${formatCompactNumber(value)} clicks`;
+  }
+  return `${formatCompactNumber(value)} ${humanizeLabel(metricLabel).toLowerCase()}`;
+}
+
 function formatPercent(value: number) {
   return `${(value * 100).toFixed(1)}%`;
 }
@@ -835,29 +859,29 @@ function buildFallbackExecutiveInsightNarrative(facts: AnalyticsFacts): Executiv
       `The dataset spans ${facts.datasetSummary.rowCount} rows and ${facts.datasetSummary.columnCount} columns, so the next step is to validate whether the strongest signals hold across channels, campaigns, or other segments.`
     );
   }
-  if (bullets.length < 5 && facts.trends.recentChange) {
+  if (bullets.length < 6 && facts.trends.recentChange) {
     const direction =
       facts.trends.recentDirection === "down" ? "declining" : facts.trends.recentDirection === "up" ? "improving" : "changing";
     bullets.push(
       `The ${direction} ${facts.trends.recentChange.metric} trend across ${facts.trends.recentChange.periodLabel} should be watched before committing budget to the current pattern.`
     );
   }
-  if (bullets.length < 5 && facts.topFindings.bestConversionSegment) {
+  if (bullets.length < 6 && facts.topFindings.bestConversionSegment) {
     bullets.push(
       `${facts.topFindings.bestConversionSegment.name} converts best at ${formatPercent(facts.topFindings.bestConversionSegment.conversionRate)}, so traffic quality should be benchmarked against that segment.`
     );
   }
-  if (bullets.length < 5 && facts.segments.strongestSegment) {
+  if (bullets.length < 6 && facts.segments.strongestSegment) {
     bullets.push(
       `${facts.segments.strongestSegment.name} remains the strongest ${facts.segments.strongestSegment.metric} segment, making it the clearest reference point for scale decisions.`
     );
   }
-  if (bullets.length < 5 && facts.segments.weakestSegment) {
+  if (bullets.length < 6 && facts.segments.weakestSegment) {
     bullets.push(
       `${facts.segments.weakestSegment.name} is the weakest ${facts.segments.weakestSegment.metric} segment, so it deserves review before budget is reallocated.`
     );
   }
-  if (bullets.length < 5) {
+  if (bullets.length < 6) {
     bullets.push(
       `The current signal points to a commercial review of revenue concentration, efficiency, and budget allocation rather than a broad exploratory analysis.`
     );
@@ -987,9 +1011,32 @@ export function buildFallbackAskAnswerNarrative(
   input: QuestionNarrativeInput,
   warning = "AI explanation unavailable; showing rule-based summary."
 ): AskAnswerNarrative {
+  const summaryMatch = input.answer.match(/^(.+?) totals ([\d.]+) with an average of ([\d.]+) across (\d+) populated records\.$/i);
+  const topRevenueSegment = input.facts.topFindings.topRevenueSegment;
+  const bestRoasSegment = input.facts.topFindings.bestRoasSegment;
+  const rewrittenDirectAnswer = (() => {
+    if (!summaryMatch) {
+      return input.answer;
+    }
+
+    const metricLabel = humanizeLabel(summaryMatch[1]) || "This metric";
+    const total = Number(summaryMatch[2]);
+    const average = Number(summaryMatch[3]);
+    const recordCount = Number(summaryMatch[4]);
+
+    if (topRevenueSegment && normalizeName(metricLabel).includes("revenue")) {
+      return `${topRevenueSegment.name} is the strongest ${topRevenueSegment.dimension} for ${metricLabel.toLowerCase()}, and the current selection totals ${formatMetricValue(metricLabel, total)}.`;
+    }
+
+    if (bestRoasSegment && isEfficiencyMetric(metricLabel)) {
+      return `${bestRoasSegment.name} is the strongest ${bestRoasSegment.dimension} on efficiency, and the current selection sits at ${formatMetricValue(metricLabel, total)} overall.`;
+    }
+
+    return `${metricLabel} totals ${formatMetricValue(metricLabel, total)} across the current selection, with an average of ${formatMetricValue(metricLabel, average)} across ${recordCount} matching records.`;
+  })();
   const evidence = input.supportingData.map((entry) => `${entry.label}: ${String(entry.value)}`);
   return {
-    directAnswer: input.answer,
+    directAnswer: rewrittenDirectAnswer,
     evidence: evidence.length > 0 ? evidence : ["No supporting aggregates were available."],
     caution: input.chartSelectionWarnings.length > 0 ? input.chartSelectionWarnings.join(" ") : undefined,
     suggestedNextQuestion: input.suggestedFollowUps[0],
@@ -1029,7 +1076,7 @@ export async function generateExecutiveInsights(facts: AnalyticsFacts): Promise<
         const cleanedBullets = parsed.bullets.filter(isCommercialInsightText);
         const mergedBullets = [...cleanedBullets];
         for (const bullet of fallback.bullets) {
-          if (mergedBullets.length >= 5) {
+          if (mergedBullets.length >= 6) {
             break;
           }
           if (isCommercialInsightText(bullet) && !mergedBullets.includes(bullet)) {

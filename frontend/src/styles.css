@@ -1716,6 +1716,38 @@ small,
   color: inherit;
 }
 
+.answer-copy,
+.answer-chart {
+  background: linear-gradient(180deg, rgba(7, 35, 37, 0.97) 0%, rgba(5, 28, 30, 0.95) 100%);
+  border: 1px solid rgba(125, 235, 230, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.answer-copy {
+  color: #ecfaf8;
+}
+
+.answer-copy p,
+.answer-copy strong {
+  color: inherit;
+}
+
+.answer-copy .eyebrow,
+.workspace-meta {
+  color: #9cf4ef;
+}
+
+.answer-chart .recharts-cartesian-axis-tick-value,
+.answer-chart .recharts-legend-item-text,
+.answer-chart .recharts-label {
+  fill: #d9fffb !important;
+  color: #d9fffb !important;
+}
+
+.answer-chart .recharts-cartesian-grid line {
+  stroke: rgba(217, 255, 251, 0.14) !important;
+}
+
 .summary-stats div,
 .sidebar-stats div,
 .support-card {

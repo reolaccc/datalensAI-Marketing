@@ -136,7 +136,7 @@ export function TopBar() {
                 Clear
               </button>
             </div>
-            {error ? <p className="error-text">{error}</p> : null}
+            {error && !analysis ? <p className="error-text">{error}</p> : null}
           </div>
         </div>
       </div>

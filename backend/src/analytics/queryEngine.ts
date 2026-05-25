@@ -10,6 +10,72 @@ function humanize(value: string) {
   return value.replace(/_/g, " ").replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
+function formatCompactNumber(value: number) {
+  if (!Number.isFinite(value)) {
+    return String(value);
+  }
+
+  const absolute = Math.abs(value);
+  if (absolute < 1000) {
+    return new Intl.NumberFormat(undefined, {
+      maximumFractionDigits: value % 1 === 0 ? 0 : 2
+    }).format(value);
+  }
+
+  const units = [
+    { limit: 1_000_000_000_000, suffix: "T", divisor: 1_000_000_000_000 },
+    { limit: 1_000_000_000, suffix: "B", divisor: 1_000_000_000 },
+    { limit: 1_000_000, suffix: "M", divisor: 1_000_000 },
+    { limit: 1_000, suffix: "K", divisor: 1_000 }
+  ];
+
+  const unit = units.find((entry) => absolute >= entry.limit) ?? units[units.length - 1];
+  const scaled = value / unit.divisor;
+  const decimals = Math.abs(scaled) >= 100 ? 0 : Math.abs(scaled) >= 10 ? 1 : 2;
+
+  return `${Number(scaled.toFixed(decimals)).toLocaleString(undefined, {
+    maximumFractionDigits: decimals,
+    minimumFractionDigits: 0
+  })}${unit.suffix}`;
+}
+
+function metricUnit(metric: string) {
+  const normalized = metric.toLowerCase();
+  if (normalized.includes("roas") || normalized.includes("roi")) {
+    return "x";
+  }
+  if (normalized.includes("ctr") || normalized.includes("cvr") || normalized.includes("rate")) {
+    return "%";
+  }
+  if (normalized.includes("revenue")) {
+    return "revenue units";
+  }
+  if (normalized.includes("cost") || normalized.includes("spend")) {
+    return "cost units";
+  }
+  if (normalized.includes("impression")) {
+    return "impressions";
+  }
+  if (normalized.includes("click")) {
+    return "clicks";
+  }
+  return humanize(metric).toLowerCase();
+}
+
+function formatMetricValue(metric: string, value: number) {
+  const normalized = metric.toLowerCase();
+  if (normalized.includes("roas") || normalized.includes("roi")) {
+    return `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(value)}x`;
+  }
+
+  if (normalized.includes("ctr") || normalized.includes("cvr") || normalized.includes("rate")) {
+    const percentValue = Math.abs(value) <= 1.5 ? value * 100 : value;
+    return `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(percentValue)}%`;
+  }
+
+  return `${formatCompactNumber(value)} ${metricUnit(metric)}`;
+}
+
 function matchesFilter(row: DatasetRow, filter: PlannedQuery["filters"][number]) {
   const rawValue = row[filter.column];
 
@@ -176,7 +242,7 @@ function answerAnomaly(question: string, context: QueryContext): QuestionAnswer 
   return {
     question,
     interpretation: "anomaly scan",
-    answer: `${humanize(outlier.column)} is the strongest anomaly signal with ${outlier.count} outlier values between ${outlier.min.toFixed(2)} and ${outlier.max.toFixed(2)}.`,
+    answer: `${humanize(outlier.column)} is the strongest anomaly signal with ${outlier.count} outlier values between ${formatMetricValue(outlier.column, outlier.min)} and ${formatMetricValue(outlier.column, outlier.max)}.`,
     supportingData: [
       { label: "column", value: outlier.column },
       { label: "outlier_count", value: outlier.count },
@@ -248,9 +314,9 @@ function answerTrend(question: string, rows: DatasetRow[], query: PlannedQuery):
     return {
       question,
       interpretation: `trend of ${query.metrics.join(", ")}`,
-      answer: `${humanize(primaryMetric)} shows a ${direction} trend${filterText} from ${firstValue.toFixed(2)} on ${String(first.date)} to ${lastValue.toFixed(2)} on ${String(last.date)}, alongside ${query.metrics
+      answer: `${humanize(primaryMetric)} shows a ${direction} trend${filterText} from ${formatMetricValue(primaryMetric, firstValue)} on ${String(first.date)} to ${formatMetricValue(primaryMetric, lastValue)} on ${String(last.date)}, alongside ${query.metrics
         .slice(1)
-        .map((metric) => `${humanize(metric).toLowerCase()} ${Number(last[metric] ?? 0).toFixed(2)} at the latest point`)
+        .map((metric) => `${humanize(metric).toLowerCase()} ${formatMetricValue(metric, Number(last[metric] ?? 0))} at the latest point`)
         .join(" and ")}.`,
       supportingData: query.metrics.map((metric) => ({
         label: metric,
@@ -302,7 +368,7 @@ function answerTrend(question: string, rows: DatasetRow[], query: PlannedQuery):
   return {
     question,
     interpretation: `trend of ${query.metric}`,
-    answer: `${humanize(query.metric)} shows a ${direction} trend${filterText} from ${first.value.toFixed(2)} on ${first.date} to ${last.value.toFixed(2)} on ${last.date}.`,
+    answer: `${humanize(query.metric)} shows a ${direction} trend${filterText} from ${formatMetricValue(query.metric, first.value)} on ${first.date} to ${formatMetricValue(query.metric, last.value)} on ${last.date}.`,
     supportingData: data.slice(-5).map((entry) => ({
       label: entry.date,
       value: Number(entry.value.toFixed(2))
@@ -416,7 +482,7 @@ function answerDimensionTrend(question: string, rows: DatasetRow[], query: Plann
     return {
       question,
       interpretation: `trend of ${query.metrics.join(", ")} by ${query.dimension}`,
-      answer: `${leader.label} shows the strongest ${humanize(primaryMetric).toLowerCase()}-anchored trend${filterText} across ${query.dimension} for ${seriesLabelText}, with totals of ${leader.value.toFixed(2)} vs ${laggard.value.toFixed(2)} over the selected period.`,
+      answer: `${leader.label} shows the strongest ${humanize(primaryMetric).toLowerCase()}-anchored trend${filterText} across ${query.dimension} for ${seriesLabelText}, with totals of ${formatMetricValue(primaryMetric, leader.value)} vs ${formatMetricValue(primaryMetric, laggard.value)} over the selected period.`,
       supportingData: metricTotalsByDimension.map((entry) => ({
         label: entry.label,
         value: Number(entry.value.toFixed(2))
@@ -484,7 +550,7 @@ function answerDimensionTrend(question: string, rows: DatasetRow[], query: Plann
   return {
     question,
     interpretation: `trend of ${query.metric} by ${query.dimension}`,
-    answer: `${leader.label} shows the strongest ${humanize(query.metric).toLowerCase()} trend${filterText} across ${query.dimension} for ${seriesLabelText}, with totals of ${leader.value.toFixed(2)} vs ${laggard.value.toFixed(2)} over the selected period.`,
+    answer: `${leader.label} shows the strongest ${humanize(query.metric).toLowerCase()} trend${filterText} across ${query.dimension} for ${seriesLabelText}, with totals of ${formatMetricValue(query.metric, leader.value)} vs ${formatMetricValue(query.metric, laggard.value)} over the selected period.`,
     supportingData: totals.map((entry) => ({
       label: entry.label,
       value: Number(entry.value.toFixed(2))
@@ -527,7 +593,7 @@ function answerTopSegment(question: string, rows: DatasetRow[], query: PlannedQu
     question,
     interpretation: `rank ${query.dimension} by ${query.aggregateOperation} ${query.metric}`,
     answer: winner
-      ? `${winner.label} has the strongest ${humanize(query.metric).toLowerCase()}${filterText} at ${winner.value.toFixed(2)}.`
+      ? `${winner.label} has the strongest ${humanize(query.metric).toLowerCase()}${filterText} at ${formatMetricValue(query.metric, winner.value)}.`
       : `No segment-level result could be computed${filterText}.`,
     supportingData: ranked.map((entry) => ({
       label: entry.label,
@@ -571,7 +637,7 @@ function answerComparison(question: string, rows: DatasetRow[], query: PlannedQu
   return {
     question,
     interpretation: `compare ${query.dimension} values on ${query.aggregateOperation} ${query.metric}`,
-    answer: `${leader.label} leads ${laggard.label} on ${humanize(query.metric).toLowerCase()}${filterText} by ${(leader.value - laggard.value).toFixed(2)}.`,
+    answer: `${leader.label} leads ${laggard.label} on ${humanize(query.metric).toLowerCase()}${filterText} by ${formatMetricValue(query.metric, leader.value - laggard.value)}.`,
     supportingData: grouped.map((entry) => ({
       label: entry.label,
       value: Number(entry.value.toFixed(2))
@@ -648,13 +714,13 @@ function answerComparisonTrend(question: string, rows: DatasetRow[], query: Plan
   const laggard = totals[totals.length - 1];
   const filterText = formatFilterScope(query);
   const latestSummary = query.comparisonValues
-    .map((series) => `${series} ${Number(latestBySeries.get(series) ?? 0).toFixed(2)}`)
+    .map((series) => `${series} ${formatMetricValue(query.metric!, Number(latestBySeries.get(series) ?? 0))}`)
     .join(" and ");
 
   return {
     question,
     interpretation: `compare ${query.dimension} trend of ${query.metric}`,
-    answer: `${leader.label} shows the stronger ${humanize(query.metric).toLowerCase()} trend${filterText} across the selected period, with period totals of ${leader.value.toFixed(2)} vs ${laggard.value.toFixed(2)} and latest observed values of ${latestSummary}.`,
+    answer: `${leader.label} shows the stronger ${humanize(query.metric).toLowerCase()} trend${filterText} across the selected period, with period totals of ${formatMetricValue(query.metric, leader.value)} vs ${formatMetricValue(query.metric, laggard.value)} and latest observed values of ${latestSummary}.`,
     supportingData: totals.map((entry) => ({
       label: entry.label,
       value: Number(entry.value.toFixed(2))
@@ -703,7 +769,7 @@ function answerAggregateSegments(question: string, rows: DatasetRow[], query: Pl
       interpretation: `${query.aggregateOperation} ${query.metrics.join(", ")} by ${query.dimension}`,
       answer: leader
         ? `${leaderLabel} has the ${query.sortDirection === "asc" ? "lowest" : "highest"} ${query.aggregateOperation} ${humanize(primaryMetric).toLowerCase()}${filterText}, with ${secondaryMetrics
-            .map((metric) => `${humanize(metric).toLowerCase()} ${leader[metric]}`)
+            .map((metric) => `${humanize(metric).toLowerCase()} ${formatMetricValue(metric, Number(leader[metric] ?? 0))}`)
             .join(" and ")}.`
         : `No grouped aggregate could be computed${filterText}.`,
       supportingData: query.metrics.map((metric) => ({
@@ -738,7 +804,7 @@ function answerAggregateSegments(question: string, rows: DatasetRow[], query: Pl
     question,
     interpretation: `${query.aggregateOperation} ${query.metric} by ${query.dimension}`,
     answer: leader
-      ? `${leader.label} has the ${query.sortDirection === "asc" ? "lowest" : "highest"} ${query.aggregateOperation} ${humanize(query.metric).toLowerCase()}${filterText} at ${leader.value.toFixed(2)}.`
+      ? `${leader.label} has the ${query.sortDirection === "asc" ? "lowest" : "highest"} ${query.aggregateOperation} ${humanize(query.metric).toLowerCase()}${filterText} at ${formatMetricValue(query.metric, leader.value)}.`
       : `No grouped aggregate could be computed${filterText}.`,
     supportingData: grouped.map((entry) => ({
       label: entry.label,
@@ -775,7 +841,7 @@ function answerSummary(question: string, rows: DatasetRow[], query: PlannedQuery
   return {
     question,
     interpretation: `summarize ${query.metric}`,
-    answer: `${humanize(query.metric)} totals ${total.toFixed(2)} with an average of ${average.toFixed(2)} across ${values.length} populated records.`,
+    answer: `${humanize(query.metric)} totals ${formatMetricValue(query.metric, total)} with an average of ${formatMetricValue(query.metric, average)} across ${values.length} records.`,
     supportingData: [
       { label: "total", value: Number(total.toFixed(2)) },
       { label: "average", value: Number(average.toFixed(2)) },

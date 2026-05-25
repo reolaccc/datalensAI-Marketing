@@ -4,6 +4,12 @@ function normalizeBullet(value: string) {
   return value.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
+function isBusinessInsight(value: string) {
+  return !/(^next\s*:|next question:|data quality|missing cell|missing cells|duplicate row|duplicate rows|outlier|outliers|eda|profiling|dirty data|warning)/i.test(
+    value.trim()
+  );
+}
+
 function rewriteSuggestionAsInsight(question: string) {
   const trimmed = question.trim().replace(/[?.!]+$/, "");
   const normalized = trimmed.toLowerCase();
@@ -53,6 +59,9 @@ export function buildExecutiveInsightBullets(executiveSummary: AnalysisResponse[
 
     const trimmed = value.trim();
     if (!trimmed) {
+      return;
+    }
+    if (!isBusinessInsight(trimmed)) {
       return;
     }
 

@@ -203,20 +203,7 @@ export function AskDatasetPanel() {
                 {questionAnswer.narrative ? (
                   <div className="answer-narrative">
                     {questionAnswer.narrative.warning ? <p className="workspace-meta">{questionAnswer.narrative.warning}</p> : null}
-                    {questionAnswer.narrative.evidence.length > 0 ? (
-                      <div className="support-grid">
-                        {questionAnswer.narrative.evidence.map((evidence, index) => (
-                          <div className="support-card" key={`${evidence}-${index}`}>
-                            <span>Evidence</span>
-                            <strong>{evidence}</strong>
-                          </div>
-                        ))}
-                      </div>
-                    ) : null}
                     {questionAnswer.narrative.caution ? <p className="workspace-meta">{questionAnswer.narrative.caution}</p> : null}
-                    {questionAnswer.narrative.suggestedNextQuestion ? (
-                      <p className="workspace-meta">Next question: {questionAnswer.narrative.suggestedNextQuestion}</p>
-                    ) : null}
                   </div>
                 ) : null}
 
