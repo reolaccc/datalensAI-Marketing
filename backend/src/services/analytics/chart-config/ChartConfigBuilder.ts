@@ -345,21 +345,22 @@ export function buildChartConfig(
       rows.map((row) => ({ ...row, row_count: 1 })),
       blueprint.dimension,
       "row_count",
-      context.capabilities
+      context.capabilities,
+      context.profile
     );
   } else if (blueprint.chartType === "kpi_card" && blueprint.metric) {
-    data = buildKpiCardData(rows, blueprint.metric, context.capabilities);
+    data = buildKpiCardData(rows, blueprint.metric, context.capabilities, context.profile);
   } else if (blueprint.chartType === "line" || blueprint.chartType === "anomaly_trend") {
     if (!blueprint.metric || !blueprint.xAxis) {
       return null;
     }
-    data = aggregateByDate(rows, blueprint.xAxis, blueprint.metric, context.capabilities, blueprint.groupBy);
+    data = aggregateByDate(rows, blueprint.xAxis, blueprint.metric, context.capabilities, context.profile, blueprint.groupBy);
     series = blueprint.groupBy ? [...new Set(data.flatMap((entry) => Object.keys(entry).filter((key) => key !== "date")))] : undefined;
   } else if (blueprint.chartType === "bar" || blueprint.chartType === "horizontal_bar" || blueprint.chartType === "stacked_bar" || blueprint.chartType === "funnel" || blueprint.chartType === "donut") {
     if (!blueprint.metric || !blueprint.dimension) {
       return null;
     }
-    data = aggregateByDimension(rows, blueprint.dimension, blueprint.metric, context.capabilities, blueprint.groupBy);
+    data = aggregateByDimension(rows, blueprint.dimension, blueprint.metric, context.capabilities, context.profile, blueprint.groupBy);
     if (blueprint.groupBy) {
       series = [...new Set(data.flatMap((entry) => Object.keys(entry).filter((key) => key !== blueprint.dimension)))];
     }
@@ -368,12 +369,12 @@ export function buildChartConfig(
     if (!blueprint.metric) {
       return null;
     }
-    data = buildHistogramData(rows, blueprint.metric, context.capabilities);
+    data = buildHistogramData(rows, blueprint.metric, context.capabilities, context.profile);
   } else if (blueprint.chartType === "scatter" || blueprint.chartType === "heatmap") {
     if (!blueprint.metric || !blueprint.secondaryMetric) {
       return null;
     }
-    data = buildScatterData(rows, blueprint.metric, blueprint.secondaryMetric, context.capabilities);
+    data = buildScatterData(rows, blueprint.metric, blueprint.secondaryMetric, context.capabilities, context.profile);
   }
 
   if (data.length === 0) {

@@ -1,0 +1,13 @@
+date,channel,campaign,device,region,customer_segment,funnel_stage,impressions,clicks,sessions,conversions,revenue,cost,conversion_rate,roas
+2026-06-01,Paid Search,Spring Launch,Desktop,North America,Enterprise,awareness,19840,1368,2520,126,4785.4,1448.2,0.092,3.3
+2026-06-01,Paid Social,Social Burst,Mobile,Europe,Consumer,awareness,15420,1014,1842,54,3085.6,1662.4,0.053,1.86
+2026-06-02,Paid Search,Brand Defense,Desktop,North America,SMB,consideration,14110,962,1975,94,3628.2,1268.5,0.098,2.86
+2026-06-02,Organic Search,Evergreen,Desktop,Europe,Consumer,consideration,11820,838,1601,72,2810.9,402.1,0.086,6.99
+2026-06-03,Email,Remarketing,Desktop,APAC,Enterprise,conversion,7020,618,1310,120,4894.7,388.9,0.194,12.59
+2026-06-03,Display,Awareness Burst,Tablet,APAC,Consumer,awareness,21040,540,1012,34,1615.3,928.4,0.063,1.74
+2026-06-04,Paid Search,Spring Launch,Mobile,North America,Enterprise,awareness,20360,1424,2648,133,5106.8,1521.6,0.093,3.36
+2026-06-04,Paid Social,Lookalike,Mobile,Europe,SMB,awareness,12890,812,1515,57,2441.5,1348.7,0.07,1.81
+2026-06-05,Organic Search,Evergreen,Desktop,Europe,Consumer,consideration,11040,782,1568,69,2704.2,392.4,0.088,6.89
+2026-06-05,Email,Remarketing,Desktop,APAC,Enterprise,conversion,6780,603,1288,117,4756.1,381.2,0.194,12.47
+2026-06-06,paid search,Spring Launch,Desktop,North America,Enterprise,awareness,20630,1438,2682,135,5328.9,1560.7,0.094,3.41
+2026-06-06,Paid Social,Social Burst,Mobile,Europe,Consumer,awareness,14810,980,1786,52,2758.4,1492.5,0.053,1.85

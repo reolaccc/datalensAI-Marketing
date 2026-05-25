@@ -12,12 +12,15 @@ type DatasetType = "marketing" | "sales" | "ecommerce" | "generic";
 type MetricKey =
   | "revenue"
   | "cost"
+  | "spend"
   | "roi"
   | "roas"
   | "conversion_rate"
+  | "cvr"
   | "clicks"
   | "impressions"
   | "ctr"
+  | "conversions"
   | "cpc"
   | "cpa"
   | "revenue_per_click"
@@ -76,6 +79,31 @@ function findColumn(profile: DatasetProfile, aliases: string[]) {
     const normalized = normalizeName(column);
     return wanted.some((alias) => normalized === alias || normalized.includes(alias));
   });
+}
+
+function pickBestNumericColumn(profile: DatasetProfile, aliases: string[]) {
+  const wanted = aliases.map(normalizeName);
+  const ranked = profile.numericColumns
+    .map((column) => {
+      const normalized = normalizeName(column);
+      const score = wanted.reduce((best, alias) => {
+        if (normalized === alias) {
+          return Math.max(best, 3);
+        }
+        if (normalized.includes(alias)) {
+          return Math.max(best, 2);
+        }
+        if (alias.includes(normalized)) {
+          return Math.max(best, 1);
+        }
+        return best;
+      }, 0);
+      return { column, score };
+    })
+    .filter((entry) => entry.score > 0)
+    .sort((left, right) => right.score - left.score || left.column.length - right.column.length);
+
+  return ranked[0]?.column ?? null;
 }
 
 function hasSignal(columns: string[], hints: string[]) {
@@ -335,15 +363,24 @@ function pickDatasetType(profile: DatasetProfile): DatasetType {
 
   const marketingSignals = [
     "revenue",
+    "sales value",
+    "sales_value",
     "sales",
     "income",
     "gmv",
     "conversion value",
     "cost",
     "spend",
+    "outlay",
     "ad spend",
+    "ad view",
+    "ad_view",
+    "click through",
+    "click_through",
     "click",
     "impression",
+    "closed won",
+    "closed_won",
     "conversion rate",
     "ctr",
     "cpc",
@@ -387,14 +424,17 @@ function pickDimension(profile: DatasetProfile, datasetType: DatasetType, metric
   const metricSensitivePreferences: Record<MetricKey, string[]> = {
     revenue: ["channel", "campaign", "region", "product", "category"],
     cost: ["channel", "campaign", "device", "region", "product", "category"],
+    spend: ["channel", "campaign", "device", "region", "product", "category"],
     roi: ["channel", "campaign", "source", "medium", "region"],
     roas: ["channel", "campaign", "source", "medium", "region"],
     conversion_rate: ["channel", "campaign", "device", "segment", "region", "category"],
+    cvr: ["channel", "campaign", "device", "segment", "region", "category"],
     clicks: ["channel", "campaign", "device", "source"],
     impressions: ["channel", "campaign", "device", "source"],
     ctr: ["channel", "campaign", "device", "source"],
     cpc: ["channel", "campaign", "device", "source"],
     cpa: ["channel", "campaign", "device", "source"],
+    conversions: ["channel", "campaign", "device", "region", "category"],
     revenue_per_click: ["channel", "campaign", "device", "source"],
     orders: ["region", "product", "category", "channel"],
     average_order_value: ["region", "product", "category", "channel"],
@@ -423,6 +463,22 @@ function getMissingWarning(metricName: string, sourceColumns: string[], profile:
   return `${metricName} may be affected by ${missingCount} missing value${missingCount === 1 ? "" : "s"}.`;
 }
 
+function isDirectAggregateMetricKey(key: MetricKey) {
+  return (
+    key !== "roi" &&
+    key !== "roas" &&
+    key !== "ctr" &&
+    key !== "cvr" &&
+    key !== "cpc" &&
+    key !== "cpa" &&
+    key !== "revenue_per_click" &&
+    key !== "average_order_value" &&
+    key !== "conversion_rate" &&
+    key !== "margin" &&
+    key !== "refund_rate"
+  );
+}
+
 function buildDescription(metricKey: MetricKey, observation: MetricObservation) {
   const fmt = observation.formattedValue;
   const segment = observation.segmentSummary;
@@ -433,16 +489,16 @@ function buildDescription(metricKey: MetricKey, observation: MetricObservation) 
   const shareText =
     top && topShare !== undefined ? ` ${top} contributes ${formatPercentPoint(topShare)} of the total.` : "";
 
-  switch (metricKey) {
+  switch (String(metricKey)) {
     case "revenue":
       return `Revenue reached ${fmt}.${shareText} Compare it with ROAS before changing budget.`;
-    case "cost":
+    case "spend":
       return `Spend reached ${fmt}.${shareText} Review it alongside ROAS so budget decisions stay tied to efficiency.`;
     case "roi":
       return `ROI is ${fmt}.${shareText} It measures net return after spend, so compare it with ROAS to see whether growth is actually profitable.`;
     case "roas":
       return `ROAS means every 1 unit of spend brought back about ${fmt.replace(/x$/, "")} units of revenue. Use it to judge whether growth is efficient before increasing budget.`;
-    case "conversion_rate":
+    case "cvr":
       return `Conversion rate is ${fmt}.${best ? ` ${best} converts best.` : ""}${worst ? ` ${worst} converts least efficiently.` : ""} Compare it by segment to see whether traffic quality is strong enough.`;
     case "clicks":
       return `Clicks reached ${fmt}.${top ? ` ${top} drives the most traffic.` : ""} Traffic volume should be judged with conversion rate and revenue per click.`;
@@ -483,7 +539,7 @@ function buildContextLine(metricKey: MetricKey, observation: MetricObservation) 
     return undefined;
   }
 
-  const lowerIsBetter = metricKey === "cost" || metricKey === "cpc" || metricKey === "cpa" || metricKey === "refund_rate";
+  const lowerIsBetter = metricKey === "spend";
   const bestName = lowerIsBetter ? segment.worst?.name : segment.best?.name ?? segment.top?.name;
   const worstName = lowerIsBetter ? segment.top?.name ?? segment.best?.name : segment.worst?.name;
 
@@ -511,70 +567,91 @@ function buildMetricObservation(
       metricType: "currency",
       unit: "",
       priority: { marketing: 100, sales: 100, ecommerce: 100, generic: 96 },
-      sourceColumns: ["revenue", "sales", "income", "gmv", "conversion_value"]
+      sourceColumns: ["revenue", "sales_value", "sales", "income", "gmv", "conversion_value"]
     },
     cost: {
+      label: "Cost",
+      metricType: "currency",
+      unit: "",
+      priority: { marketing: 94, sales: 70, ecommerce: 68, generic: 84 },
+      sourceColumns: ["cost", "spend", "total_outlay", "all_in_spend", "ad_spend", "budget"]
+    },
+    spend: {
       label: "Spend",
       metricType: "currency",
       unit: "",
       priority: { marketing: 95, sales: 72, ecommerce: 70, generic: 86 },
-      sourceColumns: ["cost", "spend", "ad_spend", "budget"]
+      sourceColumns: ["spend", "all_in_spend", "total_outlay", "cost", "ad_spend", "budget"]
     },
     roi: {
       label: "ROI",
       metricType: "ratio",
       unit: "x",
-      priority: { marketing: 98, sales: 70, ecommerce: 68, generic: 70 },
-      sourceColumns: ["revenue", "cost"]
+      priority: { marketing: 60, sales: 56, ecommerce: 56, generic: 54 },
+      sourceColumns: ["revenue", "cost", "spend", "profit"]
     },
     roas: {
       label: "ROAS",
       metricType: "ratio",
       unit: "x",
       priority: { marketing: 92, sales: 68, ecommerce: 66, generic: 64 },
-      sourceColumns: ["revenue", "cost"]
+      sourceColumns: ["revenue", "spend"]
     },
     conversion_rate: {
       label: "Conversion Rate",
       metricType: "percentage",
       unit: "%",
+      priority: { marketing: 88, sales: 86, ecommerce: 88, generic: 56 },
+      sourceColumns: ["conversion_rate", "conv_rate", "cvr", "conversions", "closed_won_count", "clicks", "click_through_count"]
+    },
+    cvr: {
+      label: "Conversion Rate",
+      metricType: "percentage",
+      unit: "%",
       priority: { marketing: 90, sales: 88, ecommerce: 90, generic: 58 },
-      sourceColumns: ["conversion_rate", "conversions", "clicks"]
+      sourceColumns: ["cvr", "conversion_rate", "conversions", "closed_won_count", "clicks", "click_through_count"]
+    },
+    conversions: {
+      label: "Conversions",
+      metricType: "count",
+      unit: "conversions",
+      priority: { marketing: 84, sales: 86, ecommerce: 90, generic: 60 },
+      sourceColumns: ["conversions", "conversion_count", "closed_won_count", "orders", "purchases"]
     },
     clicks: {
       label: "Clicks",
       metricType: "count",
       unit: "clicks",
       priority: { marketing: 85, sales: 60, ecommerce: 62, generic: 52 },
-      sourceColumns: ["clicks", "click_count"]
+      sourceColumns: ["clicks", "click_count", "click_through_count"]
     },
     impressions: {
       label: "Impressions",
       metricType: "count",
       unit: "impressions",
       priority: { marketing: 80, sales: 40, ecommerce: 40, generic: 46 },
-      sourceColumns: ["impressions", "views"]
+      sourceColumns: ["impressions", "views", "ad_view_count", "ad_views"]
     },
     ctr: {
       label: "CTR",
       metricType: "percentage",
       unit: "%",
       priority: { marketing: 78, sales: 40, ecommerce: 40, generic: 48 },
-      sourceColumns: ["clicks", "impressions", "ctr"]
+      sourceColumns: ["clicks", "click_through_count", "impressions", "ad_view_count", "ctr"]
     },
     cpc: {
       label: "CPC",
       metricType: "rate",
       unit: `${getCurrencySymbol(currencyCode)} / click`,
       priority: { marketing: 76, sales: 44, ecommerce: 44, generic: 42 },
-      sourceColumns: ["cost", "clicks"]
+      sourceColumns: ["spend", "cost", "clicks"]
     },
     cpa: {
       label: "CPA",
       metricType: "rate",
       unit: `${getCurrencySymbol(currencyCode)} / conversion`,
       priority: { marketing: 74, sales: 46, ecommerce: 46, generic: 40 },
-      sourceColumns: ["cost", "conversions"]
+      sourceColumns: ["spend", "cost", "conversions"]
     },
     revenue_per_click: {
       label: "Revenue / Click",
@@ -644,8 +721,8 @@ function buildMetricObservation(
   const config = metricDefinitions[key];
   const matchedColumns = config.sourceColumns.map((alias) => findColumn(profile, [alias])).filter((value): value is string => Boolean(value));
   const uniqueColumns = [...new Set(matchedColumns)];
-
-  if (key !== "roi" && key !== "roas" && key !== "ctr" && key !== "cpc" && key !== "cpa" && key !== "revenue_per_click" && key !== "average_order_value" && key !== "conversion_rate" && key !== "margin" && key !== "refund_rate") {
+  const metricKey = key as MetricKey;
+  if (isDirectAggregateMetricKey(metricKey)) {
     const sourceColumn = uniqueColumns[0];
     if (!sourceColumn) {
       return null;
@@ -665,8 +742,8 @@ function buildMetricObservation(
       : formatCurrencyLike(value, currencyCode);
 
     const observation: MetricObservation = {
-      key,
-      label: key === "cost" ? "Spend" : key === "revenue" && sourceColumn.includes("sales") ? "Sales" : config.label,
+      key: metricKey,
+      label: metricKey === "spend" ? "Spend" : metricKey === "revenue" && sourceColumn.includes("sales") ? "Sales" : config.label,
       value: Number(value.toFixed(2)),
       formattedValue,
       unit: config.unit,
@@ -687,8 +764,8 @@ function buildMetricObservation(
       observation.warnings.push(warning);
       observation.reliability = observation.reliability === "high" ? "medium" : observation.reliability;
     }
-    observation.contextLine = buildContextLine(key, observation);
-    observation.description = buildDescription(key, observation);
+    observation.contextLine = buildContextLine(metricKey, observation);
+    observation.description = buildDescription(metricKey, observation);
     return observation;
   }
 
@@ -704,22 +781,37 @@ function buildMetricObservation(
   const warnings: string[] = [];
   let sourceColumns: string[] = [];
 
-  switch (key) {
+  switch (String(metricKey)) {
+    case "spend": {
+      const spendColumn =
+        pickBestNumericColumn(profile, ["spend", "all_in_spend", "total_outlay", "cost", "ad_spend", "budget"]);
+      if (!spendColumn) {
+        return null;
+      }
+      const spendTotal = sumColumn(rows, spendColumn);
+      value = spendTotal;
+      formula = `sum(${spendColumn})`;
+      sourceColumns = [spendColumn];
+      reliability = getColumnProfile(profile, spendColumn)?.missingCount ? "medium" : "high";
+      warnings.push(...[getMissingWarning("Spend", sourceColumns, profile)].filter(Boolean) as string[]);
+      segmentSummary = buildSegmentSummary(rows, dimension, (row) => parseNumber(row[spendColumn]));
+      break;
+    }
     case "roas": {
-      const revenueColumn = uniqueColumns.find((column) => findColumn(profile, [column]) || normalizeName(column).includes("revenue"));
-      const costColumn = uniqueColumns.find((column) => normalizeName(column).includes("cost") || normalizeName(column).includes("spend") || normalizeName(column).includes("budget")) ?? findColumn(profile, ["cost", "spend", "ad_spend", "budget"]);
-      if (!revenueColumn || !costColumn) {
+      const revenueColumn = pickBestNumericColumn(profile, ["revenue", "sales_value", "sales", "income", "gmv", "conversion_value"]);
+      const spendColumn = pickBestNumericColumn(profile, ["spend", "all_in_spend", "total_outlay", "cost", "ad_spend", "budget"]);
+      if (!revenueColumn || !spendColumn) {
         return null;
       }
       const revenueTotal = sumColumn(rows, revenueColumn);
-      const costTotal = sumColumn(rows, costColumn);
-      if (costTotal <= 0) {
+      const spendTotal = sumColumn(rows, spendColumn);
+      if (spendTotal <= 0) {
         return null;
       }
-      value = Number((revenueTotal / costTotal).toFixed(2));
-      formula = `sum(${revenueColumn}) / sum(${costColumn})`;
-      sourceColumns = [revenueColumn, costColumn];
-      reliability = getColumnProfile(profile, revenueColumn)?.missingCount || getColumnProfile(profile, costColumn)?.missingCount ? "medium" : "high";
+      value = Number((revenueTotal / spendTotal).toFixed(2));
+      formula = `sum(${revenueColumn}) / sum(${spendColumn})`;
+      sourceColumns = [revenueColumn, spendColumn];
+      reliability = getColumnProfile(profile, revenueColumn)?.missingCount || getColumnProfile(profile, spendColumn)?.missingCount ? "medium" : "high";
       warnings.push(...[getMissingWarning("ROAS", sourceColumns, profile)].filter(Boolean) as string[]);
       segmentSummary = buildSegmentSummary(
         rows,
@@ -727,50 +819,15 @@ function buildMetricObservation(
         (row) => parseNumber(row[revenueColumn]),
         {
           ratio: true,
-          denominatorGetter: (row) => parseNumber(row[costColumn]),
+          denominatorGetter: (row) => parseNumber(row[spendColumn]),
           scaleToPercent: false
         }
       );
       break;
     }
-    case "roi": {
-      const revenueColumn = uniqueColumns.find((column) => findColumn(profile, [column]) || normalizeName(column).includes("revenue"));
-      const costColumn = uniqueColumns.find((column) => normalizeName(column).includes("cost") || normalizeName(column).includes("spend") || normalizeName(column).includes("budget")) ?? findColumn(profile, ["cost", "spend", "ad_spend", "budget"]);
-      if (!revenueColumn || !costColumn) {
-        return null;
-      }
-      const revenueTotal = sumColumn(rows, revenueColumn);
-      const costTotal = sumColumn(rows, costColumn);
-      if (costTotal <= 0) {
-        return null;
-      }
-      value = Number(((revenueTotal - costTotal) / costTotal).toFixed(2));
-      formula = `(sum(${revenueColumn}) - sum(${costColumn})) / sum(${costColumn})`;
-      sourceColumns = [revenueColumn, costColumn];
-      reliability = getColumnProfile(profile, revenueColumn)?.missingCount || getColumnProfile(profile, costColumn)?.missingCount ? "medium" : "high";
-      warnings.push(...[getMissingWarning("ROI", sourceColumns, profile)].filter(Boolean) as string[]);
-      segmentSummary = buildSegmentSummary(
-        rows,
-        dimension,
-        (row) => {
-          const revenue = parseNumber(row[revenueColumn]);
-          const cost = parseNumber(row[costColumn]);
-          if (revenue === null || cost === null) {
-            return null;
-          }
-          return revenue - cost;
-        },
-        {
-          ratio: true,
-          denominatorGetter: (row) => parseNumber(row[costColumn]),
-          scaleToPercent: false
-        }
-      );
-      break;
-    }
-    case "conversion_rate": {
-      const conversionColumn = findColumn(profile, ["conversions", "orders", "deals"]);
-      const clickColumn = findColumn(profile, ["clicks", "click_count"]);
+    case "cvr": {
+      const conversionColumn = pickBestNumericColumn(profile, ["conversions", "closed_won_count", "orders", "deals"]);
+      const clickColumn = pickBestNumericColumn(profile, ["clicks", "click_through_count", "click_count"]);
       const rateColumn = findColumn(profile, ["conversion_rate", "conv_rate", "cvr"]);
       sourceColumns = [...new Set([conversionColumn, clickColumn, rateColumn].filter((value): value is string => Boolean(value)))];
 
@@ -836,8 +893,8 @@ function buildMetricObservation(
       break;
     }
     case "ctr": {
-      const clickColumn = findColumn(profile, ["clicks", "click_count"]);
-      const impressionColumn = findColumn(profile, ["impressions", "views"]);
+      const clickColumn = pickBestNumericColumn(profile, ["clicks", "click_through_count", "click_count"]);
+      const impressionColumn = pickBestNumericColumn(profile, ["impressions", "ad_view_count", "views"]);
       const rateColumn = findColumn(profile, ["ctr"]);
       sourceColumns = [...new Set([clickColumn, impressionColumn, rateColumn].filter((value): value is string => Boolean(value)))];
 
@@ -1009,11 +1066,11 @@ function buildMetricObservation(
   }
 
   const formattedValue =
-    key === "roas"
+    String(metricKey) === "roas"
       ? formatRatio(value)
-      : key === "conversion_rate" || key === "ctr" || key === "margin" || key === "refund_rate"
+      : ["cvr", "ctr", "margin", "refund_rate"].includes(String(metricKey))
         ? formatPercentPoint(value)
-        : key === "cpc" || key === "cpa" || key === "revenue_per_click" || key === "average_order_value"
+        : ["cpc", "cpa", "revenue_per_click", "average_order_value"].includes(String(metricKey))
             ? formatCurrencyLike(value, currencyCode)
             : config.metricType === "currency"
               ? formatCurrencyLike(value, currencyCode)
@@ -1022,14 +1079,14 @@ function buildMetricObservation(
   const label = config.label;
 
   const observation: MetricObservation = {
-    key,
+      key: metricKey,
     label,
     value: Number(value.toFixed(2)),
     formattedValue,
     unit:
-      key === "roas"
+      String(metricKey) === "roas"
         ? "x"
-        : key === "conversion_rate" || key === "ctr" || key === "margin" || key === "refund_rate"
+        : ["cvr", "ctr", "margin", "refund_rate"].includes(String(metricKey))
           ? "%"
           : config.unit,
     metricType: config.metricType,
@@ -1128,22 +1185,10 @@ function buildObservationId(observation: MetricObservation) {
 
 function getCandidateOrder(datasetType: DatasetType) {
   const orders: Record<DatasetType, MetricKey[]> = {
-    marketing: [
-      "revenue",
-      "cost",
-      "roi",
-      "roas",
-      "conversion_rate",
-      "clicks",
-      "impressions",
-      "ctr",
-      "cpc",
-      "cpa",
-      "revenue_per_click"
-    ],
-    sales: ["revenue", "roi", "orders", "average_order_value", "units_sold", "profit", "margin", "conversion_rate", "cost"],
-    ecommerce: ["revenue", "roi", "orders", "average_order_value", "conversion_rate", "refund_rate", "margin", "units_sold", "profit"],
-    generic: ["revenue", "cost", "roi", "profit", "orders", "total_value", "total_quantity", "conversion_rate", "roas"]
+    marketing: ["revenue", "spend", "roas", "cvr", "ctr", "clicks", "impressions", "conversions"],
+    sales: ["revenue", "spend", "roas", "cvr", "ctr", "clicks", "impressions", "conversions"],
+    ecommerce: ["revenue", "spend", "roas", "cvr", "ctr", "clicks", "impressions", "conversions"],
+    generic: ["revenue", "spend", "roas", "cvr", "ctr", "clicks", "impressions", "conversions"]
   };
 
   return orders[datasetType];
@@ -1167,24 +1212,13 @@ export function buildKpiObservations(rows: DatasetRow[], profile: DatasetProfile
 
   const keys: MetricKey[] = [
     "revenue",
-    "cost",
-    "roi",
+    "spend",
     "roas",
-    "conversion_rate",
+    "cvr",
     "clicks",
     "impressions",
     "ctr",
-    "cpc",
-    "cpa",
-    "revenue_per_click",
-    "orders",
-    "average_order_value",
-    "units_sold",
-    "profit",
-    "margin",
-    "refund_rate",
-    "total_value",
-    "total_quantity"
+    "conversions"
   ];
 
   for (const key of keys) {

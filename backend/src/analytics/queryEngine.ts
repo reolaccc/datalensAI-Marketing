@@ -1,5 +1,6 @@
 import type { DatasetProfile, DatasetRow, PlannedQuery, QuestionAnswer } from "./types.js";
 import { parseDateValue, parseNumber } from "../utils/inference.js";
+import { resolveSemanticMetricValue } from "./semanticContract.js";
 import { semanticIntentLabel } from "../services/analytics/intent/semanticBusinessIntent.js";
 
 interface QueryContext {
@@ -42,7 +43,7 @@ function formatCompactNumber(value: number) {
 
 function metricUnit(metric: string) {
   const normalized = metric.toLowerCase();
-  if (normalized.includes("roas") || normalized.includes("roi")) {
+  if (normalized.includes("roas")) {
     return "x";
   }
   if (normalized.includes("ctr") || normalized.includes("cvr") || normalized.includes("rate")) {
@@ -65,7 +66,7 @@ function metricUnit(metric: string) {
 
 function formatMetricValue(metric: string, value: number) {
   const normalized = metric.toLowerCase();
-  if (normalized.includes("roas") || normalized.includes("roi")) {
+  if (normalized.includes("roas")) {
     return `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(value)}x`;
   }
 
@@ -159,18 +160,23 @@ function aggregateValues(values: number[], operation: PlannedQuery["aggregateOpe
   return values.reduce((sum, value) => sum + value, 0);
 }
 
+function getSemanticMetricValue(row: DatasetRow, metric: string, profile: DatasetProfile) {
+  return resolveSemanticMetricValue(row, metric, profile);
+}
+
 function groupByMetric(
   rows: DatasetRow[],
   dimension: string,
   metric: string,
   operation: PlannedQuery["aggregateOperation"],
-  sortDirection: PlannedQuery["sortDirection"]
+  sortDirection: PlannedQuery["sortDirection"],
+  profile: DatasetProfile
 ) {
   const grouped = new Map<string, number[]>();
 
   for (const row of rows) {
     const key = row[dimension];
-    const metricValue = parseNumber(row[metric]);
+    const metricValue = getSemanticMetricValue(row, metric, profile);
     if (key === null || metricValue === null) {
       continue;
     }
@@ -191,7 +197,8 @@ function groupByMetrics(
   dimension: string,
   metrics: string[],
   operation: PlannedQuery["aggregateOperation"],
-  sortDirection: PlannedQuery["sortDirection"]
+  sortDirection: PlannedQuery["sortDirection"],
+  profile: DatasetProfile
 ) {
   const grouped = new Map<string, Record<string, number[]>>();
 
@@ -205,7 +212,7 @@ function groupByMetrics(
     const current = grouped.get(groupKey) ?? {};
 
     for (const metric of metrics) {
-      const metricValue = parseNumber(row[metric]);
+      const metricValue = getSemanticMetricValue(row, metric, profile);
       if (metricValue === null) {
         continue;
       }
@@ -236,13 +243,10 @@ function groupByMetrics(
 function semanticMetricAggregation(metric: string) {
   const normalized = metric.toLowerCase();
   if (
-    normalized.includes("rate") ||
     normalized.includes("roas") ||
-    normalized.includes("roi") ||
-    normalized.includes("cpa") ||
-    normalized.includes("cpc") ||
-    normalized.includes("conversion") ||
-    normalized.includes("margin")
+    normalized.includes("ctr") ||
+    normalized.includes("cvr") ||
+    normalized.includes("conversion")
   ) {
     return "average";
   }
@@ -265,11 +269,8 @@ function aggregateSemanticMetric(metric: string, values: number[]) {
 function inferSemanticMetricDirection(metric: string) {
   const normalized = metric.toLowerCase();
   if (
-    normalized.includes("cost") ||
     normalized.includes("spend") ||
-    normalized.includes("cpa") ||
-    normalized.includes("cpc") ||
-    normalized.includes("waste")
+    normalized.includes("cost")
   ) {
     return "low" as const;
   }
@@ -280,7 +281,8 @@ function inferSemanticMetricDirection(metric: string) {
 function buildSemanticRanking(
   question: string,
   rows: DatasetRow[],
-  query: PlannedQuery
+  query: PlannedQuery,
+  profile: DatasetProfile
 ): QuestionAnswer | null {
   if (!query.semanticProfile || !query.dimension || query.metrics.length === 0) {
     return null;
@@ -295,7 +297,7 @@ function buildSemanticRanking(
 
     const current = grouped.get(String(key)) ?? {};
     for (const metric of query.metrics) {
-      const metricValue = parseNumber(row[metric]);
+      const metricValue = getSemanticMetricValue(row, metric, profile);
       if (metricValue === null) {
         continue;
       }
@@ -454,7 +456,7 @@ function answerAnomaly(question: string, context: QueryContext): QuestionAnswer 
   };
 }
 
-function answerTrend(question: string, rows: DatasetRow[], query: PlannedQuery): QuestionAnswer {
+function answerTrend(question: string, rows: DatasetRow[], query: PlannedQuery, profile: DatasetProfile): QuestionAnswer {
   if (!query.datetimeColumn || !query.metric) {
     return {
       question,
@@ -476,7 +478,7 @@ function answerTrend(question: string, rows: DatasetRow[], query: PlannedQuery):
       const current = grouped.get(key) ?? {};
 
       for (const metric of query.metrics) {
-        const metricValue = parseNumber(row[metric]);
+        const metricValue = getSemanticMetricValue(row, metric, profile);
         if (metricValue === null) {
           continue;
         }
@@ -537,7 +539,7 @@ function answerTrend(question: string, rows: DatasetRow[], query: PlannedQuery):
   const grouped = new Map<string, number>();
   for (const row of rows) {
     const date = parseDateValue(row[query.datetimeColumn]);
-    const metricValue = parseNumber(row[query.metric]);
+    const metricValue = getSemanticMetricValue(row, query.metric, profile);
     if (!date || metricValue === null) {
       continue;
     }
@@ -583,15 +585,15 @@ function answerTrend(question: string, rows: DatasetRow[], query: PlannedQuery):
   };
 }
 
-function answerDimensionTrend(question: string, rows: DatasetRow[], query: PlannedQuery): QuestionAnswer {
+function answerDimensionTrend(question: string, rows: DatasetRow[], query: PlannedQuery, profile: DatasetProfile): QuestionAnswer {
   if (!query.datetimeColumn || !query.metric || !query.dimension) {
-    return answerTrend(question, rows, query);
+    return answerTrend(question, rows, query, profile);
   }
 
   const totalsByDimension = new Map<string, number>();
   for (const row of rows) {
     const dimensionValue: string | number | boolean | null = row[query.dimension];
-    const metricValue = parseNumber(row[query.metric]);
+    const metricValue = getSemanticMetricValue(row, query.metric, profile);
     if (typeof dimensionValue !== "string" || metricValue === null) {
       continue;
     }
@@ -607,7 +609,7 @@ function answerDimensionTrend(question: string, rows: DatasetRow[], query: Plann
           .map(([label]) => label);
 
   if (explicitSeries.length === 0) {
-    return answerTrend(question, rows, query);
+    return answerTrend(question, rows, query, profile);
   }
 
   if (query.metrics.length > 1) {
@@ -632,7 +634,7 @@ function answerDimensionTrend(question: string, rows: DatasetRow[], query: Plann
       const current = grouped.get(dateKey) ?? {};
 
       for (const metric of query.metrics) {
-        const metricValue = parseNumber(row[metric]);
+        const metricValue = getSemanticMetricValue(row, metric, profile);
         if (metricValue === null) {
           continue;
         }
@@ -654,7 +656,7 @@ function answerDimensionTrend(question: string, rows: DatasetRow[], query: Plann
       });
 
     if (data.length === 0) {
-      return answerTrend(question, rows, query);
+      return answerTrend(question, rows, query, profile);
     }
 
     const primaryMetric = query.metrics[0];
@@ -699,7 +701,7 @@ function answerDimensionTrend(question: string, rows: DatasetRow[], query: Plann
   for (const row of rows) {
     const date = parseDateValue(row[query.datetimeColumn]);
     const dimensionValue: string | number | boolean | null = row[query.dimension];
-    const metricValue = parseNumber(row[query.metric]);
+    const metricValue = getSemanticMetricValue(row, query.metric, profile);
 
     if (!date || metricValue === null || typeof dimensionValue !== "string") {
       continue;
@@ -729,7 +731,7 @@ function answerDimensionTrend(question: string, rows: DatasetRow[], query: Plann
     });
 
   if (data.length === 0) {
-    return answerTrend(question, rows, query);
+    return answerTrend(question, rows, query, profile);
   }
 
   const totals = explicitSeries.map((series) => ({
@@ -763,9 +765,9 @@ function answerDimensionTrend(question: string, rows: DatasetRow[], query: Plann
   };
 }
 
-function answerTopSegment(question: string, rows: DatasetRow[], query: PlannedQuery): QuestionAnswer {
+function answerTopSegment(question: string, rows: DatasetRow[], query: PlannedQuery, profile: DatasetProfile): QuestionAnswer {
   if (query.semanticProfile && query.metrics.length > 0) {
-    const semanticAnswer = buildSemanticRanking(question, rows, query);
+    const semanticAnswer = buildSemanticRanking(question, rows, query, profile);
     if (semanticAnswer) {
       return semanticAnswer;
     }
@@ -785,7 +787,8 @@ function answerTopSegment(question: string, rows: DatasetRow[], query: PlannedQu
     query.dimension,
     query.metric,
     query.aggregateOperation,
-    query.sortDirection
+    query.sortDirection,
+    profile
   ).slice(0, query.limit);
   const winner = ranked[0];
   const filterText = formatFilterScope(query);
@@ -812,9 +815,9 @@ function answerTopSegment(question: string, rows: DatasetRow[], query: PlannedQu
   };
 }
 
-function answerComparison(question: string, rows: DatasetRow[], query: PlannedQuery): QuestionAnswer {
+function answerComparison(question: string, rows: DatasetRow[], query: PlannedQuery, profile: DatasetProfile): QuestionAnswer {
   if (!query.metric || !query.dimension || query.comparisonValues.length < 2) {
-    return answerTopSegment(question, rows, query);
+    return answerTopSegment(question, rows, query, profile);
   }
 
   const grouped = groupByMetric(
@@ -822,13 +825,14 @@ function answerComparison(question: string, rows: DatasetRow[], query: PlannedQu
     query.dimension,
     query.metric,
     query.aggregateOperation,
-    query.sortDirection
+    query.sortDirection,
+    profile
   ).filter((entry) =>
     query.comparisonValues.some((value) => value.toLowerCase() === entry.label.toLowerCase())
   );
 
   if (grouped.length < 2) {
-    return answerTopSegment(question, rows, query);
+    return answerTopSegment(question, rows, query, profile);
   }
 
   const leader = grouped[0];
@@ -855,16 +859,16 @@ function answerComparison(question: string, rows: DatasetRow[], query: PlannedQu
   };
 }
 
-function answerComparisonTrend(question: string, rows: DatasetRow[], query: PlannedQuery): QuestionAnswer {
+function answerComparisonTrend(question: string, rows: DatasetRow[], query: PlannedQuery, profile: DatasetProfile): QuestionAnswer {
   if (!query.metric || !query.dimension || !query.datetimeColumn || query.comparisonValues.length < 2) {
-    return answerComparison(question, rows, query);
+    return answerComparison(question, rows, query, profile);
   }
 
   const grouped = new Map<string, Record<string, number>>();
   for (const row of rows) {
     const date = parseDateValue(row[query.datetimeColumn]);
     const dimensionValue: string | number | boolean | null = row[query.dimension];
-    const metricValue = parseNumber(row[query.metric]);
+    const metricValue = getSemanticMetricValue(row, query.metric, profile);
 
     if (!date || metricValue === null || typeof dimensionValue !== "string") {
       continue;
@@ -894,7 +898,7 @@ function answerComparisonTrend(question: string, rows: DatasetRow[], query: Plan
     });
 
   if (data.length === 0) {
-    return answerComparison(question, rows, query);
+    return answerComparison(question, rows, query, profile);
   }
 
   const totals = query.comparisonValues.map((series) => ({
@@ -936,7 +940,7 @@ function answerComparisonTrend(question: string, rows: DatasetRow[], query: Plan
   };
 }
 
-function answerAggregateSegments(question: string, rows: DatasetRow[], query: PlannedQuery): QuestionAnswer {
+function answerAggregateSegments(question: string, rows: DatasetRow[], query: PlannedQuery, profile: DatasetProfile): QuestionAnswer {
   if (!query.metric || !query.dimension) {
     return {
       question,
@@ -952,7 +956,8 @@ function answerAggregateSegments(question: string, rows: DatasetRow[], query: Pl
       query.dimension,
       query.metrics,
       query.aggregateOperation,
-      query.sortDirection
+      query.sortDirection,
+      profile
     ).slice(0, query.limit);
     const leader = groupedRows[0];
     const filterText = formatFilterScope(query);
@@ -992,7 +997,8 @@ function answerAggregateSegments(question: string, rows: DatasetRow[], query: Pl
     query.dimension,
     query.metric,
     query.aggregateOperation,
-    query.sortDirection
+    query.sortDirection,
+    profile
   ).slice(0, query.limit);
   const leader = grouped[0];
   const filterText = formatFilterScope(query);
@@ -1019,9 +1025,9 @@ function answerAggregateSegments(question: string, rows: DatasetRow[], query: Pl
   };
 }
 
-function answerSummary(question: string, rows: DatasetRow[], query: PlannedQuery): QuestionAnswer {
+function answerSummary(question: string, rows: DatasetRow[], query: PlannedQuery, profile: DatasetProfile): QuestionAnswer {
   if (query.semanticProfile && query.dimension && query.metrics.length > 0) {
-    const semanticAnswer = buildSemanticRanking(question, rows, query);
+    const semanticAnswer = buildSemanticRanking(question, rows, query, profile);
     if (semanticAnswer) {
       return semanticAnswer;
     }
@@ -1037,7 +1043,7 @@ function answerSummary(question: string, rows: DatasetRow[], query: PlannedQuery
   }
 
   const values = rows
-    .map((row) => parseNumber(row[query.metric!]))
+    .map((row) => getSemanticMetricValue(row, query.metric!, profile))
     .filter((value): value is number => value !== null);
   const total = values.reduce((sum, value) => sum + value, 0);
   const average = values.length > 0 ? total / values.length : 0;
@@ -1061,23 +1067,23 @@ export function executePlannedQuery(question: string, query: PlannedQuery, conte
     return answerAnomaly(question, context);
   }
   if (query.intent === "compare_trend") {
-    return answerComparisonTrend(question, filteredRows, query);
+    return answerComparisonTrend(question, filteredRows, query, context.profile);
   }
   if (query.intent === "dimension_trend") {
-    return answerDimensionTrend(question, filteredRows, query);
+    return answerDimensionTrend(question, filteredRows, query, context.profile);
   }
   if (query.intent === "trend") {
-    return answerTrend(question, filteredRows, query);
+    return answerTrend(question, filteredRows, query, context.profile);
   }
   if (query.intent === "compare_segments") {
-    return answerComparison(question, filteredRows, query);
+    return answerComparison(question, filteredRows, query, context.profile);
   }
   if (query.intent === "aggregate_segments") {
-    return answerAggregateSegments(question, filteredRows, query);
+    return answerAggregateSegments(question, filteredRows, query, context.profile);
   }
   if (query.intent === "top_segment") {
-    return answerTopSegment(question, filteredRows, query);
+    return answerTopSegment(question, filteredRows, query, context.profile);
   }
 
-  return answerSummary(question, filteredRows, query);
+  return answerSummary(question, filteredRows, query, context.profile);
 }

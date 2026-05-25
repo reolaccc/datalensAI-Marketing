@@ -42,10 +42,10 @@ const SEMANTIC_RULES: SemanticRule[] = [
     phrases: ["high potential", "potential", "good", "winning", "best", "strong", "promising", "high upside"],
     metricSignals: [
       { metric: "roas", direction: "high", weight: 0.32 },
-      { metric: "conversion_rate", direction: "high", weight: 0.24 },
+      { metric: "cvr", direction: "high", weight: 0.24 },
       { metric: "revenue", direction: "high", weight: 0.18 },
       { metric: "clicks", direction: "high", weight: 0.08 },
-      { metric: "cpa", direction: "low", weight: 0.18 }
+      { metric: "spend", direction: "low", weight: 0.18 }
     ],
     dimensionHints: ["campaign", "channel", "audience", "ad set", "segment", "group"],
     summary: "high potential / winning performance"
@@ -55,10 +55,10 @@ const SEMANTIC_RULES: SemanticRule[] = [
     phrases: ["best performing", "best performer", "top performing", "winning", "best", "strongest"],
     metricSignals: [
       { metric: "roas", direction: "high", weight: 0.3 },
-      { metric: "conversion_rate", direction: "high", weight: 0.25 },
+      { metric: "cvr", direction: "high", weight: 0.25 },
       { metric: "revenue", direction: "high", weight: 0.2 },
-      { metric: "cpa", direction: "low", weight: 0.15 },
-      { metric: "cpc", direction: "low", weight: 0.1 }
+      { metric: "spend", direction: "low", weight: 0.15 },
+      { metric: "clicks", direction: "high", weight: 0.1 }
     ],
     dimensionHints: ["campaign", "channel", "audience", "ad set", "segment", "device"],
     summary: "best performing segment"
@@ -68,11 +68,11 @@ const SEMANTIC_RULES: SemanticRule[] = [
     phrases: ["scalable", "scale", "scaleable", "growth opportunity", "expand", "grow", "increase volume"],
     metricSignals: [
       { metric: "roas", direction: "high", weight: 0.28 },
-      { metric: "conversion_rate", direction: "high", weight: 0.22 },
+      { metric: "cvr", direction: "high", weight: 0.22 },
       { metric: "revenue", direction: "high", weight: 0.18 },
       { metric: "impressions", direction: "high", weight: 0.12 },
       { metric: "clicks", direction: "high", weight: 0.1 },
-      { metric: "cpa", direction: "low", weight: 0.1 }
+      { metric: "spend", direction: "low", weight: 0.1 }
     ],
     dimensionHints: ["campaign", "channel", "audience", "ad set", "segment", "source"],
     summary: "scaling potential / growth opportunity"
@@ -82,10 +82,10 @@ const SEMANTIC_RULES: SemanticRule[] = [
     phrases: ["efficient", "most efficient", "efficiency", "efficient ad set", "efficient campaign", "lean", "productive"],
     metricSignals: [
       { metric: "roas", direction: "high", weight: 0.34 },
-      { metric: "conversion_rate", direction: "high", weight: 0.24 },
-      { metric: "cpa", direction: "low", weight: 0.18 },
-      { metric: "cpc", direction: "low", weight: 0.12 },
-      { metric: "revenue_per_click", direction: "high", weight: 0.12 }
+      { metric: "cvr", direction: "high", weight: 0.24 },
+      { metric: "spend", direction: "low", weight: 0.18 },
+      { metric: "clicks", direction: "high", weight: 0.12 },
+      { metric: "impressions", direction: "high", weight: 0.12 }
     ],
     dimensionHints: ["campaign", "channel", "audience", "ad set", "segment", "device"],
     summary: "efficiency leadership"
@@ -95,10 +95,10 @@ const SEMANTIC_RULES: SemanticRule[] = [
     phrases: ["underperforming", "poor performance", "poor", "weak", "losing", "lagging", "low potential"],
     metricSignals: [
       { metric: "roas", direction: "low", weight: 0.3 },
-      { metric: "conversion_rate", direction: "low", weight: 0.24 },
-      { metric: "cpa", direction: "high", weight: 0.2 },
-      { metric: "cpc", direction: "high", weight: 0.12 },
-      { metric: "cost", direction: "high", weight: 0.14 }
+      { metric: "cvr", direction: "low", weight: 0.24 },
+      { metric: "spend", direction: "high", weight: 0.2 },
+      { metric: "clicks", direction: "low", weight: 0.12 },
+      { metric: "impressions", direction: "low", weight: 0.14 }
     ],
     dimensionHints: ["campaign", "channel", "audience", "ad set", "segment", "device"],
     summary: "underperformance / weak efficiency"
@@ -107,11 +107,10 @@ const SEMANTIC_RULES: SemanticRule[] = [
     intent: "wasting_budget",
     phrases: ["wasting budget", "waste budget", "budget waste", "burning spend", "overspending", "expensive", "too much spend"],
     metricSignals: [
-      { metric: "cpa", direction: "high", weight: 0.28 },
-      { metric: "cpc", direction: "high", weight: 0.22 },
-      { metric: "cost", direction: "high", weight: 0.2 },
+      { metric: "spend", direction: "high", weight: 0.28 },
       { metric: "roas", direction: "low", weight: 0.18 },
-      { metric: "conversion_rate", direction: "low", weight: 0.12 }
+      { metric: "cvr", direction: "low", weight: 0.12 },
+      { metric: "clicks", direction: "high", weight: 0.1 }
     ],
     dimensionHints: ["campaign", "channel", "audience", "ad set", "segment"],
     summary: "budget efficiency risk"
@@ -122,10 +121,10 @@ const SEMANTIC_RULES: SemanticRule[] = [
     metricSignals: [
       { metric: "revenue", direction: "high", weight: 0.24 },
       { metric: "roas", direction: "high", weight: 0.28 },
-      { metric: "conversion_rate", direction: "high", weight: 0.2 },
+      { metric: "cvr", direction: "high", weight: 0.2 },
       { metric: "clicks", direction: "high", weight: 0.12 },
       { metric: "impressions", direction: "high", weight: 0.08 },
-      { metric: "cpa", direction: "low", weight: 0.08 }
+      { metric: "spend", direction: "low", weight: 0.08 }
     ],
     dimensionHints: ["campaign", "channel", "audience", "ad set", "segment", "source"],
     summary: "growth opportunity"
@@ -151,26 +150,14 @@ function availableMetricMatches(metric: string, availableMetrics: string[]) {
 
 function hasDerivedSupport(metric: string, availableMetrics: string[]) {
   const set = new Set(availableMetrics.map(normalize));
-  if (metric === "roas" || metric === "roi") {
-    return set.has("revenue") && set.has("cost");
+  if (metric === "roas") {
+    return set.has("revenue") && set.has("spend");
   }
-  if (metric === "conversion_rate") {
-    return (set.has("clicks") && (set.has("conversions") || set.has("orders") || set.has("deals"))) || set.has("conversion rate");
+  if (metric === "cvr") {
+    return set.has("clicks") && set.has("conversions");
   }
-  if (metric === "cpc") {
-    return set.has("cost") && set.has("clicks");
-  }
-  if (metric === "cpa") {
-    return set.has("cost") && (set.has("conversions") || set.has("orders") || set.has("deals"));
-  }
-  if (metric === "revenue_per_click") {
-    return set.has("revenue") && set.has("clicks");
-  }
-  if (metric === "average_order_value") {
-    return set.has("revenue") && (set.has("orders") || set.has("deals"));
-  }
-  if (metric === "margin") {
-    return set.has("profit") || set.has("revenue");
+  if (metric === "ctr") {
+    return set.has("clicks") && set.has("impressions");
   }
   return false;
 }

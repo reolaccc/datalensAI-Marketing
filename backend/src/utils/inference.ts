@@ -2,13 +2,13 @@ import type { PrimitiveValue } from "../analytics/types.js";
 
 export const KPI_ALIASES: Record<string, string[]> = {
   revenue: ["revenue", "sales", "income", "gmv", "conversion_value"],
-  roi: ["roi", "return_on_investment"],
   roas: ["roas", "return_on_ad_spend"],
-  conversion_rate: ["conversion_rate", "conv_rate", "cvr"],
+  ctr: ["ctr", "click_through_rate", "click-through rate"],
+  cvr: ["cvr", "conversion_rate", "conv_rate"],
   clicks: ["clicks", "click_count"],
   impressions: ["impressions", "views"],
-  cost: ["cost", "spend", "ad_spend", "budget"],
-  calls: ["calls", "phone_calls"]
+  spend: ["spend", "cost", "ad_spend", "budget", "media_cost", "paid_media_cost"],
+  conversions: ["conversions", "conversion_count", "orders", "purchases"]
 };
 
 export function sanitizeHeader(value: string): string {

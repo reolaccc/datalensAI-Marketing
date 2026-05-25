@@ -3,6 +3,7 @@ import type {
   DatasetProfile,
   DatasetRow
 } from "../analytics/types.js";
+import { buildSemanticDatasetContract } from "../analytics/semanticContract.js";
 import {
   median,
   parseDateValue,
@@ -183,6 +184,18 @@ export function profileDataset(rows: DatasetRow[]): DatasetProfile {
     datetimeColumns,
     columns,
     outliers,
-    correlations
+    correlations,
+    semanticContract: buildSemanticDatasetContract({
+      rowCount: rows.length,
+      columnCount: headers.length,
+      duplicateRowCount,
+      missingCells,
+      numericColumns: numericColumns.map((column) => column.name),
+      categoricalColumns,
+      datetimeColumns,
+      columns,
+      outliers,
+      correlations
+    })
   };
 }

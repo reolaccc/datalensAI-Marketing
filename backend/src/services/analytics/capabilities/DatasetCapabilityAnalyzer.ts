@@ -26,6 +26,10 @@ function rankColumns(columns: string[], preferred: string[]) {
   });
 }
 
+function unique(values: string[]) {
+  return [...new Set(values)];
+}
+
 function resolveNamedMetrics(profile: DatasetProfile) {
   const metrics = new Set<string>();
 
@@ -44,11 +48,12 @@ export function analyzeDatasetCapabilities(
   profile: DatasetProfile,
   kpis: KpiCandidate[]
 ): DatasetCapabilities {
+  const semanticContract = profile.semanticContract;
   const namedMetrics = resolveNamedMetrics(profile);
   const derivedMetrics: string[] = [];
 
-  if (!namedMetrics.includes("roi") && profile.numericColumns.includes("revenue") && profile.numericColumns.includes("cost")) {
-    derivedMetrics.push("roi");
+  if (semanticContract) {
+    derivedMetrics.push(...semanticContract.derivedMetrics);
   }
 
   if (!namedMetrics.includes("roas") && profile.numericColumns.includes("revenue") && profile.numericColumns.includes("cost")) {
@@ -56,11 +61,11 @@ export function analyzeDatasetCapabilities(
   }
 
   if (
-    !namedMetrics.includes("conversion_rate") &&
+    !namedMetrics.includes("cvr") &&
     profile.numericColumns.includes("conversions") &&
     profile.numericColumns.includes("clicks")
   ) {
-    derivedMetrics.push("conversion_rate");
+    derivedMetrics.push("cvr");
   }
 
   const categoricalDimensions = rankColumns(profile.categoricalColumns, DIMENSION_HINTS);
@@ -72,16 +77,25 @@ export function analyzeDatasetCapabilities(
     .map((column) => column.name);
 
   return {
-    numericMetrics: [...new Set([...namedMetrics, ...profile.numericColumns])],
+    numericMetrics: unique([
+      ...(semanticContract?.availableMetrics ?? []),
+      ...namedMetrics,
+      ...profile.numericColumns
+    ]),
     categoricalDimensions,
     datetimeFields: [...profile.datetimeColumns],
     kpiCandidates: kpis.map((kpi) => kpi.column),
     segmentFields,
     comparisonFields: segmentFields.length > 0 ? segmentFields : categoricalDimensions,
-    anomalyFields: [...new Set([...profile.outliers.map((item) => item.column), ...profile.numericColumns])],
-    derivedMetrics,
-    defaultMetric: kpis[0]?.column ?? namedMetrics[0] ?? profile.numericColumns[0] ?? null,
+    anomalyFields: unique([
+      ...profile.outliers.map((item) => item.column),
+      ...profile.numericColumns,
+      ...(semanticContract?.availableMetrics ?? [])
+    ]),
+    derivedMetrics: unique(derivedMetrics),
+    defaultMetric: kpis[0]?.column ?? semanticContract?.availableMetrics[0] ?? namedMetrics[0] ?? profile.numericColumns[0] ?? null,
     defaultDimension: categoricalDimensions[0] ?? null,
-    funnelStageFields
+    funnelStageFields: unique(funnelStageFields),
+    semanticContract
   };
 }

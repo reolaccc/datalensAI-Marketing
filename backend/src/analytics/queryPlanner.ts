@@ -6,12 +6,29 @@ import type {
 } from "./types.js";
 import { KPI_ALIASES } from "../utils/inference.js";
 import {
+  buildSemanticDatasetContract,
+  resolveCanonicalMetricKey,
+  resolveSemanticDimensionSourceColumn
+} from "./semanticContract.js";
+import {
   buildSemanticMetricList,
   detectSemanticBusinessIntent
 } from "../services/analytics/intent/semanticBusinessIntent.js";
 
 function normalize(text: string) {
   return text.toLowerCase();
+}
+
+function getSemanticContract(profile: DatasetProfile) {
+  return profile.semanticContract ?? buildSemanticDatasetContract(profile);
+}
+
+function getSemanticAvailability(profile: DatasetProfile) {
+  const contract = getSemanticContract(profile);
+  return {
+    availableMetrics: [...new Set([...profile.numericColumns, ...contract.availableMetrics])],
+    availableDimensions: [...new Set([...profile.categoricalColumns, ...contract.availableDimensions])]
+  };
 }
 
 function replaceToken(question: string, pattern: RegExp, replacement?: string | number) {
@@ -41,13 +58,12 @@ function scoreConversationTurn(question: string, turn: ConversationTurnContext, 
   const questionTokens = new Set(tokenizeForOverlap(question));
   const turnTokens = new Set(tokenizeForOverlap(turn.question));
   const sharedTokens = [...questionTokens].filter((token) => turnTokens.has(token));
+  const semanticAvailability = getSemanticAvailability(profile);
   const questionSemantic = detectSemanticBusinessIntent(question, {
-    availableMetrics: profile.numericColumns,
-    availableDimensions: profile.categoricalColumns
+    ...semanticAvailability
   });
   const turnSemantic = detectSemanticBusinessIntent(turn.question, {
-    availableMetrics: profile.numericColumns,
-    availableDimensions: profile.categoricalColumns
+    ...semanticAvailability
   });
 
   let score = 0;
@@ -176,27 +192,35 @@ function resolveMetrics(
   conversationAnchor?: ConversationTurnContext | null
 ): string[] {
   const normalizedQuestion = normalize(question);
+  const contract = getSemanticContract(profile);
   const matches: string[] = [];
 
   for (const [metric, aliases] of Object.entries(KPI_ALIASES)) {
+    const normalizedMetric = metric.replace(/_/g, " ");
     if (
-      normalizedQuestion.includes(metric.replace(/_/g, " ")) ||
+      normalizedQuestion.includes(normalizedMetric) ||
       aliases.some((alias) => normalizedQuestion.includes(alias.replace(/_/g, " ")))
     ) {
+      const canonical = contract.availableMetrics.includes(metric) ? metric : null;
+      if (canonical) {
+        matches.push(canonical);
+        continue;
+      }
+
       const matched = profile.numericColumns.find(
         (column) => column.includes(metric) || aliases.some((alias) => column.includes(alias))
       );
       if (matched) {
-        matches.push(matched);
+        matches.push(resolveCanonicalMetricKey(contract, matched));
       }
     }
   }
 
   if (matches.length === 0 && conversationAnchor?.detectedIntent?.targetMetrics?.length) {
     matches.push(
-      ...conversationAnchor.detectedIntent.targetMetrics.filter((metric) =>
-        profile.numericColumns.includes(metric) || profile.columns.some((column) => column.name === metric)
-      )
+      ...conversationAnchor.detectedIntent.targetMetrics
+        .map((metric) => resolveCanonicalMetricKey(contract, metric))
+        .filter((metric) => contract.availableMetrics.includes(metric) || profile.numericColumns.includes(metric))
     );
   }
 
@@ -213,9 +237,13 @@ function resolveDimension(
 ): string | null {
   const normalizedQuestion = normalize(question);
   const normalizedSemanticHints = semanticHints.map((hint) => normalize(hint));
+  const contract = getSemanticContract(profile);
 
-  if (input?.selectedDimension && profile.categoricalColumns.includes(input.selectedDimension)) {
-    return input.selectedDimension;
+  if (input?.selectedDimension) {
+    const resolvedSelected = resolveSemanticDimensionSourceColumn(contract, input.selectedDimension) ?? input.selectedDimension;
+    if (profile.categoricalColumns.includes(resolvedSelected)) {
+      return resolvedSelected;
+    }
   }
 
   const scoredDimensions = profile.columns
@@ -256,13 +284,30 @@ function resolveDimension(
   if (
     isFollowUpQuestion(question) &&
     conversationAnchor?.detectedIntent?.targetDimensions?.length &&
-    conversationAnchor.detectedIntent.targetDimensions.some((dimension) => profile.categoricalColumns.includes(dimension))
+    conversationAnchor.detectedIntent.targetDimensions.some((dimension) => {
+      const resolved = resolveSemanticDimensionSourceColumn(contract, dimension) ?? dimension;
+      return profile.categoricalColumns.includes(resolved);
+    })
   ) {
-    return conversationAnchor.detectedIntent.targetDimensions.find((dimension) => profile.categoricalColumns.includes(dimension)) ?? null;
+    return (
+      conversationAnchor.detectedIntent.targetDimensions
+        .map((dimension) => resolveSemanticDimensionSourceColumn(contract, dimension) ?? dimension)
+        .find((dimension) => profile.categoricalColumns.includes(dimension)) ?? null
+    );
+  }
+
+  const semanticDimensionMatch = semanticHints
+    .map((hint) => resolveSemanticDimensionSourceColumn(contract, hint) ?? hint)
+    .find((dimension) => profile.categoricalColumns.includes(dimension));
+  if (semanticDimensionMatch) {
+    return semanticDimensionMatch;
   }
 
   const preferred = ["channel", "campaign", "device", "source"];
-  return preferred.find((column) => profile.categoricalColumns.includes(column)) ?? profile.categoricalColumns[0] ?? null;
+  const preferredMatch = preferred
+    .map((hint) => resolveSemanticDimensionSourceColumn(contract, hint) ?? hint)
+    .find((column) => profile.categoricalColumns.includes(column));
+  return preferredMatch ?? profile.categoricalColumns[0] ?? null;
 }
 
 function detectIntent(
@@ -565,14 +610,14 @@ export function planQuery(
   profile: DatasetProfile,
   input?: QuestionContextInput
 ): PlannedQuery {
+  const semanticAvailability = getSemanticAvailability(profile);
   const resolvedQuestion = resolveDynamicContextReferences(question, input);
   const conversationAnchor = selectConversationAnchor(resolvedQuestion, input?.conversationHistory, profile);
   const semanticProfile = detectSemanticBusinessIntent(resolvedQuestion, {
-    availableMetrics: profile.numericColumns,
-    availableDimensions: profile.categoricalColumns
+    ...semanticAvailability
   });
   const explicitMetrics = resolveMetrics(resolvedQuestion, profile, conversationAnchor);
-  const semanticMetrics = buildSemanticMetricList(semanticProfile, profile.numericColumns);
+  const semanticMetrics = buildSemanticMetricList(semanticProfile, semanticAvailability.availableMetrics);
   const metrics = [...new Set([...explicitMetrics, ...semanticMetrics])];
   const metric = metrics[0] ?? null;
   const comparisonValues = extractComparisonValues(resolvedQuestion, profile);

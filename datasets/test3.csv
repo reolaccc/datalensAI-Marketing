@@ -1,0 +1,13 @@
+date,ad_group,channel,campaign,product_line,region,impressions,clicks,cost,revenue,orders,avg_order_value,ctr,cpa,roas
+2026-07-01,Core A,Paid Search,Launch Alpha,Accessories,North America,17320,1180,2140,7250,146,49.66,0.068,14.66,3.39
+2026-07-01,Core B,Organic Search,Launch Alpha,Accessories,Europe,11880,860,760,5165,98,52.7,0.072,7.76,6.8
+2026-07-02,Core C,Email,Retention Push,Apparel,APAC,9060,820,480,6040,125,48.32,0.091,3.84,12.58
+2026-07-02,Core D,Display,Awareness Wave,Apparel,APAC,22100,612,980,2610,41,63.66,0.028,23.9,2.66
+2026-07-03,Core E,Paid Social,Lookalike Sprint,Home,North America,19740,1035,1765,4380,74,59.19,0.052,23.85,2.48
+2026-07-03,Core F,Paid Search,Launch Alpha,Home,Europe,18450,1290,2280,7815,152,51.41,0.07,15.0,3.43
+2026-07-04,Core G,Organic Search,Evergreen Flow,Accessories,North America,10120,780,690,4980,96,51.88,0.077,7.19,7.22
+2026-07-04,Core H,Email,Retention Push,Apparel,Europe,8420,755,410,5665,116,48.84,0.09,3.53,13.82
+2026-07-05,Core I,Paid Social,Lookalike Sprint,Home,APAC,20550,1095,1835,4525,77,58.77,0.053,23.83,2.47
+2026-07-05,Core J,Display,Awareness Wave,Home,North America,21480,585,1020,2520,39,64.62,0.027,26.15,2.47
+2026-07-06,Core K,Paid Search,Launch Alpha,Accessories,North America,17680,1205,2195,7395,149,49.63,0.068,14.73,3.37
+2026-07-06,Core L,Email,Retention Push,Apparel,APAC,9180,828,495,6210,128,48.52,0.09,3.87,12.55

@@ -1,0 +1,13 @@
+date,campaign,channel,device,impressions,clicks,cost,revenue,conversion_rate,roas
+2026-05-01,Spring Launch,Paid Search,Desktop,18200,1210,2380,7420,0.066,3.12
+2026-05-02,Spring Launch,Paid Search,Mobile,19450,1285,2490,7680,0.066,3.08
+2026-05-03,Brand Defense,Organic Search,Desktop,12680,905,980,5310,0.071,5.42
+2026-05-04,Brand Defense,Organic Search,Mobile,13120,942,1025,5485,0.072,5.35
+2026-05-05,Remarketing,Display,Desktop,16400,760,1160,4725,0.046,4.07
+2026-05-06,Remarketing,Display,Mobile,17150,792,1195,4890,0.046,4.09
+2026-05-07,Social Burst,Paid Social,Desktop,21900,1015,2135,5140,0.046,2.41
+2026-05-08,Social Burst,Paid Social,Mobile,23850,1105,2245,5315,0.046,2.37
+2026-05-09,Evergreen,Email,Desktop,9800,870,540,6240,0.089,11.56
+2026-05-10,Evergreen,Email,Mobile,10420,905,565,6535,0.087,11.57
+2026-05-11,Lookalike,Paid Social,Desktop,14650,812,1510,4015,0.055,2.66
+2026-05-12,Lookalike,Paid Social,Mobile,15380,845,1565,4180,0.055,2.67

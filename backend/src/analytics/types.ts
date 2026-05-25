@@ -37,6 +37,33 @@ export interface DatasetProfile {
     y: string;
     coefficient: number;
   }>;
+  semanticContract?: SemanticDatasetContract;
+}
+
+export interface SemanticMetricResolution {
+  key: string;
+  sourceColumns: string[];
+  resolution: "direct" | "alias" | "derived";
+  confidence: number;
+  aggregation: "sum" | "ratio" | "difference" | "average";
+  formula?: string;
+  denominatorMetric?: string;
+}
+
+export interface SemanticDimensionResolution {
+  key: string;
+  sourceColumns: string[];
+  resolution: "direct" | "alias" | "derived";
+  confidence: number;
+}
+
+export interface SemanticDatasetContract {
+  metricResolutions: Record<string, SemanticMetricResolution>;
+  dimensionResolutions: Record<string, SemanticDimensionResolution>;
+  availableMetrics: string[];
+  availableDimensions: string[];
+  derivedMetrics: string[];
+  sourceToCanonical: Record<string, string>;
 }
 
 export interface KpiCandidate {
@@ -130,6 +157,7 @@ export interface DatasetCapabilities {
   defaultMetric: string | null;
   defaultDimension: string | null;
   funnelStageFields: string[];
+  semanticContract?: SemanticDatasetContract;
 }
 
 export interface ChartConfig {

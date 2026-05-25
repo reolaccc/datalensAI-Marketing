@@ -1,5 +1,6 @@
-import type { ChartConfig, DatasetCapabilities, DatasetRow, PrimitiveValue } from "../../../analytics/types.js";
+import type { ChartConfig, DatasetCapabilities, DatasetProfile, DatasetRow, PrimitiveValue } from "../../../analytics/types.js";
 import { parseDateValue, parseNumber } from "../../../utils/inference.js";
+import { resolveSemanticMetricValue } from "../../../analytics/semanticContract.js";
 
 type Filter = ChartConfig["filters"][number];
 
@@ -49,32 +50,24 @@ export function filterRows(rows: DatasetRow[], filters: Filter[] = []) {
 export function resolveMetricValue(
   row: DatasetRow,
   metric: string,
-  capabilities: DatasetCapabilities
+  capabilities: DatasetCapabilities,
+  profile: DatasetProfile
 ): number | null {
-  const directValue = parseNumber(row[metric]);
+  const directValue = resolveSemanticMetricValue(row, metric, profile.semanticContract ?? profile);
   if (directValue !== null) {
     return directValue;
   }
 
-  if (metric === "roi" && capabilities.derivedMetrics.includes("roi")) {
-    const revenue = parseNumber(row.revenue);
-    const cost = parseNumber(row.cost);
-    if (revenue === null || cost === null || cost === 0) {
-      return null;
-    }
-    return Number((((revenue - cost) / cost) * 100).toFixed(2));
-  }
-
   if (metric === "roas" && capabilities.derivedMetrics.includes("roas")) {
     const revenue = parseNumber(row.revenue);
-    const cost = parseNumber(row.cost);
-    if (revenue === null || cost === null || cost === 0) {
+    const spend = parseNumber(row["spend"] ?? row["cost"]);
+    if (revenue === null || spend === null || spend === 0) {
       return null;
     }
-    return Number((revenue / cost).toFixed(2));
+    return Number((revenue / spend).toFixed(2));
   }
 
-  if (metric === "conversion_rate" && capabilities.derivedMetrics.includes("conversion_rate")) {
+  if ((metric === "cvr" || metric === "conversion_rate") && capabilities.derivedMetrics.includes("cvr")) {
     const conversions = parseNumber(row.conversions);
     const clicks = parseNumber(row.clicks);
     if (conversions === null || clicks === null || clicks === 0) {
@@ -91,13 +84,14 @@ export function aggregateByDate(
   dateField: string,
   metric: string,
   capabilities: DatasetCapabilities,
+  profile: DatasetProfile,
   groupBy?: string | null
 ) {
   const grouped = new Map<string, Map<string, number>>();
 
   for (const row of rows) {
     const date = parseDateValue(row[dateField]);
-    const metricValue = resolveMetricValue(row, metric, capabilities);
+    const metricValue = resolveMetricValue(row, metric, capabilities, profile);
     if (!date || metricValue === null) {
       continue;
     }
@@ -122,13 +116,14 @@ export function aggregateByDimension(
   dimension: string,
   metric: string,
   capabilities: DatasetCapabilities,
+  profile: DatasetProfile,
   groupBy?: string | null
 ) {
   const grouped = new Map<string, Map<string, number>>();
 
   for (const row of rows) {
     const dimensionValue = row[dimension];
-    const metricValue = resolveMetricValue(row, metric, capabilities);
+    const metricValue = resolveMetricValue(row, metric, capabilities, profile);
     if (dimensionValue === null || dimensionValue === "" || metricValue === null) {
       continue;
     }
@@ -149,10 +144,11 @@ export function aggregateByDimension(
 export function buildHistogramData(
   rows: DatasetRow[],
   metric: string,
-  capabilities: DatasetCapabilities
+  capabilities: DatasetCapabilities,
+  profile: DatasetProfile
 ) {
   const values = rows
-    .map((row) => resolveMetricValue(row, metric, capabilities))
+    .map((row) => resolveMetricValue(row, metric, capabilities, profile))
     .filter((value): value is number => value !== null);
 
   if (values.length < 4) {
@@ -180,12 +176,13 @@ export function buildScatterData(
   rows: DatasetRow[],
   xMetric: string,
   yMetric: string,
-  capabilities: DatasetCapabilities
+  capabilities: DatasetCapabilities,
+  profile: DatasetProfile
 ) {
   return rows
     .map((row) => ({
-      [xMetric]: resolveMetricValue(row, xMetric, capabilities),
-      [yMetric]: resolveMetricValue(row, yMetric, capabilities)
+      [xMetric]: resolveMetricValue(row, xMetric, capabilities, profile),
+      [yMetric]: resolveMetricValue(row, yMetric, capabilities, profile)
     }))
     .filter(
       (entry): entry is Record<string, number> =>
@@ -197,10 +194,11 @@ export function buildScatterData(
 export function buildKpiCardData(
   rows: DatasetRow[],
   metric: string,
-  capabilities: DatasetCapabilities
+  capabilities: DatasetCapabilities,
+  profile: DatasetProfile
 ) {
   const values = rows
-    .map((row) => resolveMetricValue(row, metric, capabilities))
+    .map((row) => resolveMetricValue(row, metric, capabilities, profile))
     .filter((value): value is number => value !== null);
 
   if (values.length === 0) {

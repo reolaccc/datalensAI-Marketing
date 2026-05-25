@@ -1,0 +1,41 @@
+date,account_id,account_name,owner,channel,campaign,region,industry,segment,pipeline_stage,impressions,clicks,site_sessions,leads,mqls,sqls,meetings_booked,opportunities,customers,revenue,cost
+2026-08-01,A-1001,Northwind Health,Avery,Paid Search,Pipeline Launch,North America,Healthcare,Enterprise,awareness,18420,1260,2415,164,92,38,21,8,2,16400,2840
+2026-08-01,A-1002,BluePeak Retail,Mia,Paid Social,Lookalike Growth,Europe,Retail,SMB,awareness,21950,1084,2010,141,74,29,16,6,1,9200,2360
+2026-08-02,A-1003,Vertex Logistics,Noah,Organic Search,Always On,North America,Logistics,Mid-market,consideration,12860,902,1880,132,81,36,18,9,3,18950,1040
+2026-08-02,A-1004,Summit Fintech,Sophia,Email,Lifecycle Nurture,APAC,Financial Services,Enterprise,conversion,8420,768,1515,118,88,49,27,14,5,25400,620
+2026-08-03,A-1005,Harbor Energy,Lucas,Display,Awareness Wave,North America,Energy,Mid-market,awareness,24680,690,1340,97,41,14,6,2,0,0,1740
+2026-08-03,A-1006,Greenfield SaaS,Olivia,Paid Search,Demo Drive,Europe,SaaS,SMB,consideration,15240,1188,2280,176,109,57,31,13,4,31200,1980
+2026-08-04,A-1007,Metro Mobility,Ethan,Paid Social,Retargeting Push,North America,Transportation,Mid-market,conversion,20110,950,1768,149,97,52,26,12,4,22800,1640
+2026-08-04,A-1008,Coastal Pharma,Isla,Organic Search,Evergreen Demand,Europe,Healthcare,Enterprise,consideration,11120,834,1655,121,86,44,22,10,3,17650,880
+2026-08-05,A-1009,Atlas Consumer,Amelia,Email,Renewal Series,APAC,Retail,SMB,conversion,9560,812,1604,136,101,63,35,16,6,28600,710
+2026-08-05,A-1010,Peak Manufacturing,James,Paid Search,High Intent Capture,North America,Manufacturing,Mid-market,consideration,17180,1325,2508,183,112,61,29,15,5,30150,2240
+2026-08-06,A-1011,Evergreen Insurance,Charlotte,Organic Search,Brand Defense,Europe,Insurance,Enterprise,awareness,10340,688,1430,84,54,23,10,4,1,10900,760
+2026-08-06,A-1012,Northstar Media,Benjamin,Paid Social,Creative Test,North America,Media,SMB,awareness,23850,1410,2195,158,79,25,11,5,1,8450,2710
+2026-08-07,A-1013,Lakeside Travel,Harper,Email,Upsell Journey,APAC,Travel,Mid-market,conversion,8740,804,1492,127,96,58,31,15,6,24700,640
+2026-08-07,A-1014,Prime Education,Henry,Paid Search,Enrollment Push,Europe,Education,Enterprise,consideration,16320,1204,2368,170,104,47,24,11,3,25800,1890
+2026-08-08,A-1015,Urban Tech,Grace,Display,Awareness Wave,North America,Software,SMB,awareness,25560,612,1288,91,39,12,5,2,0,0,1620
+2026-08-08,A-1016,Riverbank Telecom,Leo,Paid Social,Scale Test,APAC,Telecommunications,Mid-market,consideration,19420,1086,2051,155,99,54,27,13,4,21900,2010
+2026-08-09,A-1017,Sunrise Auto,Emma,Organic Search,Dealer Demand,Europe,Automotive,SMB,conversion,12180,911,1718,138,93,55,30,14,5,26850,970
+2026-08-09,A-1018,Quantum Apps,Jack,Email,Trial Activation,North America,SaaS,Enterprise,conversion,9320,842,1635,146,110,68,36,18,7,34200,690
+2026-08-10,A-1019,Coral Foods,Ava,Paid Search,Seasonal Promo,APAC,CPG,Mid-market,awareness,20840,1398,2522,184,109,43,19,8,2,14900,2180
+2026-08-10,A-1020,Summit Logistics,Daniel,Paid Social,Decision Support,Europe,Logistics,Enterprise,consideration,18650,975,1844,126,78,33,15,7,2,13200,1720
+2026-08-11,A-1021,Harbor Retail,Zoe,Organic Search,Always On,North America,Retail,SMB,conversion,11450,890,1688,141,104,59,32,16,6,28950,910
+2026-08-11,A-1022,Everbright Energy,Aria,Email,Renewal Series,Europe,Energy,Enterprise,conversion,7780,736,1410,119,88,50,25,12,4,22150,580
+2026-08-12,A-1023,BlueStone Finance,Elijah,Paid Search,Pipeline Launch,APAC,Financial Services,Mid-market,consideration,17630,1294,2410,171,106,56,28,13,4,27600,2090
+2026-08-12,A-1024,North Harbor Clinic,Nora,Display,Awareness Wave,North America,Healthcare,SMB,awareness,23210,575,1180,78,34,9,4,1,0,0,1490
+2026-08-13,A-1025,Northwind Health,Avery,Paid Search,Pipeline Launch,North America,Healthcare,Enterprise,awareness,18980,1288,2460,168,96,41,22,9,3,17100,2920
+2026-08-13,A-1026,BluePeak Retail,Mia,Paid Social,Lookalike Growth,Europe,Retail,SMB,awareness,22340,1112,2058,146,78,31,17,6,1,10400,2420
+2026-08-14,A-1027,Vertex Logistics,Noah,Organic Search,Always On,North America,Logistics,Mid-market,consideration,13110,918,1902,135,84,37,18,9,3,19340,1060
+2026-08-14,A-1028,Summit Fintech,Sophia,Email,Lifecycle Nurture,APAC,Financial Services,Enterprise,conversion,8560,781,1530,121,90,50,28,14,5,26100,640
+2026-08-15,A-1029,Harbor Energy,Lucas,Display,Awareness Wave,North America,Energy,Mid-market,awareness,24910,701,1365,99,43,15,7,2,0,0,1760
+2026-08-15,A-1030,Greenfield SaaS,Olivia,Paid Search,Demo Drive,Europe,SaaS,SMB,consideration,15480,1196,2312,179,111,59,32,13,4,31850,2010
+2026-08-16,A-1031,Metro Mobility,Ethan,Paid Social,Retargeting Push,North America,Transportation,Mid-market,conversion,20420,961,1789,151,98,53,27,12,4,23250,1660
+2026-08-16,A-1032,Coastal Pharma,Isla,Organic Search,Evergreen Demand,Europe,Healthcare,Enterprise,consideration,11280,846,1672,123,87,45,23,10,3,18120,890
+2026-08-17,A-1033,Atlas Consumer,Amelia,Email,Renewal Series,APAC,Retail,SMB,conversion,9680,819,1628,138,102,64,36,16,6,29240,720
+2026-08-17,A-1034,Peak Manufacturing,James,Paid Search,High Intent Capture,North America,Manufacturing,Mid-market,consideration,17290,1334,2520,185,114,62,30,15,5,30580,2250
+2026-08-18,A-1035,Evergreen Insurance,Charlotte,Organic Search,Brand Defense,Europe,Insurance,Enterprise,awareness,10480,695,1450,86,55,24,11,4,1,11150,770
+2026-08-18,A-1036,Northstar Media,Benjamin,Paid Social,Creative Test,North America,Media,SMB,awareness,24030,1422,2210,160,81,26,12,5,1,8680,2730
+2026-08-19,A-1037,Lakeside Travel,Harper,Email,Upsell Journey,APAC,Travel,Mid-market,conversion,8810,809,1504,129,97,59,32,15,6,25140,650
+2026-08-19,A-1038,Prime Education,Henry,Paid Search,Enrollment Push,Europe,Education,Enterprise,consideration,16450,1212,2380,172,105,48,25,11,3,26140,1910
+2026-08-20,A-1039,Urban Tech,Grace,Display,Awareness Wave,North America,Software,SMB,awareness,25740,618,1302,93,40,12,5,2,0,0,1630
+2026-08-20,A-1040,Riverbank Telecom,Leo,Paid Social,Scale Test,APAC,Telecommunications,Mid-market,consideration,19550,1094,2068,157,100,55,28,13,4,22340,2030

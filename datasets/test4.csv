@@ -1,0 +1,51 @@
+activity_date,account_name,rep_owner,channel_mix,program_name,geo,device_type,audience_segment,pipeline_stage,impression_count,click_count,site_session_count,lead_count,mql_count,sql_count,opportunity_count,customer_count,media_spend,creative_spend,vendor_fees,discount_allowance,fulfillment_outlay,all_in_spend,revenue_amount
+2026-09-01,Northwind Health,Avery,Paid Search,Pipeline Launch,North America,Desktop,Enterprise,awareness,18200,1210,2360,160,94,40,18,3,2300,180,95,60,120,2755,7800
+2026-09-01,BluePeak Retail,Mia,Paid Social,Lookalike Growth,Europe,Mobile,SMB,awareness,21850,1090,2020,146,77,31,14,2,2100,210,120,80,150,2660,6950
+2026-09-01,Summit Fintech,Sophia,Email,Lifecycle Nurture,APAC,Desktop,Enterprise,conversion,9200,845,1550,120,90,54,27,5,560,100,48,32,68,808,15650
+2026-09-01,Vertex Logistics,Noah,Organic Search,Always On,Europe,Desktop,Mid-market,consideration,12740,890,1740,129,83,39,16,3,780,110,58,40,72,1060,11800
+2026-09-01,Harbor Energy,Lucas,Display,Awareness Wave,North America,Mobile,Mid-market,awareness,24680,650,1320,92,39,14,5,0,1620,140,88,55,90,1993,4300
+2026-09-02,Northwind Health,Avery,Paid Search,Pipeline Launch,North America,Desktop,Enterprise,awareness,18350,1219,2375,162,95,41,19,3,2325,182,96,61,121,2785,7990
+2026-09-02,BluePeak Retail,Mia,Paid Social,Lookalike Growth,Europe,Mobile,SMB,awareness,21990,1097,2033,148,78,32,15,2,2120,212,121,81,151,2685,7110
+2026-09-02,Summit Fintech,Sophia,Email,Lifecycle Nurture,APAC,Desktop,Enterprise,conversion,9310,851,1560,122,91,55,28,5,568,101,49,33,69,820,15820
+2026-09-02,Vertex Logistics,Noah,Organic Search,Always On,Europe,Desktop,Mid-market,consideration,12860,895,1752,130,84,40,17,3,790,111,59,41,73,1074,11940
+2026-09-02,Harbor Energy,Lucas,Display,Awareness Wave,North America,Mobile,Mid-market,awareness,24840,654,1329,93,40,15,6,0,1635,141,89,56,91,2012,4380
+2026-09-03,Northwind Health,Avery,Paid Search,Pipeline Launch,North America,Desktop,Enterprise,awareness,18500,1228,2390,164,96,42,20,3,2350,184,97,62,122,2815,8180
+2026-09-03,BluePeak Retail,Mia,Paid Social,Lookalike Growth,Europe,Mobile,SMB,awareness,22130,1104,2046,150,79,33,16,2,2140,214,122,82,152,2710,7270
+2026-09-03,Summit Fintech,Sophia,Email,Lifecycle Nurture,APAC,Desktop,Enterprise,conversion,9420,857,1570,124,92,56,29,5,576,102,50,34,70,832,15990
+2026-09-03,Vertex Logistics,Noah,Organic Search,Always On,Europe,Desktop,Mid-market,consideration,12980,900,1764,131,85,41,18,3,800,112,60,42,74,1088,12080
+2026-09-03,Harbor Energy,Lucas,Display,Awareness Wave,North America,Mobile,Mid-market,awareness,25000,658,1338,94,41,16,7,0,1650,142,90,57,92,2031,4460
+2026-09-04,Northwind Health,Avery,Paid Search,Pipeline Launch,North America,Desktop,Enterprise,awareness,18650,1237,2405,166,97,43,21,3,2375,186,98,63,123,2845,8370
+2026-09-04,BluePeak Retail,Mia,Paid Social,Lookalike Growth,Europe,Mobile,SMB,awareness,22270,1111,2059,152,80,34,17,2,2160,216,123,83,153,2735,7430
+2026-09-04,Summit Fintech,Sophia,Email,Lifecycle Nurture,APAC,Desktop,Enterprise,conversion,9530,863,1580,126,93,57,30,5,584,103,51,35,71,844,16160
+2026-09-04,Vertex Logistics,Noah,Organic Search,Always On,Europe,Desktop,Mid-market,consideration,13100,905,1776,132,86,42,19,3,810,113,61,43,75,1102,12220
+2026-09-04,Harbor Energy,Lucas,Display,Awareness Wave,North America,Mobile,Mid-market,awareness,25160,662,1347,95,42,17,8,0,1665,143,91,58,93,2050,4540
+2026-09-05,Northwind Health,Avery,Paid Search,Pipeline Launch,North America,Desktop,Enterprise,awareness,18800,1246,2420,168,98,44,22,3,2400,188,99,64,124,2875,8560
+2026-09-05,BluePeak Retail,Mia,Paid Social,Lookalike Growth,Europe,Mobile,SMB,awareness,22410,1118,2072,154,81,35,18,2,2180,218,124,84,154,2760,7590
+2026-09-05,Summit Fintech,Sophia,Email,Lifecycle Nurture,APAC,Desktop,Enterprise,conversion,9640,869,1590,128,94,58,31,5,592,104,52,36,72,856,16330
+2026-09-05,Vertex Logistics,Noah,Organic Search,Always On,Europe,Desktop,Mid-market,consideration,13220,910,1788,133,87,43,20,3,820,114,62,44,76,1116,12360
+2026-09-05,Harbor Energy,Lucas,Display,Awareness Wave,North America,Mobile,Mid-market,awareness,25320,666,1356,96,43,18,9,0,1680,144,92,59,94,2069,4620
+2026-09-06,Northwind Health,Avery,Paid Search,Pipeline Launch,North America,Desktop,Enterprise,awareness,18950,1255,2435,170,99,45,23,3,2425,190,100,65,125,2905,8750
+2026-09-06,BluePeak Retail,Mia,Paid Social,Lookalike Growth,Europe,Mobile,SMB,awareness,22550,1125,2085,156,82,36,19,2,2200,220,125,85,155,2785,7750
+2026-09-06,Summit Fintech,Sophia,Email,Lifecycle Nurture,APAC,Desktop,Enterprise,conversion,9750,875,1600,130,95,59,32,5,600,105,53,37,73,868,16500
+2026-09-06,Vertex Logistics,Noah,Organic Search,Always On,Europe,Desktop,Mid-market,consideration,13340,915,1800,134,88,44,21,3,830,115,63,45,77,1130,12500
+2026-09-06,Harbor Energy,Lucas,Display,Awareness Wave,North America,Mobile,Mid-market,awareness,25480,670,1365,97,44,19,10,0,1695,145,93,60,95,2088,4700
+2026-09-07,Northwind Health,Avery,Paid Search,Pipeline Launch,North America,Desktop,Enterprise,awareness,19100,1264,2450,172,100,46,24,3,2450,192,101,66,126,2935,8940
+2026-09-07,BluePeak Retail,Mia,Paid Social,Lookalike Growth,Europe,Mobile,SMB,awareness,22690,1132,2098,158,83,37,20,2,2220,222,126,86,156,2810,7910
+2026-09-07,Summit Fintech,Sophia,Email,Lifecycle Nurture,APAC,Desktop,Enterprise,conversion,9860,881,1610,132,96,60,33,5,608,106,54,38,74,880,16670
+2026-09-07,Vertex Logistics,Noah,Organic Search,Always On,Europe,Desktop,Mid-market,consideration,13460,920,1812,135,89,45,22,3,840,116,64,46,78,1144,12640
+2026-09-07,Harbor Energy,Lucas,Display,Awareness Wave,North America,Mobile,Mid-market,awareness,25640,674,1374,98,45,20,11,0,1710,146,94,61,96,2107,4780
+2026-09-08,Northwind Health,Avery,Paid Search,Pipeline Launch,North America,Desktop,Enterprise,awareness,19250,1273,2465,174,101,47,25,3,2475,194,102,67,127,2965,9130
+2026-09-08,BluePeak Retail,Mia,Paid Social,Lookalike Growth,Europe,Mobile,SMB,awareness,22830,1139,2111,160,84,38,21,2,2240,224,127,87,157,2835,8070
+2026-09-08,Summit Fintech,Sophia,Email,Lifecycle Nurture,APAC,Desktop,Enterprise,conversion,9970,887,1620,134,97,61,34,5,616,107,55,39,75,892,16840
+2026-09-08,Vertex Logistics,Noah,Organic Search,Always On,Europe,Desktop,Mid-market,consideration,13580,925,1824,136,90,46,23,3,850,117,65,47,79,1158,12780
+2026-09-08,Harbor Energy,Lucas,Display,Awareness Wave,North America,Mobile,Mid-market,awareness,25800,678,1383,99,46,21,12,0,1725,147,95,62,97,2126,4860
+2026-09-09,Northwind Health,Avery,Paid Search,Pipeline Launch,North America,Desktop,Enterprise,awareness,19400,1282,2480,176,102,48,26,3,2500,196,103,68,128,2995,9320
+2026-09-09,BluePeak Retail,Mia,Paid Social,Lookalike Growth,Europe,Mobile,SMB,awareness,22970,1146,2124,162,85,39,22,2,2260,226,128,88,158,2860,8230
+2026-09-09,Summit Fintech,Sophia,Email,Lifecycle Nurture,APAC,Desktop,Enterprise,conversion,10080,893,1630,136,98,62,35,5,624,108,56,40,76,904,17010
+2026-09-09,Vertex Logistics,Noah,Organic Search,Always On,Europe,Desktop,Mid-market,consideration,13700,930,1836,137,91,47,24,3,860,118,66,48,80,1172,12920
+2026-09-09,Harbor Energy,Lucas,Display,Awareness Wave,North America,Mobile,Mid-market,awareness,25960,682,1392,100,47,22,13,0,1740,148,96,63,98,2145,4940
+2026-09-10,Northwind Health,Avery,Paid Search,Pipeline Launch,North America,Desktop,Enterprise,awareness,19550,1291,2495,178,103,49,27,3,2525,198,104,69,129,3025,9510
+2026-09-10,BluePeak Retail,Mia,Paid Social,Lookalike Growth,Europe,Mobile,SMB,awareness,23110,1153,2137,164,86,40,23,2,2280,228,129,89,159,2885,8390
+2026-09-10,Summit Fintech,Sophia,Email,Lifecycle Nurture,APAC,Desktop,Enterprise,conversion,10190,899,1640,138,99,63,36,5,632,109,57,41,77,916,17180
+2026-09-10,Vertex Logistics,Noah,Organic Search,Always On,Europe,Desktop,Mid-market,consideration,13820,935,1848,138,92,48,25,3,870,119,67,49,81,1186,13060
+2026-09-10,Harbor Energy,Lucas,Display,Awareness Wave,North America,Mobile,Mid-market,awareness,26120,686,1401,101,48,23,14,0,1755,149,97,64,99,2164,5020

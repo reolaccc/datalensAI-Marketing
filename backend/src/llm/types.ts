@@ -257,6 +257,7 @@ export interface QuestionNarrativeInput {
   answer: string;
   detectedIntent?: IntentDetectionResult;
   semanticProfile?: SemanticBusinessIntentAnalysis;
+  semanticContract?: DatasetProfile["semanticContract"];
   conversationHistory?: Array<{
     question: string;
     answer: string;

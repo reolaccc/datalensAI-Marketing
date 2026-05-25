@@ -41,7 +41,7 @@ function formatCompactNumber(value: number) {
 
 function formatMetricValue(metricLabel: string, value: number) {
   const normalized = normalizeName(metricLabel);
-  if (normalized.includes("roas") || normalized.includes("roi")) {
+  if (normalized.includes("roas")) {
     return `${formatNumber(value)}x`;
   }
   if (normalized.includes("ctr") || normalized.includes("cvr") || normalized.includes("conversion rate") || normalized.includes("rate")) {
@@ -218,7 +218,7 @@ function isRevenueMetric(value?: string | null) {
 }
 
 function isEfficiencyMetric(value?: string | null) {
-  return Boolean(value) && ["roas", "roi", "conversion rate", "cvr", "efficiency"].some((label) => normalizeName(value ?? "").includes(label));
+  return Boolean(value) && ["roas", "spend", "efficiency"].some((label) => normalizeName(value ?? "").includes(label));
 }
 
 function isConversionMetric(value?: string | null) {
@@ -1297,6 +1297,7 @@ export function buildQuestionNarrativeInput(params: {
   answer: string;
   detectedIntent?: IntentDetectionResult;
   semanticProfile?: QuestionNarrativeInput["semanticProfile"];
+  semanticContract?: QuestionNarrativeInput["semanticContract"];
   conversationHistory?: QuestionNarrativeInput["conversationHistory"];
   supportingData: Array<{ label: string; value: string | number }>;
   resultTable?: {

@@ -1,0 +1,31 @@
+event_day,initiative_label,distribution_channel,device_class,market_area,audience_segment,ad_view_count,click_through_count,site_session_count,closed_won_count,sales_value,media_outlay,creative_outlay,vendor_fees,promo_discount,fulfillment_cost,total_outlay
+2026-10-01,Search Capture,Paid Search,Desktop,North America,Enterprise,25600,1680,2740,132,24100,2450,210,120,60,180,2900
+2026-10-01,Brand Defense,Paid Social,Mobile,North America,Mid-market,19800,920,1690,78,13800,1680,180,95,45,110,2020
+2026-10-01,Lifecycle Nurture,Email,Desktop,Europe,SMB,11200,980,1510,102,18450,680,95,52,28,75,874
+2026-10-01,Retargeting Push,Display,Mobile,APAC,SMB,14400,710,1180,54,9250,940,120,68,32,88,1184
+2026-10-01,Social Burst,Paid Social,Desktop,Europe,Mid-market,22100,1340,2050,90,15850,1320,160,84,40,130,1654
+2026-10-02,Search Capture,Paid Search,Desktop,North America,Enterprise,26250,1715,2790,136,24880,2500,212,120,62,181,2951
+2026-10-02,Brand Defense,Paid Social,Mobile,North America,Mid-market,20120,935,1710,80,14110,1695,181,95,46,112,2037
+2026-10-02,Lifecycle Nurture,Email,Desktop,Europe,SMB,11480,995,1530,106,19120,690,96,52,29,76,885
+2026-10-02,Retargeting Push,Display,Mobile,APAC,SMB,14610,730,1200,56,9480,950,121,68,33,89,1195
+2026-10-02,Social Burst,Paid Social,Desktop,Europe,Mid-market,22450,1365,2075,92,16090,1335,162,85,41,131,1672
+2026-10-03,Search Capture,Paid Search,Desktop,North America,Enterprise,26880,1730,2825,140,25220,2520,214,121,63,183,2975
+2026-10-03,Brand Defense,Paid Social,Mobile,North America,Mid-market,20350,948,1730,82,14280,1710,182,96,46,113,2055
+2026-10-03,Lifecycle Nurture,Email,Desktop,Europe,SMB,11630,1005,1545,109,19480,695,97,53,29,77,893
+2026-10-03,Retargeting Push,Display,Mobile,APAC,SMB,14840,742,1215,58,9630,960,122,69,33,90,1208
+2026-10-03,Social Burst,Paid Social,Desktop,Europe,Mid-market,22780,1380,2100,94,16250,1350,163,85,42,132,1688
+2026-10-04,Search Capture,Paid Search,Desktop,North America,Enterprise,27420,1750,2860,143,25550,2550,216,122,64,184,3008
+2026-10-04,Brand Defense,Paid Social,Mobile,North America,Mid-market,20580,960,1750,83,14360,1725,183,96,47,114,2071
+2026-10-04,Lifecycle Nurture,Email,Desktop,Europe,SMB,11790,1016,1560,111,19720,700,98,53,30,78,899
+2026-10-04,Retargeting Push,Display,Mobile,APAC,SMB,15050,754,1230,59,9760,970,123,69,34,91,1219
+2026-10-04,Social Burst,Paid Social,Desktop,Europe,Mid-market,23110,1395,2125,96,16490,1365,164,86,42,133,1706
+2026-10-05,Search Capture,Paid Search,Desktop,North America,Enterprise,27960,1768,2895,146,25810,2570,218,123,65,185,3031
+2026-10-05,Brand Defense,Paid Social,Mobile,North America,Mid-market,20810,972,1768,84,14510,1738,184,97,47,115,2087
+2026-10-05,Lifecycle Nurture,Email,Desktop,Europe,SMB,11940,1028,1575,113,19960,705,99,54,30,79,907
+2026-10-05,Retargeting Push,Display,Mobile,APAC,SMB,15280,766,1245,60,9880,980,124,70,35,92,1231
+2026-10-05,Social Burst,Paid Social,Desktop,Europe,Mid-market,23440,1410,2150,97,16670,1380,165,86,43,134,1722
+2026-10-06,Search Capture,Paid Search,Desktop,North America,Enterprise,28510,1785,2930,148,26090,2590,220,124,66,186,3054
+2026-10-06,Brand Defense,Paid Social,Mobile,North America,Mid-market,21040,985,1788,86,14650,1750,185,97,48,116,2100
+2026-10-06,Lifecycle Nurture,Email,Desktop,Europe,SMB,12090,1040,1590,115,20140,710,100,54,30,80,914
+2026-10-06,Retargeting Push,Display,Mobile,APAC,SMB,15510,778,1260,61,10010,990,125,70,35,93,1243
+2026-10-06,Social Burst,Paid Social,Desktop,Europe,Mid-market,23780,1425,2175,99,16820,1395,166,87,44,135,1739
