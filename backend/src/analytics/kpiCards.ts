@@ -132,6 +132,12 @@ function getConfiguredCurrencyCode() {
   return /^[A-Z]{3}$/.test(code) ? code : "";
 }
 
+function getCurrencySymbol(currencyCode: string) {
+  return currencyCode ? new Intl.NumberFormat(undefined, { style: "currency", currency: currencyCode, maximumFractionDigits: 0 })
+    .formatToParts(0)
+    .find((part) => part.type === "currency")?.value ?? "$" : "$";
+}
+
 function formatCurrencyLike(value: number, currencyCode: string) {
   if (currencyCode) {
     if (Math.abs(value) >= 1000) {
@@ -151,7 +157,7 @@ function formatCurrencyLike(value: number, currencyCode: string) {
     }).format(value);
   }
 
-  return formatGenericNumber(value);
+  return `${getCurrencySymbol(currencyCode)}${formatGenericNumber(value)}`;
 }
 
 function sumColumn(rows: DatasetRow[], column: string) {
@@ -499,14 +505,14 @@ function buildMetricObservation(
     revenue: {
       label: "Revenue",
       metricType: "currency",
-      unit: currencyCode || "revenue units",
+      unit: "",
       priority: { marketing: 100, sales: 100, ecommerce: 100, generic: 96 },
       sourceColumns: ["revenue", "sales", "income", "gmv", "conversion_value"]
     },
     cost: {
       label: "Spend",
       metricType: "currency",
-      unit: currencyCode || "cost units",
+      unit: "",
       priority: { marketing: 95, sales: 72, ecommerce: 70, generic: 86 },
       sourceColumns: ["cost", "spend", "ad_spend", "budget"]
     },
@@ -548,21 +554,21 @@ function buildMetricObservation(
     cpc: {
       label: "CPC",
       metricType: "rate",
-      unit: `${currencyCode || "cost units"} / click`,
+      unit: `${getCurrencySymbol(currencyCode)} / click`,
       priority: { marketing: 76, sales: 44, ecommerce: 44, generic: 42 },
       sourceColumns: ["cost", "clicks"]
     },
     cpa: {
       label: "CPA",
       metricType: "rate",
-      unit: `${currencyCode || "cost units"} / conversion`,
+      unit: `${getCurrencySymbol(currencyCode)} / conversion`,
       priority: { marketing: 74, sales: 46, ecommerce: 46, generic: 40 },
       sourceColumns: ["cost", "conversions"]
     },
     revenue_per_click: {
       label: "Revenue / Click",
       metricType: "rate",
-      unit: `${currencyCode || "revenue units"} / click`,
+      unit: `${getCurrencySymbol(currencyCode)} / click`,
       priority: { marketing: 72, sales: 42, ecommerce: 42, generic: 38 },
       sourceColumns: ["revenue", "clicks"]
     },
@@ -576,7 +582,7 @@ function buildMetricObservation(
     average_order_value: {
       label: "Average Order Value",
       metricType: "rate",
-      unit: `${currencyCode || "revenue units"} / order`,
+      unit: `${getCurrencySymbol(currencyCode)} / order`,
       priority: { marketing: 60, sales: 92, ecommerce: 92, generic: 48 },
       sourceColumns: ["revenue", "orders", "deals", "aov", "average_order_value"]
     },
@@ -590,7 +596,7 @@ function buildMetricObservation(
     profit: {
       label: "Profit",
       metricType: "currency",
-      unit: currencyCode || "profit units",
+      unit: "",
       priority: { marketing: 62, sales: 84, ecommerce: 84, generic: 82 },
       sourceColumns: ["profit"]
     },
@@ -611,7 +617,7 @@ function buildMetricObservation(
     total_value: {
       label: "Total Value",
       metricType: "currency",
-      unit: currencyCode || "value units",
+      unit: "",
       priority: { marketing: 46, sales: 66, ecommerce: 66, generic: 94 },
       sourceColumns: ["value", "amount", "total_value"]
     },
@@ -962,8 +968,10 @@ function buildMetricObservation(
       : key === "conversion_rate" || key === "ctr" || key === "margin" || key === "refund_rate"
         ? formatPercentPoint(value)
         : key === "cpc" || key === "cpa" || key === "revenue_per_click" || key === "average_order_value"
-            ? formatGenericNumber(value)
-            : formatGenericNumber(value);
+            ? formatCurrencyLike(value, currencyCode)
+            : config.metricType === "currency"
+              ? formatCurrencyLike(value, currencyCode)
+              : formatGenericNumber(value);
 
   const label = config.label;
 
@@ -1042,10 +1050,12 @@ function buildGenericFallbackObservations(
       key: "total_value",
       label,
       value: Number(value.toFixed(2)),
-      formattedValue: formatGenericNumber(value),
-      unit: "value units",
-      metricType: "generic_number",
-      description: `The ${label.toLowerCase()} metric reached ${formatGenericNumber(value)}. Compare it with the most related business metric to see whether this number reflects growth or noise.`,
+      formattedValue: /revenue|sales|income|gmv|value|amount|cost|spend|profit/i.test(label)
+        ? formatCurrencyLike(value, currencyCode)
+        : formatGenericNumber(value),
+      unit: "",
+      metricType: /revenue|sales|income|gmv|value|amount|cost|spend|profit/i.test(label) ? "currency" : "generic_number",
+      description: `The ${label.toLowerCase()} metric reached ${/revenue|sales|income|gmv|value|amount|cost|spend|profit/i.test(label) ? formatCurrencyLike(value, currencyCode) : formatGenericNumber(value)}. Compare it with the most related business metric to see whether this number reflects growth or noise.`,
       formula: `sum(${column})`,
       reliability: getColumnProfile(profile, column)?.missingCount ? "medium" : "high",
       priority: 40,

@@ -1,5 +1,5 @@
 import type { AnalysisResponse } from "../types";
-import { formatCompactNumber } from "../utils/numberFormatting";
+import { formatCompactCurrency, formatCompactNumber } from "../utils/numberFormatting";
 
 interface Props {
   analysis: AnalysisResponse;
@@ -10,7 +10,9 @@ function legacyKpiCards(analysis: AnalysisResponse) {
     id: kpi.id,
     label: kpi.label,
     value: kpi.aggregateValue,
-    formattedValue: formatCompactNumber(kpi.aggregateValue),
+    formattedValue: /revenue|sales|income|gmv|cost|spend|profit|value/i.test(kpi.label)
+      ? formatCompactCurrency(kpi.aggregateValue)
+      : formatCompactNumber(kpi.aggregateValue),
     unit: "",
     metricType: "generic_number" as const,
     description: kpi.summary,

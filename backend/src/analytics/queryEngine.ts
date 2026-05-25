@@ -1,5 +1,6 @@
 import type { DatasetProfile, DatasetRow, PlannedQuery, QuestionAnswer } from "./types.js";
 import { parseDateValue, parseNumber } from "../utils/inference.js";
+import { semanticIntentLabel } from "../services/analytics/intent/semanticBusinessIntent.js";
 
 interface QueryContext {
   rows: DatasetRow[];
@@ -48,10 +49,10 @@ function metricUnit(metric: string) {
     return "%";
   }
   if (normalized.includes("revenue")) {
-    return "revenue units";
+    return "$";
   }
   if (normalized.includes("cost") || normalized.includes("spend")) {
-    return "cost units";
+    return "$";
   }
   if (normalized.includes("impression")) {
     return "impressions";
@@ -71,6 +72,10 @@ function formatMetricValue(metric: string, value: number) {
   if (normalized.includes("ctr") || normalized.includes("cvr") || normalized.includes("rate")) {
     const percentValue = Math.abs(value) <= 1.5 ? value * 100 : value;
     return `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(percentValue)}%`;
+  }
+
+  if (normalized.includes("revenue") || normalized.includes("sales") || normalized.includes("income") || normalized.includes("gmv") || normalized.includes("cost") || normalized.includes("spend") || normalized.includes("profit") || normalized.includes("value") || normalized.includes("amount")) {
+    return `$${formatCompactNumber(value)}`;
   }
 
   return `${formatCompactNumber(value)} ${metricUnit(metric)}`;
@@ -226,6 +231,203 @@ function groupByMetrics(
         ? Number(left[primaryMetric] ?? 0) - Number(right[primaryMetric] ?? 0)
         : Number(right[primaryMetric] ?? 0) - Number(left[primaryMetric] ?? 0)
     );
+}
+
+function semanticMetricAggregation(metric: string) {
+  const normalized = metric.toLowerCase();
+  if (
+    normalized.includes("rate") ||
+    normalized.includes("roas") ||
+    normalized.includes("roi") ||
+    normalized.includes("cpa") ||
+    normalized.includes("cpc") ||
+    normalized.includes("conversion") ||
+    normalized.includes("margin")
+  ) {
+    return "average";
+  }
+
+  return "sum";
+}
+
+function aggregateSemanticMetric(metric: string, values: number[]) {
+  if (values.length === 0) {
+    return 0;
+  }
+
+  if (semanticMetricAggregation(metric) === "average") {
+    return values.reduce((sum, value) => sum + value, 0) / values.length;
+  }
+
+  return values.reduce((sum, value) => sum + value, 0);
+}
+
+function inferSemanticMetricDirection(metric: string) {
+  const normalized = metric.toLowerCase();
+  if (
+    normalized.includes("cost") ||
+    normalized.includes("spend") ||
+    normalized.includes("cpa") ||
+    normalized.includes("cpc") ||
+    normalized.includes("waste")
+  ) {
+    return "low" as const;
+  }
+
+  return "high" as const;
+}
+
+function buildSemanticRanking(
+  question: string,
+  rows: DatasetRow[],
+  query: PlannedQuery
+): QuestionAnswer | null {
+  if (!query.semanticProfile || !query.dimension || query.metrics.length === 0) {
+    return null;
+  }
+
+  const grouped = new Map<string, Record<string, number[]>>();
+  for (const row of rows) {
+    const key = row[query.dimension];
+    if (key === null || key === undefined || String(key).trim() === "") {
+      continue;
+    }
+
+    const current = grouped.get(String(key)) ?? {};
+    for (const metric of query.metrics) {
+      const metricValue = parseNumber(row[metric]);
+      if (metricValue === null) {
+        continue;
+      }
+      const metricValues = current[metric] ?? [];
+      metricValues.push(metricValue);
+      current[metric] = metricValues;
+    }
+
+    grouped.set(String(key), current);
+  }
+
+  const metricDetails = query.metrics
+    .map((metric) => {
+      const signal = query.semanticProfile?.metricSignals.find(
+        (entry) => entry.metric.toLowerCase() === metric.toLowerCase()
+      );
+      return {
+        metric,
+        direction: signal?.direction ?? inferSemanticMetricDirection(metric),
+        weight: signal?.weight ?? 0.1
+      };
+    })
+    .filter((entry) => entry.weight > 0);
+
+  if (grouped.size === 0 || metricDetails.length === 0) {
+    return null;
+  }
+
+  const aggregatedRows = [...grouped.entries()].map(([label, metricValues]) => {
+    const aggregatedMetrics: Record<string, number> = {};
+
+    for (const detail of metricDetails) {
+      const value = aggregateSemanticMetric(detail.metric, metricValues[detail.metric] ?? []);
+      aggregatedMetrics[detail.metric] = Number(value.toFixed(2));
+    }
+
+    return {
+      label,
+      metrics: aggregatedMetrics
+    };
+  });
+
+  const ranges = new Map<string, { min: number; max: number }>();
+  for (const detail of metricDetails) {
+    const values = aggregatedRows.map((entry) => entry.metrics[detail.metric]).filter((value) => Number.isFinite(value));
+    if (values.length === 0) {
+      continue;
+    }
+    ranges.set(detail.metric, {
+      min: Math.min(...values),
+      max: Math.max(...values)
+    });
+  }
+
+  const scoredRows = aggregatedRows
+    .map((entry) => {
+      let weightedScore = 0;
+      let totalWeight = 0;
+
+      for (const detail of metricDetails) {
+        const range = ranges.get(detail.metric);
+        const value = entry.metrics[detail.metric];
+        if (!range || !Number.isFinite(value)) {
+          continue;
+        }
+
+        const normalized =
+          range.max === range.min ? 0.5 : (value - range.min) / (range.max - range.min);
+        const oriented = detail.direction === "high" ? normalized : 1 - normalized;
+        weightedScore += oriented * detail.weight;
+        totalWeight += detail.weight;
+      }
+
+      const score = totalWeight > 0 ? weightedScore / totalWeight : 0.5;
+      return {
+        ...entry,
+        score: Number(score.toFixed(4))
+      };
+    })
+    .sort((left, right) => {
+      const descending =
+        query.semanticProfile?.businessIntent !== "underperforming" &&
+        query.semanticProfile?.businessIntent !== "wasting_budget";
+      return descending ? right.score - left.score : left.score - right.score;
+    });
+
+  if (scoredRows.length === 0) {
+    return null;
+  }
+
+  const leader = scoredRows[0];
+  const runnerUp = scoredRows[1];
+  const isNegativeIntent =
+    query.semanticProfile.businessIntent === "underperforming" ||
+    query.semanticProfile.businessIntent === "wasting_budget";
+  const rankingLabel = isNegativeIntent ? "weakest" : "strongest";
+  const intentLabel = semanticIntentLabel(query.semanticProfile.businessIntent);
+  const highlightedSignals = [...metricDetails]
+    .sort((left, right) => right.weight - left.weight)
+    .slice(0, 3)
+    .map((detail) => `${humanize(detail.metric).toLowerCase()} ${formatMetricValue(detail.metric, leader.metrics[detail.metric] ?? 0)}`);
+  const comparisonText =
+    runnerUp && Number.isFinite(runnerUp.score)
+      ? ` It is ${isNegativeIntent ? "below" : "ahead of"} ${runnerUp.label} by ${formatCompactNumber(Math.abs(leader.score - runnerUp.score) * 100)} score points.`
+      : "";
+  return {
+    question,
+    interpretation: `semantic ranking for ${intentLabel}`,
+    answer: `${leader.label} shows the ${rankingLabel} ${intentLabel} because it combines ${highlightedSignals.join(", ")}.${comparisonText}`,
+    supportingData: scoredRows.slice(0, query.limit).map((entry) => ({
+      label: entry.label,
+      value: Number(entry.score.toFixed(4))
+    })),
+    resultTable: {
+      columns: [query.dimension, "semantic_score", ...query.metrics],
+      rows: scoredRows.slice(0, query.limit).map((entry) => ({
+        [query.dimension!]: entry.label,
+        semantic_score: Number(entry.score.toFixed(4)),
+        ...entry.metrics
+      }))
+    },
+    chartSuggestion: {
+      chartType: "bar",
+      xKey: query.dimension,
+      yKey: "semantic_score",
+      data: scoredRows.slice(0, query.limit).map((entry) => ({
+        [query.dimension!]: entry.label,
+        semantic_score: Number(entry.score.toFixed(4)),
+        ...entry.metrics
+      }))
+    }
+  };
 }
 
 function answerAnomaly(question: string, context: QueryContext): QuestionAnswer {
@@ -570,6 +772,13 @@ function answerDimensionTrend(question: string, rows: DatasetRow[], query: Plann
 }
 
 function answerTopSegment(question: string, rows: DatasetRow[], query: PlannedQuery): QuestionAnswer {
+  if (query.semanticProfile && query.metrics.length > 0) {
+    const semanticAnswer = buildSemanticRanking(question, rows, query);
+    if (semanticAnswer) {
+      return semanticAnswer;
+    }
+  }
+
   if (!query.metric || !query.dimension) {
     return {
       question,
@@ -823,11 +1032,18 @@ function answerAggregateSegments(question: string, rows: DatasetRow[], query: Pl
 }
 
 function answerSummary(question: string, rows: DatasetRow[], query: PlannedQuery): QuestionAnswer {
+  if (query.semanticProfile && query.dimension && query.metrics.length > 0) {
+    const semanticAnswer = buildSemanticRanking(question, rows, query);
+    if (semanticAnswer) {
+      return semanticAnswer;
+    }
+  }
+
   if (!query.metric) {
     return {
       question,
       interpretation: "summary fallback",
-      answer: "I could not identify a numeric metric for that question.",
+      answer: "I could not build a numeric ranking from the available fields, so this is a high-level business read only.",
       supportingData: []
     };
   }

@@ -1,4 +1,13 @@
-import type { ChartConfig, DatasetProfile, DatasetRow, IntentDetectionResult, KpiCandidate, PrimitiveValue, QuestionContextInput } from "../analytics/types.js";
+import type {
+  ChartConfig,
+  DatasetProfile,
+  DatasetRow,
+  IntentDetectionResult,
+  KpiCandidate,
+  PrimitiveValue,
+  QuestionContextInput,
+  SemanticBusinessIntentAnalysis
+} from "../analytics/types.js";
 
 export type LlmRole = "system" | "user" | "assistant";
 
@@ -230,6 +239,7 @@ export interface AskAnswerNarrative {
   suggestedNextQuestion?: string;
   analysisSummary: string;
   chartSelectionSummary: string;
+  confidenceNote?: string;
   warning?: string;
   source: "llm" | "fallback";
 }
@@ -246,11 +256,23 @@ export interface QuestionNarrativeInput {
   question: string;
   answer: string;
   detectedIntent?: IntentDetectionResult;
+  semanticProfile?: SemanticBusinessIntentAnalysis;
   supportingData: Array<{ label: string; value: string | number }>;
   resultTable?: {
     columns: string[];
     rows: Record<string, PrimitiveValue>[];
   };
+  datasetSchema: Array<{
+    name: string;
+    kind: string;
+    sampleValues: PrimitiveValue[];
+    min?: number | string;
+    max?: number | string;
+    mean?: number;
+    median?: number;
+    topCategories?: Array<{ value: string; count: number }>;
+  }>;
+  sampleRows: Record<string, PrimitiveValue>[];
   chartSelectionSummary: string;
   chartSelectionExplanation: string;
   chartSelectionWarnings: string[];

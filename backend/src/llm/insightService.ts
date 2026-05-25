@@ -48,11 +48,8 @@ function formatMetricValue(metricLabel: string, value: number) {
     const percentValue = Math.abs(value) <= 1.5 ? value * 100 : value;
     return `${formatNumber(percentValue)}%`;
   }
-  if (normalized.includes("revenue")) {
-    return `${formatCompactNumber(value)} revenue units`;
-  }
-  if (normalized.includes("cost") || normalized.includes("spend")) {
-    return `${formatCompactNumber(value)} cost units`;
+  if (normalized.includes("revenue") || normalized.includes("sales") || normalized.includes("income") || normalized.includes("gmv") || normalized.includes("cost") || normalized.includes("spend") || normalized.includes("profit") || normalized.includes("value") || normalized.includes("amount")) {
+    return `$${formatCompactNumber(value)}`;
   }
   if (normalized.includes("impression")) {
     return `${formatCompactNumber(value)} impressions`;
@@ -96,6 +93,103 @@ function humanizeLabel(value?: string | null) {
 
 function isCommercialInsightText(value: string) {
   return !/(data quality|missing cell|missing cells|duplicate row|duplicate rows|outlier|outliers|eda|profiling|dirty data|warning)/i.test(value);
+}
+
+type ExecutiveInsightTheme =
+  | "revenue"
+  | "concentration"
+  | "efficiency"
+  | "conversion"
+  | "trend"
+  | "budget"
+  | "scale"
+  | "quality"
+  | "action"
+  | "strong_segment"
+  | "weak_segment"
+  | "general";
+
+interface ExecutiveInsightCandidate {
+  text: string;
+  theme: ExecutiveInsightTheme;
+}
+
+function normalizeInsightText(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9%$.\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function classifyInsightTheme(value: string): ExecutiveInsightTheme {
+  const normalized = normalizeInsightText(value);
+  if (/(data quality|missing|duplicate|outlier|profiling)/i.test(normalized)) {
+    return "quality";
+  }
+  if (/(weakest|underperform|worst|lagging|lowest|tail)/i.test(normalized)) {
+    return "weak_segment";
+  }
+  if (/(strongest|best|top|leading|winner|winning)/i.test(normalized) && /(segment|channel|campaign|audience|device|ad set)/i.test(normalized)) {
+    return "strong_segment";
+  }
+  if (/(roas|roi|efficien|cost|spend|cpa|cpc)/i.test(normalized)) {
+    return "efficiency";
+  }
+  if (/(conversion|cvr|convert)/i.test(normalized)) {
+    return "conversion";
+  }
+  if (/(trend|growth|declin|increas|decreas|momentum|change)/i.test(normalized)) {
+    return "trend";
+  }
+  if (/(budget|overspend|waste|reallocat|invest|cut)/i.test(normalized)) {
+    return "budget";
+  }
+  if (/(scale|scalab|expand|upside|opportunity|potential)/i.test(normalized)) {
+    return "scale";
+  }
+  if (/(top 3|concentrat|share|domin|largest)/i.test(normalized)) {
+    return "concentration";
+  }
+  if (/(segment|channel|campaign|audience|device|ad set)/i.test(normalized)) {
+    return "general";
+  }
+  if (/(recommend|should|next step|review|benchmark|watch)/i.test(normalized)) {
+    return "action";
+  }
+  return "general";
+}
+
+function addDistinctExecutiveInsight(
+  bullets: string[],
+  usedThemes: Set<ExecutiveInsightTheme>,
+  candidate: ExecutiveInsightCandidate
+) {
+  const normalized = normalizeInsightText(candidate.text);
+  if (!candidate.text.trim() || usedThemes.has(candidate.theme)) {
+    return;
+  }
+
+  if (bullets.some((bullet) => normalizeInsightText(bullet) === normalized)) {
+    return;
+  }
+
+  usedThemes.add(candidate.theme);
+  bullets.push(candidate.text);
+}
+
+function distinctInsightBullets(candidates: ExecutiveInsightCandidate[], limit = 6) {
+  const bullets: string[] = [];
+  const usedThemes = new Set<ExecutiveInsightTheme>();
+
+  for (const candidate of candidates) {
+    if (bullets.length >= limit) {
+      break;
+    }
+    addDistinctExecutiveInsight(bullets, usedThemes, candidate);
+  }
+
+  return bullets;
 }
 
 interface ChartSummaryEntry {
@@ -815,80 +909,95 @@ export function buildAnalyticsFactsFromAnalysis(params: {
 }
 
 function buildFallbackExecutiveInsightNarrative(facts: AnalyticsFacts): ExecutiveInsightNarrative {
-  const bullets: string[] = [];
   const top3RevenueEntities = facts.concentration.top3RevenueEntities ?? [];
   const top3RevenueNames = top3RevenueEntities.map((entry) => entry.name).filter(Boolean);
   const top3RevenueDimension = top3RevenueEntities[0]?.dimension;
-  if (facts.topFindings.topRevenueSegment) {
-    bullets.push(
-      `${facts.topFindings.topRevenueSegment.name} generated the strongest revenue result, contributing ${formatPercent(facts.topFindings.topRevenueSegment.share)} of total revenue.`
-    );
-  }
-  if (facts.topFindings.bestRoasSegment) {
-    bullets.push(
-      `${facts.topFindings.bestRoasSegment.name} has the best ROAS at ${formatNumber(facts.topFindings.bestRoasSegment.roas)}, so efficiency should be weighed against raw revenue.`
-    );
-  }
-  if (facts.comparisons.revenueVsEfficiencyMismatches.length > 0) {
-    bullets.push(facts.comparisons.revenueVsEfficiencyMismatches[0].note);
-  } else if (facts.concentration.top3RevenueShare !== undefined) {
-    const segmentLabel =
-      top3RevenueNames.length > 0
-        ? `${top3RevenueDimension ? `The top 3 ${top3RevenueDimension} segments` : "The top 3 segments"} (${top3RevenueNames.join(", ")})`
-        : "The top 3 segments";
-    bullets.push(
-      `${segmentLabel} contribute ${formatPercent(facts.concentration.top3RevenueShare)} of revenue, which suggests the result is concentrated rather than evenly spread.`
-    );
-  }
-  if (facts.kpis.overallRoas !== undefined || facts.kpis.totalRevenue !== undefined || facts.kpis.totalCost !== undefined) {
-    bullets.push(
-      `Revenue ${facts.kpis.totalRevenue !== undefined ? `totals ${formatNumber(facts.kpis.totalRevenue)}` : "is available"}, while ${facts.kpis.totalCost !== undefined ? `cost totals ${formatNumber(facts.kpis.totalCost)}` : "cost is not fully available"}, so budget decisions should stay tied to efficiency.`
-    );
-  }
-  if (facts.qualitySignals.otherWarnings.length > 0) {
-    bullets.push(`Data quality needs a quick check: ${facts.qualitySignals.otherWarnings.slice(0, 2).join(" ")}`);
-  }
-  if (facts.recommendedActions.length > 0) {
-    const commercialAction = facts.recommendedActions.find(isCommercialInsightText);
-    if (commercialAction) {
-      bullets.push(commercialAction);
+  const candidates: ExecutiveInsightCandidate[] = [
+    facts.topFindings.topRevenueSegment
+      ? {
+          theme: "revenue",
+          text: `${facts.topFindings.topRevenueSegment.name} generated the strongest revenue result, contributing ${formatPercent(facts.topFindings.topRevenueSegment.share)} of total revenue.`
+        }
+      : undefined,
+    facts.topFindings.bestRoasSegment
+      ? {
+          theme: "efficiency",
+          text: `${facts.topFindings.bestRoasSegment.name} has the best ROAS at ${formatNumber(facts.topFindings.bestRoasSegment.roas)}, so efficiency should be weighed against raw revenue.`
+        }
+      : undefined,
+    facts.comparisons.revenueVsEfficiencyMismatches.length > 0
+      ? {
+        theme: "budget",
+        text: facts.comparisons.revenueVsEfficiencyMismatches[0].note
+      }
+      : facts.concentration.top3RevenueShare !== undefined
+        ? {
+            theme: "concentration",
+            text:
+              top3RevenueNames.length > 0
+                ? `${top3RevenueDimension ? `The top 3 ${top3RevenueDimension} segments` : "The top 3 segments"} (${top3RevenueNames.join(", ")}) contribute ${formatPercent(facts.concentration.top3RevenueShare)} of revenue, which suggests the result is concentrated rather than evenly spread.`
+                : `The top 3 segments contribute ${formatPercent(facts.concentration.top3RevenueShare)} of revenue, which suggests the result is concentrated rather than evenly spread.`
+          }
+        : undefined,
+    facts.kpis.overallRoas !== undefined || facts.kpis.totalRevenue !== undefined || facts.kpis.totalCost !== undefined
+      ? {
+          theme: "budget",
+          text: `Revenue ${facts.kpis.totalRevenue !== undefined ? `totals ${formatNumber(facts.kpis.totalRevenue)}` : "is available"}, while ${facts.kpis.totalCost !== undefined ? `cost totals ${formatNumber(facts.kpis.totalCost)}` : "cost is not fully available"}, so budget decisions should stay tied to efficiency.`
+        }
+      : undefined,
+    facts.qualitySignals.otherWarnings.length > 0
+      ? {
+          theme: "quality",
+          text: `Data quality needs a quick check: ${facts.qualitySignals.otherWarnings.slice(0, 2).join(" ")}`
+        }
+      : undefined,
+    facts.recommendedActions.find(isCommercialInsightText)
+      ? {
+          theme: "action",
+          text: facts.recommendedActions.find(isCommercialInsightText) ?? ""
+        }
+      : undefined,
+    facts.trends.recentChange
+      ? {
+          theme: "trend",
+          text: `The ${facts.trends.recentDirection === "down" ? "declining" : facts.trends.recentDirection === "up" ? "improving" : "changing"} ${facts.trends.recentChange.metric} trend across ${facts.trends.recentChange.periodLabel} should be watched before committing budget to the current pattern.`
+        }
+      : undefined,
+    facts.topFindings.bestConversionSegment
+      ? {
+          theme: "conversion",
+          text: `${facts.topFindings.bestConversionSegment.name} converts best at ${formatPercent(facts.topFindings.bestConversionSegment.conversionRate)}, so traffic quality should be benchmarked against that segment.`
+        }
+      : undefined,
+    facts.segments.strongestSegment
+      ? {
+          theme: "strong_segment",
+          text: `${facts.segments.strongestSegment.name} remains the strongest ${facts.segments.strongestSegment.metric} segment, making it the clearest reference point for scale decisions.`
+        }
+      : undefined,
+    facts.segments.weakestSegment
+      ? {
+          theme: "weak_segment",
+          text: `${facts.segments.weakestSegment.name} is the weakest ${facts.segments.weakestSegment.metric} segment, so it deserves review before budget is reallocated.`
+        }
+      : undefined,
+    {
+      theme: "general",
+      text: `The dataset spans ${facts.datasetSummary.rowCount} rows and ${facts.datasetSummary.columnCount} columns, so the next step is to validate whether the strongest signals hold across channels, campaigns, or other segments.`
+    },
+    {
+      theme: "general",
+      text: "The current signal points to a commercial review of revenue concentration, efficiency, and budget allocation rather than a broad exploratory analysis."
     }
-  }
-  if (bullets.length < 3) {
-    bullets.push(
-      `The dataset spans ${facts.datasetSummary.rowCount} rows and ${facts.datasetSummary.columnCount} columns, so the next step is to validate whether the strongest signals hold across channels, campaigns, or other segments.`
-    );
-  }
-  if (bullets.length < 6 && facts.trends.recentChange) {
-    const direction =
-      facts.trends.recentDirection === "down" ? "declining" : facts.trends.recentDirection === "up" ? "improving" : "changing";
-    bullets.push(
-      `The ${direction} ${facts.trends.recentChange.metric} trend across ${facts.trends.recentChange.periodLabel} should be watched before committing budget to the current pattern.`
-    );
-  }
-  if (bullets.length < 6 && facts.topFindings.bestConversionSegment) {
-    bullets.push(
-      `${facts.topFindings.bestConversionSegment.name} converts best at ${formatPercent(facts.topFindings.bestConversionSegment.conversionRate)}, so traffic quality should be benchmarked against that segment.`
-    );
-  }
-  if (bullets.length < 6 && facts.segments.strongestSegment) {
-    bullets.push(
-      `${facts.segments.strongestSegment.name} remains the strongest ${facts.segments.strongestSegment.metric} segment, making it the clearest reference point for scale decisions.`
-    );
-  }
-  if (bullets.length < 6 && facts.segments.weakestSegment) {
-    bullets.push(
-      `${facts.segments.weakestSegment.name} is the weakest ${facts.segments.weakestSegment.metric} segment, so it deserves review before budget is reallocated.`
-    );
-  }
-  if (bullets.length < 6) {
-    bullets.push(
-      `The current signal points to a commercial review of revenue concentration, efficiency, and budget allocation rather than a broad exploratory analysis.`
-    );
-  }
+  ].filter((candidate): candidate is ExecutiveInsightCandidate => Boolean(candidate?.text));
+
+  const bullets = distinctInsightBullets(
+    candidates.filter((candidate) => isCommercialInsightText(candidate.text)),
+    6
+  );
 
   return {
-    bullets: bullets.filter(isCommercialInsightText).slice(0, 6),
+    bullets: bullets.slice(0, 6),
     suggestedQuestions: [
       facts.topFindings.topRevenueSegment
         ? `How does ${facts.topFindings.topRevenueSegment.name} compare on ROAS and conversion efficiency?`
@@ -954,6 +1063,7 @@ function parseAskAnswerNarrative(text: string): AskAnswerNarrative | null {
     suggestedNextQuestion?: unknown;
     analysisSummary?: unknown;
     chartSelectionSummary?: unknown;
+    confidenceNote?: unknown;
     warning?: unknown;
   }>(text);
 
@@ -978,6 +1088,7 @@ function parseAskAnswerNarrative(text: string): AskAnswerNarrative | null {
         : undefined,
     analysisSummary: parsed.analysisSummary,
     chartSelectionSummary: parsed.chartSelectionSummary,
+    confidenceNote: typeof parsed.confidenceNote === "string" && parsed.confidenceNote.trim() ? parsed.confidenceNote : undefined,
     warning: typeof parsed.warning === "string" && parsed.warning.trim() ? parsed.warning : undefined,
     source: "llm"
   };
@@ -1007,15 +1118,31 @@ export function buildFallbackChartExplanations(
   });
 }
 
-export function buildFallbackAskAnswerNarrative(
-  input: QuestionNarrativeInput,
-  warning = "AI explanation unavailable; showing rule-based summary."
-): AskAnswerNarrative {
+export function buildFallbackAskAnswerNarrative(input: QuestionNarrativeInput): AskAnswerNarrative {
   const summaryMatch = input.answer.match(/^(.+?) totals ([\d.]+) with an average of ([\d.]+) across (\d+) populated records\.$/i);
   const topRevenueSegment = input.facts.topFindings.topRevenueSegment;
   const bestRoasSegment = input.facts.topFindings.bestRoasSegment;
   const rewrittenDirectAnswer = (() => {
     if (!summaryMatch) {
+      if (/could not identify a numeric metric|ai explanation unavailable/i.test(input.answer)) {
+        if (input.semanticProfile && input.semanticProfile.businessIntent !== "neutral") {
+          const preferredSegment =
+            input.semanticProfile.businessIntent === "underperforming" ||
+            input.semanticProfile.businessIntent === "wasting_budget"
+              ? input.facts.topFindings.weakestSegment?.name
+              : input.facts.topFindings.topRevenueSegment?.name ??
+                input.facts.topFindings.bestRoasSegment?.name ??
+                input.facts.topFindings.bestConversionSegment?.name ??
+                input.supportingData[0]?.label;
+
+          if (preferredSegment) {
+            return `${preferredSegment} is the clearest match for ${input.semanticProfile.summary}, based on the supporting metrics in the current dataset.`;
+          }
+        }
+
+        return "The current dataset does not expose a single clear metric, so this answer is based on the strongest available business signals.";
+      }
+
       return input.answer;
     }
 
@@ -1035,6 +1162,12 @@ export function buildFallbackAskAnswerNarrative(
     return `${metricLabel} totals ${formatMetricValue(metricLabel, total)} across the current selection, with an average of ${formatMetricValue(metricLabel, average)} across ${recordCount} matching records.`;
   })();
   const evidence = input.supportingData.map((entry) => `${entry.label}: ${String(entry.value)}`);
+  const confidenceNote =
+    input.semanticProfile && input.semanticProfile.businessIntent !== "neutral"
+      ? `Confidence is ${input.semanticProfile.confidence >= 0.75 ? "high" : input.semanticProfile.confidence >= 0.55 ? "medium" : "lower"} because the question matches ${input.semanticProfile.summary}.`
+      : input.supportingData.length > 0
+        ? `Confidence is medium because the answer is based on ${input.supportingData.length} supporting metric signal${input.supportingData.length === 1 ? "" : "s"}.`
+        : undefined;
   return {
     directAnswer: rewrittenDirectAnswer,
     evidence: evidence.length > 0 ? evidence : ["No supporting aggregates were available."],
@@ -1042,7 +1175,8 @@ export function buildFallbackAskAnswerNarrative(
     suggestedNextQuestion: input.suggestedFollowUps[0],
     analysisSummary: input.chartSelectionSummary,
     chartSelectionSummary: input.chartSelectionExplanation,
-    warning,
+    confidenceNote,
+    warning: undefined,
     source: "fallback"
   };
 }
@@ -1073,19 +1207,20 @@ export async function generateExecutiveInsights(facts: AnalyticsFacts): Promise<
       const parsed = parseExecutiveInsightNarrative(result.text);
       if (parsed) {
         const fallback = buildFallbackExecutiveInsightNarrative(facts);
-        const cleanedBullets = parsed.bullets.filter(isCommercialInsightText);
-        const mergedBullets = [...cleanedBullets];
-        for (const bullet of fallback.bullets) {
-          if (mergedBullets.length >= 6) {
-            break;
-          }
-          if (isCommercialInsightText(bullet) && !mergedBullets.includes(bullet)) {
-            mergedBullets.push(bullet);
-          }
-        }
+        const parsedCandidates = parsed.bullets
+          .filter(isCommercialInsightText)
+          .map((text) => ({
+            text,
+            theme: classifyInsightTheme(text)
+          }));
+        const fallbackCandidates = fallback.bullets.map((text) => ({
+          text,
+          theme: classifyInsightTheme(text)
+        }));
+        const mergedBullets = distinctInsightBullets([...parsedCandidates, ...fallbackCandidates], 6);
 
         return {
-          bullets: mergedBullets.slice(0, 6),
+          bullets: mergedBullets,
           suggestedQuestions: parsed.suggestedQuestions.filter(isCommercialInsightText).slice(0, 5),
           warning: undefined,
           source: "llm"
@@ -1141,11 +1276,14 @@ export function buildQuestionNarrativeInput(params: {
   question: string;
   answer: string;
   detectedIntent?: IntentDetectionResult;
+  semanticProfile?: QuestionNarrativeInput["semanticProfile"];
   supportingData: Array<{ label: string; value: string | number }>;
   resultTable?: {
     columns: string[];
     rows: Record<string, PrimitiveValue>[];
   };
+  datasetSchema: QuestionNarrativeInput["datasetSchema"];
+  sampleRows: QuestionNarrativeInput["sampleRows"];
   chartSelectionSummary: string;
   chartSelectionExplanation: string;
   chartSelectionWarnings: string[];

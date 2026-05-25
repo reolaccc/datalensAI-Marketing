@@ -51,6 +51,7 @@ export function buildExecutiveInsightPrompt(facts: AnalyticsFacts): LlmTextGener
               "mention trend direction if available",
               "use the provided chart context and recommended actions when helpful",
               "include a cautious recommendation",
+              "make sure each bullet covers a distinct business theme and do not repeat the same viewpoint across bullets",
               "do not mention EDA or data quality issues"
             ]
           },
@@ -150,11 +151,14 @@ export function buildAskAnswerPrompt(input: QuestionNarrativeInput): LlmTextGene
     {
       role: "user",
       content: JSON.stringify(
-        {
+          {
           question: input.question,
           deterministicAnswer: input.answer,
           detectedIntent: input.detectedIntent ?? null,
+          semanticProfile: input.semanticProfile ?? null,
           supportingData: input.supportingData,
+          datasetSchema: input.datasetSchema,
+          sampleRows: input.sampleRows,
           resultTablePreview: input.resultTable
             ? {
                 columns: input.resultTable.columns,
@@ -178,9 +182,13 @@ export function buildAskAnswerPrompt(input: QuestionNarrativeInput): LlmTextGene
           requirements: [
             "Use the deterministic answer as the factual basis.",
             "Do not change the numbers or invent new ones.",
+            "Use the detected semantic business intent, dataset schema, and sampled rows to interpret the user's meaning when the wording is indirect.",
+            "When the question is a business intent question such as potential, best performing, efficient, scalable, underperforming, or wasting budget, rank the relevant entities using multiple metrics instead of relying on a single metric.",
+            "Never return raw fallback or debug text such as 'AI explanation unavailable' or 'could not identify numeric metric'.",
             "Write like a senior analyst explaining the result to marketing leadership.",
-            "Return a direct answer, evidence bullets, a short caution if needed, and one suggested next question.",
-            "Keep the analysis summary concise and business-focused."
+            "Return a direct answer, evidence bullets, a short confidence note, a short caution if needed, and one suggested next question.",
+            "Keep the analysis summary concise and business-focused.",
+            "Prefer a ranked answer with confidence-aware wording when multiple metrics support the conclusion."
           ],
           outputSchema: {
             directAnswer: "string",
@@ -189,7 +197,7 @@ export function buildAskAnswerPrompt(input: QuestionNarrativeInput): LlmTextGene
             suggestedNextQuestion: "string",
             analysisSummary: "string",
             chartSelectionSummary: "string",
-            warning: "string"
+            confidenceNote: "string"
           }
         },
         null,
@@ -232,5 +240,6 @@ export interface AskAnswerJson {
   suggestedNextQuestion?: string;
   analysisSummary?: string;
   chartSelectionSummary?: string;
+  confidenceNote?: string;
   warning?: string;
 }

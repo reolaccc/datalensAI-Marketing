@@ -154,6 +154,7 @@ export interface QuestionAnswer {
     evidence: string[];
     caution?: string;
     suggestedNextQuestion?: string;
+    confidenceNote?: string;
     warning?: string;
     source: "llm" | "fallback";
   };

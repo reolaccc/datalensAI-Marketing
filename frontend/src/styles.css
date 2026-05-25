@@ -708,16 +708,23 @@ small {
   border-radius: 14px;
   border: 1px solid rgba(15, 126, 122, 0.14);
   background: rgba(245, 255, 253, 0.96);
-  color: #17313a;
+  color: #47626c;
 }
 
-.question-composer input {
+.question-composer-input {
   width: 100%;
   min-width: 0;
   padding: 14px 16px;
   border-radius: 14px;
   border: 1px solid rgba(15, 126, 122, 0.14);
   background: rgba(245, 255, 253, 0.96);
+}
+
+.question-composer-input-draft {
+  color: #47626c;
+}
+
+.question-composer-input-final {
   color: #17313a;
 }
 
@@ -1681,6 +1688,17 @@ small,
   width: 100%;
   background: rgba(13, 50, 52, 0.95);
   border-color: rgba(125, 235, 230, 0.2);
+}
+
+.question-suggestion-select {
+  color: #a8d8d4;
+}
+
+.question-composer-input-draft {
+  color: #a8d8d4;
+}
+
+.question-composer-input-final {
   color: #ecfaf8;
 }
 

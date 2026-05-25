@@ -1,5 +1,9 @@
 import type { DatasetProfile, PlannedQuery, QuestionContextInput } from "./types.js";
 import { KPI_ALIASES } from "../utils/inference.js";
+import {
+  buildSemanticMetricList,
+  detectSemanticBusinessIntent
+} from "../services/analytics/intent/semanticBusinessIntent.js";
 
 function normalize(text: string) {
   return text.toLowerCase();
@@ -77,9 +81,11 @@ function resolveDimension(
   question: string,
   profile: DatasetProfile,
   input?: QuestionContextInput,
-  comparisonValues: string[] = []
+  comparisonValues: string[] = [],
+  semanticHints: string[] = []
 ): string | null {
   const normalizedQuestion = normalize(question);
+  const normalizedSemanticHints = semanticHints.map((hint) => normalize(hint));
 
   if (input?.selectedDimension && profile.categoricalColumns.includes(input.selectedDimension)) {
     return input.selectedDimension;
@@ -93,6 +99,10 @@ function resolveDimension(
 
       if (normalizedQuestion.includes(readableName)) {
         score += 10;
+      }
+
+      if (normalizedSemanticHints.some((hint) => readableName.includes(hint) || hint.includes(readableName))) {
+        score += 8;
       }
 
       const values = column.topCategories?.map((entry) => entry.value.toLowerCase()) ?? [];
@@ -120,7 +130,7 @@ function resolveDimension(
   return preferred.find((column) => profile.categoricalColumns.includes(column)) ?? profile.categoricalColumns[0] ?? null;
 }
 
-function detectIntent(question: string): PlannedQuery["intent"] {
+function detectIntent(question: string, semanticProfile?: ReturnType<typeof detectSemanticBusinessIntent>): PlannedQuery["intent"] {
   const normalizedQuestion = normalize(question);
   const hasByClause = normalizedQuestion.includes(" by ");
   const hasMultipleMetrics =
@@ -178,7 +188,15 @@ function detectIntent(question: string): PlannedQuery["intent"] {
     normalizedQuestion.includes("best") ||
     normalizedQuestion.includes("top") ||
     normalizedQuestion.includes("highest") ||
-    normalizedQuestion.includes("strongest")
+    normalizedQuestion.includes("strongest") ||
+    normalizedQuestion.includes("winner") ||
+    normalizedQuestion.includes("winning") ||
+    normalizedQuestion.includes("potential") ||
+    normalizedQuestion.includes("scalable") ||
+    normalizedQuestion.includes("efficient") ||
+    normalizedQuestion.includes("underperforming") ||
+    normalizedQuestion.includes("wasting budget") ||
+    semanticProfile?.businessIntent !== "neutral"
   ) {
     return "top_segment";
   }
@@ -379,11 +397,17 @@ export function planQuery(
   input?: QuestionContextInput
 ): PlannedQuery {
   const resolvedQuestion = resolveDynamicContextReferences(question, input);
-  const metrics = resolveMetrics(resolvedQuestion, profile);
+  const semanticProfile = detectSemanticBusinessIntent(resolvedQuestion, {
+    availableMetrics: profile.numericColumns,
+    availableDimensions: profile.categoricalColumns
+  });
+  const explicitMetrics = resolveMetrics(resolvedQuestion, profile);
+  const semanticMetrics = buildSemanticMetricList(semanticProfile, profile.numericColumns);
+  const metrics = [...new Set([...explicitMetrics, ...semanticMetrics])];
   const metric = metrics[0] ?? null;
-  const intent = detectIntent(resolvedQuestion);
+  const intent = detectIntent(resolvedQuestion, semanticProfile);
   const comparisonValues = extractComparisonValues(resolvedQuestion, profile);
-  const dimension = resolveDimension(resolvedQuestion, profile, input, comparisonValues);
+  const dimension = resolveDimension(resolvedQuestion, profile, input, comparisonValues, semanticProfile.dimensionHints);
   const dimensionTrendValues = extractDimensionTopValues(resolvedQuestion, profile, dimension);
   const standardFilters = [
     ...extractFilters(resolvedQuestion, profile),
@@ -408,6 +432,7 @@ export function planQuery(
       intent === "compare_segments" || intent === "compare_trend"
         ? extractFiltersForDimension(resolvedQuestion, profile, dimension, resolvedComparisonValues)
         : standardFilters,
-    comparisonValues: resolvedComparisonValues
+    comparisonValues: resolvedComparisonValues,
+    semanticProfile: semanticProfile.businessIntent === "neutral" ? undefined : semanticProfile
   };
 }

@@ -62,6 +62,8 @@ export function AskDatasetPanel() {
   const answerRegionRef = useRef<HTMLDivElement | null>(null);
   const answerChartRef = useRef<HTMLDivElement | null>(null);
   const relevantChartId = findRelevantChartId(analysis, questionAnswer);
+  const isFinalSubmittedQuestion =
+    Boolean(questionAnswer && !asking && draftQuestion.trim() === questionAnswer.question.trim());
 
   useEffect(() => {
     const defaults = deriveFilterDefaults(analysis);
@@ -121,11 +123,11 @@ export function AskDatasetPanel() {
       {error ? <p className="error-text">{error}</p> : null}
 
       <div className="question-composer">
-        <input value={draftQuestion} onChange={(event) => setDraftQuestion(event.target.value)} />
         {questionSuggestions.length > 0 ? (
           <label className="question-suggestion-field">
             <span>Suggested questions</span>
             <select
+              className="question-suggestion-select"
               aria-label="Suggested business questions"
               defaultValue=""
               onChange={(event) => {
@@ -145,6 +147,11 @@ export function AskDatasetPanel() {
             </select>
           </label>
         ) : null}
+        <input
+          className={`question-composer-input ${isFinalSubmittedQuestion ? "question-composer-input-final" : "question-composer-input-draft"}`}
+          value={draftQuestion}
+          onChange={(event) => setDraftQuestion(event.target.value)}
+        />
         <div className="question-composer-actions">
           <button onClick={submitQuestion} disabled={asking}>
             {asking ? "Thinking..." : "Send Question"}
@@ -202,7 +209,9 @@ export function AskDatasetPanel() {
 
                 {questionAnswer.narrative ? (
                   <div className="answer-narrative">
-                    {questionAnswer.narrative.warning ? <p className="workspace-meta">{questionAnswer.narrative.warning}</p> : null}
+                    {questionAnswer.narrative.confidenceNote ? (
+                      <p className="workspace-meta">{questionAnswer.narrative.confidenceNote}</p>
+                    ) : null}
                     {questionAnswer.narrative.caution ? <p className="workspace-meta">{questionAnswer.narrative.caution}</p> : null}
                   </div>
                 ) : null}

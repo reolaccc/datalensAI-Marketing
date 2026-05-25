@@ -26,3 +26,7 @@ export function formatCompactNumber(value: number) {
     minimumFractionDigits: 0
   })}${unit.suffix}`;
 }
+
+export function formatCompactCurrency(value: number) {
+  return `$${formatCompactNumber(value)}`;
+}

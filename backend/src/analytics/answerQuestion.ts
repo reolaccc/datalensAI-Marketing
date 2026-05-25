@@ -42,8 +42,20 @@ export async function answerDatasetQuestion(question: string, context: QuestionC
     question,
     answer: answer.answer,
     detectedIntent: chartSelection.intent,
+    semanticProfile: plan.semanticProfile,
     supportingData: answer.supportingData,
     resultTable: answer.resultTable,
+    datasetSchema: context.profile.columns.map((column) => ({
+      name: column.name,
+      kind: column.kind,
+      sampleValues: column.sampleValues,
+      min: column.min,
+      max: column.max,
+      mean: column.mean,
+      median: column.median,
+      topCategories: column.topCategories
+    })),
+    sampleRows: context.rows.slice(0, 6),
     chartSelectionSummary: chartSelection.summary,
     chartSelectionExplanation: chartSelection.explanation,
     chartSelectionWarnings: chartSelection.warnings,
@@ -59,7 +71,7 @@ export async function answerDatasetQuestion(question: string, context: QuestionC
   const chartsWithNarratives = applyChartNarratives(chartSelection.charts, chartNarratives);
   const narrative = useAi
     ? await generateAskAnswer(narrativeInput)
-    : buildFallbackAskAnswerNarrative(narrativeInput, "ASK AI is off; showing rule-based summary.");
+    : buildFallbackAskAnswerNarrative(narrativeInput);
 
   return {
     ...answer,

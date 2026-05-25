@@ -16,6 +16,21 @@ function formatCompactNumber(value: number) {
   }).format(value);
 }
 
+function formatMetricSummaryValue(metric: string | null | undefined, value: number) {
+  const normalized = (metric ?? "").toLowerCase();
+  if (normalized.includes("roas") || normalized.includes("roi")) {
+    return `${formatCompactNumber(value)}x`;
+  }
+  if (normalized.includes("ctr") || normalized.includes("cvr") || normalized.includes("rate") || normalized.includes("percent")) {
+    const percentValue = Math.abs(value) <= 1.5 ? value * 100 : value;
+    return `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 }).format(percentValue)}%`;
+  }
+  if (normalized.includes("revenue") || normalized.includes("sales") || normalized.includes("income") || normalized.includes("gmv") || normalized.includes("cost") || normalized.includes("spend") || normalized.includes("profit") || normalized.includes("value") || normalized.includes("amount")) {
+    return `$${formatCompactNumber(value)}`;
+  }
+  return formatCompactNumber(value);
+}
+
 function humanizeLabel(value?: string | null) {
   if (!value) {
     return "";
@@ -96,7 +111,7 @@ function buildModernChartTitle(blueprint: ChartBlueprint) {
   return humanizeLabel(blueprint.title) || metricName;
 }
 
-function buildTopBottomSubtitle(data: Record<string, string | number | boolean | null>[], yKey: string, xKey: string) {
+function buildTopBottomSubtitle(data: Record<string, string | number | boolean | null>[], yKey: string, xKey: string, metric?: string | null) {
   const ranked = [...data]
     .map((entry) => ({
       label: String(entry[xKey] ?? ""),
@@ -117,10 +132,10 @@ function buildTopBottomSubtitle(data: Record<string, string | number | boolean |
 
   const pieces: string[] = [];
   if (top.label) {
-    pieces.push(`${top.label} leads at ${formatCompactNumber(top.value)}`);
+    pieces.push(`${top.label} leads at ${formatMetricSummaryValue(metric, top.value)}`);
   }
   if (bottom.label && bottom.label !== top.label) {
-    pieces.push(`${bottom.label} trails at ${formatCompactNumber(bottom.value)}`);
+    pieces.push(`${bottom.label} trails at ${formatMetricSummaryValue(metric, bottom.value)}`);
   }
   if (topShare !== undefined && topShare >= 0.2) {
     pieces.push(`leader share ${Math.round(topShare * 1000) / 10}%`);
@@ -131,7 +146,7 @@ function buildTopBottomSubtitle(data: Record<string, string | number | boolean |
   return pieces.join(" · ");
 }
 
-function buildTrendSubtitle(data: Record<string, string | number | boolean | null>[], yKey: string, xKey: string) {
+function buildTrendSubtitle(data: Record<string, string | number | boolean | null>[], yKey: string, xKey: string, metric?: string | null) {
   if (data.length < 2) {
     return "";
   }
@@ -145,12 +160,12 @@ function buildTrendSubtitle(data: Record<string, string | number | boolean | nul
   const peakValue = valueAsNumber(peak[yKey]);
 
   const pieces = [
-    `${formatCompactNumber(firstValue)} at the start`,
-    `${formatCompactNumber(lastValue)} at the end`
+    `${formatMetricSummaryValue(metric, firstValue)} at the start`,
+    `${formatMetricSummaryValue(metric, lastValue)} at the end`
   ];
 
   if (peak && peak !== first && peak !== last) {
-    pieces.push(`peak ${formatCompactNumber(peakValue)} on ${String(peak[xKey] ?? "")}`);
+    pieces.push(`peak ${formatMetricSummaryValue(metric, peakValue)} on ${String(peak[xKey] ?? "")}`);
   }
 
   return pieces.join(" · ");

@@ -93,6 +93,31 @@ export interface IntentDetectionResult {
   matchedKeywords: string[];
 }
 
+export type SemanticBusinessIntent =
+  | "high_potential"
+  | "best_performing"
+  | "scalable"
+  | "efficient"
+  | "underperforming"
+  | "wasting_budget"
+  | "growth_opportunity"
+  | "neutral";
+
+export interface SemanticMetricSignal {
+  metric: string;
+  direction: "high" | "low";
+  weight: number;
+}
+
+export interface SemanticBusinessIntentAnalysis {
+  businessIntent: SemanticBusinessIntent;
+  matchedPhrases: string[];
+  metricSignals: SemanticMetricSignal[];
+  dimensionHints: string[];
+  confidence: number;
+  summary: string;
+}
+
 export interface DatasetCapabilities {
   numericMetrics: string[];
   categoricalDimensions: string[];
@@ -186,6 +211,7 @@ export interface QuestionAnswer {
     evidence: string[];
     caution?: string;
     suggestedNextQuestion?: string;
+    confidenceNote?: string;
     warning?: string;
     source: "llm" | "fallback";
   };
@@ -240,4 +266,5 @@ export interface PlannedQuery {
     value: string | number;
   }>;
   comparisonValues: string[];
+  semanticProfile?: SemanticBusinessIntentAnalysis;
 }

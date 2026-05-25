@@ -1,15 +1,16 @@
 import type { DatasetCapabilities, IntentDetectionResult, IntentType } from "../../../analytics/types.js";
 import { KPI_ALIASES } from "../../../utils/inference.js";
+import { detectSemanticBusinessIntent } from "./semanticBusinessIntent.js";
 
 const INTENT_KEYWORDS: Record<IntentType, string[]> = {
-  trend_analysis: ["trend", "over time", "change", "decline", "increase", "decrease", "growing", "dropping", "monthly", "daily", "weekly"],
+  trend_analysis: ["trend", "over time", "change", "decline", "increase", "decrease", "growing", "dropping", "monthly", "daily", "weekly", "growth", "momentum"],
   comparison: ["compare", "versus", "vs", "difference", "by channel", "by device", "by campaign", "by region"],
-  ranking: ["best", "worst", "top", "bottom", "highest", "lowest", "perform", "underperform"],
+  ranking: ["best", "worst", "top", "bottom", "highest", "lowest", "perform", "underperform", "potential", "efficient", "scalable", "winning"],
   anomaly_detection: ["anomaly", "abnormal", "unusual", "spike", "outlier", "sudden", "strange"],
   correlation: ["relationship", "affect", "impact", "related", "correlation", "what drives", "what affects"],
-  distribution: ["distribution", "spread", "range", "average", "median"],
+  distribution: ["distribution", "spread", "range", "average", "median", "mix"],
   segmentation: ["segment", "group", "customer type", "device", "channel", "region"],
-  efficiency_analysis: ["roi", "roas", "conversion rate", "cvr", "cost", "revenue", "efficiency", "return"],
+  efficiency_analysis: ["roi", "roas", "conversion rate", "cvr", "cost", "revenue", "efficiency", "return", "cpc", "cpa", "budget", "spend"],
   funnel_analysis: ["funnel", "drop-off", "drop off", "stage", "step", "journey"],
   data_quality: ["missing", "duplicate", "data quality", "invalid", "dirty data"],
   general_overview: []
@@ -34,6 +35,19 @@ function extractMetrics(question: string, capabilities: DatasetCapabilities) {
     );
     if (availableMetric) {
       matches.add(availableMetric);
+    }
+  }
+
+  const semantic = detectSemanticBusinessIntent(question, {
+    availableMetrics: [...capabilities.numericMetrics, ...capabilities.derivedMetrics],
+    availableDimensions: capabilities.categoricalDimensions
+  });
+  for (const signal of semantic.metricSignals) {
+    const candidate = [...capabilities.numericMetrics, ...capabilities.derivedMetrics].find(
+      (metric) => metric === signal.metric || metric.includes(signal.metric)
+    );
+    if (candidate) {
+      matches.add(candidate);
     }
   }
 
@@ -68,6 +82,10 @@ export function detectRuleBasedIntent(
   capabilities: DatasetCapabilities
 ): IntentDetectionResult {
   const normalizedQuestion = normalize(question);
+  const semantic = detectSemanticBusinessIntent(question, {
+    availableMetrics: [...capabilities.numericMetrics, ...capabilities.derivedMetrics],
+    availableDimensions: capabilities.categoricalDimensions
+  });
   const intentScores = new Map<IntentType, number>();
   const matchedKeywords = new Set<string>();
 
@@ -82,6 +100,19 @@ export function detectRuleBasedIntent(
     intentScores.set(intent, score);
   }
 
+  if (semantic.businessIntent !== "neutral") {
+    const semanticKeywords = [...semantic.matchedPhrases, semantic.summary].filter(Boolean);
+    for (const keyword of semanticKeywords) {
+      matchedKeywords.add(keyword);
+    }
+    const bump = 5;
+    if (bump > 0) {
+      intentScores.set("ranking", (intentScores.get("ranking") ?? 0) + bump);
+      intentScores.set("efficiency_analysis", (intentScores.get("efficiency_analysis") ?? 0) + Math.max(2, bump - 1));
+      intentScores.set("comparison", (intentScores.get("comparison") ?? 0) + 1);
+    }
+  }
+
   if (normalizedQuestion.trim().length === 0) {
     intentScores.set("general_overview", 1);
   }
@@ -90,11 +121,23 @@ export function detectRuleBasedIntent(
     .sort((left, right) => right[1] - left[1])
     .filter((entry) => entry[1] > 0);
 
-  const primaryIntent = sortedIntents[0]?.[0] ?? "general_overview";
+  const primaryIntent =
+    semantic.businessIntent !== "neutral" && (sortedIntents[0]?.[0] === "ranking" || sortedIntents.length === 0)
+      ? "ranking"
+      : sortedIntents[0]?.[0] ?? "general_overview";
   const primaryScore = sortedIntents[0]?.[1] ?? 1;
   const secondaryIntents = sortedIntents.slice(1, 3).map((entry) => entry[0]);
   const targetMetrics = extractMetrics(question, capabilities);
   const targetDimensions = extractDimensions(question, capabilities);
+
+  for (const hint of semantic.dimensionHints) {
+    const matchedDimension = capabilities.categoricalDimensions.find(
+      (dimension) => normalize(dimension).includes(normalize(hint))
+    );
+    if (matchedDimension && !targetDimensions.includes(matchedDimension)) {
+      targetDimensions.push(matchedDimension);
+    }
+  }
 
   if (primaryIntent === "efficiency_analysis" && targetMetrics.length === 0) {
     const defaultEfficiencyMetric = ["roi", "roas", "conversion_rate", "revenue", "cost"].find((metric) =>
@@ -111,7 +154,18 @@ export function detectRuleBasedIntent(
     }
   }
 
-  const confidence = Math.min(0.98, Number((0.45 + primaryScore * 0.12).toFixed(2)));
+  if (semantic.businessIntent !== "neutral" && targetMetrics.length === 0) {
+    const semanticMetricOrder = semantic.metricSignals
+      .map((signal) => signal.metric)
+      .filter((metric) => [...capabilities.numericMetrics, ...capabilities.derivedMetrics].includes(metric));
+    for (const metric of semanticMetricOrder) {
+      if (!targetMetrics.includes(metric)) {
+        targetMetrics.push(metric);
+      }
+    }
+  }
+
+  const confidence = Math.min(0.98, Number((0.45 + primaryScore * 0.12 + semantic.confidence * 0.2).toFixed(2)));
 
   return {
     primaryIntent,
