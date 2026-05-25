@@ -176,6 +176,8 @@ export function buildAskAnswerPrompt(input: QuestionNarrativeInput): LlmTextGene
             id: chart.id,
             title: chart.title,
             chartType: chart.chartType,
+            analysisRole: chart.analysisRole,
+            semanticSignature: chart.semanticSignature,
             metric: chart.metric,
             dimension: chart.dimension,
             reason: chart.reason
@@ -195,7 +197,9 @@ export function buildAskAnswerPrompt(input: QuestionNarrativeInput): LlmTextGene
             "Write like a senior analyst explaining the result to marketing leadership.",
             "Return a direct answer, evidence bullets, a short confidence note, a short caution if needed, and one suggested next question.",
             "Keep the analysis summary concise and business-focused.",
-            "Prefer a ranked answer with confidence-aware wording when multiple metrics support the conclusion."
+            "Prefer a ranked answer with confidence-aware wording when multiple metrics support the conclusion.",
+            "When generating the suggested next question, prefer the selected chart roles and semantic dimensions over generic EDA wording.",
+            "Do not suggest unavailable dimensions or generic data exploration questions when the dataset has clear commercial semantics."
           ],
           outputSchema: {
             directAnswer: "string",

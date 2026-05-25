@@ -1,4 +1,5 @@
 import type { DatasetCapabilities, IntentDetectionResult, IntentType } from "../../../analytics/types.js";
+import { findExplicitDimensionMention, resolveExplicitDimensionSourceColumn } from "../../../analytics/dimensionResolution.js";
 import { KPI_ALIASES } from "../../../utils/inference.js";
 import { detectSemanticBusinessIntent } from "./semanticBusinessIntent.js";
 
@@ -129,13 +130,31 @@ export function detectRuleBasedIntent(
   const secondaryIntents = sortedIntents.slice(1, 3).map((entry) => entry[0]);
   const targetMetrics = extractMetrics(question, capabilities);
   const targetDimensions = extractDimensions(question, capabilities);
+  const explicitDimensionMention = findExplicitDimensionMention(question);
+  const explicitDimension = resolveExplicitDimensionSourceColumn(question, {
+    categoricalColumns: capabilities.categoricalDimensions,
+    datetimeColumns: capabilities.datetimeFields,
+    semanticContract: capabilities.semanticContract
+  });
 
-  for (const hint of semantic.dimensionHints) {
-    const matchedDimension = capabilities.categoricalDimensions.find(
-      (dimension) => normalize(dimension).includes(normalize(hint))
-    );
-    if (matchedDimension && !targetDimensions.includes(matchedDimension)) {
-      targetDimensions.push(matchedDimension);
+  if (explicitDimension) {
+    const deduped = targetDimensions.filter((dimension) => dimension !== explicitDimension.sourceColumn);
+    targetDimensions.length = 0;
+    targetDimensions.push(explicitDimension.sourceColumn, ...deduped);
+  } else if (explicitDimensionMention) {
+    targetDimensions.length = 0;
+  }
+
+  const allowFallbackDimensions = !explicitDimensionMention || Boolean(explicitDimension);
+
+  if (allowFallbackDimensions) {
+    for (const hint of semantic.dimensionHints) {
+      const matchedDimension = capabilities.categoricalDimensions.find(
+        (dimension) => normalize(dimension).includes(normalize(hint))
+      );
+      if (matchedDimension && !targetDimensions.includes(matchedDimension)) {
+        targetDimensions.push(matchedDimension);
+      }
     }
   }
 
@@ -148,7 +167,7 @@ export function detectRuleBasedIntent(
     }
   }
 
-  if ((primaryIntent === "comparison" || primaryIntent === "segmentation") && targetDimensions.length === 0) {
+  if ((primaryIntent === "comparison" || primaryIntent === "segmentation") && targetDimensions.length === 0 && allowFallbackDimensions) {
     if (capabilities.defaultDimension) {
       targetDimensions.push(capabilities.defaultDimension);
     }
@@ -180,6 +199,7 @@ export function detectRuleBasedIntent(
     comparisonRequired: primaryIntent === "comparison" || normalizedQuestion.includes("compare"),
     anomalyRequired: primaryIntent === "anomaly_detection",
     confidence,
+    explicitDimensionMention,
     matchedKeywords: [...matchedKeywords]
   };
 }

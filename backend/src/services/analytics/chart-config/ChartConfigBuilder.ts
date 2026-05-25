@@ -8,12 +8,24 @@ import {
   filterRows
 } from "../chart-selection/chartDataUtils.js";
 import type { ChartBlueprint, ChartSelectionContext } from "../chart-selection/chartSelectionTypes.js";
+import { resolveCanonicalDimensionKey, resolveCanonicalMetricKey } from "../../../analytics/semanticContract.js";
 
 function formatCompactNumber(value: number) {
   return new Intl.NumberFormat(undefined, {
     notation: "compact",
     maximumFractionDigits: 1
   }).format(value);
+}
+
+function pluralizeLabel(value: string) {
+  const lower = value.toLowerCase();
+  if (/(s|x|z|ch|sh)$/i.test(lower)) {
+    return `${value}es`;
+  }
+  if (/[^aeiou]y$/i.test(lower)) {
+    return `${value.slice(0, -1)}ies`;
+  }
+  return `${value}s`;
 }
 
 function formatMetricSummaryValue(metric: string | null | undefined, value: number) {
@@ -29,6 +41,40 @@ function formatMetricSummaryValue(metric: string | null | undefined, value: numb
     return `$${formatCompactNumber(value)}`;
   }
   return formatCompactNumber(value);
+}
+
+function inferAnalysisRole(blueprint: ChartBlueprint) {
+  if (blueprint.analysisRole) {
+    return blueprint.analysisRole;
+  }
+  if (blueprint.chartType === "donut") {
+    return "composition";
+  }
+  if (blueprint.chartType === "funnel") {
+    return "funnel";
+  }
+  if (blueprint.chartType === "anomaly_trend") {
+    return "anomaly";
+  }
+  if (blueprint.chartType === "line") {
+    return "trend";
+  }
+  if (blueprint.chartType === "scatter" || blueprint.chartType === "heatmap") {
+    return blueprint.intent === "efficiency_analysis" ? "efficiency" : "relationship";
+  }
+  if (blueprint.chartType === "histogram" || blueprint.chartType === "box_plot") {
+    return "distribution";
+  }
+  if (blueprint.intent === "efficiency_analysis") {
+    return "efficiency";
+  }
+  if (blueprint.intent === "anomaly_detection") {
+    return "anomaly";
+  }
+  if (blueprint.intent === "funnel_analysis") {
+    return "funnel";
+  }
+  return "comparison";
 }
 
 function humanizeLabel(value?: string | null) {
@@ -58,23 +104,66 @@ function humanizeLabel(value?: string | null) {
     .join(" ");
 }
 
+function canonicalMetricKey(context: ChartSelectionContext, metric?: string | null) {
+  if (!metric) {
+    return null;
+  }
+
+  return resolveCanonicalMetricKey(context.profile.semanticContract ?? context.profile, metric);
+}
+
+function canonicalDimensionKey(context: ChartSelectionContext, dimension?: string | null) {
+  if (!dimension) {
+    return null;
+  }
+
+  return resolveCanonicalDimensionKey(context.profile.semanticContract ?? context.profile, dimension);
+}
+
+function semanticSignature(blueprint: ChartBlueprint, context: ChartSelectionContext) {
+  const role = inferAnalysisRole(blueprint);
+  const canonicalMetric = canonicalMetricKey(context, blueprint.metric ?? blueprint.yAxis ?? blueprint.title) ?? blueprint.metric ?? blueprint.yAxis ?? "metric";
+  const canonicalDimension =
+    canonicalDimensionKey(context, blueprint.dimension ?? blueprint.groupBy ?? blueprint.xAxis) ??
+    blueprint.dimension ??
+    blueprint.groupBy ??
+    blueprint.xAxis ??
+    "none";
+
+  if (role === "relationship") {
+    const metrics = [blueprint.metric ?? blueprint.xAxis ?? "metric", blueprint.secondaryMetric ?? blueprint.yAxis ?? "secondary"]
+      .map((entry) => String(entry))
+      .sort((left, right) => left.localeCompare(right));
+    return `${role}:${metrics[0]}:${metrics[1]}`;
+  }
+
+  if (role === "distribution") {
+    return `${role}:none:${canonicalMetric}`;
+  }
+
+  const canonicalGroupBy = blueprint.groupBy
+    ? canonicalDimensionKey(context, blueprint.groupBy) ?? blueprint.groupBy
+    : null;
+  return `${role}:${canonicalDimension}:${canonicalMetric}${canonicalGroupBy ? `:${canonicalGroupBy}` : ""}`;
+}
+
 function valueAsNumber(value: unknown) {
   return typeof value === "number" && Number.isFinite(value) ? value : Number(value ?? 0);
 }
 
-function buildModernChartTitle(blueprint: ChartBlueprint) {
-  const metricLabel = humanizeLabel(blueprint.metric ?? blueprint.title);
-  const dimensionLabel = humanizeLabel(blueprint.dimension ?? blueprint.groupBy ?? "segment");
-  const secondaryMetricLabel = humanizeLabel(blueprint.secondaryMetric ?? "");
+function buildModernChartTitle(blueprint: ChartBlueprint, context: ChartSelectionContext) {
+  const metricLabel = humanizeLabel(canonicalMetricKey(context, blueprint.metric ?? blueprint.yAxis ?? blueprint.title) ?? blueprint.metric ?? blueprint.title);
+  const dimensionLabel = humanizeLabel(canonicalDimensionKey(context, blueprint.dimension ?? blueprint.groupBy ?? blueprint.xAxis) ?? blueprint.dimension ?? blueprint.groupBy ?? "segment");
+  const secondaryMetricLabel = humanizeLabel(canonicalMetricKey(context, blueprint.secondaryMetric ?? null) ?? blueprint.secondaryMetric ?? "");
   const metricName = metricLabel || "Metric";
   const dimensionName = dimensionLabel || "Segment";
 
   if (blueprint.chartType === "line" || blueprint.chartType === "anomaly_trend") {
-    return `${metricName} momentum`;
+    return `${metricName} Over Time`;
   }
 
   if (blueprint.chartType === "histogram" || blueprint.chartType === "box_plot") {
-    return `${metricName} spread`;
+    return `${metricName} Distribution`;
   }
 
   if (blueprint.chartType === "scatter" || blueprint.chartType === "heatmap") {
@@ -89,21 +178,18 @@ function buildModernChartTitle(blueprint: ChartBlueprint) {
     return `${metricName} snapshot`;
   }
 
-  if (blueprint.intent === "ranking") {
-    const isBottom = /bottom|worst/i.test(blueprint.title);
-    return `${isBottom ? "Bottom" : "Top"} ${dimensionName} by ${metricName}`;
+  if (blueprint.chartType === "donut") {
+    return `${metricName} Share by ${dimensionName}`;
   }
 
-  if (blueprint.chartType === "bar" || blueprint.chartType === "horizontal_bar" || blueprint.chartType === "stacked_bar" || blueprint.chartType === "donut") {
-    const lowerMetric = (blueprint.metric ?? "").toLowerCase();
-    const isVolumeMetric = ["revenue", "sales", "cost", "spend", "clicks", "impressions", "orders", "units", "value"].some((label) =>
-      lowerMetric.includes(label)
-    );
-    if (blueprint.groupBy && blueprint.dimension) {
-      return `${metricName} mix by ${dimensionName}`;
-    }
-    if (isVolumeMetric && blueprint.dimension) {
-      return `${dimensionName} ${metricName} mix`;
+  if (blueprint.intent === "ranking") {
+    return `Top ${pluralizeLabel(dimensionName)} by ${metricName}`;
+  }
+
+  if (blueprint.chartType === "bar" || blueprint.chartType === "horizontal_bar" || blueprint.chartType === "stacked_bar") {
+    if (blueprint.groupBy) {
+      const groupByLabel = humanizeLabel(canonicalDimensionKey(context, blueprint.groupBy) ?? blueprint.groupBy);
+      return `${metricName} by ${dimensionName} and ${groupByLabel || "Segment"}`;
     }
     return `${metricName} by ${dimensionName}`;
   }
@@ -111,7 +197,13 @@ function buildModernChartTitle(blueprint: ChartBlueprint) {
   return humanizeLabel(blueprint.title) || metricName;
 }
 
-function buildTopBottomSubtitle(data: Record<string, string | number | boolean | null>[], yKey: string, xKey: string, metric?: string | null) {
+function buildTopBottomSubtitle(
+  data: Record<string, string | number | boolean | null>[],
+  yKey: string,
+  xKey: string,
+  metric?: string | null,
+  dimension?: string | null
+) {
   const ranked = [...data]
     .map((entry) => ({
       label: String(entry[xKey] ?? ""),
@@ -132,18 +224,23 @@ function buildTopBottomSubtitle(data: Record<string, string | number | boolean |
 
   const pieces: string[] = [];
   if (top.label) {
-    pieces.push(`${top.label} leads at ${formatMetricSummaryValue(metric, top.value)}`);
+    const metricLabel = humanizeLabel(metric) || "the metric";
+    const metricLower = metricLabel.toLowerCase();
+    pieces.push(
+      `${top.label} leads ${metricLower} with ${formatMetricSummaryValue(metric, top.value)}${
+        topShare !== undefined ? `, accounting for ${Math.round(topShare * 1000) / 10}% of total ${metricLower}` : ""
+      }`
+    );
   }
   if (bottom.label && bottom.label !== top.label) {
     pieces.push(`${bottom.label} trails at ${formatMetricSummaryValue(metric, bottom.value)}`);
   }
-  if (topShare !== undefined && topShare >= 0.2) {
-    pieces.push(`leader share ${Math.round(topShare * 1000) / 10}%`);
-  } else if (top3Share !== undefined && top3Share >= 0.35) {
-    pieces.push(`top 3 share ${Math.round(top3Share * 1000) / 10}%`);
+  if (top3Share !== undefined && top3Share >= 0.35) {
+    const dimensionLabel = pluralizeLabel(humanizeLabel(dimension ?? xKey) || "segment");
+    pieces.push(`The top 3 ${dimensionLabel} contribute ${Math.round(top3Share * 1000) / 10}% of total ${(humanizeLabel(metric) || "the metric").toLowerCase()}`);
   }
 
-  return pieces.join(" · ");
+  return pieces.join(". ") + ".";
 }
 
 function buildTrendSubtitle(data: Record<string, string | number | boolean | null>[], yKey: string, xKey: string, metric?: string | null) {
@@ -158,17 +255,13 @@ function buildTrendSubtitle(data: Record<string, string | number | boolean | nul
   const firstValue = valueAsNumber(first[yKey]);
   const lastValue = valueAsNumber(last[yKey]);
   const peakValue = valueAsNumber(peak[yKey]);
-
-  const pieces = [
-    `${formatMetricSummaryValue(metric, firstValue)} at the start`,
-    `${formatMetricSummaryValue(metric, lastValue)} at the end`
-  ];
-
+  const metricLabel = humanizeLabel(metric) || "The metric";
+  let sentence = `${metricLabel} moved from ${formatMetricSummaryValue(metric, firstValue)} at the start to ${formatMetricSummaryValue(metric, lastValue)} at the end`;
   if (peak && peak !== first && peak !== last) {
-    pieces.push(`peak ${formatMetricSummaryValue(metric, peakValue)} on ${String(peak[xKey] ?? "")}`);
+    sentence += `, with a peak at ${formatMetricSummaryValue(metric, peakValue)} on ${String(peak[xKey] ?? "")}`;
   }
 
-  return pieces.join(" · ");
+  return `${sentence}.`;
 }
 
 function buildScatterSubtitle(data: Record<string, string | number | boolean | null>[], xKey: string, yKey: string) {
@@ -270,7 +363,7 @@ function buildChartSubtitle(blueprint: ChartBlueprint, data: Record<string, stri
     return buildFunnelSubtitle(data, yKey, xKey);
   }
   if (blueprint.chartType === "bar" || blueprint.chartType === "horizontal_bar" || blueprint.chartType === "stacked_bar" || blueprint.chartType === "donut") {
-    return buildTopBottomSubtitle(data, yKey, xKey);
+    return buildTopBottomSubtitle(data, yKey, xKey, blueprint.metric, blueprint.dimension ?? blueprint.groupBy ?? null);
   }
   return "";
 }
@@ -307,8 +400,10 @@ function buildMissingValuesChart(context: ChartSelectionContext, blueprint: Char
 
   return {
     id: blueprint.id,
-    title: buildModernChartTitle(blueprint),
-    subtitle: buildTopBottomSubtitle(data, "missing_count", "column") || undefined,
+    title: buildModernChartTitle(blueprint, context),
+    subtitle: buildTopBottomSubtitle(data, "missing_count", "column", "missing count", "column") || undefined,
+    semanticSignature: semanticSignature(blueprint, context),
+    analysisRole: inferAnalysisRole(blueprint),
     chartType: blueprint.chartType,
     intent: blueprint.intent,
     description: blueprint.description,
@@ -404,8 +499,10 @@ export function buildChartConfig(
 
   return {
     id: blueprint.id,
-    title: buildModernChartTitle(blueprint),
+    title: buildModernChartTitle(blueprint, context),
     subtitle: buildChartSubtitle(blueprint, data, xKey, yKey) || undefined,
+    semanticSignature: semanticSignature(blueprint, context),
+    analysisRole: inferAnalysisRole(blueprint),
     chartType: blueprint.chartType,
     intent: blueprint.intent,
     description: blueprint.description,

@@ -11,6 +11,7 @@ export const CHART_PALETTE = [
 
 export const AXIS_COLOR = "#7ea8a5";
 export const GRID_COLOR = "rgba(126, 168, 165, 0.12)";
+export const OTHER_CATEGORY_COLOR = "#8f9ba8";
 
 function normalizeKey(key?: string | null) {
   return String(key ?? "")
@@ -20,10 +21,68 @@ function normalizeKey(key?: string | null) {
     .trim();
 }
 
-export function getChartColorForKey(key?: string | null) {
+const COLOR_KEY_ALIASES: Array<{ canonical: string; aliases: string[] }> = [
+  {
+    canonical: "revenue",
+    aliases: ["revenue", "sales value", "sales", "sales value", "income", "gmv", "net sales", "gross sales", "conversion value"]
+  },
+  {
+    canonical: "spend",
+    aliases: ["spend", "cost", "all in spend", "total outlay", "ad spend", "media spend", "paid media cost", "budget"]
+  },
+  {
+    canonical: "clicks",
+    aliases: ["clicks", "click count", "click through count"]
+  },
+  {
+    canonical: "impressions",
+    aliases: ["impressions", "impression count", "ad view count"]
+  },
+  {
+    canonical: "conversions",
+    aliases: ["conversions", "conversion count", "closed won count", "orders", "purchases"]
+  },
+  {
+    canonical: "roas",
+    aliases: ["roas", "return on ad spend"]
+  },
+  {
+    canonical: "ctr",
+    aliases: ["ctr", "click through rate", "click-through rate"]
+  },
+  {
+    canonical: "cvr",
+    aliases: ["cvr", "conversion rate", "conversion_rate"]
+  }
+];
+
+function normalizeColorKey(key?: string | null) {
   const normalized = normalizeKey(key);
   if (!normalized) {
+    return "";
+  }
+
+  if (normalized === "other") {
+    return "other";
+  }
+
+  for (const entry of COLOR_KEY_ALIASES) {
+    if (entry.aliases.some((alias) => normalized === normalizeKey(alias))) {
+      return entry.canonical;
+    }
+  }
+
+  return normalized;
+}
+
+export function getChartColorForKey(key?: string | null) {
+  const normalized = normalizeColorKey(key);
+  if (!normalized) {
     return CHART_PALETTE[0];
+  }
+
+  if (normalized === "other") {
+    return OTHER_CATEGORY_COLOR;
   }
 
   let hash = 0;

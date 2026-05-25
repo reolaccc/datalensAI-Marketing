@@ -49,6 +49,7 @@ export function createDisabledLlmProvider(): LlmProvider {
 }
 
 export interface AnalyticsFacts {
+  semanticContract?: DatasetProfile["semanticContract"];
   datasetSummary: {
     fileName: string;
     rowCount: number;
@@ -195,6 +196,8 @@ export interface AnalyticsFacts {
     title: string;
     chartType: ChartConfig["chartType"];
     intent: ChartConfig["intent"];
+    analysisRole?: ChartConfig["analysisRole"];
+    semanticSignature?: string;
     metric?: string | null;
     dimension?: string | null;
     reasonCode: string;
@@ -213,6 +216,8 @@ export interface AnalyticsFacts {
   chartContext: Array<{
     title: string;
     chartType: ChartConfig["chartType"];
+    analysisRole?: ChartConfig["analysisRole"];
+    semanticSignature?: string;
     metric: string;
     dimension?: string | null;
     reasonCode: string;

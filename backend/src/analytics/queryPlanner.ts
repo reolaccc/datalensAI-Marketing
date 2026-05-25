@@ -10,6 +10,7 @@ import {
   resolveCanonicalMetricKey,
   resolveSemanticDimensionSourceColumn
 } from "./semanticContract.js";
+import { findExplicitDimensionMention, resolveExplicitDimensionSourceColumn } from "./dimensionResolution.js";
 import {
   buildSemanticMetricList,
   detectSemanticBusinessIntent
@@ -238,6 +239,19 @@ function resolveDimension(
   const normalizedQuestion = normalize(question);
   const normalizedSemanticHints = semanticHints.map((hint) => normalize(hint));
   const contract = getSemanticContract(profile);
+  const explicitDimensionMention = findExplicitDimensionMention(question);
+
+  const explicitQuestionDimension = resolveExplicitDimensionSourceColumn(question, {
+    categoricalColumns: profile.categoricalColumns,
+    datetimeColumns: profile.datetimeColumns,
+    semanticContract: contract
+  });
+  if (explicitQuestionDimension) {
+    return explicitQuestionDimension.sourceColumn;
+  }
+  if (explicitDimensionMention) {
+    return null;
+  }
 
   if (input?.selectedDimension) {
     const resolvedSelected = resolveSemanticDimensionSourceColumn(contract, input.selectedDimension) ?? input.selectedDimension;
@@ -369,6 +383,20 @@ function detectIntent(
     normalizedQuestion.includes("issue")
   ) {
     return "anomaly";
+  }
+  if (
+    hasExplicitDimension &&
+    (
+      normalizedQuestion.includes("which") ||
+      normalizedQuestion.includes("most") ||
+      normalizedQuestion.includes("highest") ||
+      normalizedQuestion.includes("top") ||
+      normalizedQuestion.includes("best") ||
+      normalizedQuestion.includes("largest") ||
+      normalizedQuestion.includes("leading")
+    )
+  ) {
+    return "top_segment";
   }
   if (
     normalizedQuestion.includes("best") ||

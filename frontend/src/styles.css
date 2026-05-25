@@ -567,20 +567,6 @@ small {
   line-height: 1.55;
 }
 
-.chart-warning-block {
-  display: grid;
-  gap: 10px;
-  margin-bottom: 18px;
-  padding: 18px;
-  border-radius: 16px;
-  border: 1px solid rgba(145, 242, 236, 0.12);
-  background: rgba(6, 73, 69, 0.08);
-}
-
-.chart-warning-title {
-  margin-bottom: 0;
-}
-
 .chart-card {
   transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
@@ -917,6 +903,10 @@ small {
   border: 1px solid rgba(15, 126, 122, 0.12);
 }
 
+.conversation-turn-older {
+  opacity: 0.96;
+}
+
 .conversation-turn-latest {
   border-color: rgba(97, 221, 216, 0.28);
   box-shadow: 0 18px 50px rgba(5, 28, 30, 0.12);
@@ -960,6 +950,73 @@ small {
 .conversation-message-assistant .conversation-role {
   background: rgba(11, 143, 142, 0.12);
   color: #0b8f8e;
+}
+
+.conversation-charts {
+  display: grid;
+  gap: 12px;
+  margin-top: 2px;
+}
+
+.conversation-chart-primary {
+  display: grid;
+  gap: 12px;
+}
+
+.conversation-chart-supporting {
+  margin-top: 2px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(15, 126, 122, 0.08);
+  background: rgba(245, 255, 253, 0.74);
+}
+
+.conversation-chart-supporting summary {
+  cursor: pointer;
+  color: #47626c;
+  font-size: 0.88rem;
+  font-weight: 700;
+  list-style: none;
+}
+
+.conversation-chart-supporting summary::-webkit-details-marker {
+  display: none;
+}
+
+.conversation-supporting-chart-grid {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.conversation-chart-note {
+  margin: 0;
+  color: #4d6770;
+  font-size: 0.84rem;
+}
+
+.conversation-followups {
+  display: grid;
+  gap: 10px;
+  margin-top: 2px;
+  padding-top: 2px;
+}
+
+.conversation-followups-label {
+  color: #47626c;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.conversation-followups-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.conversation-followups-list .history-chip {
+  text-align: left;
+  line-height: 1.35;
 }
 
 .answer-copy,

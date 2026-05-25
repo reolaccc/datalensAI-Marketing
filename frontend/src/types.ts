@@ -1,5 +1,33 @@
 export type PrimitiveValue = string | number | boolean | null;
 
+export interface SemanticDatasetContract {
+  metricResolutions: Record<
+    string,
+    {
+      key: string;
+      sourceColumns: string[];
+      resolution: "direct" | "alias" | "derived";
+      confidence: number;
+      aggregation: "sum" | "ratio" | "difference" | "average";
+      formula?: string;
+      denominatorMetric?: string;
+    }
+  >;
+  dimensionResolutions: Record<
+    string,
+    {
+      key: string;
+      sourceColumns: string[];
+      resolution: "direct" | "alias" | "derived";
+      confidence: number;
+    }
+  >;
+  availableMetrics: string[];
+  availableDimensions: string[];
+  derivedMetrics: string[];
+  sourceToCanonical: Record<string, string>;
+}
+
 export type IntentType =
   | "trend_analysis"
   | "comparison"
@@ -54,6 +82,7 @@ export interface AnalysisResponse {
       y: string;
       coefficient: number;
     }>;
+    semanticContract?: SemanticDatasetContract;
   };
   kpis: Array<{
     id: string;
@@ -82,6 +111,17 @@ export interface AnalysisResponse {
     id: string;
     title: string;
     subtitle?: string;
+    analysisRole?:
+      | "trend"
+      | "comparison"
+      | "composition"
+      | "relationship"
+      | "efficiency"
+      | "funnel"
+      | "distribution"
+      | "anomaly"
+      | null;
+    semanticSignature?: string | null;
     chartType:
       | "kpi_card"
       | "line"
@@ -104,6 +144,7 @@ export interface AnalysisResponse {
     yAxis?: string;
     metric?: string | null;
     dimension?: string | null;
+    businessQuestionAnswered?: string;
     groupBy?: string | null;
     sort?: "asc" | "desc" | null;
     limit: number;

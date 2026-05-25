@@ -1,5 +1,6 @@
 import type { DatasetCapabilities, DatasetProfile, KpiCandidate } from "../../../analytics/types.js";
 import { KPI_ALIASES } from "../../../utils/inference.js";
+import { resolveSemanticDimensionSourceColumn } from "../../../analytics/semanticContract.js";
 
 const DIMENSION_HINTS = [
   "campaign",
@@ -15,6 +16,8 @@ const DIMENSION_HINTS = [
 ];
 
 const FUNNEL_HINTS = ["stage", "step", "funnel", "pipeline", "status"];
+const PREFERRED_CANONICAL_METRICS = ["revenue", "spend", "clicks", "impressions", "conversions"] as const;
+const PREFERRED_CANONICAL_DIMENSIONS = ["date", "campaign", "channel", "device", "region"] as const;
 
 function rankColumns(columns: string[], preferred: string[]) {
   return [...columns].sort((left, right) => {
@@ -28,6 +31,48 @@ function rankColumns(columns: string[], preferred: string[]) {
 
 function unique(values: string[]) {
   return [...new Set(values)];
+}
+
+function firstAvailable<T>(values: Array<T | null | undefined>) {
+  return values.find((value): value is T => value !== null && value !== undefined) ?? null;
+}
+
+function resolvePreferredMetric(profile: DatasetProfile, kpis: KpiCandidate[]) {
+  const contract = profile.semanticContract;
+  if (contract) {
+    const preferredCanonical = PREFERRED_CANONICAL_METRICS.find((metric) => contract.availableMetrics.includes(metric));
+    if (preferredCanonical) {
+      return preferredCanonical;
+    }
+  }
+
+  return kpis[0]?.column ?? null;
+}
+
+function resolvePreferredDimension(profile: DatasetProfile) {
+  const contract = profile.semanticContract;
+  if (!contract) {
+    return null;
+  }
+
+  return firstAvailable(
+    PREFERRED_CANONICAL_DIMENSIONS
+      .filter((dimension) => dimension !== "date")
+      .map((dimension) => {
+        const sourceColumn = resolveSemanticDimensionSourceColumn(contract, dimension);
+        return sourceColumn && profile.categoricalColumns.includes(sourceColumn) ? sourceColumn : null;
+      })
+  );
+}
+
+function resolvePreferredDateDimension(profile: DatasetProfile) {
+  const contract = profile.semanticContract;
+  const sourceColumn = contract ? resolveSemanticDimensionSourceColumn(contract, "date") : null;
+  if (sourceColumn && profile.datetimeColumns.includes(sourceColumn)) {
+    return sourceColumn;
+  }
+
+  return profile.datetimeColumns[0] ?? null;
 }
 
 function resolveNamedMetrics(profile: DatasetProfile) {
@@ -51,6 +96,7 @@ export function analyzeDatasetCapabilities(
   const semanticContract = profile.semanticContract;
   const namedMetrics = resolveNamedMetrics(profile);
   const derivedMetrics: string[] = [];
+  const preferredDateDimension = resolvePreferredDateDimension(profile);
 
   if (semanticContract) {
     derivedMetrics.push(...semanticContract.derivedMetrics);
@@ -83,7 +129,10 @@ export function analyzeDatasetCapabilities(
       ...profile.numericColumns
     ]),
     categoricalDimensions,
-    datetimeFields: [...profile.datetimeColumns],
+    datetimeFields: unique([
+      ...(preferredDateDimension ? [preferredDateDimension] : []),
+      ...profile.datetimeColumns
+    ]),
     kpiCandidates: kpis.map((kpi) => kpi.column),
     segmentFields,
     comparisonFields: segmentFields.length > 0 ? segmentFields : categoricalDimensions,
@@ -93,8 +142,17 @@ export function analyzeDatasetCapabilities(
       ...(semanticContract?.availableMetrics ?? [])
     ]),
     derivedMetrics: unique(derivedMetrics),
-    defaultMetric: kpis[0]?.column ?? semanticContract?.availableMetrics[0] ?? namedMetrics[0] ?? profile.numericColumns[0] ?? null,
-    defaultDimension: categoricalDimensions[0] ?? null,
+    defaultMetric:
+      resolvePreferredMetric(profile, kpis) ??
+      semanticContract?.availableMetrics[0] ??
+      namedMetrics[0] ??
+      profile.numericColumns[0] ??
+      null,
+    defaultDimension:
+      resolvePreferredDimension(profile) ??
+      categoricalDimensions[0] ??
+      null,
+    defaultDateDimension: preferredDateDimension,
     funnelStageFields: unique(funnelStageFields),
     semanticContract
   };

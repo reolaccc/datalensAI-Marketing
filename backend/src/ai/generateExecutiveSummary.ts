@@ -91,7 +91,11 @@ function buildBusinessInsightSummary(profile: DatasetProfile, kpis: KpiCandidate
 
 function buildLocalExecutiveSummary(profile: DatasetProfile, kpis: KpiCandidate[]): ExecutiveSummary {
   const [overview, kpiSummary, anomalySummary, trendSummary] = buildBusinessInsightSummary(profile, kpis);
-  const topMetric = kpis[0]?.label ? formatMetricLabel(kpis[0].label) : "performance";
+  const dimensions = profile.semanticContract?.availableDimensions ?? [];
+  const hasChannel = dimensions.includes("channel");
+  const hasCampaign = dimensions.includes("campaign");
+  const hasRegion = dimensions.includes("region");
+  const hasDate = dimensions.includes("date") || profile.datetimeColumns.length > 0;
 
   return {
     overview,
@@ -99,9 +103,21 @@ function buildLocalExecutiveSummary(profile: DatasetProfile, kpis: KpiCandidate[
     anomalySummary,
     trendSummary,
     suggestedQuestions: [
-      `Which segments are driving the strongest ${topMetric.toLowerCase()}?`,
-      `Where is performance weakening enough to require intervention?`,
-      `Which area deserves more budget or closer review next?`
+      hasChannel
+        ? "Which channel generated the most revenue?"
+        : hasCampaign
+          ? "Which campaign generated the most revenue?"
+          : hasRegion
+            ? "Which region generated the most revenue?"
+            : "Which segment generated the most revenue?",
+      hasCampaign
+        ? "Which campaigns should receive more budget?"
+        : hasChannel
+          ? "Which channels should be reviewed for low return?"
+          : "Which segment deserves more budget or closer review?",
+      hasDate
+        ? "Where did performance change the most over time?"
+        : "Is revenue too concentrated in one segment?"
     ]
   };
 }

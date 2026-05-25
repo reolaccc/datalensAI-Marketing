@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { QuestionChart } from "../charts/QuestionChart";
+import { ChartCard } from "../charts/ChartCard";
 import { findRelevantChartId } from "../dashboard/chartMatching";
 import { useAnalysisStore } from "../stores/analysisStore";
-import { buildQuestionSuggestions } from "../utils/questionSuggestions";
+import { buildDataQualityQuestionSuggestions, buildQuestionSuggestions } from "../utils/questionSuggestions";
 import type { QuestionAnswer } from "../types";
 
 function formatDateForInput(value?: string | number | null) {
@@ -42,6 +42,26 @@ function deriveFilterDefaults(analysis: ReturnType<typeof useAnalysisStore.getSt
   };
 }
 
+function buildRecentConversationContext(questionHistory: QuestionAnswer[]) {
+  return questionHistory.slice(0, 4).map((entry) => ({
+    question: entry.question,
+    answer: entry.narrative?.directAnswer ?? entry.answer,
+    answerSummary: entry.narrative?.directAnswer ?? entry.answer,
+    interpretation: entry.interpretation,
+    resolvedMetric: entry.detectedIntent?.targetMetrics?.[0] ?? undefined,
+    resolvedDimension: entry.detectedIntent?.targetDimensions?.[0] ?? undefined,
+    detectedIntent: entry.detectedIntent,
+    chartSuggestion: entry.chartSuggestion
+      ? {
+          chartType: entry.chartSuggestion.chartType,
+          xKey: entry.chartSuggestion.xKey,
+          yKey: entry.chartSuggestion.yKey,
+          series: entry.chartSuggestion.series
+        }
+      : undefined
+  }));
+}
+
 export function AskDatasetPanel() {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedThreshold, setSelectedThreshold] = useState("");
@@ -61,8 +81,8 @@ export function AskDatasetPanel() {
   const setDraftQuestion = useAnalysisStore((state) => state.setDraftQuestion);
   const analysis = useAnalysisStore((state) => state.analysis);
   const questionSuggestions = analysis ? buildQuestionSuggestions(analysis) : [];
+  const dataQualitySuggestions = analysis ? buildDataQualityQuestionSuggestions(analysis) : [];
   const answerRegionRef = useRef<HTMLDivElement | null>(null);
-  const answerChartRef = useRef<HTMLDivElement | null>(null);
   const relevantChartId = findRelevantChartId(analysis, questionAnswer);
   const isFinalSubmittedQuestion =
     Boolean(questionAnswer && !asking && draftQuestion.trim() === questionAnswer.question.trim());
@@ -93,7 +113,7 @@ export function AskDatasetPanel() {
 
     const targetElement =
       (relevantChartId ? document.getElementById(`analysis-chart-${relevantChartId}`) : null) ??
-      (questionAnswer.chartSuggestion ? answerChartRef.current : answerRegionRef.current);
+      answerRegionRef.current;
 
     const timeoutId = window.setTimeout(() => {
       targetElement?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -102,27 +122,13 @@ export function AskDatasetPanel() {
     return () => window.clearTimeout(timeoutId);
   }, [asking, questionAnswer, relevantChartId]);
 
-  async function submitQuestion() {
-    if (!draftQuestion.trim()) {
+  async function submitQuestion(questionText: string) {
+    const trimmedQuestion = questionText.trim();
+    if (!trimmedQuestion) {
       return;
     }
 
-    const conversationHistory = questionHistory.slice(0, 4).map((entry) => ({
-      question: entry.question,
-      answer: entry.answer,
-      interpretation: entry.interpretation,
-      detectedIntent: entry.detectedIntent,
-      chartSuggestion: entry.chartSuggestion
-        ? {
-            chartType: entry.chartSuggestion.chartType,
-            xKey: entry.chartSuggestion.xKey,
-            yKey: entry.chartSuggestion.yKey,
-            series: entry.chartSuggestion.series
-          }
-        : undefined
-    }));
-
-    await askQuestion(draftQuestion.trim(), {
+    await askQuestion(trimmedQuestion, {
       selectedDate: selectedDate || undefined,
       selectedThreshold: selectedThreshold ? Number(selectedThreshold) : undefined,
       selectedMetric: selectedMetric || undefined,
@@ -131,8 +137,109 @@ export function AskDatasetPanel() {
       selectedSegmentA: selectedSegmentA || undefined,
       selectedSegmentB: selectedSegmentB || undefined,
       useAi: askAiEnabled,
-      conversationHistory
+      conversationHistory: buildRecentConversationContext(questionHistory)
     });
+  }
+
+  async function submitDraftQuestion() {
+    await submitQuestion(draftQuestion);
+  }
+
+  function handleSuggestionSelect(question: string) {
+    void submitQuestion(question);
+  }
+
+  function handleQuestionInputKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key !== "Enter") {
+      return;
+    }
+
+    event.preventDefault();
+    void submitDraftQuestion();
+  }
+
+  function renderConversationCharts(entry: QuestionAnswer, isLatest: boolean) {
+    const charts = entry.recommendedCharts ?? [];
+    if (charts.length === 0) {
+      return null;
+    }
+
+    const mainChart = charts[0];
+    const supportingCharts = charts.slice(1, 2);
+
+    return (
+      <div className="conversation-charts">
+        <div className="conversation-chart-primary">
+          <ChartCard chart={mainChart} compact highlighted={isLatest} />
+        </div>
+
+        {supportingCharts.map((chart) => (
+          <ChartCard chart={chart} compact key={chart.id} />
+        ))}
+      </div>
+    );
+  }
+
+  function renderConversationTurn(entry: QuestionAnswer, index: number) {
+    const isLatest = index === 0;
+    const resultTableEntry = isLatest ? entry.resultTable : undefined;
+    const showTable = Boolean(isLatest && shouldShowResultTable && resultTableEntry);
+    const orderLabel = isLatest ? "Latest answer" : `Earlier answer #${index + 1}`;
+
+    return (
+      <article className={`conversation-turn ${isLatest ? "conversation-turn-latest" : "conversation-turn-older"}`} key={`${entry.question}-${index}`}>
+        <div className="answer-toolbar">
+          <p className="eyebrow">{orderLabel}</p>
+          {isLatest ? (
+            <button className="secondary-action" onClick={pinCurrentAnswer} type="button">
+              Pin to board
+            </button>
+          ) : null}
+        </div>
+
+        <div className="conversation-message conversation-message-user">
+          <span className="conversation-role">You</span>
+          <p>{entry.question}</p>
+        </div>
+
+        <div className="conversation-message conversation-message-assistant">
+          <span className="conversation-role">DataLens</span>
+          <p>{entry.answer}</p>
+        </div>
+
+        {entry.narrative ? (
+          <div className="answer-narrative">
+            {entry.narrative.confidenceNote ? <p className="workspace-meta">{entry.narrative.confidenceNote}</p> : null}
+            {entry.narrative.caution ? <p className="workspace-meta">{entry.narrative.caution}</p> : null}
+          </div>
+        ) : null}
+
+        {showTable && resultTableEntry ? (
+          <div className="result-table-wrap">
+            <table className="result-table">
+              <thead>
+                <tr>
+                  {resultTableEntry.columns.map((column) => (
+                    <th key={column}>{column}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {resultTableEntry.rows.map((row, rowIndex) => (
+                  <tr key={rowIndex}>
+                    {resultTableEntry.columns.map((column) => (
+                      <td key={`${rowIndex}-${column}`}>{String(row[column] ?? "")}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : null}
+
+        {renderConversationCharts(entry, isLatest)}
+      </article>
+    );
   }
 
   return (
@@ -156,6 +263,8 @@ export function AskDatasetPanel() {
               onChange={(event) => {
                 if (event.target.value) {
                   setDraftQuestion(event.target.value);
+                  handleSuggestionSelect(event.target.value);
+                  event.target.value = "";
                 }
               }}
             >
@@ -170,13 +279,38 @@ export function AskDatasetPanel() {
             </select>
           </label>
         ) : null}
+        {dataQualitySuggestions.length > 0 ? (
+          <label className="question-suggestion-field">
+            <span>Data quality checks</span>
+            <select
+              className="question-suggestion-select"
+              aria-label="Suggested data quality checks"
+              defaultValue=""
+              onChange={(event) => {
+                if (event.target.value) {
+                  setDraftQuestion(event.target.value);
+                }
+              }}
+            >
+              <option value="" disabled>
+                Pick a data quality check
+              </option>
+              {dataQualitySuggestions.map((question) => (
+                <option key={question} value={question}>
+                  {question}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
         <input
           className={`question-composer-input ${isFinalSubmittedQuestion ? "question-composer-input-final" : "question-composer-input-draft"}`}
           value={draftQuestion}
           onChange={(event) => setDraftQuestion(event.target.value)}
+          onKeyDown={handleQuestionInputKeyDown}
         />
         <div className="question-composer-actions">
-          <button onClick={submitQuestion} disabled={asking}>
+          <button onClick={submitDraftQuestion} disabled={asking}>
             {asking ? "Thinking..." : "Send Question"}
           </button>
           <button
@@ -219,81 +353,17 @@ export function AskDatasetPanel() {
             </div>
           ) : null}
 
-          {conversationEntries.length > 0 ? (
+              {conversationEntries.length > 0 ? (
             <div className="conversation-thread" id="analysis-answer-region" ref={answerRegionRef} tabIndex={-1}>
               <div className="conversation-thread-header">
                 <div>
                   <p className="eyebrow">Conversation</p>
+                  <h4>Threaded Q&A history</h4>
+                  <p className="conversation-thread-note">Newest answer appears first, with earlier questions below.</p>
                 </div>
               </div>
 
-              {conversationEntries.map((entry, index) => {
-                const isLatest = index === 0;
-                const resultTableEntry = isLatest ? entry.resultTable : undefined;
-                const showTable = Boolean(isLatest && shouldShowResultTable && resultTableEntry);
-
-                return (
-                  <article className={`conversation-turn ${isLatest ? "conversation-turn-latest" : ""}`} key={`${entry.question}-${index}`}>
-                    <div className="answer-toolbar">
-                      {isLatest ? <p className="eyebrow">Latest question</p> : <span />}
-                      {isLatest ? (
-                        <button className="secondary-action" onClick={pinCurrentAnswer} type="button">
-                          Pin to board
-                        </button>
-                      ) : null}
-                    </div>
-
-                    <div className="conversation-message conversation-message-user">
-                      <span className="conversation-role">You</span>
-                      <p>{entry.question}</p>
-                    </div>
-
-                    <div className="conversation-message conversation-message-assistant">
-                      <span className="conversation-role">DataLens</span>
-                      <p>{entry.answer}</p>
-                    </div>
-
-                    {entry.narrative ? (
-                      <div className="answer-narrative">
-                        {entry.narrative.confidenceNote ? (
-                          <p className="workspace-meta">{entry.narrative.confidenceNote}</p>
-                        ) : null}
-                        {entry.narrative.caution ? <p className="workspace-meta">{entry.narrative.caution}</p> : null}
-                      </div>
-                    ) : null}
-
-                    {showTable && resultTableEntry ? (
-                      <div className="result-table-wrap">
-                        <table className="result-table">
-                          <thead>
-                            <tr>
-                              {resultTableEntry.columns.map((column) => (
-                                <th key={column}>{column}</th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {resultTableEntry.rows.map((row, rowIndex) => (
-                              <tr key={rowIndex}>
-                                {resultTableEntry.columns.map((column) => (
-                                  <td key={`${rowIndex}-${column}`}>{String(row[column] ?? "")}</td>
-                                ))}
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    ) : null}
-
-                    {isLatest && entry.chartSuggestion ? (
-                      <div className="answer-chart" ref={answerChartRef} tabIndex={-1}>
-                        <div className="chart-suggestion-tag">Relevant to this question</div>
-                        <QuestionChart chartSuggestion={entry.chartSuggestion} />
-                      </div>
-                    ) : null}
-                  </article>
-                );
-              })}
+              {conversationEntries.map((entry, index) => renderConversationTurn(entry, index))}
             </div>
           ) : null}
         </div>

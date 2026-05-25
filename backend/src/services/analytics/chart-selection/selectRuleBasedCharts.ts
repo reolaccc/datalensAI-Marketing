@@ -54,6 +54,7 @@ export function selectRuleBasedCharts(params: {
   rows: DatasetRow[];
   profile: DatasetProfile;
   kpis: KpiCandidate[];
+  semanticProfile?: ChartSelectionContext["semanticProfile"];
   input?: QuestionContextInput;
 }): SelectionResult {
   const capabilities = analyzeDatasetCapabilities(params.profile, params.kpis);

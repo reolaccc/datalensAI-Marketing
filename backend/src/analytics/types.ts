@@ -113,6 +113,7 @@ export interface IntentDetectionResult {
   secondaryIntents: IntentType[];
   targetMetrics: string[];
   targetDimensions: string[];
+  explicitDimensionMention?: string | null;
   timeRequired: boolean;
   comparisonRequired: boolean;
   anomalyRequired: boolean;
@@ -156,6 +157,7 @@ export interface DatasetCapabilities {
   derivedMetrics: string[];
   defaultMetric: string | null;
   defaultDimension: string | null;
+  defaultDateDimension?: string | null;
   funnelStageFields: string[];
   semanticContract?: SemanticDatasetContract;
 }
@@ -164,6 +166,17 @@ export interface ChartConfig {
   id: string;
   title: string;
   subtitle?: string;
+  semanticSignature?: string;
+  analysisRole?:
+    | "trend"
+    | "comparison"
+    | "composition"
+    | "efficiency"
+    | "relationship"
+    | "funnel"
+    | "anomaly"
+    | "distribution"
+    | "diagnostic";
   chartType:
     | "kpi_card"
     | "line"

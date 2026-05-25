@@ -29,6 +29,7 @@ export async function answerDatasetQuestion(question: string, context: QuestionC
     rows: context.rows,
     profile: context.profile,
     kpis,
+    semanticProfile: plan.semanticProfile,
     input: context.input
   });
   const facts = buildAnalyticsFactsFromAnalysis({

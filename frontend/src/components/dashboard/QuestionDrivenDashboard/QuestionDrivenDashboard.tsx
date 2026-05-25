@@ -1,5 +1,4 @@
 import { DynamicChartGrid } from "../DynamicChartGrid/DynamicChartGrid";
-import { ChartExplanation } from "../ChartExplanation/ChartExplanation";
 import type { QuestionAnswer } from "../../../types";
 
 interface Props {
@@ -13,8 +12,7 @@ export function QuestionDrivenDashboard({ questionAnswer }: Props) {
 
   return (
     <section className="question-driven-dashboard">
-      <ChartExplanation questionAnswer={questionAnswer} />
-      <DynamicChartGrid charts={questionAnswer.recommendedCharts} />
+      <DynamicChartGrid charts={questionAnswer.recommendedCharts} compact />
     </section>
   );
 }

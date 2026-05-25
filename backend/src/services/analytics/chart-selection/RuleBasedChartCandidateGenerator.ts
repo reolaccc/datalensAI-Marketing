@@ -1,4 +1,5 @@
-import type { ChartBlueprint, ChartSelectionContext } from "./chartSelectionTypes.js";
+import { resolveSemanticDimensionSourceColumn } from "../../../analytics/semanticContract.js";
+import type { ChartAnalysisRole, ChartBlueprint, ChartSelectionContext, ChartSemanticRole } from "./chartSelectionTypes.js";
 
 function uniqueBlueprints(blueprints: ChartBlueprint[]) {
   const seen = new Set<string>();
@@ -19,13 +20,45 @@ function uniqueBlueprints(blueprints: ChartBlueprint[]) {
 }
 
 function buildFallbackDimension(context: ChartSelectionContext) {
-  return context.intent.targetDimensions[0] ?? context.capabilities.defaultDimension;
+  const explicitTarget = context.intent.targetDimensions[0];
+  if (explicitTarget) {
+    return explicitTarget;
+  }
+
+  if (context.intent.explicitDimensionMention) {
+    return null;
+  }
+
+  const semanticContract = context.capabilities.semanticContract;
+  const preferredHint = context.semanticProfile?.dimensionHints.find((hint) => {
+    if (!semanticContract) {
+      return false;
+    }
+
+    const sourceColumn = resolveSemanticDimensionSourceColumn(semanticContract, hint);
+    return sourceColumn !== null;
+  });
+  if (preferredHint && semanticContract) {
+    const sourceColumn = resolveSemanticDimensionSourceColumn(semanticContract, preferredHint);
+    if (sourceColumn) {
+      return sourceColumn;
+    }
+  }
+
+  return context.capabilities.defaultDimension;
 }
 
 function buildFallbackMetric(context: ChartSelectionContext) {
   const firstRequested = context.intent.targetMetrics[0];
   if (firstRequested) {
     return firstRequested;
+  }
+
+  const semanticMetric = context.semanticProfile?.metricSignals
+    .map((signal) => signal.metric)
+    .find((metric) => [...context.capabilities.numericMetrics, ...context.capabilities.derivedMetrics].includes(metric));
+  if (semanticMetric) {
+    return semanticMetric;
   }
 
   if (context.intent.primaryIntent === "efficiency_analysis") {
@@ -37,19 +70,236 @@ function buildFallbackMetric(context: ChartSelectionContext) {
   return context.capabilities.defaultMetric;
 }
 
+function isAdditiveMetric(metric: string | null | undefined) {
+  return ["revenue", "spend", "clicks", "impressions", "conversions"].includes(String(metric ?? ""));
+}
+
+function isNonAdditiveRatioMetric(metric: string | null | undefined) {
+  return [
+    "roas",
+    "ctr",
+    "cvr",
+    "cpc",
+    "cpa",
+    "roi",
+    "conversion_rate",
+    "conversion rate",
+    "margin",
+    "profit_margin"
+  ].includes(String(metric ?? "").toLowerCase());
+}
+
+function getSemanticCategoryCount(context: ChartSelectionContext, dimension: string | null | undefined) {
+  if (!dimension) {
+    return null;
+  }
+
+  const profileColumn = context.profile.columns.find((column) => column.name === dimension);
+  if (profileColumn && profileColumn.kind === "categorical") {
+    return profileColumn.uniqueCount;
+  }
+
+  const semanticContract = context.capabilities.semanticContract;
+  const mappedColumn = semanticContract ? resolveSemanticDimensionSourceColumn(semanticContract, dimension) : null;
+  const mappedProfile = mappedColumn ? context.profile.columns.find((column) => column.name === mappedColumn) : null;
+  return mappedProfile?.uniqueCount ?? null;
+}
+
+function isSemanticCompositionDimension(context: ChartSelectionContext, dimension: string | null | undefined) {
+  const normalized = String(dimension ?? "").toLowerCase();
+  if (!normalized) {
+    return false;
+  }
+
+  return ["channel", "campaign", "device", "region", "source", "medium"].some((hint) => normalized.includes(hint));
+}
+
+function inferAnalysisRole(input: Omit<ChartBlueprint, "id" | "score">): ChartAnalysisRole {
+  if (input.analysisRole) {
+    return input.analysisRole;
+  }
+
+  if (input.chartType === "donut") {
+    return "composition";
+  }
+  if (input.chartType === "funnel") {
+    return "funnel";
+  }
+  if (input.chartType === "anomaly_trend") {
+    return "anomaly";
+  }
+  if (input.chartType === "line") {
+    return "trend";
+  }
+  if (input.chartType === "scatter" || input.chartType === "heatmap") {
+    return input.intent === "efficiency_analysis" ? "efficiency" : "relationship";
+  }
+  if (input.chartType === "histogram" || input.chartType === "box_plot") {
+    return "distribution";
+  }
+  if (input.intent === "efficiency_analysis") {
+    return "efficiency";
+  }
+  if (input.intent === "anomaly_detection") {
+    return "anomaly";
+  }
+  if (input.intent === "funnel_analysis") {
+    return "funnel";
+  }
+  return "comparison";
+}
+
 function createBlueprint(
-  input: Omit<ChartBlueprint, "id">
+  input: Omit<ChartBlueprint, "id" | "score">
 ): ChartBlueprint {
   return {
     id: `${input.chartType}-${input.metric ?? "none"}-${input.dimension ?? "none"}-${input.groupBy ?? "none"}`,
+    analysisRole: input.analysisRole ?? inferAnalysisRole(input),
+    businessQuestionAnswered:
+      input.businessQuestionAnswered ??
+      buildBusinessQuestionAnswered(input.metric ?? null, input.dimension ?? input.groupBy ?? null, input.semanticRole),
+    score: input.priority,
     ...input
   };
+}
+
+function pushCandidate(
+  candidates: ChartBlueprint[],
+  input: Omit<ChartBlueprint, "id" | "score">
+) {
+  candidates.push(createBlueprint(input));
+}
+
+function buildBusinessQuestionAnswered(
+  metric: string | null | undefined,
+  dimension: string | null | undefined,
+  role: ChartSemanticRole | "composition"
+) {
+  if (role === "main_answer") {
+    if (metric && dimension) {
+      return `How does ${metric} vary across ${dimension}?`;
+    }
+    if (metric) {
+      return `What is happening to ${metric}?`;
+    }
+  }
+
+  if (role === "supporting_comparison" && metric && dimension) {
+    return `Which ${dimension} segments are strongest or weakest on ${metric}?`;
+  }
+
+  if (role === "trend_or_distribution" && metric) {
+    return `Is the pattern in ${metric} broad, concentrated, or changing over time?`;
+  }
+
+  if (role === "diagnostic" && metric) {
+    return `What secondary view helps explain the pattern in ${metric}?`;
+  }
+
+  if (role === "composition" && metric && dimension) {
+    return `What share of ${metric} comes from each ${dimension}?`;
+  }
+
+  return "What business pattern does this chart explain?";
+}
+
+function buildCompositionQuestion(metric: string, dimension: string) {
+  return `What share of ${metric} comes from each ${dimension}?`;
+}
+
+function maybeAddCompositionCandidate(
+  candidates: ChartBlueprint[],
+  context: ChartSelectionContext,
+  metric: string | null,
+  dimension: string | null
+) {
+  if (!metric || !dimension) {
+    return;
+  }
+
+  if (!isAdditiveMetric(metric) || isNonAdditiveRatioMetric(metric)) {
+    return;
+  }
+
+  if (!isSemanticCompositionDimension(context, dimension)) {
+    return;
+  }
+
+  const categoryCount = getSemanticCategoryCount(context, dimension);
+  if (categoryCount !== null && categoryCount > 24) {
+    return;
+  }
+
+  const suitableCategoryCount = categoryCount === null || (categoryCount >= 2 && categoryCount <= 20);
+  if (!suitableCategoryCount) {
+    return;
+  }
+
+  pushCandidate(candidates, {
+    chartType: "donut",
+    intent: context.intent.primaryIntent === "general_overview" ? "general_overview" : "comparison",
+    title: `${metric} share by ${dimension}`,
+    description: `Show how ${metric} is distributed across ${dimension}.`,
+    reason: `This shows the composition of ${metric} and how much each ${dimension} contributes.`,
+    whyThisChart: `A composition view is best when a business wants to understand share and concentration.`,
+    businessQuestionAnswered: buildCompositionQuestion(metric, dimension),
+    metric,
+    dimension,
+    xAxis: dimension,
+    yAxis: metric,
+    sort: "desc",
+    limit: 8,
+    filters: [],
+    priority: 88,
+    semanticRole: "supporting_comparison",
+    analysisRole: "composition"
+  });
+}
+
+function maybeAddFunnelCandidate(
+  candidates: ChartBlueprint[],
+  context: ChartSelectionContext,
+  metricPreference?: string | null
+) {
+  const stageField = context.capabilities.funnelStageFields[0];
+  if (!stageField) {
+    return;
+  }
+
+  const availableMetrics = [...context.capabilities.numericMetrics, ...context.capabilities.derivedMetrics];
+  const metric =
+    metricPreference && availableMetrics.includes(metricPreference)
+      ? metricPreference
+      : ["conversions", "clicks", "impressions", "revenue"].find((candidate) => availableMetrics.includes(candidate)) ?? null;
+
+  if (!metric) {
+    return;
+  }
+
+  pushCandidate(candidates, {
+    chartType: "funnel",
+    intent: "funnel_analysis",
+    title: `${metric} funnel by ${stageField}`,
+    description: `Show the funnel path for ${metric} across ${stageField}.`,
+    reason: `This reveals how volume moves through the funnel stages.`,
+    whyThisChart: `When stage fields are available, a funnel is the clearest stage-conversion view.`,
+    businessQuestionAnswered: `Where does ${metric} drop off across ${stageField}?`,
+    metric,
+    dimension: stageField,
+    xAxis: stageField,
+    yAxis: metric,
+    limit: 10,
+    filters: [],
+    priority: 90,
+    semanticRole: "main_answer",
+    analysisRole: "funnel"
+  });
 }
 
 export function generateRuleBasedChartCandidates(context: ChartSelectionContext): ChartBlueprint[] {
   const metric = buildFallbackMetric(context);
   const dimension = buildFallbackDimension(context);
-  const dateField = context.capabilities.datetimeFields[0] ?? null;
+  const dateField = context.capabilities.defaultDateDimension ?? context.capabilities.datetimeFields[0] ?? null;
   const candidates: ChartBlueprint[] = [];
   const secondaryMetric =
     context.capabilities.numericMetrics.find((candidate) => candidate !== metric) ??
@@ -67,14 +317,14 @@ export function generateRuleBasedChartCandidates(context: ChartSelectionContext)
   switch (context.intent.primaryIntent) {
     case "trend_analysis":
       if (dateField) {
-        candidates.push(
-          createBlueprint({
+        pushCandidate(candidates, {
             chartType: "line",
             intent: "trend_analysis",
             title: `${metric} trend over time`,
             description: `Track how ${metric} changes across time.`,
             reason: `This chart answers the time-based part of the question directly.`,
             whyThisChart: `Trend analysis was detected and ${dateField} is available as a date field.`,
+            businessQuestionAnswered: buildBusinessQuestionAnswered(metric, dateField, "main_answer"),
             metric,
             xAxis: dateField,
             yAxis: metric,
@@ -82,18 +332,17 @@ export function generateRuleBasedChartCandidates(context: ChartSelectionContext)
             filters: [],
             priority: 100,
             semanticRole: "main_answer"
-          })
-        );
+        });
       }
       if (dimension) {
-        candidates.push(
-          createBlueprint({
+        pushCandidate(candidates, {
             chartType: "bar",
             intent: "comparison",
             title: `${metric} by ${dimension}`,
             description: `Compare ${metric} across ${dimension}.`,
             reason: `This supports the trend by showing which segments are strongest or weakest.`,
             whyThisChart: `When trends exist, a segment comparison helps isolate where the change comes from.`,
+            businessQuestionAnswered: buildBusinessQuestionAnswered(metric, dimension, "supporting_comparison"),
             metric,
             dimension,
             xAxis: dimension,
@@ -103,18 +352,17 @@ export function generateRuleBasedChartCandidates(context: ChartSelectionContext)
             filters: [],
             priority: 85,
             semanticRole: "supporting_comparison"
-          })
-        );
+        });
       }
       if (secondaryMetric && dateField) {
-        candidates.push(
-          createBlueprint({
+        pushCandidate(candidates, {
             chartType: "line",
             intent: "efficiency_analysis",
             title: `${secondaryMetric} trend over time`,
             description: `Review whether ${secondaryMetric} moved alongside ${metric}.`,
             reason: `This helps explain whether the main metric changed with a likely driver metric.`,
             whyThisChart: `A supporting metric trend is useful when users ask why a metric increased or declined.`,
+            businessQuestionAnswered: buildBusinessQuestionAnswered(secondaryMetric, dateField, "trend_or_distribution"),
             metric: secondaryMetric,
             xAxis: dateField,
             yAxis: secondaryMetric,
@@ -122,17 +370,16 @@ export function generateRuleBasedChartCandidates(context: ChartSelectionContext)
             filters: [],
             priority: 78,
             semanticRole: "trend_or_distribution"
-          })
-        );
+        });
       }
-      candidates.push(
-        createBlueprint({
+      pushCandidate(candidates, {
           chartType: "histogram",
           intent: "distribution",
           title: `${metric} distribution`,
           description: `See the spread and concentration of ${metric}.`,
           reason: `A distribution view helps separate a gradual trend from a few extreme values.`,
           whyThisChart: `The dashboard adds one diagnostic view so the user can inspect spread and skew.`,
+          businessQuestionAnswered: buildBusinessQuestionAnswered(metric, null, "diagnostic"),
           metric,
           xAxis: metric,
           yAxis: "count",
@@ -140,8 +387,7 @@ export function generateRuleBasedChartCandidates(context: ChartSelectionContext)
           filters: [],
           priority: 72,
           semanticRole: "diagnostic"
-        })
-      );
+      });
       break;
     case "comparison":
     case "segmentation":
@@ -229,6 +475,11 @@ export function generateRuleBasedChartCandidates(context: ChartSelectionContext)
           })
         );
       }
+      if (dimension) {
+        maybeAddCompositionCandidate(candidates, context, isAdditiveMetric(metric) ? metric : ["revenue", "spend", "conversions", "clicks", "impressions"].find((candidate) =>
+          [...context.capabilities.numericMetrics, ...context.capabilities.derivedMetrics].includes(candidate)
+        ) ?? null, dimension);
+      }
       break;
     case "ranking":
       if (dimension) {
@@ -270,6 +521,16 @@ export function generateRuleBasedChartCandidates(context: ChartSelectionContext)
             priority: 78,
             semanticRole: "supporting_comparison"
           })
+        );
+      }
+      if (dimension) {
+        maybeAddCompositionCandidate(
+          candidates,
+          context,
+          isAdditiveMetric(metric) ? metric : ["revenue", "spend", "conversions", "clicks", "impressions"].find((candidate) =>
+            [...context.capabilities.numericMetrics, ...context.capabilities.derivedMetrics].includes(candidate)
+          ) ?? null,
+          dimension
         );
       }
       if (dateField && dimension) {
@@ -564,6 +825,16 @@ export function generateRuleBasedChartCandidates(context: ChartSelectionContext)
           semanticRole: "main_answer"
         })
       );
+      if (dimension) {
+        maybeAddCompositionCandidate(
+          candidates,
+          context,
+          isAdditiveMetric(metric) ? metric : ["revenue", "spend", "conversions", "clicks", "impressions"].find((candidate) =>
+            [...context.capabilities.numericMetrics, ...context.capabilities.derivedMetrics].includes(candidate)
+          ) ?? null,
+          dimension
+        );
+      }
       if ([...context.capabilities.numericMetrics, ...context.capabilities.derivedMetrics].includes("revenue") &&
           [...context.capabilities.numericMetrics, ...context.capabilities.derivedMetrics].includes("cost")) {
         candidates.push(
@@ -625,6 +896,7 @@ export function generateRuleBasedChartCandidates(context: ChartSelectionContext)
           })
         );
       }
+      maybeAddFunnelCandidate(candidates, context, metric);
       break;
     case "data_quality":
       candidates.push(
@@ -805,6 +1077,17 @@ export function generateRuleBasedChartCandidates(context: ChartSelectionContext)
           })
         );
       }
+      if (dimension) {
+        maybeAddCompositionCandidate(
+          candidates,
+          context,
+          isAdditiveMetric(metric) ? metric : ["revenue", "spend", "conversions", "clicks", "impressions"].find((candidate) =>
+            [...context.capabilities.numericMetrics, ...context.capabilities.derivedMetrics].includes(candidate)
+          ) ?? null,
+          dimension
+        );
+      }
+      maybeAddFunnelCandidate(candidates, context, metric);
       break;
   }
 

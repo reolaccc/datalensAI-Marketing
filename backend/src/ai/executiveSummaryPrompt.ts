@@ -33,12 +33,19 @@ export function buildExecutiveSummaryPrompt(input: ExecutiveSummaryPromptInput):
           numericColumns: input.profile.numericColumns,
           categoricalColumns: input.profile.categoricalColumns,
           datetimeColumns: input.profile.datetimeColumns,
+          semanticContract: input.profile.semanticContract ?? null,
           missingCells: input.profile.missingCells,
           duplicateRowCount: input.profile.duplicateRowCount,
           outliers: input.profile.outliers.slice(0, 5),
           correlations: input.profile.correlations.slice(0, 5),
           kpis: input.kpis.slice(0, 5),
           edaSummary: input.edaSummary,
+          requirements: [
+            "Return business-oriented suggestedQuestions that sound like next-step executive questions, not EDA prompts.",
+            "Prefer canonical semantic dimensions and metrics when they exist.",
+            "Avoid generic distribution or correlation questions unless the dataset is genuinely generic.",
+            "Use revenue, spend, ROAS, CTR, CVR, and segment concentration to frame the questions."
+          ],
           outputSchema: {
             overview: "string",
             kpiSummary: "string",

@@ -1,4 +1,4 @@
-import type { AnalysisResponse } from "../types";
+import type { AnalysisResponse, SemanticDatasetContract } from "../types";
 
 function uniq(values: Array<string | undefined | null>) {
   return [...new Set(values.filter((value): value is string => Boolean(value && value.trim())))]
@@ -6,50 +6,43 @@ function uniq(values: Array<string | undefined | null>) {
     .filter(Boolean);
 }
 
-function pickPrimaryMetric(analysis: AnalysisResponse) {
-  return analysis.kpis[0]?.label ?? analysis.profile.numericColumns[0] ?? "revenue";
+function normalize(value: string) {
+  return value.toLowerCase().replace(/\s+/g, " ").trim();
 }
 
-function pickSecondaryMetric(analysis: AnalysisResponse, primaryMetric: string) {
-  const candidate = analysis.profile.numericColumns.find(
-    (column) => column.toLowerCase() !== primaryMetric.toLowerCase()
+function isDataQualityQuestion(question: string) {
+  return /missing values|missing rows|duplicate rows|malformed|suspicious|invalid|anomal|quality|dirty data|outlier/i.test(question);
+}
+
+function hasSemanticContract(analysis: AnalysisResponse) {
+  return Boolean(analysis.profile.semanticContract?.availableDimensions?.length || analysis.profile.semanticContract?.availableMetrics?.length);
+}
+
+function getSemanticContract(analysis: AnalysisResponse): SemanticDatasetContract | null {
+  return analysis.profile.semanticContract ?? null;
+}
+
+function preferredDimensionLabels(analysis: AnalysisResponse) {
+  const contract = getSemanticContract(analysis);
+  const canonicalOrder = ["channel", "campaign", "device", "region", "date", "account", "customer", "client"];
+  const available = contract?.availableDimensions?.length ? contract.availableDimensions : analysis.profile.categoricalColumns;
+  const labels = canonicalOrder.filter((dimension) => available.includes(dimension));
+  return labels.length > 0 ? labels : available;
+}
+
+function preferredMetricLabels(analysis: AnalysisResponse) {
+  const labels = uniq([
+    ...analysis.kpis.map((kpi) => kpi.label),
+    ...(analysis.profile.semanticContract?.availableMetrics ?? []),
+    ...analysis.profile.numericColumns
+  ]);
+
+  const preferredOrder = ["revenue", "spend", "ROAS", "CTR", "CVR", "clicks", "impressions", "conversions"];
+  const ordered = preferredOrder.filter((metric) =>
+    labels.some((entry) => normalize(entry) === normalize(metric) || normalize(entry).includes(normalize(metric)))
   );
-  return candidate ?? primaryMetric;
-}
 
-function pickPrimaryDimension(analysis: AnalysisResponse) {
-  return analysis.profile.categoricalColumns[0] ?? "channel";
-}
-
-function pickSecondaryDimension(analysis: AnalysisResponse, primaryDimension: string) {
-  return (
-    analysis.profile.categoricalColumns.find(
-      (column) => column.toLowerCase() !== primaryDimension.toLowerCase()
-    ) ?? "device"
-  );
-}
-
-function pickComparisonValues(analysis: AnalysisResponse, dimension: string) {
-  const values =
-    analysis.profile.columns.find((column) => column.name === dimension)?.topCategories?.map((item) => item.value) ?? [];
-  const fallbackValues =
-    analysis.profile.columns
-      .filter((column) => column.kind === "categorical")
-      .flatMap((column) => column.topCategories?.map((item) => item.value) ?? []) ?? [];
-
-  const merged = uniq([...values, ...fallbackValues]);
-  return {
-    first: merged[0] ?? "Desktop",
-    second: merged[1] ?? merged[0] ?? "Mobile"
-  };
-}
-
-function pickTopCategory(analysis: AnalysisResponse, dimension: string) {
-  return (
-    analysis.profile.columns.find((column) => column.name === dimension)?.topCategories?.[0]?.value ??
-    analysis.profile.columns.find((column) => column.kind === "categorical")?.topCategories?.[0]?.value ??
-    "selected category"
-  );
+  return ordered.length > 0 ? ordered : labels;
 }
 
 function hasDatetime(analysis: AnalysisResponse) {
@@ -66,65 +59,72 @@ function hasMultipleNumericMetrics(analysis: AnalysisResponse) {
   return analysis.profile.numericColumns.length > 1;
 }
 
-export function buildQuestionSuggestions(analysis: AnalysisResponse): string[] {
-  const primaryMetric = pickPrimaryMetric(analysis).toLowerCase();
-  const secondaryMetric = pickSecondaryMetric(analysis, primaryMetric);
-  const primaryDimension = pickPrimaryDimension(analysis);
-  const secondaryDimension = pickSecondaryDimension(analysis, primaryDimension);
-  const categoryValue = pickTopCategory(analysis, primaryDimension);
-  const comparisons = pickComparisonValues(analysis, primaryDimension);
+function buildSemanticFallbackBusinessQuestions(analysis: AnalysisResponse) {
+  const dimensions = preferredDimensionLabels(analysis);
+  const metrics = preferredMetricLabels(analysis);
+  const primaryDimension = dimensions[0] ?? "channel";
+  const secondaryDimension = dimensions[1] ?? primaryDimension;
+  const primaryMetric = metrics[0] ?? "revenue";
+  const secondaryMetric = metrics[1] ?? primaryMetric;
   const timeText = hasDatetime(analysis) ? " over time" : "";
+  const questions = [
+    `Which ${primaryDimension} generated the most ${primaryMetric}?`,
+    `Is ${primaryMetric} too concentrated in one ${primaryDimension}?`,
+    `Where did ${primaryMetric} increase or drop the most?`,
+    `Which ${secondaryDimension} has the best ROAS?`,
+    `Which ${primaryDimension} should receive more budget?`,
+    `Which ${secondaryDimension} converts clicks most efficiently?`
+  ];
+
+  if (hasFunnel(analysis)) {
+    questions.push("Where are users dropping off between impressions, clicks, and conversions?");
+    questions.push(`Which ${secondaryDimension} has the strongest funnel efficiency?`);
+  }
+
+  if (hasMultipleNumericMetrics(analysis)) {
+    questions.push(`Which ${primaryDimension} has high spend but weak revenue?`);
+    questions.push(`What is the relationship between ${primaryMetric} and ${secondaryMetric}?`);
+  }
+
+  if (hasDatetime(analysis)) {
+    questions.push(`Where did ${primaryMetric} drop the most${timeText}?`);
+  }
+
+  return uniq(questions).filter((question) => !isDataQualityQuestion(question)).slice(0, 5);
+}
+
+function buildDataQualityFallbackQuestions(analysis: AnalysisResponse) {
   const suggestions = [
-    `Which ${primaryDimension} has the highest ${primaryMetric}?`,
-    `Top 3 ${primaryDimension} by ${primaryMetric}.`,
-    `Show the ${primaryMetric} trend${timeText}.`,
-    `Show ${primaryMetric} and ${secondaryMetric} trend${timeText}.`,
-    `Show ${primaryMetric} trend by ${secondaryDimension}.`,
-    `Compare ${comparisons.first} versus ${comparisons.second} ${primaryMetric} by ${primaryDimension}.`,
-    `What is the average ${secondaryMetric} by ${primaryDimension}?`,
-    `Show ${primaryMetric} within ${categoryValue} by ${primaryDimension}.`,
-    `What is the relationship between ${primaryMetric} and ${secondaryMetric}?`,
-    `Show the ${primaryMetric} distribution.`,
-    `Which anomalies should I investigate in ${secondaryMetric}?`,
+    `Which dates look malformed or suspicious?`,
     `What rows have the most missing values?`,
     `Are there any duplicate rows in this dataset?`
   ];
 
-  if (hasFunnel(analysis)) {
-    suggestions.splice(
-      8,
-      0,
-      `Which funnel stage has the lowest ${primaryMetric}?`,
-      `Show ${primaryMetric} by funnel stage.`
-    );
+  if (!hasDatetime(analysis)) {
+    return suggestions.filter((question) => !question.toLowerCase().includes("dates"));
   }
 
-  if (hasMultipleNumericMetrics(analysis)) {
-    suggestions.splice(
-      8,
-      0,
-      `Show the relationship between ${primaryMetric} and ${secondaryMetric}.`,
-      `Which channel has the highest ${primaryMetric} and strong ${secondaryMetric}?`
-    );
+  return suggestions;
+}
+
+export function buildQuestionSuggestions(analysis: AnalysisResponse): string[] {
+  const backendSuggestions = uniq(analysis.executiveSummary.suggestedQuestions).filter((question) => !isDataQualityQuestion(question));
+  if (backendSuggestions.length > 0) {
+    return backendSuggestions.slice(0, 5);
   }
 
-  if (analysis.profile.numericColumns.includes("cost") && analysis.profile.numericColumns.includes("revenue")) {
-    suggestions.splice(
-      8,
-      0,
-      `Which channel has the highest ROAS?`,
-      `Show cost versus revenue by ${primaryDimension}.`,
-      `Are there any negative cost values to investigate?`
-    );
+  if (hasSemanticContract(analysis)) {
+    return buildSemanticFallbackBusinessQuestions(analysis);
   }
 
-  if (analysis.profile.numericColumns.includes("conversion_rate")) {
-    suggestions.splice(8, 0, `Which rows have conversion rates above 1?`);
+  return [];
+}
+
+export function buildDataQualityQuestionSuggestions(analysis: AnalysisResponse): string[] {
+  const backendSuggestions = uniq(analysis.executiveSummary.suggestedQuestions).filter(isDataQualityQuestion);
+  if (backendSuggestions.length > 0) {
+    return backendSuggestions;
   }
 
-  if (hasDatetime(analysis)) {
-    suggestions.splice(8, 0, `Which dates look malformed or suspicious?`);
-  }
-
-  return uniq(suggestions);
+  return buildDataQualityFallbackQuestions(analysis);
 }

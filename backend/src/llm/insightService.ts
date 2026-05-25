@@ -21,6 +21,9 @@ import {
   buildExecutiveInsightPrompt,
   parseJsonResponse
 } from "./prompts.js";
+import {
+  buildSuggestedQuestionsFromFacts
+} from "../analytics/suggestedQuestions.js";
 
 function normalizeName(value: string) {
   return value.toLowerCase().replace(/_/g, " ").trim();
@@ -89,6 +92,17 @@ function humanizeLabel(value?: string | null) {
       return lower.charAt(0).toUpperCase() + lower.slice(1);
     })
     .join(" ");
+}
+
+function pluralizeLabel(value: string) {
+  const lower = value.toLowerCase();
+  if (/(s|x|z|ch|sh)$/i.test(lower)) {
+    return `${value}es`;
+  }
+  if (/[^aeiou]y$/i.test(lower)) {
+    return `${value.slice(0, -1)}ies`;
+  }
+  return `${value}s`;
 }
 
 function isCommercialInsightText(value: string) {
@@ -190,6 +204,31 @@ function distinctInsightBullets(candidates: ExecutiveInsightCandidate[], limit =
   }
 
   return bullets;
+}
+
+function distinctSuggestedQuestions(questions: string[], limit = 5) {
+  const unique: string[] = [];
+  const seen = new Set<string>();
+
+  for (const question of questions) {
+    const trimmed = question.trim();
+    if (!trimmed) {
+      continue;
+    }
+
+    const key = normalizeInsightText(trimmed);
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    unique.push(trimmed);
+    if (unique.length >= limit) {
+      break;
+    }
+  }
+
+  return unique;
 }
 
 interface ChartSummaryEntry {
@@ -413,6 +452,8 @@ function buildChartObservation(
   }
 
   if (chart.chartType === "scatter" || chart.chartType === "heatmap") {
+    const xLabel = humanizeLabel(chart.xAxis ?? chart.xKey) || "the x metric";
+    const yLabel = humanizeLabel(chart.yAxis ?? chart.yKey) || "the y metric";
     const pairs = chart.data
       .map((row) => ({
         x: parseNumber(row[chart.xKey]),
@@ -421,12 +462,12 @@ function buildChartObservation(
       .filter((entry): entry is { x: number; y: number } => entry.x !== null && entry.y !== null) as Array<{ x: number; y: number }>;
     const correlation = estimateCorrelation(pairs);
     if (correlation >= 0.55) {
-      return `${metricLabel} and ${humanizeLabel(chart.yKey ?? "") || "the secondary metric"} move together across the main cluster, with a few campaigns standing above the pack.`;
+      return `${xLabel} and ${yLabel} move together across the main cluster, with a few segments standing above the pack.`;
     }
     if (correlation <= -0.55) {
-      return `${metricLabel} and ${humanizeLabel(chart.yKey ?? "") || "the secondary metric"} move in opposite directions, so scale and efficiency are pulling apart.`;
+      return `${xLabel} and ${yLabel} move in opposite directions, so scale and efficiency are pulling apart.`;
     }
-    return `The relationship between ${metricLabel} and ${humanizeLabel(chart.yKey ?? "") || "the secondary metric"} is loose, so the main signal sits in the outliers rather than the overall cluster.`;
+    return `The relationship between ${xLabel} and ${yLabel} is loose, so the main signal sits in the outliers rather than the overall cluster.`;
   }
 
   if (chart.chartType === "histogram" || chart.chartType === "box_plot") {
@@ -449,20 +490,22 @@ function buildChartObservation(
 
   if (isRevenueMetric(chart.metric)) {
     const top = summary.top;
-    const bottom = summary.bottom;
     const topName = facts?.topRevenueSegment?.name ?? top?.label ?? "the leading segment";
     const topShare = facts?.topRevenueSegment?.share ?? top?.share;
     const efficiencyLeader = facts?.bestRoasSegment?.name;
-    const topShareText = topShare !== undefined ? ` (${formatPercent(topShare)})` : "";
-    const leadText = top ? `${topName} leads revenue with ${formatObservationValue(metricLabel, top.value)}${topShareText}` : `${metricLabel} is concentrated in a small set of segments`;
-    const tailText = bottom && bottom.label !== topName ? `; ${bottom.label} trails at ${formatObservationValue(metricLabel, bottom.value)}` : "";
+    const dimensionLower = pluralizeLabel(dimensionLabel.toLowerCase());
+    const leadText = top
+      ? `${topName} leads revenue with ${formatObservationValue(metricLabel, top.value)}${
+          topShare !== undefined ? `, accounting for ${formatPercent(topShare)} of total revenue` : ""
+        }`
+      : `${metricLabel} is concentrated in a small set of segments`;
     const alignmentText =
       efficiencyLeader && efficiencyLeader !== topName
         ? ` Efficiency is stronger in ${efficiencyLeader}, so scale and return are not aligned.`
         : summary.top3Share !== undefined
-          ? ` The top 3 segments contribute ${formatPercent(summary.top3Share)} of the displayed total.`
+          ? ` The top 3 ${dimensionLower} contribute ${formatPercent(summary.top3Share)} of total revenue.`
           : "";
-    return `${leadText}${tailText}.${alignmentText}`;
+    return `${leadText}.${alignmentText}`;
   }
 
   if (isEfficiencyMetric(chart.metric)) {
@@ -489,21 +532,16 @@ function buildChartObservation(
 
   if (chart.chartType === "bar" || chart.chartType === "horizontal_bar" || chart.chartType === "stacked_bar" || chart.chartType === "donut") {
     const top = summary.top;
-    const bottom = summary.bottom;
-    const topText = top ? `${top.label} leads at ${formatObservationValue(metricLabel, top.value)}` : `${metricLabel} is led by a small number of segments`;
-    const bottomText = bottom && bottom.label !== top?.label ? `${bottom.label} trails at ${formatObservationValue(metricLabel, bottom.value)}` : "";
+    const metricLower = metricLabel.toLowerCase();
+    const dimensionLower = pluralizeLabel(dimensionLabel.toLowerCase());
+    const topText = top
+      ? `${top.label} leads ${metricLower} with ${formatObservationValue(metricLabel, top.value)}${top.share !== undefined ? `, accounting for ${formatPercent(top.share)} of total ${metricLower}` : ""}`
+      : `${metricLabel} is concentrated in a small number of segments`;
     const concentrationText =
       summary.top3Share !== undefined
-        ? ` The top 3 ${dimensionLabel} segments contribute ${formatPercent(summary.top3Share)} of the displayed total.`
+        ? `The top 3 ${dimensionLower} contribute ${formatPercent(summary.top3Share)} of total ${metricLower}.`
         : "";
-    const pieces = [topText];
-    if (bottomText) {
-      pieces.push(bottomText);
-    }
-    if (concentrationText) {
-      pieces.push(concentrationText.trim());
-    }
-    return pieces.join(". ") + ".";
+    return concentrationText ? `${topText}. ${concentrationText}` : `${topText}.`;
   }
 
   return `${metricLabel} stands out across ${dimensionLabel}, so the main decision is whether to scale the leader or fix the lagging segments.`;
@@ -843,6 +881,8 @@ export function buildAnalyticsFactsFromAnalysis(params: {
     return {
       title: chart.title,
       chartType: chart.chartType,
+      analysisRole: chart.analysisRole,
+      semanticSignature: chart.semanticSignature,
       metric: chart.metric ?? "",
       dimension: chart.dimension,
       reasonCode: chart.reason,
@@ -870,6 +910,7 @@ export function buildAnalyticsFactsFromAnalysis(params: {
     },
     trends,
     qualitySignals,
+    semanticContract: params.profile.semanticContract,
     topFindings: {
       topRevenueSegment,
       bestRoasSegment,
@@ -890,6 +931,8 @@ export function buildAnalyticsFactsFromAnalysis(params: {
       title: chart.title,
       chartType: chart.chartType,
       intent: chart.intent,
+      analysisRole: chart.analysisRole,
+      semanticSignature: chart.semanticSignature,
       metric: chart.metric,
       dimension: chart.dimension,
       reasonCode: chart.reason,
@@ -998,17 +1041,7 @@ function buildFallbackExecutiveInsightNarrative(facts: AnalyticsFacts): Executiv
 
   return {
     bullets: bullets.slice(0, 6),
-    suggestedQuestions: [
-      facts.topFindings.topRevenueSegment
-        ? `How does ${facts.topFindings.topRevenueSegment.name} compare on ROAS and conversion efficiency?`
-        : "Which segment is performing best on both revenue and efficiency?",
-      facts.topFindings.bestRoasSegment
-        ? `What is driving the stronger ROAS in ${facts.topFindings.bestRoasSegment.name}?`
-        : "Which segment deserves more budget and which one needs corrective action?",
-      facts.concentration.top3RevenueShare !== undefined
-        ? `Why do the top 3 segments contribute ${formatPercent(facts.concentration.top3RevenueShare)} of revenue?`
-        : "Where is performance concentrated across the strongest segments?"
-    ],
+    suggestedQuestions: buildSuggestedQuestionsFromFacts(facts, 5),
     warning: undefined,
     source: "fallback"
   };
@@ -1238,10 +1271,17 @@ export async function generateExecutiveInsights(facts: AnalyticsFacts): Promise<
           theme: classifyInsightTheme(text)
         }));
         const mergedBullets = distinctInsightBullets([...parsedCandidates, ...fallbackCandidates], 6);
+        const mergedSuggestedQuestions = distinctSuggestedQuestions(
+          [
+            ...parsed.suggestedQuestions.filter(isCommercialInsightText),
+            ...buildSuggestedQuestionsFromFacts(facts, 5)
+          ],
+          5
+        );
 
         return {
           bullets: mergedBullets,
-          suggestedQuestions: parsed.suggestedQuestions.filter(isCommercialInsightText).slice(0, 5),
+          suggestedQuestions: mergedSuggestedQuestions,
           warning: undefined,
           source: "llm"
         };
