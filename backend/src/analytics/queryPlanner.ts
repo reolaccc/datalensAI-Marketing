@@ -1,4 +1,9 @@
-import type { DatasetProfile, PlannedQuery, QuestionContextInput } from "./types.js";
+import type {
+  ConversationTurnContext,
+  DatasetProfile,
+  PlannedQuery,
+  QuestionContextInput
+} from "./types.js";
 import { KPI_ALIASES } from "../utils/inference.js";
 import {
   buildSemanticMetricList,
@@ -14,6 +19,115 @@ function replaceToken(question: string, pattern: RegExp, replacement?: string | 
     return question;
   }
   return question.replace(pattern, String(replacement));
+}
+
+function tokenizeForOverlap(text: string) {
+  return normalize(text)
+    .split(/[^a-z0-9]+/)
+    .map((token) => token.trim())
+    .filter((token) => token.length > 2 && !["this", "that", "with", "from", "have", "about", "there", "their", "what", "when", "where", "which", "would", "could", "should", "chart", "question", "show", "explain", "please"].includes(token));
+}
+
+function isFollowUpQuestion(question: string) {
+  const normalizedQuestion = normalize(question);
+  return /(^|\b)(this|that|it|them|these|those|same|above|previous|prior|earlier|last|result|chart|question|why|how about|what about|explain|and then|what now)(\b|$)/i.test(
+    normalizedQuestion
+  );
+}
+
+function scoreConversationTurn(question: string, turn: ConversationTurnContext, profile: DatasetProfile) {
+  const normalizedQuestion = normalize(question);
+  const normalizedTurnQuestion = normalize(turn.question);
+  const questionTokens = new Set(tokenizeForOverlap(question));
+  const turnTokens = new Set(tokenizeForOverlap(turn.question));
+  const sharedTokens = [...questionTokens].filter((token) => turnTokens.has(token));
+  const questionSemantic = detectSemanticBusinessIntent(question, {
+    availableMetrics: profile.numericColumns,
+    availableDimensions: profile.categoricalColumns
+  });
+  const turnSemantic = detectSemanticBusinessIntent(turn.question, {
+    availableMetrics: profile.numericColumns,
+    availableDimensions: profile.categoricalColumns
+  });
+
+  let score = 0;
+  if (isFollowUpQuestion(question)) {
+    score += 4;
+  }
+
+  if (normalizedQuestion.length <= 25) {
+    score += 1.5;
+  }
+
+  if (sharedTokens.length > 0) {
+    score += Math.min(3, sharedTokens.length * 0.9);
+  }
+
+  if (questionSemantic.businessIntent !== "neutral" && questionSemantic.businessIntent === turnSemantic.businessIntent) {
+    score += 1.8;
+  }
+
+  if (turn.detectedIntent) {
+    const questionWantsRanking =
+      normalizedQuestion.includes("best") ||
+      normalizedQuestion.includes("top") ||
+      normalizedQuestion.includes("winning") ||
+      normalizedQuestion.includes("potential") ||
+      normalizedQuestion.includes("efficient") ||
+      normalizedQuestion.includes("scalable");
+    if (questionWantsRanking && turn.detectedIntent.primaryIntent === "ranking") {
+      score += 1.8;
+    }
+
+    if (
+      (normalizedQuestion.includes("trend") || normalizedQuestion.includes("over time") || normalizedQuestion.includes("again")) &&
+      turn.detectedIntent.primaryIntent === "trend_analysis"
+    ) {
+      score += 1.8;
+    }
+
+    if (
+      (normalizedQuestion.includes("compare") || normalizedQuestion.includes("versus") || normalizedQuestion.includes("vs")) &&
+      turn.detectedIntent.primaryIntent === "comparison"
+    ) {
+      score += 1.8;
+    }
+  }
+
+  if (turn.chartSuggestion && (normalizedQuestion.includes("chart") || normalizedQuestion.includes("explain") || normalizedQuestion.includes("this") || normalizedQuestion.includes("that"))) {
+    score += 1.6;
+  }
+
+  if (turn.answer.length > 0 && normalizedTurnQuestion.length > 0) {
+    score += 0.2;
+  }
+
+  return score;
+}
+
+function selectConversationAnchor(
+  question: string,
+  history: ConversationTurnContext[] | undefined,
+  profile: DatasetProfile
+) {
+  if (!history || history.length === 0) {
+    return null;
+  }
+
+  const scored = history
+    .map((turn, index) => ({
+      turn,
+      index,
+      score: scoreConversationTurn(question, turn, profile)
+    }))
+    .sort((left, right) => right.score - left.score);
+
+  const winner = scored[0];
+  if (!winner || winner.score < 4.5) {
+    return null;
+  }
+
+  return winner.turn;
 }
 
 function resolveDynamicContextReferences(question: string, input?: QuestionContextInput) {
@@ -56,7 +170,11 @@ function resolveDynamicContextReferences(question: string, input?: QuestionConte
   return resolvedQuestion;
 }
 
-function resolveMetrics(question: string, profile: DatasetProfile): string[] {
+function resolveMetrics(
+  question: string,
+  profile: DatasetProfile,
+  conversationAnchor?: ConversationTurnContext | null
+): string[] {
   const normalizedQuestion = normalize(question);
   const matches: string[] = [];
 
@@ -74,6 +192,14 @@ function resolveMetrics(question: string, profile: DatasetProfile): string[] {
     }
   }
 
+  if (matches.length === 0 && conversationAnchor?.detectedIntent?.targetMetrics?.length) {
+    matches.push(
+      ...conversationAnchor.detectedIntent.targetMetrics.filter((metric) =>
+        profile.numericColumns.includes(metric) || profile.columns.some((column) => column.name === metric)
+      )
+    );
+  }
+
   return [...new Set(matches)];
 }
 
@@ -82,7 +208,8 @@ function resolveDimension(
   profile: DatasetProfile,
   input?: QuestionContextInput,
   comparisonValues: string[] = [],
-  semanticHints: string[] = []
+  semanticHints: string[] = [],
+  conversationAnchor?: ConversationTurnContext | null
 ): string | null {
   const normalizedQuestion = normalize(question);
   const normalizedSemanticHints = semanticHints.map((hint) => normalize(hint));
@@ -126,11 +253,25 @@ function resolveDimension(
     return scoredDimensions[0].name;
   }
 
+  if (
+    isFollowUpQuestion(question) &&
+    conversationAnchor?.detectedIntent?.targetDimensions?.length &&
+    conversationAnchor.detectedIntent.targetDimensions.some((dimension) => profile.categoricalColumns.includes(dimension))
+  ) {
+    return conversationAnchor.detectedIntent.targetDimensions.find((dimension) => profile.categoricalColumns.includes(dimension)) ?? null;
+  }
+
   const preferred = ["channel", "campaign", "device", "source"];
   return preferred.find((column) => profile.categoricalColumns.includes(column)) ?? profile.categoricalColumns[0] ?? null;
 }
 
-function detectIntent(question: string, semanticProfile?: ReturnType<typeof detectSemanticBusinessIntent>): PlannedQuery["intent"] {
+function detectIntent(
+  question: string,
+  semanticProfile?: ReturnType<typeof detectSemanticBusinessIntent>,
+  conversationAnchor?: ConversationTurnContext | null,
+  hasExplicitMetrics = false,
+  hasExplicitDimension = false
+): PlannedQuery["intent"] {
   const normalizedQuestion = normalize(question);
   const hasByClause = normalizedQuestion.includes(" by ");
   const hasMultipleMetrics =
@@ -200,6 +341,34 @@ function detectIntent(question: string, semanticProfile?: ReturnType<typeof dete
   ) {
     return "top_segment";
   }
+
+  if (
+    isFollowUpQuestion(question) &&
+    conversationAnchor?.detectedIntent &&
+    (hasExplicitMetrics || hasExplicitDimension || conversationAnchor.detectedIntent.primaryIntent !== "general_overview")
+  ) {
+    const anchorIntent = conversationAnchor.detectedIntent.primaryIntent;
+    if (anchorIntent === "general_overview") {
+      return "summary";
+    }
+    if (anchorIntent === "trend_analysis") {
+      return "trend";
+    }
+    if (anchorIntent === "comparison") {
+      return "compare_segments";
+    }
+    if (anchorIntent === "ranking" || anchorIntent === "efficiency_analysis" || anchorIntent === "segmentation") {
+      return "top_segment";
+    }
+    if (anchorIntent === "anomaly_detection") {
+      return "anomaly";
+    }
+    if (anchorIntent === "funnel_analysis") {
+      return "aggregate_segments";
+    }
+    return "summary";
+  }
+
   return "summary";
 }
 
@@ -397,17 +566,31 @@ export function planQuery(
   input?: QuestionContextInput
 ): PlannedQuery {
   const resolvedQuestion = resolveDynamicContextReferences(question, input);
+  const conversationAnchor = selectConversationAnchor(resolvedQuestion, input?.conversationHistory, profile);
   const semanticProfile = detectSemanticBusinessIntent(resolvedQuestion, {
     availableMetrics: profile.numericColumns,
     availableDimensions: profile.categoricalColumns
   });
-  const explicitMetrics = resolveMetrics(resolvedQuestion, profile);
+  const explicitMetrics = resolveMetrics(resolvedQuestion, profile, conversationAnchor);
   const semanticMetrics = buildSemanticMetricList(semanticProfile, profile.numericColumns);
   const metrics = [...new Set([...explicitMetrics, ...semanticMetrics])];
   const metric = metrics[0] ?? null;
-  const intent = detectIntent(resolvedQuestion, semanticProfile);
   const comparisonValues = extractComparisonValues(resolvedQuestion, profile);
-  const dimension = resolveDimension(resolvedQuestion, profile, input, comparisonValues, semanticProfile.dimensionHints);
+  const dimension = resolveDimension(
+    resolvedQuestion,
+    profile,
+    input,
+    comparisonValues,
+    semanticProfile.dimensionHints,
+    conversationAnchor
+  );
+  const intent = detectIntent(
+    resolvedQuestion,
+    semanticProfile,
+    conversationAnchor,
+    explicitMetrics.length > 0,
+    Boolean(dimension)
+  );
   const dimensionTrendValues = extractDimensionTopValues(resolvedQuestion, profile, dimension);
   const standardFilters = [
     ...extractFilters(resolvedQuestion, profile),
@@ -430,7 +613,7 @@ export function planQuery(
     limit: resolveLimit(resolvedQuestion),
     filters:
       intent === "compare_segments" || intent === "compare_trend"
-        ? extractFiltersForDimension(resolvedQuestion, profile, dimension, resolvedComparisonValues)
+      ? extractFiltersForDimension(resolvedQuestion, profile, dimension, resolvedComparisonValues)
         : standardFilters,
     comparisonValues: resolvedComparisonValues,
     semanticProfile: semanticProfile.businessIntent === "neutral" ? undefined : semanticProfile

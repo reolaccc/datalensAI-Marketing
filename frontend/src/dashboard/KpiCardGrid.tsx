@@ -6,13 +6,15 @@ interface Props {
 }
 
 function legacyKpiCards(analysis: AnalysisResponse) {
-  return analysis.kpis.slice(0, 4).map((kpi) => ({
+  return analysis.kpis.slice(0, 5).map((kpi) => ({
     id: kpi.id,
     label: kpi.label,
     value: kpi.aggregateValue,
     formattedValue: /revenue|sales|income|gmv|cost|spend|profit|value/i.test(kpi.label)
       ? formatCompactCurrency(kpi.aggregateValue)
-      : formatCompactNumber(kpi.aggregateValue),
+      : /roi|roas/i.test(kpi.label)
+        ? `${formatCompactNumber(kpi.aggregateValue)}x`
+        : formatCompactNumber(kpi.aggregateValue),
     unit: "",
     metricType: "generic_number" as const,
     description: kpi.summary,

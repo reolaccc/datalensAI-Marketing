@@ -201,4 +201,16 @@ export interface QuestionContextInput {
   selectedSegmentA?: string;
   selectedSegmentB?: string;
   useAi?: boolean;
+  conversationHistory?: Array<{
+    question: string;
+    answer: string;
+    interpretation?: string;
+    detectedIntent?: QuestionAnswer["detectedIntent"];
+    chartSuggestion?: {
+      chartType: "line" | "bar" | "table";
+      xKey: string;
+      yKey: string;
+      series?: string[];
+    };
+  }>;
 }

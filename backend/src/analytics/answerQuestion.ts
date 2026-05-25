@@ -43,6 +43,7 @@ export async function answerDatasetQuestion(question: string, context: QuestionC
     answer: answer.answer,
     detectedIntent: chartSelection.intent,
     semanticProfile: plan.semanticProfile,
+    conversationHistory: context.input?.conversationHistory,
     supportingData: answer.supportingData,
     resultTable: answer.resultTable,
     datasetSchema: context.profile.columns.map((column) => ({

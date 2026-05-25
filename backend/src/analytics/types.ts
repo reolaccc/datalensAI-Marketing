@@ -233,6 +233,19 @@ export interface QuestionAnswer {
   };
 }
 
+export interface ConversationTurnContext {
+  question: string;
+  answer: string;
+  interpretation?: string;
+  detectedIntent?: IntentDetectionResult;
+  chartSuggestion?: {
+    chartType: "line" | "bar" | "table";
+    xKey: string;
+    yKey: string;
+    series?: string[];
+  };
+}
+
 export interface QuestionContextInput {
   selectedDate?: string;
   selectedThreshold?: number;
@@ -242,6 +255,7 @@ export interface QuestionContextInput {
   selectedSegmentA?: string;
   selectedSegmentB?: string;
   useAi?: boolean;
+  conversationHistory?: ConversationTurnContext[];
 }
 
 export interface PlannedQuery {

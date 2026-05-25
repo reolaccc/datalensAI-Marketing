@@ -12,6 +12,7 @@ type DatasetType = "marketing" | "sales" | "ecommerce" | "generic";
 type MetricKey =
   | "revenue"
   | "cost"
+  | "roi"
   | "roas"
   | "conversion_rate"
   | "clicks"
@@ -386,6 +387,7 @@ function pickDimension(profile: DatasetProfile, datasetType: DatasetType, metric
   const metricSensitivePreferences: Record<MetricKey, string[]> = {
     revenue: ["channel", "campaign", "region", "product", "category"],
     cost: ["channel", "campaign", "device", "region", "product", "category"],
+    roi: ["channel", "campaign", "source", "medium", "region"],
     roas: ["channel", "campaign", "source", "medium", "region"],
     conversion_rate: ["channel", "campaign", "device", "segment", "region", "category"],
     clicks: ["channel", "campaign", "device", "source"],
@@ -436,6 +438,8 @@ function buildDescription(metricKey: MetricKey, observation: MetricObservation) 
       return `Revenue reached ${fmt}.${shareText} Compare it with ROAS before changing budget.`;
     case "cost":
       return `Spend reached ${fmt}.${shareText} Review it alongside ROAS so budget decisions stay tied to efficiency.`;
+    case "roi":
+      return `ROI is ${fmt}.${shareText} It measures net return after spend, so compare it with ROAS to see whether growth is actually profitable.`;
     case "roas":
       return `ROAS means every 1 unit of spend brought back about ${fmt.replace(/x$/, "")} units of revenue. Use it to judge whether growth is efficient before increasing budget.`;
     case "conversion_rate":
@@ -515,6 +519,13 @@ function buildMetricObservation(
       unit: "",
       priority: { marketing: 95, sales: 72, ecommerce: 70, generic: 86 },
       sourceColumns: ["cost", "spend", "ad_spend", "budget"]
+    },
+    roi: {
+      label: "ROI",
+      metricType: "ratio",
+      unit: "x",
+      priority: { marketing: 98, sales: 70, ecommerce: 68, generic: 70 },
+      sourceColumns: ["revenue", "cost"]
     },
     roas: {
       label: "ROAS",
@@ -634,7 +645,7 @@ function buildMetricObservation(
   const matchedColumns = config.sourceColumns.map((alias) => findColumn(profile, [alias])).filter((value): value is string => Boolean(value));
   const uniqueColumns = [...new Set(matchedColumns)];
 
-  if (key !== "roas" && key !== "ctr" && key !== "cpc" && key !== "cpa" && key !== "revenue_per_click" && key !== "average_order_value" && key !== "conversion_rate" && key !== "margin" && key !== "refund_rate") {
+  if (key !== "roi" && key !== "roas" && key !== "ctr" && key !== "cpc" && key !== "cpa" && key !== "revenue_per_click" && key !== "average_order_value" && key !== "conversion_rate" && key !== "margin" && key !== "refund_rate") {
     const sourceColumn = uniqueColumns[0];
     if (!sourceColumn) {
       return null;
@@ -714,6 +725,41 @@ function buildMetricObservation(
         rows,
         dimension,
         (row) => parseNumber(row[revenueColumn]),
+        {
+          ratio: true,
+          denominatorGetter: (row) => parseNumber(row[costColumn]),
+          scaleToPercent: false
+        }
+      );
+      break;
+    }
+    case "roi": {
+      const revenueColumn = uniqueColumns.find((column) => findColumn(profile, [column]) || normalizeName(column).includes("revenue"));
+      const costColumn = uniqueColumns.find((column) => normalizeName(column).includes("cost") || normalizeName(column).includes("spend") || normalizeName(column).includes("budget")) ?? findColumn(profile, ["cost", "spend", "ad_spend", "budget"]);
+      if (!revenueColumn || !costColumn) {
+        return null;
+      }
+      const revenueTotal = sumColumn(rows, revenueColumn);
+      const costTotal = sumColumn(rows, costColumn);
+      if (costTotal <= 0) {
+        return null;
+      }
+      value = Number(((revenueTotal - costTotal) / costTotal).toFixed(2));
+      formula = `(sum(${revenueColumn}) - sum(${costColumn})) / sum(${costColumn})`;
+      sourceColumns = [revenueColumn, costColumn];
+      reliability = getColumnProfile(profile, revenueColumn)?.missingCount || getColumnProfile(profile, costColumn)?.missingCount ? "medium" : "high";
+      warnings.push(...[getMissingWarning("ROI", sourceColumns, profile)].filter(Boolean) as string[]);
+      segmentSummary = buildSegmentSummary(
+        rows,
+        dimension,
+        (row) => {
+          const revenue = parseNumber(row[revenueColumn]);
+          const cost = parseNumber(row[costColumn]);
+          if (revenue === null || cost === null) {
+            return null;
+          }
+          return revenue - cost;
+        },
         {
           ratio: true,
           denominatorGetter: (row) => parseNumber(row[costColumn]),
@@ -1085,6 +1131,7 @@ function getCandidateOrder(datasetType: DatasetType) {
     marketing: [
       "revenue",
       "cost",
+      "roi",
       "roas",
       "conversion_rate",
       "clicks",
@@ -1094,9 +1141,9 @@ function getCandidateOrder(datasetType: DatasetType) {
       "cpa",
       "revenue_per_click"
     ],
-    sales: ["revenue", "orders", "average_order_value", "units_sold", "profit", "margin", "conversion_rate", "cost"],
-    ecommerce: ["revenue", "orders", "average_order_value", "conversion_rate", "refund_rate", "margin", "units_sold", "profit"],
-    generic: ["revenue", "cost", "profit", "orders", "total_value", "total_quantity", "conversion_rate", "roas"]
+    sales: ["revenue", "roi", "orders", "average_order_value", "units_sold", "profit", "margin", "conversion_rate", "cost"],
+    ecommerce: ["revenue", "roi", "orders", "average_order_value", "conversion_rate", "refund_rate", "margin", "units_sold", "profit"],
+    generic: ["revenue", "cost", "roi", "profit", "orders", "total_value", "total_quantity", "conversion_rate", "roas"]
   };
 
   return orders[datasetType];
@@ -1121,6 +1168,7 @@ export function buildKpiObservations(rows: DatasetRow[], profile: DatasetProfile
   const keys: MetricKey[] = [
     "revenue",
     "cost",
+    "roi",
     "roas",
     "conversion_rate",
     "clicks",
@@ -1211,7 +1259,7 @@ export function buildKpiCards(rows: DatasetRow[], profile: DatasetProfile): KpiC
       contextLine: observation.contextLine
     });
 
-    if (cards.length === 4) {
+    if (cards.length === 5) {
       return cards;
     }
   }

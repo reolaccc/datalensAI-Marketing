@@ -3,6 +3,7 @@ import { QuestionChart } from "../charts/QuestionChart";
 import { findRelevantChartId } from "../dashboard/chartMatching";
 import { useAnalysisStore } from "../stores/analysisStore";
 import { buildQuestionSuggestions } from "../utils/questionSuggestions";
+import type { QuestionAnswer } from "../types";
 
 function formatDateForInput(value?: string | number | null) {
   if (!value) {
@@ -55,6 +56,7 @@ export function AskDatasetPanel() {
   const error = useAnalysisStore((state) => state.error);
   const draftQuestion = useAnalysisStore((state) => state.draftQuestion);
   const questionAnswer = useAnalysisStore((state) => state.questionAnswer);
+  const questionHistory = useAnalysisStore((state) => state.questionHistory);
   const pinCurrentAnswer = useAnalysisStore((state) => state.pinCurrentAnswer);
   const setDraftQuestion = useAnalysisStore((state) => state.setDraftQuestion);
   const analysis = useAnalysisStore((state) => state.analysis);
@@ -66,6 +68,8 @@ export function AskDatasetPanel() {
     Boolean(questionAnswer && !asking && draftQuestion.trim() === questionAnswer.question.trim());
   const resultTable = questionAnswer?.resultTable;
   const shouldShowResultTable = Boolean(resultTable && resultTable.rows.length <= 3);
+  const conversationEntries: QuestionAnswer[] =
+    questionHistory.length > 0 ? questionHistory : questionAnswer ? [questionAnswer] : [];
 
   useEffect(() => {
     const defaults = deriveFilterDefaults(analysis);
@@ -102,6 +106,22 @@ export function AskDatasetPanel() {
     if (!draftQuestion.trim()) {
       return;
     }
+
+    const conversationHistory = questionHistory.slice(0, 4).map((entry) => ({
+      question: entry.question,
+      answer: entry.answer,
+      interpretation: entry.interpretation,
+      detectedIntent: entry.detectedIntent,
+      chartSuggestion: entry.chartSuggestion
+        ? {
+            chartType: entry.chartSuggestion.chartType,
+            xKey: entry.chartSuggestion.xKey,
+            yKey: entry.chartSuggestion.yKey,
+            series: entry.chartSuggestion.series
+          }
+        : undefined
+    }));
+
     await askQuestion(draftQuestion.trim(), {
       selectedDate: selectedDate || undefined,
       selectedThreshold: selectedThreshold ? Number(selectedThreshold) : undefined,
@@ -110,7 +130,8 @@ export function AskDatasetPanel() {
       selectedCategory: selectedCategory || undefined,
       selectedSegmentA: selectedSegmentA || undefined,
       selectedSegmentB: selectedSegmentB || undefined,
-      useAi: askAiEnabled
+      useAi: askAiEnabled,
+      conversationHistory
     });
   }
 
@@ -198,56 +219,81 @@ export function AskDatasetPanel() {
             </div>
           ) : null}
 
-          {questionAnswer ? (
-            <div className="answer-grid" id="analysis-answer-region" ref={answerRegionRef} tabIndex={-1}>
-              <div className="answer-copy">
-                <div className="answer-toolbar">
-                  <p className="eyebrow">Answer</p>
-                  <button className="secondary-action" onClick={pinCurrentAnswer} type="button">
-                    Pin to board
-                  </button>
+          {conversationEntries.length > 0 ? (
+            <div className="conversation-thread" id="analysis-answer-region" ref={answerRegionRef} tabIndex={-1}>
+              <div className="conversation-thread-header">
+                <div>
+                  <p className="eyebrow">Conversation</p>
                 </div>
-                <p>{questionAnswer.answer}</p>
-
-                {questionAnswer.narrative ? (
-                  <div className="answer-narrative">
-                    {questionAnswer.narrative.confidenceNote ? (
-                      <p className="workspace-meta">{questionAnswer.narrative.confidenceNote}</p>
-                    ) : null}
-                    {questionAnswer.narrative.caution ? <p className="workspace-meta">{questionAnswer.narrative.caution}</p> : null}
-                  </div>
-                ) : null}
-
-                {shouldShowResultTable && resultTable ? (
-                  <div className="result-table-wrap">
-                    <table className="result-table">
-                      <thead>
-                        <tr>
-                          {resultTable.columns.map((column) => (
-                            <th key={column}>{column}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {resultTable.rows.map((row, index) => (
-                          <tr key={index}>
-                            {resultTable.columns.map((column) => (
-                              <td key={`${index}-${column}`}>{String(row[column] ?? "")}</td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : null}
               </div>
 
-              {questionAnswer.chartSuggestion ? (
-                <div className="answer-chart" ref={answerChartRef} tabIndex={-1}>
-                  <div className="chart-suggestion-tag">Relevant to this question</div>
-                  <QuestionChart chartSuggestion={questionAnswer.chartSuggestion} />
-                </div>
-              ) : null}
+              {conversationEntries.map((entry, index) => {
+                const isLatest = index === 0;
+                const resultTableEntry = isLatest ? entry.resultTable : undefined;
+                const showTable = Boolean(isLatest && shouldShowResultTable && resultTableEntry);
+
+                return (
+                  <article className={`conversation-turn ${isLatest ? "conversation-turn-latest" : ""}`} key={`${entry.question}-${index}`}>
+                    <div className="answer-toolbar">
+                      {isLatest ? <p className="eyebrow">Latest question</p> : <span />}
+                      {isLatest ? (
+                        <button className="secondary-action" onClick={pinCurrentAnswer} type="button">
+                          Pin to board
+                        </button>
+                      ) : null}
+                    </div>
+
+                    <div className="conversation-message conversation-message-user">
+                      <span className="conversation-role">You</span>
+                      <p>{entry.question}</p>
+                    </div>
+
+                    <div className="conversation-message conversation-message-assistant">
+                      <span className="conversation-role">DataLens</span>
+                      <p>{entry.answer}</p>
+                    </div>
+
+                    {entry.narrative ? (
+                      <div className="answer-narrative">
+                        {entry.narrative.confidenceNote ? (
+                          <p className="workspace-meta">{entry.narrative.confidenceNote}</p>
+                        ) : null}
+                        {entry.narrative.caution ? <p className="workspace-meta">{entry.narrative.caution}</p> : null}
+                      </div>
+                    ) : null}
+
+                    {showTable && resultTableEntry ? (
+                      <div className="result-table-wrap">
+                        <table className="result-table">
+                          <thead>
+                            <tr>
+                              {resultTableEntry.columns.map((column) => (
+                                <th key={column}>{column}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {resultTableEntry.rows.map((row, rowIndex) => (
+                              <tr key={rowIndex}>
+                                {resultTableEntry.columns.map((column) => (
+                                  <td key={`${rowIndex}-${column}`}>{String(row[column] ?? "")}</td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : null}
+
+                    {isLatest && entry.chartSuggestion ? (
+                      <div className="answer-chart" ref={answerChartRef} tabIndex={-1}>
+                        <div className="chart-suggestion-tag">Relevant to this question</div>
+                        <QuestionChart chartSuggestion={entry.chartSuggestion} />
+                      </div>
+                    ) : null}
+                  </article>
+                );
+              })}
             </div>
           ) : null}
         </div>

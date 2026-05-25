@@ -257,6 +257,18 @@ export interface QuestionNarrativeInput {
   answer: string;
   detectedIntent?: IntentDetectionResult;
   semanticProfile?: SemanticBusinessIntentAnalysis;
+  conversationHistory?: Array<{
+    question: string;
+    answer: string;
+    interpretation?: string;
+    detectedIntent?: IntentDetectionResult;
+    chartSuggestion?: {
+      chartType: "line" | "bar" | "table";
+      xKey: string;
+      yKey: string;
+      series?: string[];
+    };
+  }>;
   supportingData: Array<{ label: string; value: string | number }>;
   resultTable?: {
     columns: string[];

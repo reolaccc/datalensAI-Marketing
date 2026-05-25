@@ -1094,6 +1094,32 @@ function parseAskAnswerNarrative(text: string): AskAnswerNarrative | null {
   };
 }
 
+function isReadableAskDirectAnswer(value: string) {
+  const text = value.trim();
+  if (!text) {
+    return false;
+  }
+
+  if (text.length > 220) {
+    return false;
+  }
+
+  const metricMentions = text.match(/\b(revenue|roas|roi|conversion rate|conversion_rate|ctr|cvr|clicks|impressions|spend|cost|profit|cpa|cpc)\b/gi)?.length ?? 0;
+  if (metricMentions > 4) {
+    return false;
+  }
+
+  if ((text.match(/,/g) ?? []).length > 2) {
+    return false;
+  }
+
+  if (/\b\w+_\w+\b/.test(text)) {
+    return false;
+  }
+
+  return true;
+}
+
 export function buildFallbackChartExplanations(
   facts: AnalyticsFacts,
   charts: ChartConfig[]
@@ -1255,7 +1281,7 @@ export async function generateAskAnswer(input: QuestionNarrativeInput): Promise<
     try {
       const result = await provider.generateText(buildAskAnswerPrompt(input));
       const parsed = parseAskAnswerNarrative(result.text);
-      if (parsed) {
+      if (parsed && isReadableAskDirectAnswer(parsed.directAnswer)) {
         return parsed;
       }
     } catch {
@@ -1271,6 +1297,7 @@ export function buildQuestionNarrativeInput(params: {
   answer: string;
   detectedIntent?: IntentDetectionResult;
   semanticProfile?: QuestionNarrativeInput["semanticProfile"];
+  conversationHistory?: QuestionNarrativeInput["conversationHistory"];
   supportingData: Array<{ label: string; value: string | number }>;
   resultTable?: {
     columns: string[];
