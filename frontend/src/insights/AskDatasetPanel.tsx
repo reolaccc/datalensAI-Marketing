@@ -147,7 +147,7 @@ export function AskDatasetPanel() {
         ) : null}
         <div className="question-composer-actions">
           <button onClick={submitQuestion} disabled={asking}>
-            {asking ? "Thinking..." : "Ask"}
+            {asking ? "Thinking..." : "Send Question"}
           </button>
           <button
             aria-checked={askAiEnabled}

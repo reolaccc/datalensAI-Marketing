@@ -344,17 +344,6 @@ small {
   letter-spacing: -0.03em;
 }
 
-.chart-subtitle {
-  margin-bottom: 0;
-  max-width: 54ch;
-  color: #a8d8d4;
-  font-size: 0.92rem;
-  line-height: 1.45;
-  word-break: normal;
-  overflow-wrap: break-word;
-  hyphens: none;
-}
-
 .chart-frame {
   height: 280px;
 }
@@ -1748,6 +1737,10 @@ small,
   border-radius: 14px;
 }
 
+[id] {
+  scroll-margin-top: 20px;
+}
+
 .workspace-card-header,
 .workspace-library-card-header,
 .workspace-library-actions-row,
@@ -1817,4 +1810,38 @@ small,
 }
 
 @media (max-width: 720px) {
+  .top-bar {
+    padding: 16px 14px 18px;
+  }
+
+  .top-bar-title h1 {
+    font-size: clamp(2.6rem, 18vw, 4rem);
+    line-height: 0.9;
+    letter-spacing: -0.07em;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .upload-hero .workflow-line {
+    font-size: 0.94rem;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .dropzone {
+    padding: 22px 18px;
+  }
+
+  .upload-action-row {
+    overflow-x: auto;
+  }
+
+  .upload-action-row .top-bar-actions {
+    min-width: max-content;
+  }
+
+  .top-bar-actions .primary-action,
+  .top-bar-actions .secondary-action {
+    padding: 8px 11px;
+  }
 }

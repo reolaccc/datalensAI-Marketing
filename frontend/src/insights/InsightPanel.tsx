@@ -1,4 +1,5 @@
 import type { AnalysisResponse } from "../types";
+import { buildExecutiveInsightBullets } from "../utils/executiveInsight";
 
 interface Props {
   analysis: AnalysisResponse;
@@ -6,10 +7,7 @@ interface Props {
 
 export function InsightPanel({ analysis }: Props) {
   const { executiveSummary } = analysis;
-  const insightBullets =
-    executiveSummary.bullets && executiveSummary.bullets.length > 0
-      ? executiveSummary.bullets
-      : [executiveSummary.overview, executiveSummary.kpiSummary, executiveSummary.anomalySummary, executiveSummary.trendSummary].filter(Boolean) as string[];
+  const insightBullets = buildExecutiveInsightBullets(executiveSummary, 6);
 
   return (
     <article className="panel insight-panel">

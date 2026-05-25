@@ -206,7 +206,6 @@ export function ChartCard({ chart, highlighted = false }: Props) {
       <div className="chart-header">
         <div className="chart-header-copy">
           <h3>{chart.title}</h3>
-          {chart.subtitle ? <p className="chart-subtitle">{chart.subtitle}</p> : null}
           {highlighted ? <span className="chart-tag">Relevant to this question</span> : null}
         </div>
       </div>

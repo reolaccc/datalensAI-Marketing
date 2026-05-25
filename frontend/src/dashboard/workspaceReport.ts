@@ -1,4 +1,5 @@
 import type { AnalysisResponse, PinnedInsight, QuestionAnswer } from "../types";
+import { buildExecutiveInsightBullets } from "../utils/executiveInsight";
 
 export interface WorkspaceReportSource {
   fileName: string;
@@ -91,15 +92,7 @@ function buildQuestionEntry(questionAnswer: QuestionAnswer, label: string) {
 }
 
 export function buildWorkspaceReportMarkdown(source: WorkspaceReportSource) {
-  const executiveBullets =
-    source.analysis.executiveSummary.bullets && source.analysis.executiveSummary.bullets.length > 0
-      ? source.analysis.executiveSummary.bullets
-      : [
-          source.analysis.executiveSummary.overview,
-          source.analysis.executiveSummary.kpiSummary,
-          source.analysis.executiveSummary.anomalySummary,
-          source.analysis.executiveSummary.trendSummary
-        ].filter(Boolean) as string[];
+  const executiveBullets = buildExecutiveInsightBullets(source.analysis.executiveSummary, 6);
   const savedAt = formatSavedAt(source.savedAt);
   const reportSections = [
     `# DataLens Report`,

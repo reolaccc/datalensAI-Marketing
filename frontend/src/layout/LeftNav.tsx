@@ -1,7 +1,7 @@
 const NAV_ITEMS = [
   { label: "Overview", targetId: "report-overview" },
   { label: "Charts", targetId: "chart-grid" },
-  { label: "Data", targetId: "kpi-strip" },
+  { label: "Data", targetId: "dataset-summary" },
   { label: "Sessions", targetId: "session-directory" }
 ];
 
