@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { ChartCard } from "../charts/ChartCard";
-import { findRelevantChartId } from "../dashboard/chartMatching";
 import { useAnalysisStore } from "../stores/analysisStore";
 import { buildDataQualityQuestionSuggestions, buildQuestionSuggestions } from "../utils/questionSuggestions";
 import type { QuestionAnswer } from "../types";
@@ -77,13 +75,11 @@ export function AskDatasetPanel() {
   const draftQuestion = useAnalysisStore((state) => state.draftQuestion);
   const questionAnswer = useAnalysisStore((state) => state.questionAnswer);
   const questionHistory = useAnalysisStore((state) => state.questionHistory);
-  const pinCurrentAnswer = useAnalysisStore((state) => state.pinCurrentAnswer);
   const setDraftQuestion = useAnalysisStore((state) => state.setDraftQuestion);
   const analysis = useAnalysisStore((state) => state.analysis);
   const questionSuggestions = analysis ? buildQuestionSuggestions(analysis) : [];
   const dataQualitySuggestions = analysis ? buildDataQualityQuestionSuggestions(analysis) : [];
   const answerRegionRef = useRef<HTMLDivElement | null>(null);
-  const relevantChartId = findRelevantChartId(analysis, questionAnswer);
   const isFinalSubmittedQuestion =
     Boolean(questionAnswer && !asking && draftQuestion.trim() === questionAnswer.question.trim());
   const resultTable = questionAnswer?.resultTable;
@@ -111,16 +107,14 @@ export function AskDatasetPanel() {
       return;
     }
 
-    const targetElement =
-      (relevantChartId ? document.getElementById(`analysis-chart-${relevantChartId}`) : null) ??
-      answerRegionRef.current;
+    const targetElement = answerRegionRef.current;
 
     const timeoutId = window.setTimeout(() => {
       targetElement?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 80);
 
     return () => window.clearTimeout(timeoutId);
-  }, [asking, questionAnswer, relevantChartId]);
+  }, [asking, questionAnswer]);
 
   async function submitQuestion(questionText: string) {
     const trimmedQuestion = questionText.trim();
@@ -158,28 +152,6 @@ export function AskDatasetPanel() {
     void submitDraftQuestion();
   }
 
-  function renderConversationCharts(entry: QuestionAnswer, isLatest: boolean) {
-    const charts = entry.recommendedCharts ?? [];
-    if (charts.length === 0) {
-      return null;
-    }
-
-    const mainChart = charts[0];
-    const supportingCharts = charts.slice(1, 2);
-
-    return (
-      <div className="conversation-charts">
-        <div className="conversation-chart-primary">
-          <ChartCard chart={mainChart} compact highlighted={isLatest} />
-        </div>
-
-        {supportingCharts.map((chart) => (
-          <ChartCard chart={chart} compact key={chart.id} />
-        ))}
-      </div>
-    );
-  }
-
   function renderConversationTurn(entry: QuestionAnswer, index: number) {
     const isLatest = index === 0;
     const resultTableEntry = isLatest ? entry.resultTable : undefined;
@@ -190,11 +162,6 @@ export function AskDatasetPanel() {
       <article className={`conversation-turn ${isLatest ? "conversation-turn-latest" : "conversation-turn-older"}`} key={`${entry.question}-${index}`}>
         <div className="answer-toolbar">
           <p className="eyebrow">{orderLabel}</p>
-          {isLatest ? (
-            <button className="secondary-action" onClick={pinCurrentAnswer} type="button">
-              Pin to board
-            </button>
-          ) : null}
         </div>
 
         <div className="conversation-message conversation-message-user">
@@ -236,8 +203,6 @@ export function AskDatasetPanel() {
             </table>
           </div>
         ) : null}
-
-        {renderConversationCharts(entry, isLatest)}
       </article>
     );
   }

@@ -3,7 +3,6 @@ import { findRelevantChartId } from "./dashboard/chartMatching";
 import { DatasetSummaryPanel } from "./dashboard/DatasetSummaryPanel";
 import { KpiCardGrid } from "./dashboard/KpiCardGrid";
 import { ChartCard } from "./charts/ChartCard";
-import { QuestionDrivenDashboard } from "./components/dashboard/QuestionDrivenDashboard/QuestionDrivenDashboard";
 import { LeftNav } from "./layout/LeftNav";
 import { RightRail } from "./layout/RightRail";
 import { TopBar } from "./layout/TopBar";
@@ -18,7 +17,6 @@ export default function App() {
   const importSharedWorkspaceSnapshot = useAnalysisStore((state) => state.importSharedWorkspaceSnapshot);
   const highlightedChartId = findRelevantChartId(analysis, questionAnswer);
   const workspaceShellClassName = analysis ? "workspace-shell" : "workspace-shell workspace-shell-empty";
-  const hasQuestionDrivenCharts = Boolean(questionAnswer?.recommendedCharts && questionAnswer.recommendedCharts.length === 4);
 
   useEffect(() => {
     const shareId = new URLSearchParams(window.location.search).get("share");
@@ -73,23 +71,11 @@ export default function App() {
               </section>
 
               <section className="panel report-page" id="chart-grid">
-                {hasQuestionDrivenCharts ? (
-                  <div className="report-section-header">
-                    <div>
-                      <h3>Question-driven dashboard</h3>
-                    </div>
-                  </div>
-                ) : null}
-
-                {hasQuestionDrivenCharts && questionAnswer ? (
-                  <QuestionDrivenDashboard questionAnswer={questionAnswer} />
-                ) : (
-                  <div className="chart-grid">
-                    {analysis.charts.map((chart) => (
-                      <ChartCard chart={chart} highlighted={chart.id === highlightedChartId} key={chart.id} />
-                    ))}
-                  </div>
-                )}
+                <div className="chart-grid">
+                  {analysis.charts.map((chart) => (
+                    <ChartCard chart={chart} highlighted={chart.id === highlightedChartId} key={chart.id} />
+                  ))}
+                </div>
               </section>
 
               <section className="report-page report-page-secondary" id="dataset-summary">
