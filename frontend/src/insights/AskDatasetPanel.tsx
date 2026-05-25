@@ -64,6 +64,8 @@ export function AskDatasetPanel() {
   const relevantChartId = findRelevantChartId(analysis, questionAnswer);
   const isFinalSubmittedQuestion =
     Boolean(questionAnswer && !asking && draftQuestion.trim() === questionAnswer.question.trim());
+  const resultTable = questionAnswer?.resultTable;
+  const shouldShowResultTable = Boolean(resultTable && resultTable.rows.length <= 3);
 
   useEffect(() => {
     const defaults = deriveFilterDefaults(analysis);
@@ -216,20 +218,20 @@ export function AskDatasetPanel() {
                   </div>
                 ) : null}
 
-                {questionAnswer.resultTable ? (
+                {shouldShowResultTable && resultTable ? (
                   <div className="result-table-wrap">
                     <table className="result-table">
                       <thead>
                         <tr>
-                          {questionAnswer.resultTable.columns.map((column) => (
+                          {resultTable.columns.map((column) => (
                             <th key={column}>{column}</th>
                           ))}
                         </tr>
                       </thead>
                       <tbody>
-                        {questionAnswer.resultTable.rows.map((row, index) => (
+                        {resultTable.rows.map((row, index) => (
                           <tr key={index}>
-                            {questionAnswer.resultTable?.columns.map((column) => (
+                            {resultTable.columns.map((column) => (
                               <td key={`${index}-${column}`}>{String(row[column] ?? "")}</td>
                             ))}
                           </tr>

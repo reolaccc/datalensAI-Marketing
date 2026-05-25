@@ -46,7 +46,7 @@ export function InsightWorkspace() {
               </div>
             ) : null}
 
-            {insight.resultTable ? (
+            {insight.resultTable && insight.resultTable.rows.length <= 3 ? (
               <div className="result-table-wrap">
                 <table className="result-table">
                   <thead>

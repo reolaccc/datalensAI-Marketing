@@ -1102,18 +1102,12 @@ export function buildFallbackChartExplanations(
     const summary = buildChartSummary(chart);
     const observation = summary ? buildChartObservation(chart, summary, { topRevenueSegment: facts.topFindings.topRevenueSegment, bestRoasSegment: facts.topFindings.bestRoasSegment }) : "";
     const metricLabel = humanizeLabel(chart.metric ?? chart.title) || "This metric";
-    const decisionLine =
-      facts.topFindings.bestRoasSegment && chart.metric && !normalizeName(chart.metric).includes("roas")
-        ? `Use ${facts.topFindings.bestRoasSegment.name} as the efficiency benchmark before changing budget.`
-        : facts.kpis.overallRoas !== undefined
-          ? "Use ROAS alongside this view before making a budget call."
-          : "Use this alongside the strongest segment or a time view to decide what to scale next.";
 
     return {
       id: chart.id,
       explanation: observation
-        ? `${observation} ${decisionLine}`
-        : `${metricLabel} should be read as a decision signal, with the strongest segment and the efficiency benchmark viewed together before making a budget call.`
+        ? observation
+        : `${metricLabel} should be read as a decision signal, so the main task is to understand what is driving the shape of the chart.`
     };
   });
 }

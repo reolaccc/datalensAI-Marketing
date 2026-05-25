@@ -114,6 +114,7 @@ export function buildChartExplanationsPrompt(
             "Lead with the business meaning, not the chart type.",
             "Use the actual metric values, units, and segment names when available.",
             "Mention trends, concentration, efficiency gaps, anomalies, or trade-offs when the data supports it.",
+            "Keep the explanation focused on what the chart shows; do not add next-step advice here because the recommendation layer handles that separately.",
             "Keep each explanation to 1-2 short paragraphs or up to 3 bullets.",
             "If confidence is low, be careful and avoid overstating the pattern.",
             "Use only the provided facts."

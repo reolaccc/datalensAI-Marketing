@@ -14,6 +14,7 @@ import {
   generateExecutiveInsights,
   mapExecutiveInsightToLegacy
 } from "../llm/insightService.js";
+import { applyChartRecommendations } from "./analytics/recommendations/ChartRecommendationBuilder.js";
 
 export async function analyzeUploadedDataset(buffer: Buffer, fileName: string): Promise<AnalysisResult> {
   const parsed = parseDataset(buffer, fileName);
@@ -46,6 +47,7 @@ export async function analyzeUploadedDataset(buffer: Buffer, fileName: string): 
   ]);
   const executiveSummary = mapExecutiveInsightToLegacy(executiveSummaryNarrative);
   const chartsWithNarratives = applyChartNarratives(charts, chartNarratives);
+  const chartsWithRecommendations = applyChartRecommendations(chartsWithNarratives);
 
   return {
     analysisId: session.analysisId,
@@ -58,7 +60,7 @@ export async function analyzeUploadedDataset(buffer: Buffer, fileName: string): 
     profile,
     kpis,
     kpiCards,
-    charts: chartsWithNarratives,
+    charts: chartsWithRecommendations,
     edaSummary,
     executiveSummary
   };

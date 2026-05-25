@@ -222,6 +222,16 @@ export function ChartCard({ chart, highlighted = false }: Props) {
 
       <div className="chart-explanation-block">
         <p>{chart.description || chart.reason}</p>
+        {chart.recommendations?.length ? (
+          <div className="chart-recommendation-block">
+            <span className="chart-recommendation-label">Next step</span>
+            <ul>
+              {chart.recommendations.slice(0, 2).map((recommendation) => (
+                <li key={recommendation}>{recommendation}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
       </div>
     </article>
   );

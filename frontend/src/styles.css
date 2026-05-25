@@ -535,6 +535,37 @@ small {
   color: #a8d8d4;
 }
 
+.chart-recommendation-block {
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(145, 242, 236, 0.12);
+}
+
+.chart-recommendation-label {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(11, 143, 142, 0.1);
+  color: #9cf4ef;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.chart-recommendation-block ul {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+  color: #d9fffb;
+  line-height: 1.55;
+}
+
 .chart-warning-block {
   display: grid;
   gap: 10px;

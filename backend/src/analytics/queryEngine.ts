@@ -524,10 +524,6 @@ function answerTrend(question: string, rows: DatasetRow[], query: PlannedQuery):
         label: metric,
         value: Number(last[metric] ?? 0)
       })),
-      resultTable: {
-        columns: ["date", ...query.metrics],
-        rows: data
-      },
       chartSuggestion: {
         chartType: "line",
         xKey: "date",
@@ -689,10 +685,6 @@ function answerDimensionTrend(question: string, rows: DatasetRow[], query: Plann
         label: entry.label,
         value: Number(entry.value.toFixed(2))
       })),
-      resultTable: {
-        columns: ["date", ...seriesKeys],
-        rows: data
-      },
       chartSuggestion: {
         chartType: "line",
         xKey: "date",
@@ -934,10 +926,6 @@ function answerComparisonTrend(question: string, rows: DatasetRow[], query: Plan
       label: entry.label,
       value: Number(entry.value.toFixed(2))
     })),
-    resultTable: {
-      columns: ["date", ...query.comparisonValues],
-      rows: data
-    },
     chartSuggestion: {
       chartType: "line",
       xKey: "date",

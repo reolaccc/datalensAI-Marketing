@@ -153,6 +153,7 @@ export interface ChartConfig {
   description: string;
   reason: string;
   whyThisChart: string;
+  recommendations?: string[];
   xAxis: string;
   yAxis?: string;
   metric?: string | null;
