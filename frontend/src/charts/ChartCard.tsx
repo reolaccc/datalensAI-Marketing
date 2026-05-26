@@ -82,6 +82,22 @@ function buildWhyThisChartText(chart: Props["chart"]) {
   return cleaned.endsWith(".") ? cleaned : `${cleaned}.`;
 }
 
+function buildChartInsightText(chart: Props["chart"]) {
+  const subtitle = getSemanticDisplayLabel(chart.subtitle ?? "");
+  if (subtitle) {
+    const cleanedSubtitle = subtitle.replace(/\s+/g, " ").trim();
+    return cleanedSubtitle.endsWith(".") ? cleanedSubtitle : `${cleanedSubtitle}.`;
+  }
+
+  const description = getSemanticDisplayLabel(chart.description ?? "");
+  if (description) {
+    const cleanedDescription = description.replace(/\s+/g, " ").trim();
+    return cleanedDescription.endsWith(".") ? cleanedDescription : `${cleanedDescription}.`;
+  }
+
+  return buildWhyThisChartText(chart) || getSemanticDisplayLabel(chart.reason ?? "");
+}
+
 function getPresentationData(chart: Props["chart"]) {
   const shouldCondense =
     (chart.chartType === "bar" || chart.chartType === "horizontal_bar" || chart.chartType === "donut") &&
@@ -138,7 +154,8 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
   const legendPayload = buildChartLegendPayload(presentationChart);
   const chartTitle = getSemanticDisplayLabel(chart.title) || humanizeLabel(chart.title);
   const chartRole = formatChartRole(chart.analysisRole ?? null);
-  const chartWhy = buildWhyThisChartText(chart) || getSemanticDisplayLabel(chart.description || chart.reason);
+  const chartInsight = buildChartInsightText(chart);
+  const chartHeight = compact ? 216 : 236;
 
   function renderChart() {
     if (chart.chartType === "line" || chart.chartType === "anomaly_trend") {
@@ -317,7 +334,7 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
         {chart.chartType === "kpi_card" ? (
           renderChart()
         ) : (
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={chartHeight}>
             {renderChart()}
           </ResponsiveContainer>
         )}
@@ -325,17 +342,7 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
 
       {!compact ? (
         <div className="chart-explanation-block">
-          {chartWhy ? <p>{chartWhy}</p> : null}
-          {chart.recommendations?.length ? (
-            <div className="chart-recommendation-block">
-              <span className="chart-recommendation-label">Next step</span>
-              <ul>
-                {chart.recommendations.slice(0, 2).map((recommendation) => (
-                  <li key={recommendation}>{recommendation}</li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
+          {chartInsight ? <p>{chartInsight}</p> : null}
         </div>
       ) : null}
     </article>

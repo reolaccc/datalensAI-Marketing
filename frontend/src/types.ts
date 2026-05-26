@@ -59,6 +59,12 @@ export interface SemanticDatasetContract {
     requiredRoles: string[];
     reason: string;
   }>;
+  safetyWarnings?: Array<{
+    rawColumn: string;
+    blockedRole: string;
+    reason: string;
+    suggestedRole?: string;
+  }>;
 }
 
 export type IntentType =

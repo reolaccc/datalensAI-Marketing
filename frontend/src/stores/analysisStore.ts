@@ -1,5 +1,9 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import {
+  filterRecommendedChartsAgainstDashboard,
+  shouldSuppressQuestionChartSuggestion
+} from "../dashboard/chartMatching";
 import { normalizeDateForQuestionContext } from "../utils/dateNormalization";
 import type {
   AnalysisResponse,
@@ -226,9 +230,19 @@ export const useAnalysisStore = create<AnalysisState>()(
             }
 
           const questionContext = buildQuestionContextSnapshot(sanitizedContext);
-          const enhancedQuestionAnswer: QuestionAnswer = {
+          const mergedQuestionAnswer: QuestionAnswer = {
             ...questionAnswer,
             questionContext
+          };
+          const enhancedQuestionAnswer: QuestionAnswer = {
+            ...mergedQuestionAnswer,
+            chartSuggestion: shouldSuppressQuestionChartSuggestion(analysis, mergedQuestionAnswer)
+              ? undefined
+              : mergedQuestionAnswer.chartSuggestion,
+            recommendedCharts: filterRecommendedChartsAgainstDashboard(
+              analysis,
+              mergedQuestionAnswer.recommendedCharts
+            )
           };
 
           set((state) => ({

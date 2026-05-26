@@ -56,6 +56,10 @@ export function resolveMetricValue(
   capabilities: DatasetCapabilities,
   profile: DatasetProfile
 ): number | null {
+  if (metric === "row_count" || metric === "calls") {
+    return 1;
+  }
+
   const directValue = resolveSemanticMetricValue(row, metric, profile.semanticContract ?? profile);
   if (directValue !== null) {
     return directValue;

@@ -84,8 +84,31 @@ function humanizeLabel(value?: string | null) {
 
   const stopWords = new Set(["and", "or", "of", "the", "by", "to", "for", "with", "in", "on", "at", "per"]);
   const acronyms = new Set(["roas", "roi", "ctr", "cvr", "cpc", "cpa", "aov", "gmv", "ltv", "kpi"]);
-  return value
-    .replace(/_/g, " ")
+  const replacements: Array<[RegExp, string]> = [
+    [/qualified\s*calls?/gi, "qualified calls"],
+    [/converted\s*calls?/gi, "converted calls"],
+    [/missed\s*calls?/gi, "missed calls"],
+    [/answered\s*calls?/gi, "answered calls"],
+    [/repeat\s*callers?/gi, "repeat callers"],
+    [/first[\s-]*time\s*callers?/gi, "first-time callers"],
+    [/call\s*duration/gi, "call duration"],
+    [/talk\s*time/gi, "talk time"],
+    [/handle\s*time/gi, "handle time"],
+    [/wait\s*time/gi, "wait time"],
+    [/ring\s*time/gi, "ring time"],
+    [/call\s*outcome/gi, "outcome"],
+    [/call\s*status/gi, "call status"],
+    [/call\s*reference/gi, "call reference"]
+  ];
+
+  const normalized = replacements.reduce(
+    (text, [pattern, replacement]) => text.replace(pattern, replacement),
+    value
+      .replace(/([a-z])([A-Z])/g, "$1 $2")
+      .replace(/_/g, " ")
+  );
+
+  return normalized
     .trim()
     .split(/\s+/)
     .map((part, index) => {
@@ -171,7 +194,7 @@ function buildModernChartTitle(blueprint: ChartBlueprint, context: ChartSelectio
   }
 
   if (blueprint.chartType === "funnel") {
-    return `${metricName} funnel`;
+    return `${metricName} Funnel`;
   }
 
   if (blueprint.chartType === "kpi_card") {
@@ -222,25 +245,24 @@ function buildTopBottomSubtitle(
   const topShare = total > 0 ? top.value / total : undefined;
   const top3Share = total > 0 ? ranked.slice(0, 3).reduce((sum, entry) => sum + entry.value, 0) / total : undefined;
 
-  const pieces: string[] = [];
-  if (top.label) {
-    const metricLabel = humanizeLabel(metric) || "the metric";
-    const metricLower = metricLabel.toLowerCase();
-    pieces.push(
-      `${top.label} leads ${metricLower} with ${formatMetricSummaryValue(metric, top.value)}${
-        topShare !== undefined ? `, accounting for ${Math.round(topShare * 1000) / 10}% of total ${metricLower}` : ""
-      }`
-    );
-  }
-  if (bottom.label && bottom.label !== top.label) {
-    pieces.push(`${bottom.label} trails at ${formatMetricSummaryValue(metric, bottom.value)}`);
-  }
-  if (top3Share !== undefined && top3Share >= 0.35) {
-    const dimensionLabel = pluralizeLabel(humanizeLabel(dimension ?? xKey) || "segment");
-    pieces.push(`The top 3 ${dimensionLabel} contribute ${Math.round(top3Share * 1000) / 10}% of total ${(humanizeLabel(metric) || "the metric").toLowerCase()}`);
+  const metricLabel = humanizeLabel(metric) || "the metric";
+  const metricLower = metricLabel.toLowerCase();
+  const dimensionLabel = pluralizeLabel(humanizeLabel(dimension ?? xKey) || "segment");
+  const concentrationVerb = /s$/i.test(metricLabel) ? "are" : "is";
+
+  if (top3Share !== undefined && top3Share >= 0.5) {
+    return `${metricLabel} ${concentrationVerb} concentrated in ${top.label}, and the top 3 ${dimensionLabel} drive ${Math.round(top3Share * 1000) / 10}% of total ${metricLower}.`;
   }
 
-  return pieces.join(". ") + ".";
+  if (topShare !== undefined && topShare >= 0.35) {
+    return `${top.label} contributes ${Math.round(topShare * 1000) / 10}% of total ${metricLower}, making it the clear leader.`;
+  }
+
+  if (bottom.label && bottom.label !== top.label) {
+    return `${top.label} leads ${metricLower}, while ${bottom.label} trails well behind.`;
+  }
+
+  return `${top.label} is the leading ${humanizeLabel(dimension ?? xKey) || "segment"} for ${metricLower}.`;
 }
 
 function buildTrendSubtitle(data: Record<string, string | number | boolean | null>[], yKey: string, xKey: string, metric?: string | null) {
@@ -255,13 +277,25 @@ function buildTrendSubtitle(data: Record<string, string | number | boolean | nul
   const firstValue = valueAsNumber(first[yKey]);
   const lastValue = valueAsNumber(last[yKey]);
   const peakValue = valueAsNumber(peak[yKey]);
-  const metricLabel = humanizeLabel(metric) || "The metric";
-  let sentence = `${metricLabel} moved from ${formatMetricSummaryValue(metric, firstValue)} at the start to ${formatMetricSummaryValue(metric, lastValue)} at the end`;
-  if (peak && peak !== first && peak !== last) {
-    sentence += `, with a peak at ${formatMetricSummaryValue(metric, peakValue)} on ${String(peak[xKey] ?? "")}`;
+  const metricLabel = humanizeLabel(metric) || "Performance";
+  const changeRatio = firstValue === 0 ? (lastValue > 0 ? 1 : 0) : (lastValue - firstValue) / Math.abs(firstValue);
+  const peakLabel = String(peak[xKey] ?? "").trim();
+
+  if (Math.abs(changeRatio) <= 0.08) {
+    return peak && peakLabel
+      ? `${metricLabel} stays broadly steady, with the clearest spike around ${peakLabel}.`
+      : `${metricLabel} stays broadly steady across the period.`;
   }
 
-  return `${sentence}.`;
+  if (changeRatio > 0) {
+    return peak && peak !== last && peakLabel
+      ? `${metricLabel} finishes above its starting level, with the strongest burst around ${peakLabel}.`
+      : `${metricLabel} builds over the period and ends above its starting level.`;
+  }
+
+  return peak && peakLabel
+    ? `${metricLabel} softens over time after an earlier high around ${peakLabel}.`
+    : `${metricLabel} softens over the period and does not recover to its earlier level.`;
 }
 
 function buildScatterSubtitle(data: Record<string, string | number | boolean | null>[], xKey: string, yKey: string) {
@@ -291,12 +325,12 @@ function buildScatterSubtitle(data: Record<string, string | number | boolean | n
   const correlation = numerator / Math.sqrt(denominatorX * denominatorY || 1);
   const strength = Math.abs(correlation) >= 0.55 ? "clear" : Math.abs(correlation) >= 0.25 ? "loose" : "weak";
   if (correlation >= 0.55) {
-    return `${strength} positive relationship · a few points sit above the main cluster`;
+    return `${humanizeLabel(yKey) || "Performance"} rises alongside ${humanizeLabel(xKey) || "the comparison metric"}, with a few outliers worth checking.`;
   }
   if (correlation <= -0.55) {
-    return `${strength} inverse relationship · watch for trade-offs between the two metrics`;
+    return `${humanizeLabel(xKey) || "The first metric"} and ${humanizeLabel(yKey) || "the second metric"} move in opposite directions, suggesting a trade-off.`;
   }
-  return `${strength} relationship · segment-level outliers matter more than the overall pattern`;
+  return `Outliers matter more than the overall relationship in this view.`;
 }
 
 function buildHistogramSubtitle(data: Record<string, string | number | boolean | null>[], yKey: string) {
@@ -313,9 +347,9 @@ function buildHistogramSubtitle(data: Record<string, string | number | boolean |
   const peakCount = valueAsNumber(peak.count ?? peak[yKey]);
   const share = total > 0 ? peakCount / total : 0;
   if (share >= 0.35) {
-    return `Most values cluster in ${String(peak.bucket ?? peak.label ?? "one band")} · the tail stretches to the high end`;
+    return `Most values cluster in ${String(peak.bucket ?? peak.label ?? "one band")}, with a thinner tail beyond it.`;
   }
-  return `Spread is fairly even, with no single bucket dominating the distribution`;
+  return `The distribution is fairly even, with no single range dominating.`;
 }
 
 function buildFunnelSubtitle(data: Record<string, string | number | boolean | null>[], yKey: string, xKey: string) {
@@ -337,16 +371,15 @@ function buildFunnelSubtitle(data: Record<string, string | number | boolean | nu
     { drop: 0, from: "", to: "" }
   );
 
-  const pieces = [
-    `${String(first[xKey] ?? first.stage ?? "top stage")} starts strongest`,
-    `${String(last[xKey] ?? last.stage ?? "final stage")} ends weakest`
-  ];
   if (biggestDrop.drop > 0 && biggestDrop.from && biggestDrop.to) {
-    pieces.push(`largest drop between ${biggestDrop.from} and ${biggestDrop.to}`);
-  } else if (second) {
-    pieces.push(`sharp drop after ${String(first[xKey] ?? first.stage ?? "the first stage")}`);
+    return `The sharpest drop happens between ${biggestDrop.from} and ${biggestDrop.to}.`;
   }
-  return pieces.join(" · ");
+
+  if (second) {
+    return `The biggest loss happens immediately after ${String(first[xKey] ?? first.stage ?? "the first stage")}.`;
+  }
+
+  return `${String(first[xKey] ?? first.stage ?? "The first stage")} carries the most volume, while the final stage trails furthest behind.`;
 }
 
 function buildChartSubtitle(blueprint: ChartBlueprint, data: Record<string, string | number | boolean | null>[], xKey: string, yKey: string) {
