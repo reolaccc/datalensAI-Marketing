@@ -179,6 +179,255 @@ function chartRolePriority(role?: string | null) {
   }
 }
 
+function isCallTrackingContract(contract?: SemanticDatasetContract | null) {
+  const domain = contract?.detectedDomain?.domain;
+  return (
+    domain === "call_tracking" ||
+    domain === "call_operations" ||
+    domain === "marketing_attribution" ||
+    domain === "mixed_call_tracking_attribution"
+  );
+}
+
+function hasSemanticRole(contract: SemanticDatasetContract | null | undefined, role: string) {
+  return Boolean(contract?.roleMappings?.some((mapping) => mapping.semanticRole === role && mapping.confidence >= 0.5));
+}
+
+function buildCallTrackingQuestions(contract: SemanticDatasetContract, limit: number, excludeQuestions?: string[]) {
+  const questions: SuggestedQuestionCandidate[] = [];
+  const domain = contract.detectedDomain?.domain;
+  const hasCalls = hasSemanticRole(contract, "callId");
+  const hasQualified = hasSemanticRole(contract, "qualifiedCall");
+  const hasConverted = hasSemanticRole(contract, "convertedCall");
+  const hasRevenue = hasSemanticRole(contract, "revenue");
+  const hasSpend = hasSemanticRole(contract, "spend");
+  const hasDuration =
+    hasSemanticRole(contract, "callDuration") ||
+    hasSemanticRole(contract, "talkTime") ||
+    hasSemanticRole(contract, "handleTime") ||
+    hasSemanticRole(contract, "waitTime") ||
+    hasSemanticRole(contract, "ringTime");
+  const hasMissed = hasSemanticRole(contract, "missedCall") || hasSemanticRole(contract, "callStatus");
+
+  const hasDimension = (dimension: string) => contract.availableDimensions.includes(dimension);
+
+  if (hasDimension("channel") && hasCalls) {
+    questions.push({
+      question: "Which channel drives the most calls?",
+      intent: "comparison",
+      dimension: "channel",
+      metric: "calls",
+      reason: "Channel and call volume are both available.",
+      score: 100
+    });
+  }
+
+  if (hasDimension("source") && hasCalls) {
+    questions.push({
+      question: "Which source drives the most calls?",
+      intent: "comparison",
+      dimension: "source",
+      metric: "calls",
+      reason: "Source and call volume are both available.",
+      score: 98
+    });
+  }
+
+  if (hasDimension("medium") && hasCalls) {
+    questions.push({
+      question: "Which medium drives the most calls?",
+      intent: "comparison",
+      dimension: "medium",
+      metric: "calls",
+      reason: "Medium and call volume are both available.",
+      score: 97
+    });
+  }
+
+  if (hasDimension("account") && hasCalls) {
+    questions.push({
+      question: "Which accounts generate the most calls?",
+      intent: "comparison",
+      dimension: "account",
+      metric: "calls",
+      reason: "Account and call volume are both available.",
+      score: 96
+    });
+  }
+
+  if (hasDimension("channel") && hasQualified) {
+    questions.push({
+      question: "Which channel drives the most qualified calls?",
+      intent: "comparison",
+      dimension: "channel",
+      metric: "qualified calls",
+      reason: "Channel and qualified call fields are both available.",
+      score: 99
+    });
+  }
+
+  if (hasDimension("campaign") && hasRevenue) {
+    questions.push({
+      question: "Which campaigns generate the most revenue?",
+      intent: "comparison",
+      dimension: "campaign",
+      metric: "revenue",
+      reason: "Campaign and revenue are both available.",
+      score: 98
+    });
+  }
+
+  if (hasDimension("campaign") && hasRevenue && hasSpend) {
+    questions.push({
+      question: "Which campaigns have the highest ROAS?",
+      intent: "efficiency",
+      dimension: "campaign",
+      metric: "ROAS",
+      reason: "Campaign, revenue, and spend are all available.",
+      score: 97
+    });
+  }
+
+  if (hasRevenue && hasSpend) {
+    questions.push({
+      question: "Where are we spending but not generating enough revenue?",
+      intent: "efficiency",
+      dimension: hasDimension("campaign") ? "campaign" : hasDimension("channel") ? "channel" : undefined,
+      metric: "ROAS",
+      reason: "Revenue and spend are both available.",
+      score: 96
+    });
+  }
+
+  if (hasDimension("source") && hasSpend && hasQualified) {
+    questions.push({
+      question: "Which source has the lowest cost per qualified call?",
+      intent: "efficiency",
+      dimension: "source",
+      metric: "cost per qualified call",
+      reason: "Source, spend, and qualified call data are all available.",
+      score: 95
+    });
+  }
+
+  if (hasDimension("channel") && hasMissed) {
+    questions.push({
+      question: "Which channels have the highest missed call rate?",
+      intent: "comparison",
+      dimension: "channel",
+      metric: "missed call rate",
+      reason: "Channel and missed-call style outcomes are available.",
+      score: 94
+    });
+  }
+
+  if (hasDimension("campaign") && hasDuration) {
+    questions.push({
+      question: "Which campaigns generate the longest calls?",
+      intent: "comparison",
+      dimension: "campaign",
+      metric: "call duration",
+      reason: "Campaign and call duration are both available.",
+      score: 93
+    });
+  }
+
+  if (hasDimension("source") && hasDuration) {
+    questions.push({
+      question: "Which sources have the longest calls?",
+      intent: "comparison",
+      dimension: "source",
+      metric: "call duration",
+      reason: "Source and call duration are both available.",
+      score: 91
+    });
+  }
+
+  if (hasDimension("account") && hasDuration) {
+    questions.push({
+      question: "Which accounts have the longest calls?",
+      intent: "comparison",
+      dimension: "account",
+      metric: "call duration",
+      reason: "Account and call duration are both available.",
+      score: 90
+    });
+  }
+
+  if (hasDimension("callStatus") || hasDimension("status")) {
+    questions.push({
+      question: "Which status appears most often?",
+      intent: "distribution",
+      dimension: hasDimension("callStatus") ? "callStatus" : "status",
+      metric: "calls",
+      reason: "Status data is available for a simple frequency view.",
+      score: 89
+    });
+  }
+
+  if (hasDimension("source") && hasMissed) {
+    questions.push({
+      question: "Which sources have the most missed or failed calls?",
+      intent: "comparison",
+      dimension: "source",
+      metric: "missed call rate",
+      reason: "Source and missed-call outcomes are both available.",
+      score: 88
+    });
+  }
+
+  if (hasDimension("keyword") && hasConverted) {
+    questions.push({
+      question: "Which keywords drive the most conversions?",
+      intent: "comparison",
+      dimension: "keyword",
+      metric: "conversions",
+      reason: "Keyword and conversion fields are both available.",
+      score: 92
+    });
+  }
+
+  if (domain === "call_operations") {
+    if (hasDimension("location") && hasDuration) {
+      questions.push({
+        question: "Which locations have the longest calls?",
+        intent: "comparison",
+        dimension: "location",
+        metric: "call duration",
+        reason: "Location and call duration are both available.",
+        score: 91
+      });
+    }
+
+    if (hasDimension("location") && hasSemanticRole(contract, "repeatCaller")) {
+      questions.push({
+        question: "Which locations have the highest repeat caller rate?",
+        intent: "comparison",
+        dimension: "location",
+        metric: "repeat caller rate",
+        reason: "Location and repeat-caller data are both available.",
+        score: 90
+      });
+    }
+
+    if (hasDimension("location") && hasSemanticRole(contract, "callOutcome")) {
+      questions.push({
+        question: "Which locations have the most missed or failed calls?",
+        intent: "comparison",
+        dimension: "location",
+        metric: "call outcome",
+        reason: "Location and call outcome data are both available.",
+        score: 89
+      });
+    }
+  }
+
+  return dedupeCandidates(questions)
+    .filter((candidate) => !excludeQuestions?.some((question) => normalize(question) === normalize(candidate.question)))
+    .slice(0, limit)
+    .map((candidate) => candidate.question);
+}
+
 export function buildSuggestedQuestionsFromCharts(params: {
   charts: Pick<ChartConfig, "analysisRole" | "chartType" | "dimension" | "metric" | "title" | "semanticSignature">[];
   capabilities: DatasetCapabilities;
@@ -189,6 +438,9 @@ export function buildSuggestedQuestionsFromCharts(params: {
 }) {
   const candidates: SuggestedQuestionCandidate[] = [];
   const contract = params.semanticContract ?? params.capabilities.semanticContract ?? null;
+  if (contract && isCallTrackingContract(contract)) {
+    return buildCallTrackingQuestions(contract, params.limit ?? 4, params.excludeQuestions);
+  }
   const hasRevenue = params.capabilities.numericMetrics.includes("revenue") || params.capabilities.derivedMetrics.includes("revenue");
   const hasSpend = params.capabilities.numericMetrics.includes("spend") || params.capabilities.numericMetrics.includes("cost");
   const hasClicks = params.capabilities.numericMetrics.includes("clicks");
@@ -345,6 +597,9 @@ export function buildSuggestedQuestionsFromCharts(params: {
 export function buildSuggestedQuestionsFromFacts(facts: AnalyticsFacts, limit = 5) {
   const candidates: SuggestedQuestionCandidate[] = [];
   const contract = facts.semanticContract ?? null;
+  if (contract && isCallTrackingContract(contract)) {
+    return buildCallTrackingQuestions(contract, limit);
+  }
   const availableDimensions = contract?.availableDimensions ?? [];
   const sortedCharts = [...facts.charts].sort((left, right) => {
     const leftScore = chartRolePriority(left.analysisRole);

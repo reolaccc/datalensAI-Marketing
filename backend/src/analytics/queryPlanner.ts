@@ -32,6 +32,118 @@ function getSemanticAvailability(profile: DatasetProfile) {
   };
 }
 
+function hasSemanticRole(profile: DatasetProfile, role: string) {
+  return Boolean(
+    getSemanticContract(profile).roleMappings?.some(
+      (mapping) => mapping.semanticRole === role && mapping.confidence >= 0.5
+    )
+  );
+}
+
+function isCallRelatedDomain(profile: DatasetProfile) {
+  const domain = getSemanticContract(profile).detectedDomain?.domain;
+  return domain === "call_tracking" || domain === "call_operations" || domain === "mixed_call_tracking_attribution";
+}
+
+function buildUnavailableMetricReasons(question: string, profile: DatasetProfile) {
+  const normalizedQuestion = normalize(question);
+  const reasons: string[] = [];
+
+  if (normalizedQuestion.includes("roas") && (!hasSemanticRole(profile, "revenue") || !hasSemanticRole(profile, "spend"))) {
+    reasons.push("ROAS cannot be calculated because revenue and spend are both required.");
+  }
+
+  if ((normalizedQuestion.includes("qualified") || normalizedQuestion.includes("qualified call")) && !hasSemanticRole(profile, "qualifiedCall")) {
+    reasons.push("Qualified call metrics are not available because no qualified-call field was detected.");
+  }
+
+  if ((normalizedQuestion.includes("conversion") || normalizedQuestion.includes("converted") || normalizedQuestion.includes("booked")) && !hasSemanticRole(profile, "convertedCall")) {
+    reasons.push("Conversion metrics are not available because no converted-call field was detected.");
+  }
+
+  if (normalizedQuestion.includes("revenue") && !hasSemanticRole(profile, "revenue")) {
+    reasons.push("Revenue cannot be calculated because no revenue field was detected.");
+  }
+
+  if ((normalizedQuestion.includes("missed call") || normalizedQuestion.includes("missed call rate")) && !hasSemanticRole(profile, "missedCall")) {
+    reasons.push("Missed call rate cannot be calculated because no missed-call field was detected.");
+  }
+
+  if ((normalizedQuestion.includes("answered call") || normalizedQuestion.includes("answered call rate")) && !hasSemanticRole(profile, "answeredCall")) {
+    reasons.push("Answered call rate cannot be calculated because no answered-call field was detected.");
+  }
+
+  if (
+    (normalizedQuestion.includes("call duration") ||
+      normalizedQuestion.includes("talk time") ||
+      normalizedQuestion.includes("longest calls") ||
+      normalizedQuestion.includes("shortest calls")) &&
+    !hasSemanticRole(profile, "callDuration") &&
+    !hasSemanticRole(profile, "talkTime") &&
+    !hasSemanticRole(profile, "handleTime") &&
+    !hasSemanticRole(profile, "waitTime") &&
+    !hasSemanticRole(profile, "ringTime")
+  ) {
+    reasons.push("Call duration analysis is not available because no duration field was detected.");
+  }
+
+  if (
+    (normalizedQuestion.includes("location") ||
+      normalizedQuestion.includes("locations") ||
+      normalizedQuestion.includes("branch") ||
+      normalizedQuestion.includes("branches") ||
+      normalizedQuestion.includes("office") ||
+      normalizedQuestion.includes("offices") ||
+      normalizedQuestion.includes("city") ||
+      normalizedQuestion.includes("cities")) &&
+    !hasSemanticRole(profile, "location")
+  ) {
+    reasons.push("Location analysis cannot be calculated because no location field was detected.");
+  }
+
+  if (
+    (normalizedQuestion.includes("call volume") ||
+      /\b(most|fewest|highest|lowest)\s+calls?\b/.test(normalizedQuestion)) &&
+    !hasSemanticRole(profile, "callId") &&
+    !isCallRelatedDomain(profile)
+  ) {
+    reasons.push("Call volume cannot be calculated because no call identifier field was detected.");
+  }
+
+  if ((normalizedQuestion.includes("cost per qualified call") || normalizedQuestion.includes("cpqc")) &&
+    (!hasSemanticRole(profile, "spend") || !hasSemanticRole(profile, "qualifiedCall"))) {
+    reasons.push("Cost per qualified call requires both spend and qualified-call fields.");
+  }
+
+  if ((normalizedQuestion.includes("cost per conversion") || normalizedQuestion.includes("cpa")) &&
+    (!hasSemanticRole(profile, "spend") || !hasSemanticRole(profile, "convertedCall"))) {
+    reasons.push("Cost per conversion requires both spend and converted-call fields.");
+  }
+
+  if (
+    (normalizedQuestion.includes("spending") || normalizedQuestion.includes("spend") || normalizedQuestion.includes("budget")) &&
+    !hasSemanticRole(profile, "spend")
+  ) {
+    reasons.push("Spending analysis cannot be calculated because no spend field was detected.");
+  }
+
+  if (
+    (normalizedQuestion.includes("converting") || normalizedQuestion.includes("convert") || normalizedQuestion.includes("conversion")) &&
+    !hasSemanticRole(profile, "convertedCall")
+  ) {
+    reasons.push("Conversion analysis cannot be calculated because no converted-call field was detected.");
+  }
+
+  if (
+    normalizedQuestion.includes("low call volume") &&
+    !hasSemanticRole(profile, "callId")
+  ) {
+    reasons.push("Call volume cannot be calculated because no call identifier field was detected.");
+  }
+
+  return [...new Set(reasons)];
+}
+
 function replaceToken(question: string, pattern: RegExp, replacement?: string | number) {
   if (replacement === undefined || replacement === null || replacement === "") {
     return question;
@@ -195,6 +307,55 @@ function resolveMetrics(
   const normalizedQuestion = normalize(question);
   const contract = getSemanticContract(profile);
   const matches: string[] = [];
+
+  if (
+    (normalizedQuestion.includes("longest calls") ||
+      normalizedQuestion.includes("shortest calls") ||
+      normalizedQuestion.includes("call duration") ||
+      normalizedQuestion.includes("talk time")) &&
+    (contract.availableMetrics.includes("callDuration") ||
+      contract.availableMetrics.includes("talkTime") ||
+      contract.availableMetrics.includes("handleTime") ||
+      contract.availableMetrics.includes("waitTime") ||
+      contract.availableMetrics.includes("ringTime"))
+  ) {
+    if (contract.availableMetrics.includes("callDuration")) {
+      return ["callDuration"];
+    }
+    if (contract.availableMetrics.includes("talkTime")) {
+      return ["talkTime"];
+    }
+    if (contract.availableMetrics.includes("handleTime")) {
+      return ["handleTime"];
+    }
+    if (contract.availableMetrics.includes("waitTime")) {
+      return ["waitTime"];
+    }
+    return ["ringTime"];
+  }
+
+  if (
+    (normalizedQuestion.includes("repeat caller rate") ||
+      normalizedQuestion.includes("highest repeat caller") ||
+      normalizedQuestion.includes("repeat callers")) &&
+    contract.availableMetrics.includes("repeat_caller_rate")
+  ) {
+    return ["repeat_caller_rate"];
+  }
+
+  if (
+    (normalizedQuestion.includes("cost per qualified call") || normalizedQuestion.includes("cpqc")) &&
+    contract.availableMetrics.includes("cost_per_qualified_call")
+  ) {
+    return ["cost_per_qualified_call"];
+  }
+
+  if (
+    (normalizedQuestion.includes("cost per conversion") || normalizedQuestion.includes("cpa")) &&
+    contract.availableMetrics.includes("cost_per_conversion")
+  ) {
+    return ["cost_per_conversion"];
+  }
 
   for (const [metric, aliases] of Object.entries(KPI_ALIASES)) {
     const normalizedMetric = metric.replace(/_/g, " ");
@@ -674,6 +835,7 @@ export function planQuery(
     intent === "dimension_trend" && dimensionTrendValues.length > 0
       ? dimensionTrendValues
       : comparisonValues;
+  const unavailableMetricReasons = buildUnavailableMetricReasons(resolvedQuestion, profile);
 
   return {
     intent,
@@ -689,6 +851,7 @@ export function planQuery(
       ? extractFiltersForDimension(resolvedQuestion, profile, dimension, resolvedComparisonValues)
         : standardFilters,
     comparisonValues: resolvedComparisonValues,
-    semanticProfile: semanticProfile.businessIntent === "neutral" ? undefined : semanticProfile
+    semanticProfile: semanticProfile.businessIntent === "neutral" ? undefined : semanticProfile,
+    unavailableMetricReasons: unavailableMetricReasons.length > 0 ? unavailableMetricReasons : undefined
   };
 }

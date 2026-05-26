@@ -7,6 +7,11 @@ import type {
   KpiReliability
 } from "./types.js";
 import { parseNumber } from "../utils/inference.js";
+import {
+  aggregateSemanticMetric,
+  resolveSemanticDimensionSourceColumn,
+  resolveSemanticMetricValue
+} from "./semanticContract.js";
 
 type DatasetType = "marketing" | "sales" | "ecommerce" | "generic";
 type MetricKey =
@@ -246,6 +251,525 @@ function ratioFromRows(rows: DatasetRow[], numeratorColumn: string, denominatorC
   }
 
   return numeratorTotal / denominatorTotal;
+}
+
+function hasCallTrackingSemanticContract(profile: DatasetProfile) {
+  const domain = profile.semanticContract?.detectedDomain?.domain;
+  return (
+    domain === "call_tracking" ||
+    domain === "call_operations" ||
+    domain === "marketing_attribution" ||
+    domain === "mixed_call_tracking_attribution"
+  );
+}
+
+function buildSemanticRoleSet(profile: DatasetProfile) {
+  return new Set(
+    profile.semanticContract?.roleMappings
+      ?.filter((mapping) => mapping.semanticRole && mapping.confidence >= 0.5)
+      .map((mapping) => mapping.semanticRole as string) ?? []
+  );
+}
+
+function findSemanticSourceColumn(profile: DatasetProfile, role: string) {
+  return (
+    profile.semanticContract?.roleMappings?.find(
+      (mapping) => mapping.semanticRole === role && mapping.confidence >= 0.5
+    )?.rawColumn ?? null
+  );
+}
+
+function formatDurationSeconds(value: number) {
+  if (!Number.isFinite(value)) {
+    return "0s";
+  }
+
+  if (value < 60) {
+    return `${Math.round(value)}s`;
+  }
+
+  const minutes = Math.floor(value / 60);
+  const seconds = Math.round(value % 60);
+  return seconds > 0 ? `${minutes}m ${seconds}s` : `${minutes}m`;
+}
+
+function buildSemanticMetricObservation(
+  params: {
+    key: string;
+    label: string;
+    value: number;
+    metricType: KpiMetricType;
+    unit: string;
+    formula: string;
+    description: string;
+    sourceColumns: string[];
+    priority: number;
+    profile: DatasetProfile;
+    rows: DatasetRow[];
+  }
+): MetricObservation {
+  const preferredDimensionHints = ["channel", "source", "campaign"];
+  const relatedDimension = preferredDimensionHints
+    .map((hint) => resolveSemanticDimensionSourceColumn(params.profile.semanticContract ?? params.profile, hint))
+    .find((dimension): dimension is string => Boolean(dimension));
+
+  const segmentSummary = relatedDimension
+    ? buildSegmentSummary(
+        params.rows,
+        relatedDimension,
+        (row) => {
+          if (params.key === "unique_callers") {
+            return null;
+          }
+          if (params.key === "avg_call_duration") {
+            return resolveSemanticMetricValue(row, params.sourceColumns[0] ?? "callDuration", params.profile.semanticContract ?? params.profile);
+          }
+          if (params.key === "qualified_call_rate") {
+            return resolveSemanticMetricValue(row, "qualifiedCall", params.profile.semanticContract ?? params.profile);
+          }
+          if (params.key === "conversion_rate") {
+            return resolveSemanticMetricValue(row, "convertedCall", params.profile.semanticContract ?? params.profile);
+          }
+          if (params.key === "missed_call_rate") {
+            return resolveSemanticMetricValue(row, "missedCall", params.profile.semanticContract ?? params.profile);
+          }
+          if (params.key === "answered_call_rate") {
+            return resolveSemanticMetricValue(row, "answeredCall", params.profile.semanticContract ?? params.profile);
+          }
+          if (params.key === "cost_per_qualified_call" || params.key === "cost_per_conversion" || params.key === "cost_per_call" || params.key === "revenue_per_call" || params.key === "roas") {
+            return null;
+          }
+          return params.sourceColumns.length > 0
+            ? resolveSemanticMetricValue(row, params.sourceColumns[0], params.profile.semanticContract ?? params.profile)
+            : null;
+        },
+        params.key === "qualified_call_rate"
+          ? {
+              ratio: true,
+              denominatorGetter: (row) => resolveSemanticMetricValue(row, "calls", params.profile.semanticContract ?? params.profile),
+              scaleToPercent: true
+            }
+          : params.key === "conversion_rate"
+            ? {
+                ratio: true,
+                denominatorGetter: (row) => resolveSemanticMetricValue(row, "calls", params.profile.semanticContract ?? params.profile),
+                scaleToPercent: true
+              }
+            : params.key === "missed_call_rate"
+              ? {
+                  ratio: true,
+                  denominatorGetter: (row) => resolveSemanticMetricValue(row, "calls", params.profile.semanticContract ?? params.profile),
+                  scaleToPercent: true
+                }
+              : params.key === "answered_call_rate"
+                ? {
+                    ratio: true,
+                    denominatorGetter: (row) => resolveSemanticMetricValue(row, "calls", params.profile.semanticContract ?? params.profile),
+                    scaleToPercent: true
+                  }
+                : undefined
+      )
+    : null;
+
+  const formattedValue =
+    params.metricType === "currency"
+      ? formatCurrencyLike(params.value, getConfiguredCurrencyCode())
+      : params.metricType === "percentage" || params.metricType === "rate"
+        ? formatPercentPoint(params.value)
+        : params.metricType === "ratio"
+          ? formatRatio(params.value)
+          : params.metricType === "duration"
+            ? formatDurationSeconds(params.value)
+            : formatCount(params.value);
+
+  return {
+    key: params.key as MetricKey,
+    label: params.label,
+    value: params.value,
+    formattedValue,
+    unit: params.unit,
+    metricType: params.metricType,
+    description: params.description,
+    formula: params.formula,
+    reliability: "high",
+    priority: params.priority,
+    warnings: [],
+    sourceColumns: params.sourceColumns,
+    relatedDimension: relatedDimension ?? undefined,
+    segmentSummary: segmentSummary ?? undefined,
+    contextLine: relatedDimension && segmentSummary?.top?.name
+      ? `Top ${humanize(relatedDimension)}: ${segmentSummary.top.name}`
+      : undefined
+  };
+}
+
+function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): KpiCard[] {
+  if (!hasCallTrackingSemanticContract(profile) || !profile.semanticContract) {
+    return [];
+  }
+
+  const roleSet = buildSemanticRoleSet(profile);
+  const enabledSemanticKpiKeys = new Set(profile.semanticContract.enabledKpis?.map((item) => item.key) ?? []);
+  const cards: MetricObservation[] = [];
+  const calls = aggregateSemanticMetric(rows, "calls", profile.semanticContract);
+  const qualifiedCalls = aggregateSemanticMetric(rows, "qualifiedCall", profile.semanticContract);
+  const convertedCalls = aggregateSemanticMetric(rows, "convertedCall", profile.semanticContract);
+  const revenue = aggregateSemanticMetric(rows, "revenue", profile.semanticContract);
+  const spend = aggregateSemanticMetric(rows, "spend", profile.semanticContract);
+  const durationMetric =
+    profile.semanticContract?.availableMetrics.find((metric) =>
+      ["callDuration", "talkTime", "handleTime", "waitTime", "ringTime"].includes(metric)
+    ) ?? null;
+  const callDuration = durationMetric ? aggregateSemanticMetric(rows, durationMetric, profile.semanticContract) : null;
+  const missedCalls = aggregateSemanticMetric(rows, "missedCall", profile.semanticContract);
+  const answeredCalls = aggregateSemanticMetric(rows, "answeredCall", profile.semanticContract);
+  const repeatCallers = aggregateSemanticMetric(rows, "repeatCaller", profile.semanticContract);
+  const callVolumeFallback = calls ?? (hasCallTrackingSemanticContract(profile) ? rows.length : null);
+  const callerNumberColumn = findSemanticSourceColumn(profile, "callerNumber");
+
+  if (enabledSemanticKpiKeys.has("total_calls") && roleSet.has("callId") && calls !== null) {
+    cards.push(
+      buildSemanticMetricObservation({
+        key: "total_calls",
+        label: "Total Calls",
+        value: calls,
+        metricType: "count",
+        unit: "calls",
+        formula: "count(callId)",
+        description: "Total tracked calls detected from the call identifier field.",
+        sourceColumns: [findSemanticSourceColumn(profile, "callId") ?? "callId"],
+        priority: 100,
+        profile,
+        rows
+      })
+    );
+  }
+
+  if (enabledSemanticKpiKeys.has("unique_callers") && callerNumberColumn) {
+    const uniqueCallers = new Set(
+      rows
+        .map((row) => row[callerNumberColumn])
+        .filter((value) => value !== null && value !== undefined && String(value).trim() !== "")
+        .map((value) => String(value))
+    ).size;
+    if (uniqueCallers > 0) {
+      cards.push(
+        buildSemanticMetricObservation({
+          key: "unique_callers",
+          label: "Unique Callers",
+          value: uniqueCallers,
+          metricType: "count",
+          unit: "callers",
+          formula: `count_distinct(${callerNumberColumn})`,
+          description: "Unique caller phone numbers detected in the dataset.",
+          sourceColumns: [callerNumberColumn],
+          priority: 96,
+          profile,
+          rows
+        })
+      );
+    }
+  }
+
+  if (enabledSemanticKpiKeys.has("qualified_calls") && qualifiedCalls !== null) {
+    cards.push(
+      buildSemanticMetricObservation({
+        key: "qualified_calls",
+        label: "Qualified Calls",
+        value: qualifiedCalls,
+        metricType: "count",
+        unit: "qualified calls",
+        formula: "sum(qualifiedCall)",
+        description: "Calls marked as qualified by the inferred call outcome field.",
+        sourceColumns: [findSemanticSourceColumn(profile, "qualifiedCall") ?? "qualifiedCall"],
+        priority: 94,
+        profile,
+        rows
+      })
+    );
+  }
+
+  if (enabledSemanticKpiKeys.has("converted_calls") && convertedCalls !== null) {
+    cards.push(
+      buildSemanticMetricObservation({
+        key: "converted_calls",
+        label: "Converted Calls",
+        value: convertedCalls,
+        metricType: "count",
+        unit: "converted calls",
+        formula: "sum(convertedCall)",
+        description: "Calls marked as converted by the inferred conversion field.",
+        sourceColumns: [findSemanticSourceColumn(profile, "convertedCall") ?? "convertedCall"],
+        priority: 92,
+        profile,
+        rows
+      })
+    );
+  }
+
+  if (enabledSemanticKpiKeys.has("qualified_call_rate") && calls && qualifiedCalls !== null && calls > 0) {
+    cards.push(
+      buildSemanticMetricObservation({
+        key: "qualified_call_rate",
+        label: "Qualified Call Rate",
+        value: (qualifiedCalls / calls) * 100,
+        metricType: "percentage",
+        unit: "%",
+        formula: "qualifiedCalls / totalCalls",
+        description: "Share of calls that were marked as qualified.",
+        sourceColumns: [findSemanticSourceColumn(profile, "qualifiedCall") ?? "qualifiedCall"],
+        priority: 90,
+        profile,
+        rows
+      })
+    );
+  }
+
+  if (enabledSemanticKpiKeys.has("conversion_rate") && calls && convertedCalls !== null && calls > 0) {
+    cards.push(
+      buildSemanticMetricObservation({
+        key: "conversion_rate",
+        label: "Conversion Rate",
+        value: (convertedCalls / calls) * 100,
+        metricType: "percentage",
+        unit: "%",
+        formula: "convertedCalls / totalCalls",
+        description: "Share of calls that became conversions.",
+        sourceColumns: [findSemanticSourceColumn(profile, "convertedCall") ?? "convertedCall"],
+        priority: 89,
+        profile,
+        rows
+      })
+    );
+  }
+
+  if (enabledSemanticKpiKeys.has("total_revenue") && revenue !== null) {
+    cards.push(
+      buildSemanticMetricObservation({
+        key: "total_revenue",
+        label: "Total Revenue",
+        value: revenue,
+        metricType: "currency",
+        unit: "",
+        formula: "sum(revenue)",
+        description: "Total revenue detected from the inferred commercial value field.",
+        sourceColumns: [findSemanticSourceColumn(profile, "revenue") ?? "revenue"],
+        priority: 98,
+        profile,
+        rows
+      })
+    );
+  }
+
+  if (enabledSemanticKpiKeys.has("total_spend") && spend !== null) {
+    cards.push(
+      buildSemanticMetricObservation({
+        key: "total_spend",
+        label: "Total Spend",
+        value: spend,
+        metricType: "currency",
+        unit: "",
+        formula: "sum(spend)",
+        description: "Total spend detected from the inferred marketing cost field.",
+        sourceColumns: [findSemanticSourceColumn(profile, "spend") ?? "spend"],
+        priority: 95,
+        profile,
+        rows
+      })
+    );
+  }
+
+  if (enabledSemanticKpiKeys.has("roas") && revenue !== null && spend !== null && spend > 0) {
+    cards.push(
+      buildSemanticMetricObservation({
+        key: "roas",
+        label: "ROAS",
+        value: revenue / spend,
+        metricType: "ratio",
+        unit: "x",
+        formula: "revenue / spend",
+        description: "Return on ad spend from the inferred revenue and spend fields.",
+        sourceColumns: [findSemanticSourceColumn(profile, "revenue") ?? "revenue", findSemanticSourceColumn(profile, "spend") ?? "spend"],
+        priority: 97,
+        profile,
+        rows
+      })
+    );
+  }
+
+  if (enabledSemanticKpiKeys.has("revenue_per_call") && calls && revenue !== null && calls > 0) {
+    cards.push(
+      buildSemanticMetricObservation({
+        key: "revenue_per_call",
+        label: "Revenue per Call",
+        value: revenue / calls,
+        metricType: "currency",
+        unit: "",
+        formula: "revenue / totalCalls",
+        description: "Average revenue generated per tracked call.",
+        sourceColumns: [findSemanticSourceColumn(profile, "revenue") ?? "revenue"],
+        priority: 87,
+        profile,
+        rows
+      })
+    );
+  }
+
+  if (enabledSemanticKpiKeys.has("cost_per_call") && calls && spend !== null && calls > 0) {
+    cards.push(
+      buildSemanticMetricObservation({
+        key: "cost_per_call",
+        label: "Cost per Call",
+        value: spend / calls,
+        metricType: "currency",
+        unit: "",
+        formula: "spend / totalCalls",
+        description: "Average spend required to generate a tracked call.",
+        sourceColumns: [findSemanticSourceColumn(profile, "spend") ?? "spend"],
+        priority: 86,
+        profile,
+        rows
+      })
+    );
+  }
+
+  if (enabledSemanticKpiKeys.has("cost_per_qualified_call") && qualifiedCalls !== null && spend !== null && qualifiedCalls > 0) {
+    cards.push(
+      buildSemanticMetricObservation({
+        key: "cost_per_qualified_call",
+        label: "Cost per Qualified Call",
+        value: spend / qualifiedCalls,
+        metricType: "currency",
+        unit: "",
+        formula: "spend / qualifiedCalls",
+        description: "Average spend required to generate a qualified call.",
+        sourceColumns: [findSemanticSourceColumn(profile, "spend") ?? "spend", findSemanticSourceColumn(profile, "qualifiedCall") ?? "qualifiedCall"],
+        priority: 85,
+        profile,
+        rows
+      })
+    );
+  }
+
+  if (enabledSemanticKpiKeys.has("cost_per_conversion") && convertedCalls !== null && spend !== null && convertedCalls > 0) {
+    cards.push(
+      buildSemanticMetricObservation({
+        key: "cost_per_conversion",
+        label: "Cost per Conversion",
+        value: spend / convertedCalls,
+        metricType: "currency",
+        unit: "",
+        formula: "spend / convertedCalls",
+        description: "Average spend required to generate a converted call.",
+        sourceColumns: [findSemanticSourceColumn(profile, "spend") ?? "spend", findSemanticSourceColumn(profile, "convertedCall") ?? "convertedCall"],
+        priority: 84,
+        profile,
+        rows
+      })
+    );
+  }
+
+  if (enabledSemanticKpiKeys.has("avg_call_duration") && callDuration !== null && durationMetric) {
+    cards.push(
+      buildSemanticMetricObservation({
+        key: "avg_call_duration",
+        label: "Avg Call Duration",
+        value: callDuration,
+        metricType: "duration",
+        unit: "seconds",
+        formula: `avg(${durationMetric})`,
+        description: "Average call duration based on the inferred duration field.",
+        sourceColumns: [findSemanticSourceColumn(profile, durationMetric) ?? durationMetric],
+        priority: 88,
+        profile,
+        rows
+      })
+    );
+  }
+
+  if (enabledSemanticKpiKeys.has("repeat_caller_rate") && repeatCallers !== null && callVolumeFallback !== null && callVolumeFallback > 0) {
+    cards.push(
+      buildSemanticMetricObservation({
+        key: "repeat_caller_rate",
+        label: "Repeat Caller Rate",
+        value: (repeatCallers / callVolumeFallback) * 100,
+        metricType: "percentage",
+        unit: "%",
+        formula: "repeatCallers / callVolume",
+        description: "Share of calls made by repeat callers.",
+        sourceColumns: [findSemanticSourceColumn(profile, "repeatCaller") ?? "repeatCaller"],
+        priority: 84,
+        profile,
+        rows
+      })
+    );
+  }
+
+  if (enabledSemanticKpiKeys.has("missed_call_rate") && calls && missedCalls !== null && calls > 0) {
+    cards.push(
+      buildSemanticMetricObservation({
+        key: "missed_call_rate",
+        label: "Missed Call Rate",
+        value: (missedCalls / calls) * 100,
+        metricType: "percentage",
+        unit: "%",
+        formula: "missedCalls / totalCalls",
+        description: "Share of calls that were marked as missed.",
+        sourceColumns: [findSemanticSourceColumn(profile, "missedCall") ?? "missedCall"],
+        priority: 83,
+        profile,
+        rows
+      })
+    );
+  }
+
+  if (enabledSemanticKpiKeys.has("answered_call_rate") && calls && answeredCalls !== null && calls > 0) {
+    cards.push(
+      buildSemanticMetricObservation({
+        key: "answered_call_rate",
+        label: "Answered Call Rate",
+        value: (answeredCalls / calls) * 100,
+        metricType: "percentage",
+        unit: "%",
+        formula: "answeredCalls / totalCalls",
+        description: "Share of calls that were marked as answered.",
+        sourceColumns: [findSemanticSourceColumn(profile, "answeredCall") ?? "answeredCall"],
+        priority: 82,
+        profile,
+        rows
+      })
+    );
+  }
+
+  return cards
+    .sort((left, right) => right.priority - left.priority)
+    .slice(0, 6)
+    .map((observation) => ({
+      id: observation.key,
+      label: observation.label,
+      value: observation.value,
+      formattedValue: observation.formattedValue,
+      unit: observation.unit,
+      metricType: observation.metricType,
+      description: observation.description,
+      formula: observation.formula,
+      reliability: observation.reliability,
+      priority: observation.priority,
+      warnings: observation.warnings.length > 0 ? observation.warnings : undefined,
+      relatedDimension: observation.relatedDimension,
+      contextLine: observation.contextLine
+    }));
+}
+
+function buildSemanticKpiCandidates(rows: DatasetRow[], profile: DatasetProfile): KpiCandidate[] {
+  return buildSemanticKpiCards(rows, profile).map((card) => ({
+    id: card.id,
+    label: card.label,
+    column: card.formula,
+    confidence: 0.96,
+    summary: card.description,
+    aggregateValue: card.value
+  }));
 }
 
 function aggregateNumericByDimension(
@@ -1235,6 +1759,11 @@ export function buildKpiObservations(rows: DatasetRow[], profile: DatasetProfile
 }
 
 export function buildKpiCandidates(rows: DatasetRow[], profile: DatasetProfile): KpiCandidate[] {
+  const semanticCandidates = buildSemanticKpiCandidates(rows, profile);
+  if (semanticCandidates.length > 0) {
+    return semanticCandidates;
+  }
+
   const intelligence = buildKpiObservations(rows, profile);
   const preferredOrder = getCandidateOrder(intelligence.datasetType);
   const candidates: KpiCandidate[] = [];
@@ -1267,6 +1796,11 @@ export function buildKpiCandidates(rows: DatasetRow[], profile: DatasetProfile):
 }
 
 export function buildKpiCards(rows: DatasetRow[], profile: DatasetProfile): KpiCard[] {
+  const semanticCards = buildSemanticKpiCards(rows, profile);
+  if (hasCallTrackingSemanticContract(profile)) {
+    return semanticCards.slice(0, 4);
+  }
+
   const intelligence = buildKpiObservations(rows, profile);
   const preferredOrder = getCandidateOrder(intelligence.datasetType);
   const cards: KpiCard[] = [];

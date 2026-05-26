@@ -64,6 +64,39 @@ export interface SemanticDatasetContract {
   availableDimensions: string[];
   derivedMetrics: string[];
   sourceToCanonical: Record<string, string>;
+  sourceToSemanticRole?: Record<string, string>;
+  roleMappings?: Array<{
+    rawColumn: string;
+    semanticRole: string | null;
+    confidence: number;
+    kind: "metric" | "dimension" | "datetime" | "identifier" | "flag" | "value" | "unknown";
+    evidence: string[];
+  }>;
+  detectedDomain?: {
+    domain:
+      | "call_tracking"
+      | "call_operations"
+      | "marketing_attribution"
+      | "mixed_call_tracking_attribution"
+      | "generic_business"
+      | "unknown";
+    confidence: number;
+    detectedCapabilities: string[];
+  };
+  enabledKpis?: Array<{
+    key: string;
+    label: string;
+    status: "enabled" | "disabled";
+    requiredRoles: string[];
+    reason: string;
+  }>;
+  disabledKpis?: Array<{
+    key: string;
+    label: string;
+    status: "enabled" | "disabled";
+    requiredRoles: string[];
+    reason: string;
+  }>;
 }
 
 export interface KpiCandidate {
@@ -323,4 +356,5 @@ export interface PlannedQuery {
   }>;
   comparisonValues: string[];
   semanticProfile?: SemanticBusinessIntentAnalysis;
+  unavailableMetricReasons?: string[];
 }

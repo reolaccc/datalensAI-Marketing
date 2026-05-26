@@ -8,7 +8,16 @@ export const KPI_ALIASES: Record<string, string[]> = {
   clicks: ["clicks", "click_count"],
   impressions: ["impressions", "views"],
   spend: ["spend", "cost", "ad_spend", "budget", "media_cost", "paid_media_cost"],
-  conversions: ["conversions", "conversion_count", "orders", "purchases"]
+  conversions: ["conversions", "conversion_count", "orders", "purchases"],
+  calls: ["calls", "total_calls", "call volume"],
+  qualifiedCall: ["qualified calls", "qualified call", "qualified", "is_qualified"],
+  convertedCall: ["converted calls", "converted call", "converted", "booked", "sale"],
+  callDuration: ["call duration", "avg call duration", "duration", "talk time"],
+  repeat_caller_rate: ["repeat caller rate", "repeat caller", "returning caller rate"],
+  missedCall: ["missed calls", "missed call", "missed call rate"],
+  answeredCall: ["answered calls", "answered call", "answered call rate"],
+  cost_per_qualified_call: ["cost per qualified call", "cpqc", "cost_per_qualified_call"],
+  cost_per_conversion: ["cost per conversion", "cpa", "cost_per_conversion"]
 };
 
 export function sanitizeHeader(value: string): string {

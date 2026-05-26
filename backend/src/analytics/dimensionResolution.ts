@@ -5,6 +5,7 @@ export type ExplicitDimensionKey =
   | "channel"
   | "campaign"
   | "region"
+  | "location"
   | "device"
   | "date"
   | "account"
@@ -34,6 +35,7 @@ const DIMENSION_SPECS: DimensionSpec[] = [
   { canonicalKey: "channel", aliases: ["channel"] },
   { canonicalKey: "campaign", aliases: ["campaign"] },
   { canonicalKey: "region", aliases: ["region"] },
+  { canonicalKey: "location", aliases: ["location", "locations", "branch", "branches", "office", "offices", "city", "cities"] },
   { canonicalKey: "device", aliases: ["device"] },
   { canonicalKey: "date", aliases: ["date"] },
   { canonicalKey: "account", aliases: ["account", "account name", "account_name"] },

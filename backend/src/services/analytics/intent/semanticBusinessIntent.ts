@@ -39,12 +39,13 @@ interface SemanticRule {
 const SEMANTIC_RULES: SemanticRule[] = [
   {
     intent: "high_potential",
-    phrases: ["high potential", "potential", "good", "winning", "best", "strong", "promising", "high upside"],
+    phrases: ["high potential", "potential", "good", "winning", "best", "strong", "promising", "high upside", "low call volume"],
     metricSignals: [
       { metric: "roas", direction: "high", weight: 0.32 },
       { metric: "cvr", direction: "high", weight: 0.24 },
       { metric: "revenue", direction: "high", weight: 0.18 },
       { metric: "clicks", direction: "high", weight: 0.08 },
+      { metric: "calls", direction: "low", weight: 0.12 },
       { metric: "spend", direction: "low", weight: 0.18 }
     ],
     dimensionHints: ["campaign", "channel", "audience", "ad set", "segment", "group"],
@@ -65,13 +66,14 @@ const SEMANTIC_RULES: SemanticRule[] = [
   },
   {
     intent: "scalable",
-    phrases: ["scalable", "scale", "scaleable", "growth opportunity", "expand", "grow", "increase volume"],
+    phrases: ["scalable", "scale", "scaleable", "growth opportunity", "expand", "grow", "increase volume", "low call volume", "revenue but low call volume"],
     metricSignals: [
       { metric: "roas", direction: "high", weight: 0.28 },
       { metric: "cvr", direction: "high", weight: 0.22 },
       { metric: "revenue", direction: "high", weight: 0.18 },
       { metric: "impressions", direction: "high", weight: 0.12 },
       { metric: "clicks", direction: "high", weight: 0.1 },
+      { metric: "calls", direction: "low", weight: 0.08 },
       { metric: "spend", direction: "low", weight: 0.1 }
     ],
     dimensionHints: ["campaign", "channel", "audience", "ad set", "segment", "source"],
@@ -92,10 +94,12 @@ const SEMANTIC_RULES: SemanticRule[] = [
   },
   {
     intent: "underperforming",
-    phrases: ["underperforming", "poor performance", "poor", "weak", "losing", "lagging", "low potential"],
+    phrases: ["underperforming", "poor performance", "poor", "weak", "losing", "lagging", "low potential", "not converting", "spending but not converting", "spend but not converting", "wasting spend"],
     metricSignals: [
       { metric: "roas", direction: "low", weight: 0.3 },
       { metric: "cvr", direction: "low", weight: 0.24 },
+      { metric: "convertedCall", direction: "low", weight: 0.18 },
+      { metric: "conversion_rate", direction: "low", weight: 0.16 },
       { metric: "spend", direction: "high", weight: 0.2 },
       { metric: "clicks", direction: "low", weight: 0.12 },
       { metric: "impressions", direction: "low", weight: 0.14 }
@@ -105,11 +109,12 @@ const SEMANTIC_RULES: SemanticRule[] = [
   },
   {
     intent: "wasting_budget",
-    phrases: ["wasting budget", "waste budget", "budget waste", "burning spend", "overspending", "expensive", "too much spend"],
+    phrases: ["wasting budget", "waste budget", "budget waste", "burning spend", "overspending", "expensive", "too much spend", "spending but not converting", "not converting"],
     metricSignals: [
       { metric: "spend", direction: "high", weight: 0.28 },
       { metric: "roas", direction: "low", weight: 0.18 },
       { metric: "cvr", direction: "low", weight: 0.12 },
+      { metric: "convertedCall", direction: "low", weight: 0.16 },
       { metric: "clicks", direction: "high", weight: 0.1 }
     ],
     dimensionHints: ["campaign", "channel", "audience", "ad set", "segment"],
