@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { normalizeDateForQuestionContext } from "../utils/dateNormalization";
 import type {
   AnalysisResponse,
   PinnedInsight,
@@ -43,6 +44,22 @@ const noopStorage = {
   setItem: () => undefined,
   removeItem: () => undefined
 };
+
+function sanitizeQuestionContext(context?: QuestionContextInput) {
+  if (!context) {
+    return undefined;
+  }
+
+  const normalizedSelectedDate = normalizeDateForQuestionContext(context.selectedDate);
+  const sanitizedContext = {
+    ...context,
+    selectedDate: normalizedSelectedDate
+  };
+
+  return Object.entries(sanitizedContext).some(([, value]) => value !== undefined && value !== "" && value !== false)
+    ? sanitizedContext
+    : undefined;
+}
 
 function createWorkspaceLabel(fileName: string, savedAt: string) {
   const formattedDate = new Intl.DateTimeFormat(undefined, {
@@ -163,6 +180,7 @@ export const useAnalysisStore = create<AnalysisState>()(
         }
 
         set({ asking: true, error: null });
+        const sanitizedContext = sanitizeQuestionContext(context);
 
         async function requestQuestionAnswer(analysisId: string) {
           const response = await fetch(`${API_BASE_URL}/api/questions`, {
@@ -173,7 +191,7 @@ export const useAnalysisStore = create<AnalysisState>()(
             body: JSON.stringify({
               analysisId,
               question,
-              context
+              context: sanitizedContext
             })
           });
 
@@ -207,7 +225,7 @@ export const useAnalysisStore = create<AnalysisState>()(
             }
             }
 
-          const questionContext = buildQuestionContextSnapshot(context);
+          const questionContext = buildQuestionContextSnapshot(sanitizedContext);
           const enhancedQuestionAnswer: QuestionAnswer = {
             ...questionAnswer,
             questionContext

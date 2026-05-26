@@ -1,21 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useAnalysisStore } from "../stores/analysisStore";
 import { buildQuestionSuggestions } from "../utils/questionSuggestions";
+import { normalizeDateForQuestionContext } from "../utils/dateNormalization";
 import { formatCompactNumber } from "../utils/numberFormatting";
 import type { QuestionAnswer } from "../types";
-
-function formatDateForInput(value?: string | number | null) {
-  if (!value) {
-    return "";
-  }
-
-  const parsed = new Date(String(value));
-  if (Number.isNaN(parsed.getTime())) {
-    return "";
-  }
-
-  return parsed.toISOString().slice(0, 10);
-}
 
 function deriveFilterDefaults(analysis: ReturnType<typeof useAnalysisStore.getState>["analysis"]) {
   if (!analysis) {
@@ -29,9 +17,9 @@ function deriveFilterDefaults(analysis: ReturnType<typeof useAnalysisStore.getSt
     firstCategoricalColumn?.topCategories?.map((entry) => entry.value).filter(Boolean) ?? [];
 
   return {
-    selectedDate: formatDateForInput(
+    selectedDate: normalizeDateForQuestionContext(
       analysis.profile.columns.find((column) => column.kind === "datetime")?.min
-    ),
+    ) ?? "",
     selectedThreshold: String(firstNumericColumn?.median ?? firstNumericColumn?.mean ?? ""),
     selectedMetric: firstKpiColumn || analysis.profile.numericColumns[0] || "",
     selectedDimension: analysis.profile.categoricalColumns[0] ?? "",
