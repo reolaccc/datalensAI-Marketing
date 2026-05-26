@@ -21,12 +21,25 @@ analysisRouter.get("/health", (_request, response) => {
 });
 
 analysisRouter.post("/analyze", upload.single("file"), async (request, response) => {
+  const startedAt = Date.now();
+  const path = request.originalUrl ?? request.url;
+  console.log(`[analyze:start] ${new Date(startedAt).toISOString()} ${request.method} ${path}`);
+
   try {
     const file = uploadedFileSchema.parse(request.file);
+    console.log(
+      `[analyze:file] ${new Date().toISOString()} received=${Boolean(request.file)} size=${request.file?.size ?? 0} originalName=${file.originalname}`
+    );
     const result = await analyzeUploadedDataset(file.buffer, file.originalname);
+    console.log(
+      `[analyze:success] ${new Date().toISOString()} ${request.method} ${path} ${response.statusCode} ${Date.now() - startedAt}ms`
+    );
     response.json(result);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Analysis failed";
+    console.log(
+      `[analyze:error] ${new Date().toISOString()} ${request.method} ${path} ${Date.now() - startedAt}ms message=${message}`
+    );
     response.status(400).json({ message });
   }
 });
