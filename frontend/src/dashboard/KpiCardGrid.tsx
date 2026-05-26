@@ -5,6 +5,16 @@ interface Props {
   analysis: AnalysisResponse;
 }
 
+function hasCallRelatedDomain(analysis: AnalysisResponse) {
+  const domain = analysis.profile.semanticContract?.detectedDomain?.domain;
+  return (
+    domain === "call_tracking" ||
+    domain === "marketing_attribution" ||
+    domain === "mixed_call_tracking_attribution" ||
+    domain === "call_operations"
+  );
+}
+
 function legacyKpiCards(analysis: AnalysisResponse) {
   return analysis.kpis.slice(0, 5).map((kpi) => ({
     id: kpi.id,
@@ -27,7 +37,11 @@ function legacyKpiCards(analysis: AnalysisResponse) {
 }
 
 export function KpiCardGrid({ analysis }: Props) {
-  const cards = analysis.kpiCards?.length ? analysis.kpiCards : legacyKpiCards(analysis);
+  const cards = hasCallRelatedDomain(analysis)
+    ? analysis.kpiCards ?? []
+    : analysis.kpiCards?.length
+      ? analysis.kpiCards
+      : legacyKpiCards(analysis);
 
   function renderContextLine(contextLine?: string) {
     if (!contextLine) {
