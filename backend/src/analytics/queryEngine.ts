@@ -1,7 +1,6 @@
 import type { DatasetProfile, DatasetRow, PlannedQuery, QuestionAnswer } from "./types.js";
 import { parseDateValue, parseNumber } from "../utils/inference.js";
 import { resolveSemanticMetricValue } from "./semanticContract.js";
-import { semanticIntentLabel } from "../services/analytics/intent/semanticBusinessIntent.js";
 
 interface QueryContext {
   rows: DatasetRow[];
@@ -10,6 +9,14 @@ interface QueryContext {
 
 function humanize(value: string) {
   return value.replace(/_/g, " ").replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+function humanizeDimension(value: string) {
+  const cleaned = value
+    .replace(/^(source_|geo_)/i, "")
+    .replace(/_name$/i, "")
+    .replace(/_type$/i, "");
+  return humanize(cleaned);
 }
 
 function formatCompactNumber(value: number) {
@@ -80,6 +87,58 @@ function formatMetricValue(metric: string, value: number) {
   }
 
   return `${formatCompactNumber(value)} ${metricUnit(metric)}`;
+}
+
+function formatPercent(value: number) {
+  return `${new Intl.NumberFormat(undefined, {
+    maximumFractionDigits: Math.abs(value * 100) >= 10 ? 1 : 2
+  }).format(value * 100)}%`;
+}
+
+type RankingFocus = "concentration" | "efficiency" | "budget" | "conversion" | "revenue" | "generic";
+
+function detectRankingFocus(question: string, query: PlannedQuery): RankingFocus {
+  const normalized = question.toLowerCase();
+
+  if (/(concentrat|share|dominant|too much in one|top 3|mix)/i.test(normalized)) {
+    return "concentration";
+  }
+
+  if (/(more budget|receive more budget|allocate budget|budget allocation|budget to|high spend|weak revenue|wasting budget|budget waste|burning spend|overspend|underperform|lagging|poor|weak|lowest|bottom)/i.test(normalized)) {
+    return "budget";
+  }
+
+  if (/(convert|conversion|cvr|ctr|clicks most efficiently|funnel)/i.test(normalized)) {
+    return "conversion";
+  }
+
+  if (/(roas|roi|efficient|efficiency|return on ad spend|return|scale|scalable)/i.test(normalized)) {
+    return "efficiency";
+  }
+
+  if (/(revenue|sales|income|gmv|value|amount)/i.test(normalized)) {
+    return "revenue";
+  }
+
+  if (query.semanticProfile?.businessIntent === "underperforming" || query.semanticProfile?.businessIntent === "wasting_budget") {
+    return "budget";
+  }
+
+  return "generic";
+}
+
+function pickPrimaryMetric(metrics: string[], focus: RankingFocus) {
+  const priorities: Record<RankingFocus, string[]> = {
+    concentration: ["revenue", "sales", "income", "gmv", "value", "amount"],
+    efficiency: ["roas", "roi", "cvr", "ctr", "revenue", "spend"],
+    budget: ["roas", "roi", "spend", "revenue", "cvr"],
+    conversion: ["cvr", "ctr", "conversions", "clicks", "revenue"],
+    revenue: ["revenue", "sales", "income", "gmv", "value", "amount"],
+    generic: []
+  };
+
+  const priority = priorities[focus];
+  return priority.find((metric) => metrics.some((candidate) => candidate.toLowerCase() === metric)) ?? metrics[0];
 }
 
 function matchesFilter(row: DatasetRow, filter: PlannedQuery["filters"][number]) {
@@ -326,6 +385,15 @@ function buildSemanticRanking(
     return null;
   }
 
+  const focus = detectRankingFocus(question, query);
+  const primaryMetric = pickPrimaryMetric(query.metrics, focus);
+  const primaryMetricDetails = metricDetails.find((detail) => detail.metric === primaryMetric) ?? metricDetails[0];
+  const rankingMetric = primaryMetricDetails?.metric ?? query.metrics[0];
+  const questionPrefersLowerValues =
+    /(weak|underperform|wasting budget|lowest|bottom|lagging|poor)/i.test(question) ||
+    query.semanticProfile?.businessIntent === "underperforming" ||
+    query.semanticProfile?.businessIntent === "wasting_budget";
+
   const aggregatedRows = [...grouped.entries()].map(([label, metricValues]) => {
     const aggregatedMetrics: Record<string, number> = {};
 
@@ -340,6 +408,7 @@ function buildSemanticRanking(
     };
   });
 
+  const totalRankingMetric = aggregatedRows.reduce((sum, entry) => sum + (entry.metrics[rankingMetric] ?? 0), 0);
   const ranges = new Map<string, { min: number; max: number }>();
   for (const detail of metricDetails) {
     const values = aggregatedRows.map((entry) => entry.metrics[detail.metric]).filter((value) => Number.isFinite(value));
@@ -374,46 +443,219 @@ function buildSemanticRanking(
       const score = totalWeight > 0 ? weightedScore / totalWeight : 0.5;
       return {
         ...entry,
-        score: Number(score.toFixed(4))
-      };
-    })
-    .sort((left, right) => {
-      const descending =
-        query.semanticProfile?.businessIntent !== "underperforming" &&
-        query.semanticProfile?.businessIntent !== "wasting_budget";
-      return descending ? right.score - left.score : left.score - right.score;
+      score: Number(score.toFixed(4))
+    };
     });
 
-  if (scoredRows.length === 0) {
+  const rankedRows =
+    focus === "generic"
+      ? scoredRows.sort((left, right) => {
+          const descending =
+            query.semanticProfile?.businessIntent !== "underperforming" &&
+            query.semanticProfile?.businessIntent !== "wasting_budget";
+          return descending ? right.score - left.score : left.score - right.score;
+        })
+      : scoredRows.sort((left, right) => {
+          const leftValue = left.metrics[rankingMetric] ?? 0;
+          const rightValue = right.metrics[rankingMetric] ?? 0;
+          return questionPrefersLowerValues ? leftValue - rightValue : rightValue - leftValue;
+        });
+
+  if (rankedRows.length === 0) {
     return null;
   }
 
-  const leader = scoredRows[0];
-  const runnerUp = scoredRows[1];
-  const isNegativeIntent =
-    query.semanticProfile.businessIntent === "underperforming" ||
-    query.semanticProfile.businessIntent === "wasting_budget";
-  const rankingLabel = isNegativeIntent ? "weakest" : "strongest";
-  const intentLabel = semanticIntentLabel(query.semanticProfile.businessIntent);
+  const leader = rankedRows[0];
+  const runnerUp = rankedRows[1];
+  const leaderValue = leader.metrics[rankingMetric] ?? 0;
+  const runnerUpValue = runnerUp?.metrics[rankingMetric] ?? 0;
+  const dimensionLabel = humanizeDimension(query.dimension).toLowerCase();
+  const metricLabel = humanize(rankingMetric).toLowerCase();
   const highlightedSignals = [...metricDetails]
     .sort((left, right) => right.weight - left.weight)
     .slice(0, 3)
     .map((detail) => `${humanize(detail.metric).toLowerCase()} ${formatMetricValue(detail.metric, leader.metrics[detail.metric] ?? 0)}`);
   const comparisonText =
-    runnerUp && Number.isFinite(runnerUp.score)
-      ? ` It is ${isNegativeIntent ? "below" : "ahead of"} ${runnerUp.label} by ${formatCompactNumber(Math.abs(leader.score - runnerUp.score) * 100)} score points.`
+    runnerUp && Number.isFinite(runnerUpValue)
+      ? ` It is ${questionPrefersLowerValues ? "below" : "ahead of"} ${runnerUp.label} by ${formatMetricValue(rankingMetric, Math.abs(leaderValue - runnerUpValue))}.`
       : "";
+
+  if (focus === "concentration") {
+    const leaderShare = totalRankingMetric > 0 ? leaderValue / totalRankingMetric : 0;
+    const top3Share =
+      totalRankingMetric > 0
+        ? rankedRows.slice(0, 3).reduce((sum, entry) => sum + (entry.metrics[rankingMetric] ?? 0), 0) / totalRankingMetric
+        : 0;
+    return {
+      question,
+      interpretation: "semantic ranking for concentration",
+      answer: `${leader.label} accounts for ${formatPercent(leaderShare)} of ${metricLabel}, and the top 3 ${dimensionLabel} segments contribute ${formatPercent(top3Share)}.`,
+      supportingData: rankedRows.slice(0, query.limit).map((entry) => {
+        const share = totalRankingMetric > 0 ? (entry.metrics[rankingMetric] ?? 0) / totalRankingMetric : 0;
+        return {
+          label: entry.label,
+          value: `${formatPercent(share)} share`
+        };
+      }),
+      resultTable: {
+        columns: [query.dimension, "semantic_score", ...query.metrics],
+        rows: rankedRows.slice(0, query.limit).map((entry) => ({
+          [query.dimension!]: entry.label,
+          semantic_score: Number(entry.score.toFixed(4)),
+          ...entry.metrics
+        }))
+      },
+      chartSuggestion: {
+        chartType: "bar",
+        xKey: query.dimension,
+        yKey: "semantic_score",
+        data: rankedRows.slice(0, query.limit).map((entry) => ({
+          [query.dimension!]: entry.label,
+          semantic_score: Number(entry.score.toFixed(4)),
+          ...entry.metrics
+        }))
+      }
+    };
+  }
+
+  if (focus === "efficiency") {
+    const spend = leader.metrics.spend !== undefined ? ` and ${formatMetricValue("spend", leader.metrics.spend)} spend` : "";
+    const revenue = leader.metrics.revenue !== undefined ? ` with ${formatMetricValue("revenue", leader.metrics.revenue)} revenue` : "";
+    return {
+      question,
+      interpretation: `semantic ranking for ${metricLabel}`,
+      answer: `${leader.label} is the efficiency leader at ${formatMetricValue(rankingMetric, leaderValue)}${revenue}${spend}.${comparisonText}`,
+      supportingData: rankedRows.slice(0, query.limit).map((entry) => ({
+        label: entry.label,
+        value: formatMetricValue(rankingMetric, entry.metrics[rankingMetric] ?? 0)
+      })),
+      resultTable: {
+        columns: [query.dimension, "semantic_score", ...query.metrics],
+        rows: rankedRows.slice(0, query.limit).map((entry) => ({
+          [query.dimension!]: entry.label,
+          semantic_score: Number(entry.score.toFixed(4)),
+          ...entry.metrics
+        }))
+      },
+      chartSuggestion: {
+        chartType: "bar",
+        xKey: query.dimension,
+        yKey: "semantic_score",
+        data: rankedRows.slice(0, query.limit).map((entry) => ({
+          [query.dimension!]: entry.label,
+          semantic_score: Number(entry.score.toFixed(4)),
+          ...entry.metrics
+        }))
+      }
+    };
+  }
+
+  if (focus === "budget") {
+    const spend = leader.metrics.spend !== undefined ? ` with ${formatMetricValue("spend", leader.metrics.spend)} spend` : "";
+    const revenue = leader.metrics.revenue !== undefined ? ` and ${formatMetricValue("revenue", leader.metrics.revenue)} revenue` : "";
+    const budgetLabel = questionPrefersLowerValues ? "the weakest efficiency signal" : "the strongest scale candidate";
+    return {
+      question,
+      interpretation: `semantic ranking for budget allocation`,
+      answer: `${leader.label} is ${budgetLabel} at ${formatMetricValue(rankingMetric, leaderValue)}${spend}${revenue}.${comparisonText}`,
+      supportingData: rankedRows.slice(0, query.limit).map((entry) => ({
+        label: entry.label,
+        value: formatMetricValue(rankingMetric, entry.metrics[rankingMetric] ?? 0)
+      })),
+      resultTable: {
+        columns: [query.dimension, "semantic_score", ...query.metrics],
+        rows: rankedRows.slice(0, query.limit).map((entry) => ({
+          [query.dimension!]: entry.label,
+          semantic_score: Number(entry.score.toFixed(4)),
+          ...entry.metrics
+        }))
+      },
+      chartSuggestion: {
+        chartType: "bar",
+        xKey: query.dimension,
+        yKey: "semantic_score",
+        data: rankedRows.slice(0, query.limit).map((entry) => ({
+          [query.dimension!]: entry.label,
+          semantic_score: Number(entry.score.toFixed(4)),
+          ...entry.metrics
+        }))
+      }
+    };
+  }
+
+  if (focus === "conversion") {
+    const clicks = leader.metrics.clicks !== undefined ? ` with ${formatMetricValue("clicks", leader.metrics.clicks)} of traffic` : "";
+    const revenue = leader.metrics.revenue !== undefined ? ` with ${formatMetricValue("revenue", leader.metrics.revenue)} revenue` : "";
+    return {
+      question,
+      interpretation: `semantic ranking for conversion efficiency`,
+      answer: `${leader.label} converts most efficiently at ${formatMetricValue(rankingMetric, leaderValue)}${clicks}${revenue}.${comparisonText}`,
+      supportingData: rankedRows.slice(0, query.limit).map((entry) => ({
+        label: entry.label,
+        value: formatMetricValue(rankingMetric, entry.metrics[rankingMetric] ?? 0)
+      })),
+      resultTable: {
+        columns: [query.dimension, "semantic_score", ...query.metrics],
+        rows: rankedRows.slice(0, query.limit).map((entry) => ({
+          [query.dimension!]: entry.label,
+          semantic_score: Number(entry.score.toFixed(4)),
+          ...entry.metrics
+        }))
+      },
+      chartSuggestion: {
+        chartType: "bar",
+        xKey: query.dimension,
+        yKey: "semantic_score",
+        data: rankedRows.slice(0, query.limit).map((entry) => ({
+          [query.dimension!]: entry.label,
+          semantic_score: Number(entry.score.toFixed(4)),
+          ...entry.metrics
+        }))
+      }
+    };
+  }
+
+  if (focus === "revenue") {
+    return {
+      question,
+      interpretation: `semantic ranking for revenue`,
+      answer: `${leader.label} leads ${metricLabel} at ${formatMetricValue(rankingMetric, leaderValue)}, ahead of ${runnerUp?.label ?? "the next segment"} by ${formatMetricValue(rankingMetric, Math.abs(leaderValue - runnerUpValue))}.`,
+      supportingData: rankedRows.slice(0, query.limit).map((entry) => ({
+        label: entry.label,
+        value: formatMetricValue(rankingMetric, entry.metrics[rankingMetric] ?? 0)
+      })),
+      resultTable: {
+        columns: [query.dimension, "semantic_score", ...query.metrics],
+        rows: rankedRows.slice(0, query.limit).map((entry) => ({
+          [query.dimension!]: entry.label,
+          semantic_score: Number(entry.score.toFixed(4)),
+          ...entry.metrics
+        }))
+      },
+      chartSuggestion: {
+        chartType: "bar",
+        xKey: query.dimension,
+        yKey: "semantic_score",
+        data: rankedRows.slice(0, query.limit).map((entry) => ({
+          [query.dimension!]: entry.label,
+          semantic_score: Number(entry.score.toFixed(4)),
+          ...entry.metrics
+        }))
+      }
+    };
+  }
+
   return {
     question,
-    interpretation: `semantic ranking for ${intentLabel}`,
-    answer: `${leader.label} shows the ${rankingLabel} ${intentLabel} because it combines ${highlightedSignals.join(", ")}.${comparisonText}`,
-    supportingData: scoredRows.slice(0, query.limit).map((entry) => ({
+    interpretation: `semantic ranking for ${questionPrefersLowerValues ? "weaker performance" : "broad performance"}`,
+    answer: `${leader.label} shows the strongest ${humanize(primaryMetric).toLowerCase()}-anchored signal because it combines ${highlightedSignals.join(", ")}.${comparisonText}`,
+    supportingData: rankedRows.slice(0, query.limit).map((entry) => ({
       label: entry.label,
-      value: Number(entry.score.toFixed(4))
+      value: formatMetricValue(rankingMetric, entry.metrics[rankingMetric] ?? 0)
     })),
     resultTable: {
       columns: [query.dimension, "semantic_score", ...query.metrics],
-      rows: scoredRows.slice(0, query.limit).map((entry) => ({
+      rows: rankedRows.slice(0, query.limit).map((entry) => ({
         [query.dimension!]: entry.label,
         semantic_score: Number(entry.score.toFixed(4)),
         ...entry.metrics
@@ -423,7 +665,7 @@ function buildSemanticRanking(
       chartType: "bar",
       xKey: query.dimension,
       yKey: "semantic_score",
-      data: scoredRows.slice(0, query.limit).map((entry) => ({
+      data: rankedRows.slice(0, query.limit).map((entry) => ({
         [query.dimension!]: entry.label,
         semantic_score: Number(entry.score.toFixed(4)),
         ...entry.metrics

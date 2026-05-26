@@ -13,7 +13,6 @@ export function DatasetSummaryPanel({ analysis }: Props) {
       <div className="panel-heading">
         <div>
           <p className="eyebrow">Data Profiling</p>
-          <h3>{analysis.fileName}</h3>
         </div>
       </div>
 
@@ -25,14 +24,6 @@ export function DatasetSummaryPanel({ analysis }: Props) {
             <li>No EDA summary available.</li>
           )}
         </ul>
-      </div>
-
-      <div className="tag-row">
-        {analysis.profile.numericColumns.map((column) => (
-          <span className="tag" key={column}>
-            {column}
-          </span>
-        ))}
       </div>
     </article>
   );

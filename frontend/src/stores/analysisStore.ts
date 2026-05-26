@@ -83,6 +83,27 @@ function touchRecentWorkspaceSnapshotIds(currentIds: string[], snapshotId: strin
   return [snapshotId, ...currentIds.filter((id) => id !== snapshotId)].slice(0, 6);
 }
 
+function buildQuestionContextSnapshot(context?: QuestionContextInput) {
+  if (!context) {
+    return undefined;
+  }
+
+  const snapshot = {
+    selectedDate: context.selectedDate,
+    selectedThreshold: context.selectedThreshold,
+    selectedMetric: context.selectedMetric,
+    selectedDimension: context.selectedDimension,
+    selectedCategory: context.selectedCategory,
+    selectedSegmentA: context.selectedSegmentA,
+    selectedSegmentB: context.selectedSegmentB,
+    useAi: context.useAi
+  };
+
+  return Object.values(snapshot).some((value) => value !== undefined && value !== "" && value !== false)
+    ? snapshot
+    : undefined;
+}
+
 export const useAnalysisStore = create<AnalysisState>()(
   persist(
     (set, get) => ({
@@ -184,13 +205,19 @@ export const useAnalysisStore = create<AnalysisState>()(
             } else {
               throw error;
             }
-          }
+            }
+
+          const questionContext = buildQuestionContextSnapshot(context);
+          const enhancedQuestionAnswer: QuestionAnswer = {
+            ...questionAnswer,
+            questionContext
+          };
 
           set((state) => ({
             draftQuestion: question,
-            questionAnswer,
+            questionAnswer: enhancedQuestionAnswer,
             asking: false,
-            questionHistory: [questionAnswer, ...state.questionHistory].slice(0, 6)
+            questionHistory: [enhancedQuestionAnswer, ...state.questionHistory].slice(0, 6)
           }));
         } catch (error) {
           set({

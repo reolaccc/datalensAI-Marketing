@@ -175,6 +175,16 @@ export interface QuestionAnswer {
   question: string;
   answer: string;
   interpretation?: string;
+  questionContext?: {
+    selectedDate?: string;
+    selectedThreshold?: number;
+    selectedMetric?: string;
+    selectedDimension?: string;
+    selectedCategory?: string;
+    selectedSegmentA?: string;
+    selectedSegmentB?: string;
+    useAi?: boolean;
+  };
   detectedIntent?: {
     primaryIntent: IntentType;
     secondaryIntents: IntentType[];
@@ -246,6 +256,7 @@ export interface QuestionContextInput {
     question: string;
     answer: string;
     interpretation?: string;
+    questionContext?: QuestionAnswer["questionContext"];
     detectedIntent?: QuestionAnswer["detectedIntent"];
     chartSuggestion?: {
       chartType: "line" | "bar" | "table";

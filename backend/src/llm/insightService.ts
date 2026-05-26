@@ -547,6 +547,77 @@ function buildChartObservation(
   return `${metricLabel} stands out across ${dimensionLabel}, so the main decision is whether to scale the leader or fix the lagging segments.`;
 }
 
+function buildFallbackAskAnalysisSummary(input: QuestionNarrativeInput) {
+  const question = normalizeInsightText(input.question);
+  const topRevenueSegment = input.facts.topFindings.topRevenueSegment;
+  const bestRoasSegment = input.facts.topFindings.bestRoasSegment;
+  const bestConversionSegment = input.facts.topFindings.bestConversionSegment;
+  const strongestSegment = input.facts.segments.strongestSegment;
+  const topRevenueShare = input.facts.concentration.top1RevenueShare;
+  const recentDirection = input.facts.trends.recentDirection;
+
+  if (/(concentrat|concentration|share|dominant|too much in one)/i.test(question) && topRevenueSegment) {
+    return `${topRevenueSegment.name} carries ${formatPercent(topRevenueSegment.share)}, so concentration is a meaningful risk and a lever for growth.`;
+  }
+
+  if (/(more budget|receive more budget|allocate budget|budget allocation|budget to|scale|scalable)/i.test(question)) {
+    if (bestRoasSegment) {
+      return `${bestRoasSegment.name} looks like the strongest scale candidate, which matters because budget should go where return can absorb more spend without losing efficiency.`;
+    }
+    if (strongestSegment) {
+      return `${strongestSegment.name} is the clearest scale candidate, which matters because budget allocation should favor the segment with the strongest commercial signal.`;
+    }
+    return "This is a budget allocation question, so the key is to find the segment that can absorb more spend without weakening efficiency.";
+  }
+
+  if (/(high spend|wasting budget|budget waste|burning spend|overspend|underperform|lagging|poor|weak|lowest|bottom)/i.test(question)) {
+    if (bestRoasSegment) {
+      return `${bestRoasSegment.name} is the clearest efficiency reference, which matters because the weak segment should be reviewed against the strongest return signal before more budget is committed.`;
+    }
+    if (strongestSegment) {
+      return `${strongestSegment.name} is the clearest signal to review, which matters because weak performance needs attention before budget is reallocated.`;
+    }
+    return "This result matters because the question is pointing to a segment that needs review before additional budget is committed.";
+  }
+
+  if (/(roas|roi|efficient|efficiency|return|scale|budget|spend|high spend|weak return)/i.test(question)) {
+    if (bestRoasSegment) {
+      return `${bestRoasSegment.name} is the clearest efficiency leader, which matters because budget should scale where return stays strongest.`;
+    }
+    return "Efficiency is the right lens here because spend only creates value when return remains strong enough to justify scaling.";
+  }
+
+  if (/(convert|conversion|cvr|clicks most efficiently|funnel)/i.test(question)) {
+    if (bestConversionSegment) {
+      return `${bestConversionSegment.name} converts best, which matters because traffic quality is uneven and not every segment turns attention into outcomes.`;
+    }
+    return "Conversion efficiency matters here because traffic volume is only valuable when it turns into business outcomes.";
+  }
+
+  if (/(trend|over time|increase|drop|change|momentum|where did|anomaly|volatile)/i.test(question) && input.facts.trends.hasDateField) {
+    if (recentDirection === "up") {
+      return "The recent trend is improving, which matters because the current direction can support a confident scaling decision if it holds.";
+    }
+    if (recentDirection === "down") {
+      return "The recent trend is weakening, which matters because leadership should confirm whether the decline is temporary or structural.";
+    }
+    if (recentDirection === "mixed") {
+      return "The trend is uneven, which matters because volatility can hide whether performance is truly strengthening or just oscillating.";
+    }
+    return "The time pattern matters because direction over time shows whether performance is building momentum or losing it.";
+  }
+
+  if (strongestSegment) {
+    return `${strongestSegment.name} is the strongest signal in this answer, which matters because it points to where leadership should focus scale or corrective action.`;
+  }
+
+  if (topRevenueShare !== undefined && topRevenueSegment) {
+    return `Revenue concentration is still relevant here because ${topRevenueSegment.name} accounts for ${formatPercent(topRevenueShare)}, which affects how scalable the result really is.`;
+  }
+
+  return "This result matters because it identifies the strongest commercial signal in the current dataset and points to the next decision to investigate.";
+}
+
 function getKpi(kpis: KpiCandidate[], ...labels: string[]) {
   const wanted = labels.map(normalizeName);
   return kpis.find((kpi) => wanted.includes(normalizeName(kpi.label)) || wanted.includes(normalizeName(kpi.column)));
@@ -1226,8 +1297,8 @@ export function buildFallbackAskAnswerNarrative(input: QuestionNarrativeInput): 
     evidence: evidence.length > 0 ? evidence : ["No supporting aggregates were available."],
     caution: input.chartSelectionWarnings.length > 0 ? input.chartSelectionWarnings.join(" ") : undefined,
     suggestedNextQuestion: input.suggestedFollowUps[0],
-    analysisSummary: input.chartSelectionSummary,
-    chartSelectionSummary: input.chartSelectionExplanation,
+    analysisSummary: buildFallbackAskAnalysisSummary(input),
+    chartSelectionSummary: input.chartSelectionSummary,
     confidenceNote,
     warning: undefined,
     source: "fallback"

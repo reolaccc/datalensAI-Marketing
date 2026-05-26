@@ -195,8 +195,9 @@ export function buildAskAnswerPrompt(input: QuestionNarrativeInput): LlmTextGene
             "Use at most two supporting metrics in directAnswer and keep the wording natural enough for a business stakeholder to read quickly.",
             "Never return raw fallback or debug text such as 'AI explanation unavailable' or 'could not identify numeric metric'.",
             "Write like a senior analyst explaining the result to marketing leadership.",
-            "Return a direct answer, evidence bullets, a short confidence note, a short caution if needed, and one suggested next question.",
-            "Keep the analysis summary concise and business-focused.",
+            "Return a direct answer, evidence bullets, a short analytical interpretation of why the result matters, a short confidence note, a short caution if needed, and one suggested next question.",
+            "Keep the analysis summary concise, business-focused, and centered on efficiency, scale, concentration, volatility, or performance quality.",
+            "Keep the chart selection summary concise and use it only to explain why the chosen evidence is relevant.",
             "Prefer a ranked answer with confidence-aware wording when multiple metrics support the conclusion.",
             "When generating the suggested next question, prefer the selected chart roles and semantic dimensions over generic EDA wording.",
             "Do not suggest unavailable dimensions or generic data exploration questions when the dataset has clear commercial semantics."

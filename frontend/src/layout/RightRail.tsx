@@ -1,5 +1,5 @@
 import { InsightPanel } from "../insights/InsightPanel";
-import { AskDatasetPanel } from "../insights/AskDatasetPanel";
+import { DatasetSummaryPanel } from "../dashboard/DatasetSummaryPanel";
 import type { AnalysisResponse } from "../types";
 
 interface Props {
@@ -11,8 +11,8 @@ export function RightRail({ analysis }: Props) {
     <aside className="right-rail">
       {analysis ? (
         <>
+          <DatasetSummaryPanel analysis={analysis} />
           <InsightPanel analysis={analysis} />
-          <AskDatasetPanel />
         </>
       ) : null}
     </aside>

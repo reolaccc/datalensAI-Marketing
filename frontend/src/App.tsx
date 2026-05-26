@@ -1,11 +1,11 @@
 import { InsightWorkspace } from "./dashboard/InsightWorkspace";
 import { findRelevantChartId } from "./dashboard/chartMatching";
-import { DatasetSummaryPanel } from "./dashboard/DatasetSummaryPanel";
 import { KpiCardGrid } from "./dashboard/KpiCardGrid";
 import { ChartCard } from "./charts/ChartCard";
 import { LeftNav } from "./layout/LeftNav";
 import { RightRail } from "./layout/RightRail";
 import { TopBar } from "./layout/TopBar";
+import { AskDatasetPanel } from "./insights/AskDatasetPanel";
 import { useAnalysisStore } from "./stores/analysisStore";
 import { useEffect } from "react";
 
@@ -56,43 +56,49 @@ export default function App() {
 
       <TopBar />
 
-      <div className={workspaceShellClassName}>
-        <section className="report-canvas">
-          {analysis ? (
-            <>
-              <LeftNav />
+      <div className="analysis-workspace">
+        <div className="analysis-workspace-main">
+          <div className={workspaceShellClassName}>
+            <section className="report-canvas">
+              {analysis ? (
+                <>
+                  <LeftNav />
 
-              <section className="panel report-page" id="kpi-strip">
-                <KpiCardGrid analysis={analysis} />
-              </section>
+                  <section className="panel report-page" id="kpi-strip">
+                    <KpiCardGrid analysis={analysis} />
+                  </section>
 
-              <section className="panel report-page">
-                <InsightWorkspace />
-              </section>
+                  <section className="panel report-page">
+                    <InsightWorkspace />
+                  </section>
 
-              <section className="panel report-page" id="chart-grid">
-                <div className="chart-grid">
-                  {analysis.charts.map((chart) => (
-                    <ChartCard chart={chart} highlighted={chart.id === highlightedChartId} key={chart.id} />
-                  ))}
-                </div>
-              </section>
-
-              <section className="report-page report-page-secondary" id="dataset-summary">
-                <DatasetSummaryPanel analysis={analysis} />
-              </section>
-            </>
-          ) : (
-            <section className="panel report-page empty-state-workspace">
-              <p className="eyebrow">Workflow</p>
-              <ul className="empty-state-steps">
-                <li>Upload dataset</li>
-                <li>Review data profiling and dashboard</li>
-                <li>Ask a question, and DataLens curates the most relevant visualizations to explain the answer and reveal the insight behind your data.</li>
-              </ul>
+                  <section className="panel report-page" id="chart-grid">
+                    <div className="chart-grid">
+                      {analysis.charts.map((chart) => (
+                        <ChartCard chart={chart} highlighted={chart.id === highlightedChartId} key={chart.id} />
+                      ))}
+                    </div>
+                  </section>
+                </>
+              ) : (
+                <section className="panel report-page empty-state-workspace">
+                  <p className="eyebrow">Workflow</p>
+                  <ul className="empty-state-steps">
+                    <li>Upload dataset</li>
+                    <li>Review data profiling and dashboard</li>
+                    <li>Ask a question, and DataLens curates the most relevant visualizations to explain the answer and reveal the insight behind your data.</li>
+                  </ul>
+                </section>
+              )}
             </section>
-          )}
-        </section>
+          </div>
+
+          {analysis ? (
+            <section className="ask-investigation-section">
+              <AskDatasetPanel />
+            </section>
+          ) : null}
+        </div>
 
         {analysis ? <RightRail analysis={analysis} /> : null}
       </div>
