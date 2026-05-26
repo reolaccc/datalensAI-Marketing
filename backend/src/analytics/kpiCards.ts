@@ -264,12 +264,84 @@ function hasCallTrackingSemanticContract(profile: DatasetProfile) {
   );
 }
 
+type CallKpiMode = "attribution" | "operations";
+
 function buildSemanticRoleSet(profile: DatasetProfile) {
   return new Set(
     profile.semanticContract?.roleMappings
       ?.filter((mapping) => mapping.semanticRole && mapping.confidence >= 0.5)
       .map((mapping) => mapping.semanticRole as string) ?? []
   );
+}
+
+function getCallKpiMode(profile: DatasetProfile, roleSet: Set<string>): CallKpiMode {
+  const domain = profile.semanticContract?.detectedDomain?.domain;
+
+  if (domain === "call_operations") {
+    return "operations";
+  }
+
+  if (domain === "marketing_attribution" || domain === "mixed_call_tracking_attribution") {
+    return "attribution";
+  }
+
+  if (domain === "call_tracking") {
+    const hasCommercialSignals = [
+      "revenue",
+      "spend",
+      "qualifiedCall",
+      "convertedCall",
+      "roas",
+      "revenue_per_call",
+      "cost_per_qualified_call"
+    ].some((role) => roleSet.has(role));
+    return hasCommercialSignals ? "attribution" : "operations";
+  }
+
+  return "operations";
+}
+
+function getSemanticKpiBusinessPriority(key: string, mode: CallKpiMode) {
+  const attributionPriorities: Record<string, number> = {
+    total_calls: 1000,
+    qualified_calls: 990,
+    conversion_rate: 980,
+    roas: 970,
+    total_revenue: 960,
+    revenue_per_call: 950,
+    cost_per_qualified_call: 940,
+    total_spend: 930,
+    cost_per_conversion: 920,
+    converted_calls: 910,
+    qualified_call_rate: 900,
+    unique_callers: 400,
+    missed_call_rate: 300,
+    answered_call_rate: 290,
+    avg_call_duration: 280,
+    repeat_caller_rate: 270
+  };
+
+  const operationsPriorities: Record<string, number> = {
+    total_calls: 1000,
+    unique_callers: 980,
+    missed_call_rate: 970,
+    avg_call_duration: 960,
+    repeat_caller_rate: 950,
+    answered_call_rate: 940,
+    qualified_calls: 250,
+    qualified_call_rate: 240,
+    conversion_rate: 230,
+    converted_calls: 220,
+    total_revenue: 100,
+    revenue_per_call: 90,
+    total_spend: 80,
+    roas: 70,
+    cost_per_qualified_call: 60,
+    cost_per_conversion: 50
+  };
+
+  const priorities = mode === "attribution" ? attributionPriorities : operationsPriorities;
+  return priorities[key] ?? 0;
 }
 
 function findSemanticSourceColumn(profile: DatasetProfile, role: string) {
@@ -411,6 +483,7 @@ function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): Kpi
   }
 
   const roleSet = buildSemanticRoleSet(profile);
+  const businessMode = getCallKpiMode(profile, roleSet);
   const enabledSemanticKpiKeys = new Set(profile.semanticContract.enabledKpis?.map((item) => item.key) ?? []);
   const cards: MetricObservation[] = [];
   const calls = aggregateSemanticMetric(rows, "calls", profile.semanticContract);
@@ -554,7 +627,7 @@ function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): Kpi
         metricType: "currency",
         unit: "",
         formula: "sum(revenue)",
-        description: "Total revenue detected from the inferred commercial value field.",
+        description: "Revenue from tracked calls detected from the inferred commercial value field.",
         sourceColumns: [findSemanticSourceColumn(profile, "revenue") ?? "revenue"],
         priority: 98,
         profile,
@@ -572,7 +645,7 @@ function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): Kpi
         metricType: "currency",
         unit: "",
         formula: "sum(spend)",
-        description: "Total spend detected from the inferred marketing cost field.",
+        description: "Marketing spend detected from the inferred cost field.",
         sourceColumns: [findSemanticSourceColumn(profile, "spend") ?? "spend"],
         priority: 95,
         profile,
@@ -744,8 +817,12 @@ function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): Kpi
   }
 
   return cards
-    .sort((left, right) => right.priority - left.priority)
-    .slice(0, 6)
+    .sort((left, right) => {
+      const leftBusinessPriority = getSemanticKpiBusinessPriority(left.key, businessMode);
+      const rightBusinessPriority = getSemanticKpiBusinessPriority(right.key, businessMode);
+      return rightBusinessPriority - leftBusinessPriority || right.priority - left.priority;
+    })
+    .slice(0, 5)
     .map((observation) => ({
       id: observation.key,
       label: observation.label,
@@ -1811,7 +1888,7 @@ export function buildKpiCandidates(rows: DatasetRow[], profile: DatasetProfile):
 export function buildKpiCards(rows: DatasetRow[], profile: DatasetProfile): KpiCard[] {
   const semanticCards = buildSemanticKpiCards(rows, profile);
   if (hasCallTrackingSemanticContract(profile)) {
-    return semanticCards.slice(0, 6);
+    return semanticCards.slice(0, 5);
   }
 
   const intelligence = buildKpiObservations(rows, profile);
