@@ -7,6 +7,29 @@ import {
 
 type Filter = ChartConfig["filters"][number];
 
+function formatCompactNumber(value: number) {
+  return new Intl.NumberFormat(undefined, {
+    notation: "compact",
+    maximumFractionDigits: 2
+  }).format(value);
+}
+
+function formatHistogramBoundary(metric: string, value: number) {
+  const normalized = metric.toLowerCase();
+  if (normalized.includes("revenue") || normalized.includes("sales") || normalized.includes("income") || normalized.includes("cost") || normalized.includes("spend") || normalized.includes("amount") || normalized.includes("value")) {
+    return `$${Math.abs(value) >= 1000 ? formatCompactNumber(value) : new Intl.NumberFormat(undefined, { maximumFractionDigits: value % 1 === 0 ? 0 : 2 }).format(value)}`;
+  }
+
+  if (normalized.includes("rate") || normalized.includes("ctr") || normalized.includes("cvr") || normalized.includes("percent")) {
+    const percentValue = Math.abs(value) <= 1.5 ? value * 100 : value;
+    return `${new Intl.NumberFormat(undefined, { maximumFractionDigits: percentValue % 1 === 0 ? 0 : 1 }).format(percentValue)}%`;
+  }
+
+  return Math.abs(value) >= 1000
+    ? formatCompactNumber(value)
+    : new Intl.NumberFormat(undefined, { maximumFractionDigits: value % 1 === 0 ? 0 : 2 }).format(value);
+}
+
 function applyFilter(row: DatasetRow, filter: Filter) {
   const value = row[filter.column];
   if (filter.operator === "eq") {
@@ -168,12 +191,20 @@ export function buildHistogramData(
   const step = (max - min) / bucketCount || 1;
   const buckets = Array.from({ length: bucketCount }, (_, index) => ({
     bucket: `${(min + index * step).toFixed(1)}-${(min + (index + 1) * step).toFixed(1)}`,
-    count: 0
+    bucketLabel: `${formatHistogramBoundary(metric, min + index * step)}–${formatHistogramBoundary(metric, min + (index + 1) * step)}`,
+    rangeStart: Number((min + index * step).toFixed(4)),
+    rangeEnd: Number((min + (index + 1) * step).toFixed(4)),
+    count: 0,
+    share: 0
   }));
 
   for (const value of values) {
     const index = Math.min(Math.floor((value - min) / step), bucketCount - 1);
     buckets[index].count += 1;
+  }
+
+  for (const bucket of buckets) {
+    bucket.share = Number((bucket.count / values.length).toFixed(4));
   }
 
   return buckets;

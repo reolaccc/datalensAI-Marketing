@@ -1,12 +1,36 @@
 import { formatCompactNumber } from "../utils/numberFormatting";
 import type { PrimitiveValue } from "../types";
-import { getChartColorForKey } from "./chartPalette";
+import { getChartColorForKey, getCompositionColor, SINGLE_SERIES_COMPARISON_COLOR } from "./chartPalette";
 
 const STOP_WORDS = new Set(["and", "or", "of", "the", "by", "to", "for", "with", "in", "on", "at", "per"]);
 const ACRONYMS = new Set(["roas", "roi", "ctr", "cvr", "cpc", "cpa", "aov", "gmv", "ltv", "kpi"]);
 
+function looksLikeIsoDate(value: string) {
+  return /^\d{4}-\d{2}-\d{2}(?:[ t]\d{2}:\d{2}(?::\d{2})?)?/i.test(value.trim());
+}
+
+function parseDisplayDate(value: string) {
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
 function normalize(value: string) {
   return value.toLowerCase().replace(/_/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function isTimeLikeLabel(value?: string | null) {
+  const normalized = normalize(String(value ?? ""));
+  return (
+    normalized === "date" ||
+    normalized.includes("date") ||
+    normalized.includes("day") ||
+    normalized.includes("week") ||
+    normalized.includes("month") ||
+    normalized.includes("hour") ||
+    normalized.includes("time") ||
+    normalized.includes("timestamp") ||
+    normalized.includes("start local")
+  );
 }
 
 const SEMANTIC_LABEL_ALIASES: Array<{ canonical: string; aliases: string[] }> = [
@@ -19,8 +43,16 @@ const SEMANTIC_LABEL_ALIASES: Array<{ canonical: string; aliases: string[] }> = 
   { canonical: "CTR", aliases: ["ctr", "click through rate", "click-through rate"] },
   { canonical: "CVR", aliases: ["cvr", "conversion rate", "conversion_rate"] },
   { canonical: "Date", aliases: ["date", "day", "week", "month", "event day", "activity date", "created at"] },
+  { canonical: "Campaign", aliases: ["campaign", "campaign name", "campaign label", "campaign_nm", "campaign_name", "campaign_label", "campaign_lab"] },
   { canonical: "Campaign", aliases: ["campaign", "program", "initiative", "offer", "initiative label", "program name"] },
   { canonical: "Channel", aliases: ["channel", "distribution channel", "channel mix", "source", "medium"] },
+  { canonical: "Location", aliases: ["location", "branch", "branch name", "branch_name", "office", "region location"] },
+  { canonical: "Outcome", aliases: ["outcome", "outcome text", "outcome_text", "call outcome", "call_outcome", "calloutcome"] },
+  { canonical: "Account", aliases: ["account", "account name", "queue", "queue name", "queue_name", "customer type", "customer_type"] },
+  { canonical: "Call Duration", aliases: ["call duration", "callduration"] },
+  { canonical: "Talk Time", aliases: ["talk time", "talktime"] },
+  { canonical: "Handle Time", aliases: ["handle time", "handletime"] },
+  { canonical: "Qualified Calls", aliases: ["qualifiedcall", "qualified call", "qualified calls"] },
   { canonical: "Device", aliases: ["device", "device type", "device class", "platform"] },
   { canonical: "Region", aliases: ["region", "geo", "market area", "country", "market"] }
 ];
@@ -89,6 +121,15 @@ export function getMetricUnit(metric?: string | null) {
   if (!value) {
     return "";
   }
+  if (
+    value.includes("duration") ||
+    value.includes("talk time") ||
+    value.includes("handle time") ||
+    value.includes("wait time") ||
+    value.includes("ring time")
+  ) {
+    return "";
+  }
   if (value.includes("roas") || value.includes("roi")) {
     return "x";
   }
@@ -127,6 +168,38 @@ function formatCurrencyValue(value: number, compact: boolean) {
   return compact ? `$${formatCompactNumber(value)}` : `$${formatFullNumber(value)}`;
 }
 
+function isDurationMetric(metric?: string | null) {
+  const normalized = normalize(String(metric ?? ""));
+  return (
+    normalized.includes("duration") ||
+    normalized.includes("talk time") ||
+    normalized.includes("handle time") ||
+    normalized.includes("wait time") ||
+    normalized.includes("ring time")
+  );
+}
+
+function formatDurationValue(value: number, compact: boolean) {
+  const totalSeconds = Math.max(0, Math.round(value));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  if (hours > 0) {
+    return compact
+      ? `${hours}h ${minutes}m`
+      : seconds > 0
+        ? `${hours}h ${minutes}m ${seconds}s`
+        : `${hours}h ${minutes}m`;
+  }
+
+  if (minutes > 0) {
+    return compact ? `${minutes}m` : seconds > 0 ? `${minutes}m ${seconds}s` : `${minutes}m`;
+  }
+
+  return `${seconds}s`;
+}
+
 export function formatChartValue(value: unknown, metric?: string | null, mode: "axis" | "tooltip" = "axis") {
   if (typeof value !== "number" || !Number.isFinite(value)) {
     return String(value ?? "");
@@ -134,6 +207,10 @@ export function formatChartValue(value: unknown, metric?: string | null, mode: "
 
   const normalizedMetric = normalize(String(metric ?? ""));
   const compact = mode === "axis";
+
+  if (isDurationMetric(normalizedMetric)) {
+    return formatDurationValue(value, compact);
+  }
 
   if (normalizedMetric.includes("roas") || normalizedMetric.includes("roi")) {
     return `${compact ? formatCompactNumber(value) : formatFullNumber(value)}x`;
@@ -167,8 +244,124 @@ export function formatChartValue(value: unknown, metric?: string | null, mode: "
   return compact ? formatCompactNumber(value) : formatFullNumber(value);
 }
 
+export function formatChartDateLabel(value: unknown, mode: "axis" | "tooltip" = "axis") {
+  const raw = String(value ?? "").trim();
+  if (!raw) {
+    return "";
+  }
+
+  if (!looksLikeIsoDate(raw)) {
+    return raw;
+  }
+
+  const parsed = parseDisplayDate(raw);
+  if (!parsed) {
+    return raw;
+  }
+
+  const hasTime = /[ t]\d{2}:\d{2}/i.test(raw);
+  if (mode === "tooltip") {
+    return new Intl.DateTimeFormat(undefined, {
+      month: "short",
+      day: "numeric",
+      year: parsed.getFullYear() === new Date().getFullYear() ? undefined : "numeric",
+      ...(hasTime ? { hour: "numeric", minute: "2-digit" } : {})
+    }).format(parsed);
+  }
+
+  return new Intl.DateTimeFormat(undefined, hasTime ? { month: "short", day: "numeric", hour: "numeric" } : { month: "short", day: "numeric" }).format(parsed);
+}
+
+export function buildTimeSeriesTicks(data: Record<string, PrimitiveValue>[], key: string, targetCount = 6) {
+  const labels = data
+    .map((entry) => String(entry[key] ?? "").trim())
+    .filter(Boolean);
+
+  if (labels.length <= targetCount) {
+    return labels;
+  }
+
+  const ticks: string[] = [];
+  const lastIndex = labels.length - 1;
+  const step = Math.max(1, Math.floor(lastIndex / Math.max(1, targetCount - 1)));
+
+  for (let index = 0; index < labels.length; index += step) {
+    ticks.push(labels[index]);
+  }
+
+  if (ticks[ticks.length - 1] !== labels[lastIndex]) {
+    ticks.push(labels[lastIndex]);
+  }
+
+  return [...new Set(ticks)];
+}
+
+export function isTimeSeriesChartAxis(source?: string | null, xKey?: string | null) {
+  return xKey === "date" || isTimeLikeLabel(source) || isTimeLikeLabel(xKey);
+}
+
+export function getTimeSeriesAxisLabel(source?: string | null, xKey?: string | null) {
+  const normalizedSource = normalize(String(source ?? ""));
+  const normalizedKey = normalize(String(xKey ?? ""));
+
+  if (normalizedSource.includes("month")) {
+    return "Month";
+  }
+  if (normalizedSource.includes("week")) {
+    return "Week";
+  }
+  if (normalizedKey === "date") {
+    return normalizedSource.includes("call") ? "Call Date (Daily)" : "Date (Daily)";
+  }
+  if (normalizedSource.includes("hour")) {
+    return "Hour of Day";
+  }
+  if (normalizedSource.includes("time") || normalizedSource.includes("timestamp")) {
+    return "Call Date / Time";
+  }
+  if (normalizedKey === "date") {
+    return "Date (Daily)";
+  }
+  return "Date";
+}
+
+export function formatHistogramRangeLabel(entry: Record<string, PrimitiveValue> | null | undefined) {
+  if (!entry) {
+    return "";
+  }
+  const bucketLabel = entry.bucketLabel;
+  if (typeof bucketLabel === "string" && bucketLabel.trim()) {
+    return bucketLabel;
+  }
+  const bucket = entry.bucket;
+  return typeof bucket === "string" ? bucket : "";
+}
+
+export function formatCategoryTickLabel(value: unknown, maxLength = 16) {
+  const label = getSemanticDisplayLabel(String(value ?? ""));
+  if (label.length <= maxLength) {
+    return label;
+  }
+  return `${label.slice(0, Math.max(0, maxLength - 1)).trimEnd()}…`;
+}
+
 export function getAxisLabel(metric?: string | null, dimension?: string | null) {
-  const label = getSemanticDisplayLabel(metric ?? dimension ?? "");
+  const source = metric ?? dimension ?? "";
+  const normalized = normalize(source);
+  if (normalized.includes("month")) {
+    return "Month";
+  }
+  if (normalized.includes("week")) {
+    return "Week";
+  }
+  if (normalized.includes("hour") || normalized.includes("time") || normalized.includes("timestamp")) {
+    return "Call Date / Time";
+  }
+  if (normalized.includes("date") || normalized.includes("day") || normalized.includes("start local")) {
+    return "Call Date";
+  }
+
+  const label = getSemanticDisplayLabel(source);
   const unit = getMetricUnit(metric);
   return unit ? `${label} (${unit})` : label;
 }
@@ -203,6 +396,10 @@ function getLegendLabel(chart: LegendableChart, entry: Record<string, PrimitiveV
 
 export function buildChartLegendPayload(chart: LegendableChart) {
   const seriesKeys = chart.series?.filter(Boolean) ?? [];
+  if (chart.chartType === "histogram" || chart.chartType === "funnel") {
+    return [];
+  }
+
   if (seriesKeys.length > 1) {
     return seriesKeys.map((seriesKey) => ({
       value: getSemanticDisplayLabel(seriesKey),
@@ -211,7 +408,15 @@ export function buildChartLegendPayload(chart: LegendableChart) {
     }));
   }
 
-  if (chart.chartType === "line" || chart.chartType === "anomaly_trend" || chart.chartType === "scatter") {
+  if (chart.chartType === "bar" || chart.chartType === "horizontal_bar") {
+    return [];
+  }
+
+  if (chart.chartType === "scatter") {
+    return [];
+  }
+
+  if (chart.chartType === "line" || chart.chartType === "anomaly_trend") {
     const label = getSemanticDisplayLabel(chart.metric ?? chart.yKey ?? chart.title ?? "");
     if (!label) {
       return [];
@@ -219,7 +424,7 @@ export function buildChartLegendPayload(chart: LegendableChart) {
     return [
       {
         value: label,
-        color: getChartColorForKey(chart.yKey ?? chart.metric ?? chart.id),
+        color: SINGLE_SERIES_COMPARISON_COLOR,
         type: chart.chartType === "line" ? "line" : "circle"
       }
     ];
@@ -228,7 +433,10 @@ export function buildChartLegendPayload(chart: LegendableChart) {
   const categoryEntries = chart.data
     .map((entry, index) => ({
       value: getLegendLabel(chart, entry, index),
-      color: getChartColorForKey(String(entry[getCategoryKey(chart)] ?? index)),
+      color:
+        chart.chartType === "donut"
+          ? getCompositionColor(index, String(entry[getCategoryKey(chart)] ?? index))
+          : getChartColorForKey(String(entry[getCategoryKey(chart)] ?? index)),
       type: "square"
     }))
     .filter((entry, index, entries) => entry.value && entries.findIndex((candidate) => candidate.value === entry.value) === index);

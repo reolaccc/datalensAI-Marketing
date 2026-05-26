@@ -18,12 +18,25 @@ import {
   YAxis
 } from "recharts";
 import type { AnalysisResponse } from "../types";
-import { AXIS_COLOR, GRID_COLOR, getChartColorForKey, OTHER_CATEGORY_COLOR } from "./chartPalette";
+import {
+  AXIS_COLOR,
+  GRID_COLOR,
+  getChartColorForKey,
+  getCompositionColor,
+  OTHER_CATEGORY_COLOR,
+  SINGLE_SERIES_COMPARISON_COLOR
+} from "./chartPalette";
 import {
   buildChartLegendPayload,
+  buildTimeSeriesTicks,
+  formatCategoryTickLabel,
+  formatChartDateLabel,
   formatChartValue,
+  formatHistogramRangeLabel,
   getAxisLabel,
   getSemanticDisplayLabel,
+  getTimeSeriesAxisLabel,
+  isTimeSeriesChartAxis,
   humanizeLabel
 } from "./chartFormatting";
 import { formatCompactNumber } from "../utils/numberFormatting";
@@ -38,6 +51,26 @@ function tooltipFormatter(value: unknown, name: unknown) {
   const label = getSemanticDisplayLabel(String(name ?? ""));
   return [formatChartValue(value, String(name ?? ""), "tooltip"), label || humanizeLabel(String(name ?? ""))];
 }
+
+function getLongestCategoryLabel(data: Props["chart"]["data"], key?: string | null) {
+  if (!key) {
+    return 0;
+  }
+
+  return data.reduce((longest, entry) => {
+    const label = getSemanticDisplayLabel(String(entry[key] ?? ""));
+    return Math.max(longest, label.length);
+  }, 0);
+}
+
+const LINE_AXIS_TITLE_STYLE = {
+  fill: AXIS_COLOR,
+  fontSize: 12
+} as const;
+
+const DEFAULT_LEFT_MARGIN = 24;
+const WIDE_LEFT_MARGIN = 32;
+const DEFAULT_Y_AXIS_WIDTH = 78;
 
 function formatChartRole(role?: string | null) {
   if (!role) {
@@ -104,8 +137,8 @@ function getPresentationData(chart: Props["chart"]) {
     !chart.series?.length &&
     chart.data.length > 8 &&
     chart.yKey;
-  const categoryKey = chart.chartType === "horizontal_bar" ? chart.yKey ?? chart.xKey : chart.xKey;
-  const valueKey = chart.chartType === "horizontal_bar" ? chart.xKey : chart.yKey!;
+  const categoryKey = chart.xKey;
+  const valueKey = chart.yKey!;
 
   if (!shouldCondense) {
     return { data: chart.data, categoryKey, valueKey };
@@ -138,34 +171,146 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
   const chartData = presentation.data;
   const categoryKey = presentation.categoryKey;
   const valueKey = presentation.valueKey;
-  const barValueKey = chart.chartType === "horizontal_bar" ? valueKey : chart.yKey!;
+  const barValueKey = valueKey;
   const presentationChart = { ...chart, data: chartData };
   const metricLabel = getSemanticDisplayLabel(chart.metric ?? chart.yAxis ?? chart.yKey ?? null);
   const dimensionLabel = getSemanticDisplayLabel(chart.dimension ?? chart.xAxis ?? chart.xKey ?? null);
   const isHistogram = chart.chartType === "histogram";
+  const isTimeSeriesChart =
+    (chart.chartType === "line" || chart.chartType === "anomaly_trend") &&
+    isTimeSeriesChartAxis(chart.xAxis ?? chart.dimension ?? chart.xKey, chart.xKey);
   const xAxisLabel = isHistogram
     ? getAxisLabel(chart.xAxis ?? chart.xKey, dimensionLabel)
-    : getAxisLabel(
-        chart.chartType === "horizontal_bar" ? chart.metric ?? chart.yAxis : chart.xAxis,
-        chart.chartType === "horizontal_bar" ? null : dimensionLabel
-      );
-  const yAxisLabel = isHistogram ? getAxisLabel(chart.yAxis ?? chart.yKey, null) : getAxisLabel(metricLabel, dimensionLabel);
+    : isTimeSeriesChart
+      ? getTimeSeriesAxisLabel(chart.xAxis ?? chart.dimension ?? chart.xKey, chart.xKey)
+      : chart.chartType === "horizontal_bar"
+        ? getAxisLabel(chart.metric ?? chart.yAxis ?? chart.yKey, null)
+        : getAxisLabel(chart.xAxis ?? chart.xKey, dimensionLabel);
+  const yAxisLabel = isHistogram
+    ? getAxisLabel(chart.yAxis ?? chart.yKey, null)
+    : chart.chartType === "horizontal_bar"
+      ? getAxisLabel(chart.dimension ?? chart.xAxis ?? chart.xKey, dimensionLabel)
+      : getAxisLabel(metricLabel, dimensionLabel);
   const chartValueMetric = isHistogram ? chart.yKey : metricLabel;
   const legendPayload = buildChartLegendPayload(presentationChart);
   const chartTitle = getSemanticDisplayLabel(chart.title) || humanizeLabel(chart.title);
   const chartRole = formatChartRole(chart.analysisRole ?? null);
   const chartInsight = buildChartInsightText(chart);
-  const chartHeight = compact ? 216 : 236;
+  const longestCategoryLabel = getLongestCategoryLabel(chartData, categoryKey);
+  const hasLongCategoryLabels = longestCategoryLabel >= 14;
+  const shouldRotateCategoryTicks = chart.chartType === "bar" && hasLongCategoryLabels;
+  const shouldRotateHistogramTicks = isHistogram && chartData.length >= 4;
+  const histogramTickInterval = chartData.length >= 6 ? "preserveStartEnd" : 0;
+  const shouldShowLegend = legendPayload.length > 0;
+  const shouldHideVerticalCategoryAxisLabel =
+    chart.chartType === "bar" &&
+    !chart.series?.length &&
+    !isHistogram;
+  const shouldHideHorizontalCategoryAxisLabel =
+    chart.chartType === "horizontal_bar" &&
+    !chart.series?.length;
+  const hasRenderableCategoryData =
+    !isHistogram &&
+    (chart.chartType === "bar" || chart.chartType === "horizontal_bar" || chart.chartType === "stacked_bar")
+      ? chartData.some((entry) => {
+          const categoryValue = entry[categoryKey];
+          const metricValue = entry[valueKey];
+          return String(categoryValue ?? "").trim() && typeof metricValue === "number" && Number.isFinite(metricValue);
+        })
+      : true;
+  const lineTicks =
+    isTimeSeriesChart
+      ? buildTimeSeriesTicks(chartData, chart.xKey)
+      : undefined;
+  const chartHeight = compact
+    ? 224
+    : chart.chartType === "donut"
+      ? 296
+      : chart.chartType === "funnel"
+        ? 272
+      : isHistogram
+        ? 268
+        : isTimeSeriesChart
+          ? 272
+          : chart.chartType === "horizontal_bar"
+            ? 264
+            : chart.chartType === "bar" || chart.chartType === "stacked_bar"
+              ? 252
+              : 248;
+
+  function renderTooltipContent({ active, payload, label }: { active?: boolean; payload?: Array<{ value?: unknown; name?: unknown; payload?: Record<string, string | number | boolean | null> }>; label?: unknown }) {
+    if (!active || !payload?.length) {
+      return null;
+    }
+
+    if (chart.chartType === "histogram") {
+      const entry = payload[0]?.payload;
+      if (!entry) {
+        return null;
+      }
+      const rangeLabel = formatHistogramRangeLabel(entry);
+      const count = typeof entry.count === "number" ? entry.count : Number(entry.count ?? 0);
+      const share = typeof entry.share === "number" ? entry.share : Number(entry.share ?? 0);
+      return (
+        <div className="chart-tooltip">
+          <p className="chart-tooltip-title">{rangeLabel}</p>
+          <p>Count: {formatChartValue(count, "count", "tooltip")}</p>
+          {Number.isFinite(share) ? <p>Share of records: {formatChartValue(share, "percent", "tooltip")}</p> : null}
+        </div>
+      );
+    }
+
+    const formattedLabel =
+      isTimeSeriesChart
+        ? formatChartDateLabel(label, "tooltip")
+        : getSemanticDisplayLabel(String(label ?? "")) || String(label ?? "");
+    const primaryEntry = payload[0];
+    const primaryMetricValue = typeof primaryEntry?.value === "number" ? primaryEntry.value : Number(primaryEntry?.value ?? NaN);
+    const shouldShowShare =
+      !chart.series?.length &&
+      (chart.chartType === "bar" || chart.chartType === "horizontal_bar" || chart.chartType === "donut" || chart.chartType === "funnel") &&
+      Number.isFinite(primaryMetricValue);
+    const totalMetricValue = shouldShowShare
+      ? chartData.reduce((sum, entry) => sum + (typeof entry[valueKey] === "number" ? entry[valueKey] : Number(entry[valueKey] ?? 0)), 0)
+      : 0;
+    const shareValue = shouldShowShare && totalMetricValue > 0 ? primaryMetricValue / totalMetricValue : null;
+
+    return (
+      <div className="chart-tooltip">
+        {formattedLabel ? <p className="chart-tooltip-title">{formattedLabel}</p> : null}
+        {payload.map((entry, index) => {
+          const metricName = String(entry.name ?? "");
+          const semanticLabel = getSemanticDisplayLabel(metricName) || humanizeLabel(metricName);
+          return (
+            <p key={`${metricName}-${index}`}>
+              {semanticLabel}: {formatChartValue(entry.value, metricName, "tooltip")}
+            </p>
+          );
+        })}
+        {shareValue !== null ? <p>Share: {formatChartValue(shareValue, "percent", "tooltip")}</p> : null}
+      </div>
+    );
+  }
 
   function renderChart() {
     if (chart.chartType === "line" || chart.chartType === "anomaly_trend") {
       return (
-        <LineChart data={chartData}>
+        <LineChart data={chartData} margin={{ top: 10, right: 18, bottom: 18, left: WIDE_LEFT_MARGIN }}>
           <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
-          <XAxis dataKey={chart.xKey} stroke={AXIS_COLOR} label={{ value: xAxisLabel || "Date", position: "insideBottom", offset: -6, fill: AXIS_COLOR }} />
-          <YAxis stroke={AXIS_COLOR} tickFormatter={(value) => formatChartValue(value, metricLabel)} label={{ value: yAxisLabel, angle: -90, position: "insideLeft", fill: AXIS_COLOR }} />
-          <Tooltip formatter={tooltipFormatter} labelFormatter={(label) => getSemanticDisplayLabel(String(label ?? ""))} />
-          {legendPayload.length ? <Legend payload={legendPayload as never} /> : null}
+          <XAxis
+            dataKey={chart.xKey}
+            ticks={lineTicks}
+            interval={isTimeSeriesChart ? 0 : "preserveEnd"}
+            stroke={AXIS_COLOR}
+            tickFormatter={(value) => isTimeSeriesChart ? formatChartDateLabel(value, "axis") : getSemanticDisplayLabel(String(value ?? "")) || String(value ?? "")}
+            minTickGap={24}
+            tickMargin={14}
+            height={48}
+            label={{ value: xAxisLabel || (isTimeSeriesChart ? "Date (Daily)" : "Category"), position: "insideBottom", offset: -8, ...LINE_AXIS_TITLE_STYLE }}
+          />
+          <YAxis stroke={AXIS_COLOR} width={DEFAULT_Y_AXIS_WIDTH} tickFormatter={(value) => formatChartValue(value, metricLabel)} tickMargin={10} label={{ value: yAxisLabel, angle: -90, position: "insideLeft", dx: -8, ...LINE_AXIS_TITLE_STYLE }} />
+          <Tooltip content={renderTooltipContent} />
+          {shouldShowLegend ? <Legend verticalAlign="top" align="right" wrapperStyle={{ paddingBottom: 6 }} payload={legendPayload as never} /> : null}
           {chart.series?.length ? (
             chart.series.map((seriesKey, index) =>
               seriesKey === "anomaly_marker" ? (
@@ -193,7 +338,7 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
               type="monotone"
               dataKey={chart.yKey!}
               name={getSemanticDisplayLabel(chart.metric ?? chart.yKey ?? chart.title)}
-              stroke={getChartColorForKey(chart.yKey)}
+              stroke={SINGLE_SERIES_COMPARISON_COLOR}
               strokeWidth={3}
               dot={false}
             />
@@ -208,35 +353,61 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
       chart.chartType === "horizontal_bar" ||
       chart.chartType === "stacked_bar"
     ) {
+      if (!hasRenderableCategoryData) {
+        return <div className="chart-empty-state">Chart data is available but could not be rendered clearly.</div>;
+      }
+
       return (
-        <BarChart data={chartData} layout={chart.chartType === "horizontal_bar" ? "vertical" : "horizontal"}>
+        <BarChart data={chartData} layout={chart.chartType === "horizontal_bar" ? "vertical" : "horizontal"} margin={{ top: 10, right: 18, bottom: isHistogram ? 48 : shouldRotateCategoryTicks ? 38 : 22, left: chart.chartType === "horizontal_bar" ? WIDE_LEFT_MARGIN : DEFAULT_LEFT_MARGIN }}>
           <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
           <XAxis
-            dataKey={chart.chartType === "horizontal_bar" ? undefined : chart.xKey}
+            dataKey={chart.chartType === "horizontal_bar" ? undefined : isHistogram ? "bucketLabel" : categoryKey}
             type={chart.chartType === "horizontal_bar" ? "number" : "category"}
+            domain={chart.chartType === "horizontal_bar" ? [0, "auto"] : undefined}
             stroke={AXIS_COLOR}
-            tickFormatter={chart.chartType === "horizontal_bar" ? (value) => formatChartValue(value, metricLabel) : undefined}
+            tickFormatter={
+              chart.chartType === "horizontal_bar"
+                ? (value) => formatChartValue(value, metricLabel)
+                : isHistogram
+                  ? undefined
+                  : (value) => formatCategoryTickLabel(value, shouldRotateCategoryTicks ? 12 : 18)
+            }
+            interval={chart.chartType === "horizontal_bar" ? undefined : isHistogram ? histogramTickInterval : 0}
+            angle={shouldRotateHistogramTicks ? -22 : shouldRotateCategoryTicks ? -24 : 0}
+            textAnchor={shouldRotateHistogramTicks || shouldRotateCategoryTicks ? "end" : "middle"}
+            minTickGap={12}
+            tickMargin={14}
+            height={shouldRotateHistogramTicks ? 72 : shouldRotateCategoryTicks ? 58 : 40}
             label={{
-              value: chart.chartType === "horizontal_bar" ? yAxisLabel : xAxisLabel || "Category",
+              value:
+                chart.chartType === "horizontal_bar"
+                  ? xAxisLabel
+                  : shouldHideVerticalCategoryAxisLabel
+                    ? ""
+                    : xAxisLabel || (isHistogram ? "Value Range" : "Category"),
               position: "insideBottom",
-              offset: -6,
+              offset: -8,
               fill: AXIS_COLOR
             }}
           />
           <YAxis
             dataKey={chart.chartType === "horizontal_bar" ? categoryKey : undefined}
             type={chart.chartType === "horizontal_bar" ? "category" : "number"}
+            domain={chart.chartType === "horizontal_bar" ? undefined : [0, "auto"]}
             stroke={AXIS_COLOR}
-            tickFormatter={chart.chartType !== "horizontal_bar" ? (value) => formatChartValue(value, chartValueMetric) : undefined}
+            width={chart.chartType === "horizontal_bar" ? (hasLongCategoryLabels ? 124 : 100) : DEFAULT_Y_AXIS_WIDTH}
+            tickFormatter={chart.chartType !== "horizontal_bar" ? (value) => formatChartValue(value, chartValueMetric) : (value) => formatCategoryTickLabel(value, 18)}
+            tickMargin={10}
             label={{
-              value: chart.chartType === "horizontal_bar" ? chart.xAxis ?? "Category" : yAxisLabel,
+              value: shouldHideHorizontalCategoryAxisLabel ? "" : yAxisLabel,
               angle: -90,
               position: "insideLeft",
-              fill: AXIS_COLOR
+              fill: AXIS_COLOR,
+              dx: -8
             }}
           />
-          <Tooltip formatter={tooltipFormatter} labelFormatter={(label) => getSemanticDisplayLabel(String(label ?? ""))} />
-          {legendPayload.length ? <Legend payload={legendPayload as never} /> : null}
+          <Tooltip content={renderTooltipContent} formatter={tooltipFormatter} labelFormatter={(label) => isHistogram ? String(label ?? "") : getSemanticDisplayLabel(String(label ?? ""))} />
+          {shouldShowLegend ? <Legend verticalAlign="top" align="right" wrapperStyle={{ paddingBottom: 6 }} payload={legendPayload as never} /> : null}
           {chart.series?.length ? (
             chart.series.map((seriesKey, index) => (
               <Bar
@@ -251,9 +422,17 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
           ) : (
             <Bar dataKey={barValueKey} name={getSemanticDisplayLabel(chartValueMetric ?? chart.yKey ?? chart.title)} radius={[8, 8, 0, 0]}>
               {chartData.map((_entry, index) => (
-                <Cell
+              <Cell
                   key={`${chart.id}-${index}`}
-                  fill={String(chartData[index]?.[categoryKey] ?? index) === "Other" ? OTHER_CATEGORY_COLOR : getChartColorForKey(String(chartData[index]?.[categoryKey] ?? index))}
+                  fill={
+                    isHistogram
+                      ? SINGLE_SERIES_COMPARISON_COLOR
+                      : !chart.series?.length && (chart.chartType === "bar" || chart.chartType === "horizontal_bar")
+                        ? SINGLE_SERIES_COMPARISON_COLOR
+                      : String(chartData[index]?.[categoryKey] ?? index) === "Other"
+                        ? OTHER_CATEGORY_COLOR
+                        : getChartColorForKey(String(chartData[index]?.[categoryKey] ?? index))
+                  }
                 />
               ))}
             </Bar>
@@ -264,20 +443,21 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
 
     if (chart.chartType === "donut") {
       return (
-        <PieChart>
-          <Tooltip formatter={tooltipFormatter} labelFormatter={(label) => getSemanticDisplayLabel(String(label ?? ""))} />
-          {legendPayload.length ? <Legend payload={legendPayload as never} /> : null}
+        <PieChart margin={{ top: 20, right: 12, bottom: shouldShowLegend ? 48 : 14, left: 12 }}>
+          <Tooltip content={renderTooltipContent} formatter={tooltipFormatter} labelFormatter={(label) => getSemanticDisplayLabel(String(label ?? ""))} />
+          {shouldShowLegend ? <Legend verticalAlign="bottom" align="center" iconSize={8} wrapperStyle={{ paddingTop: 6 }} payload={legendPayload.map((entry) => ({ ...entry, value: formatCategoryTickLabel(entry.value, 18) })) as never} /> : null}
           <Pie
             data={chartData}
             dataKey={chart.yKey!}
             name={getSemanticDisplayLabel(chart.metric ?? chart.yKey ?? chart.title)}
             nameKey={chart.xKey}
-            innerRadius={56}
-            outerRadius={92}
+            innerRadius={46}
+            outerRadius={68}
+            cy={shouldShowLegend ? "46%" : "52%"}
             paddingAngle={2}
           >
             {chartData.map((_entry, index) => (
-              <Cell key={`${chart.id}-${index}`} fill={String(chartData[index]?.[categoryKey] ?? index) === "Other" ? OTHER_CATEGORY_COLOR : getChartColorForKey(String(chartData[index]?.[categoryKey] ?? index))} />
+              <Cell key={`${chart.id}-${index}`} fill={String(chartData[index]?.[categoryKey] ?? index) === "Other" ? OTHER_CATEGORY_COLOR : getCompositionColor(index, String(chartData[index]?.[categoryKey] ?? index))} />
             ))}
           </Pie>
         </PieChart>
@@ -287,8 +467,8 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
     if (chart.chartType === "funnel") {
       return (
         <FunnelChart>
-          <Tooltip formatter={tooltipFormatter} labelFormatter={(label) => getSemanticDisplayLabel(String(label ?? ""))} />
-          {legendPayload.length ? <Legend payload={legendPayload as never} /> : null}
+          <Tooltip content={renderTooltipContent} formatter={tooltipFormatter} labelFormatter={(label) => getSemanticDisplayLabel(String(label ?? ""))} />
+          {shouldShowLegend ? <Legend verticalAlign="top" align="right" wrapperStyle={{ paddingBottom: 6 }} payload={legendPayload as never} /> : null}
           <Funnel dataKey={chart.yKey!} name={getSemanticDisplayLabel(chart.metric ?? chart.yKey ?? chart.title)} data={chartData} isAnimationActive={false}>
             {chartData.map((_entry, index) => (
               <Cell key={`${chart.id}-${index}`} fill={getChartColorForKey(String(chartData[index]?.[categoryKey] ?? index))} />
@@ -309,12 +489,12 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
     }
 
     return (
-      <ScatterChart>
+      <ScatterChart margin={{ top: 10, right: 18, bottom: 22, left: DEFAULT_LEFT_MARGIN }}>
         <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
-        <XAxis dataKey={chart.xKey} stroke={AXIS_COLOR} type="number" tickFormatter={(value) => formatChartValue(value, chart.xKey)} label={{ value: getAxisLabel(chart.xKey), position: "insideBottom", offset: -6, fill: AXIS_COLOR }} />
-        <YAxis dataKey={chart.yKey!} stroke={AXIS_COLOR} type="number" tickFormatter={(value) => formatChartValue(value, chart.yKey)} label={{ value: getAxisLabel(chart.yKey), angle: -90, position: "insideLeft", fill: AXIS_COLOR }} />
-        <Tooltip cursor={{ strokeDasharray: "3 3" }} formatter={tooltipFormatter} labelFormatter={(label) => getSemanticDisplayLabel(String(label ?? ""))} />
-        {legendPayload.length ? <Legend payload={legendPayload as never} /> : null}
+        <XAxis dataKey={chart.xKey} stroke={AXIS_COLOR} type="number" tickMargin={14} height={40} tickFormatter={(value) => formatChartValue(value, chart.xKey)} label={{ value: getAxisLabel(chart.xKey), position: "insideBottom", offset: -8, fill: AXIS_COLOR }} />
+        <YAxis dataKey={chart.yKey!} stroke={AXIS_COLOR} type="number" width={DEFAULT_Y_AXIS_WIDTH} tickMargin={10} tickFormatter={(value) => formatChartValue(value, chart.yKey)} label={{ value: getAxisLabel(chart.yKey), angle: -90, position: "insideLeft", fill: AXIS_COLOR, dx: -8 }} />
+        <Tooltip cursor={{ strokeDasharray: "3 3" }} content={renderTooltipContent} formatter={tooltipFormatter} labelFormatter={(label) => getSemanticDisplayLabel(String(label ?? ""))} />
+        {shouldShowLegend ? <Legend verticalAlign="top" align="right" wrapperStyle={{ paddingBottom: 6 }} payload={legendPayload as never} /> : null}
         <Scatter data={chartData} name={getSemanticDisplayLabel(chart.metric ?? chart.yKey ?? chart.title)} fill={getChartColorForKey(chart.id)} />
       </ScatterChart>
     );
@@ -330,7 +510,7 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
         </div>
       </div>
 
-      <div className="chart-frame">
+      <div className="chart-frame" style={{ height: `${chartHeight}px` }}>
         {chart.chartType === "kpi_card" ? (
           renderChart()
         ) : (

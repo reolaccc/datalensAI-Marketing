@@ -9,9 +9,21 @@ export const CHART_PALETTE = [
   "#5aa9e6"
 ];
 
+export const COMPOSITION_PALETTE = [
+  "#7bd389",
+  "#ff6b8a",
+  "#5bc0be",
+  "#f6bd60",
+  "#84a59d",
+  "#f28482",
+  "#8ecae6",
+  "#cdb4db"
+];
+
 export const AXIS_COLOR = "#7ea8a5";
 export const GRID_COLOR = "rgba(126, 168, 165, 0.12)";
 export const OTHER_CATEGORY_COLOR = "#8f9ba8";
+export const SINGLE_SERIES_COMPARISON_COLOR = "#F6D365";
 
 function normalizeKey(key?: string | null) {
   return String(key ?? "")
@@ -91,4 +103,13 @@ export function getChartColorForKey(key?: string | null) {
   }
 
   return CHART_PALETTE[hash % CHART_PALETTE.length];
+}
+
+export function getCompositionColor(index: number, key?: string | null) {
+  const normalized = normalizeColorKey(key);
+  if (normalized === "other") {
+    return OTHER_CATEGORY_COLOR;
+  }
+
+  return COMPOSITION_PALETTE[index % COMPOSITION_PALETTE.length];
 }

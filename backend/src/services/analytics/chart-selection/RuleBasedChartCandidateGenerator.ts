@@ -137,15 +137,24 @@ function isSemanticCompositionDimension(context: ChartSelectionContext, dimensio
   return ["channel", "campaign", "device", "region", "source", "medium"].some((hint) => normalized.includes(hint));
 }
 
-const EXPLICIT_FUNNEL_FIELD_HINTS = ["stage", "step", "funnel", "pipeline"];
-const PROGRESSION_STATUS_FIELD_HINTS = ["status", "outcome"];
+const EXPLICIT_FUNNEL_FIELD_HINTS = [
+  "sales_stage",
+  "funnel_stage",
+  "lead_stage",
+  "pipeline_stage",
+  "opportunity_stage",
+  "stage",
+  "step",
+  "funnel",
+  "pipeline"
+];
 const FUNNEL_STAGE_RANKS: Array<{ pattern: RegExp; rank: number }> = [
-  { pattern: /\b(new|lead|inquiry|enquiry|prospect|captured)\b/i, rank: 1 },
-  { pattern: /\b(contacted|reached|connected|answered)\b/i, rank: 2 },
-  { pattern: /\b(engaged|follow[\s-]?up|nurtured|appointment|booked)\b/i, rank: 3 },
-  { pattern: /\b(qualified|sql|mql)\b/i, rank: 4 },
+  { pattern: /\b(new|lead|inquiry|enquiry|prospect|captured|awareness|visitor)\b/i, rank: 1 },
+  { pattern: /\b(contacted|reached|connected|answered|consideration|engaged)\b/i, rank: 2 },
+  { pattern: /\b(follow[\s-]?up|nurtured|appointment|booked|mql|marketing qualified)\b/i, rank: 3 },
+  { pattern: /\b(qualified|sql|sales qualified)\b/i, rank: 4 },
   { pattern: /\b(quote sent|proposal|demo|negotiation|opportunity)\b/i, rank: 5 },
-  { pattern: /\b(converted|won|closed won|sale|customer)\b/i, rank: 6 }
+  { pattern: /\b(converted|conversion|won|closed won|sale|customer)\b/i, rank: 6 }
 ];
 const NON_PROGRESSIVE_FUNNEL_VALUE_HINTS = [
   /\bmissed\b/i,
@@ -238,25 +247,26 @@ function hasClearFunnelProgression(context: ChartSelectionContext, stageField: s
   }
 
   const explicitStageField = EXPLICIT_FUNNEL_FIELD_HINTS.some((hint) => normalizedField.includes(hint));
-  const statusLikeField = PROGRESSION_STATUS_FIELD_HINTS.some((hint) => normalizedField.includes(hint));
-  if (!explicitStageField && !statusLikeField) {
+  if (!explicitStageField) {
     return false;
   }
 
   const rankedLabels = labels
     .map((label) => ({ label, rank: funnelStageRank(label) }))
     .filter((entry): entry is { label: string; rank: number } => entry.rank !== null);
+  const nonProgressiveCount = labels.filter((label) => NON_PROGRESSIVE_FUNNEL_VALUE_HINTS.some((pattern) => pattern.test(label))).length;
+  const progressionCoverage = labels.length > 0 ? rankedLabels.length / labels.length : 0;
   const uniqueRanks = [...new Set(rankedLabels.map((entry) => entry.rank))].sort((left, right) => left - right);
+  if (nonProgressiveCount > 0) {
+    return false;
+  }
+  if (progressionCoverage < 0.75) {
+    return false;
+  }
   if (uniqueRanks.length < 3 || uniqueRanks[uniqueRanks.length - 1] - uniqueRanks[0] < 2) {
     return false;
   }
-
-  if (explicitStageField) {
-    return true;
-  }
-
-  const nonProgressiveCount = labels.filter((label) => NON_PROGRESSIVE_FUNNEL_VALUE_HINTS.some((pattern) => pattern.test(label))).length;
-  return nonProgressiveCount <= 1 && rankedLabels.length >= 3;
+  return true;
 }
 
 function preferredFunnelStageField(context: ChartSelectionContext) {

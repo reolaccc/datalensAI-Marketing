@@ -346,16 +346,30 @@ small {
 }
 
 .chart-frame {
-  height: 236px;
+  min-height: 248px;
+  min-width: 0;
 }
 
 .chart-kpi-card {
   height: 100%;
-  min-height: 236px;
+  min-height: 248px;
   display: grid;
   place-content: center;
   gap: 12px;
   text-align: center;
+}
+
+.chart-empty-state {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: #a8d8d4;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  padding: 18px;
+  border: 1px dashed rgba(126, 168, 165, 0.28);
+  border-radius: 18px;
 }
 
 .chart-kpi-card span {
@@ -548,15 +562,34 @@ small {
   gap: 12px;
   flex-wrap: wrap;
   align-items: center;
+  max-width: 100%;
 }
 
 .recharts-legend-item {
   margin-right: 0 !important;
+  max-width: 100%;
 }
 
 .recharts-legend-item-text {
   color: #a8d8d4 !important;
   font-size: 0.84rem;
+}
+
+.chart-tooltip {
+  display: grid;
+  gap: 4px;
+}
+
+.chart-tooltip p {
+  margin: 0;
+  color: #ecfaf8;
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.chart-tooltip-title {
+  color: #ecfaf8;
+  font-weight: 700;
 }
 
 .recharts-tooltip-wrapper {

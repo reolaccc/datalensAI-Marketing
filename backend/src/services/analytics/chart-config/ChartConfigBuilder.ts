@@ -17,6 +17,59 @@ function formatCompactNumber(value: number) {
   }).format(value);
 }
 
+function looksLikeIsoDate(value: string) {
+  return /^\d{4}-\d{2}-\d{2}(?:[ t]\d{2}:\d{2}(?::\d{2})?)?/i.test(value.trim());
+}
+
+const FUNNEL_STAGE_RANKS: Array<{ pattern: RegExp; rank: number }> = [
+  { pattern: /\b(new|lead|inquiry|enquiry|prospect|captured|awareness|visitor)\b/i, rank: 1 },
+  { pattern: /\b(contacted|reached|connected|answered|consideration|engaged)\b/i, rank: 2 },
+  { pattern: /\b(follow[\s-]?up|nurtured|appointment|booked|mql|marketing qualified)\b/i, rank: 3 },
+  { pattern: /\b(qualified|sql|sales qualified)\b/i, rank: 4 },
+  { pattern: /\b(quote sent|proposal|demo|negotiation|opportunity)\b/i, rank: 5 },
+  { pattern: /\b(converted|conversion|won|closed won|sale|customer)\b/i, rank: 6 }
+];
+
+function formatReadableDateLabel(value: string) {
+  if (!looksLikeIsoDate(value)) {
+    return value;
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+
+  const hasTime = /[ t]\d{2}:\d{2}/i.test(value);
+  return new Intl.DateTimeFormat(undefined, hasTime ? { month: "short", day: "numeric", hour: "numeric" } : { month: "short", day: "numeric" }).format(parsed);
+}
+
+function formatReadableValue(metric: string | null | undefined, value: number) {
+  const normalized = (metric ?? "").toLowerCase();
+  if (normalized.includes("roas") || normalized.includes("roi")) {
+    return `${formatCompactNumber(value)}x`;
+  }
+  if (normalized.includes("ctr") || normalized.includes("cvr") || normalized.includes("rate") || normalized.includes("percent")) {
+    const percentValue = Math.abs(value) <= 1.5 ? value * 100 : value;
+    return `${new Intl.NumberFormat(undefined, { maximumFractionDigits: percentValue % 1 === 0 ? 0 : 1 }).format(percentValue)}%`;
+  }
+  if (normalized.includes("revenue") || normalized.includes("sales") || normalized.includes("income") || normalized.includes("gmv") || normalized.includes("cost") || normalized.includes("spend") || normalized.includes("profit") || normalized.includes("value") || normalized.includes("amount")) {
+    return `$${Math.abs(value) >= 1000 ? formatCompactNumber(value) : new Intl.NumberFormat(undefined, { maximumFractionDigits: value % 1 === 0 ? 0 : 2 }).format(value)}`;
+  }
+  return Math.abs(value) >= 1000
+    ? formatCompactNumber(value)
+    : new Intl.NumberFormat(undefined, { maximumFractionDigits: value % 1 === 0 ? 0 : 2 }).format(value);
+}
+
+function funnelStageRank(value: string) {
+  for (const candidate of FUNNEL_STAGE_RANKS) {
+    if (candidate.pattern.test(value)) {
+      return candidate.rank;
+    }
+  }
+  return null;
+}
+
 function pluralizeLabel(value: string) {
   const lower = value.toLowerCase();
   if (/(s|x|z|ch|sh)$/i.test(lower)) {
@@ -85,6 +138,11 @@ function humanizeLabel(value?: string | null) {
   const stopWords = new Set(["and", "or", "of", "the", "by", "to", "for", "with", "in", "on", "at", "per"]);
   const acronyms = new Set(["roas", "roi", "ctr", "cvr", "cpc", "cpa", "aov", "gmv", "ltv", "kpi"]);
   const replacements: Array<[RegExp, string]> = [
+    [/campaign\s*(name|label|nm|lab)/gi, "campaign"],
+    [/branch\s*name/gi, "location"],
+    [/queue\s*name/gi, "account"],
+    [/customer\s*type/gi, "account"],
+    [/outcome\s*text/gi, "outcome"],
     [/qualified\s*calls?/gi, "qualified calls"],
     [/converted\s*calls?/gi, "converted calls"],
     [/missed\s*calls?/gi, "missed calls"],
@@ -241,21 +299,35 @@ function buildTopBottomSubtitle(
 
   const top = ranked[0];
   const bottom = ranked[ranked.length - 1];
+  const second = ranked[1];
   const total = ranked.reduce((sum, entry) => sum + entry.value, 0);
   const topShare = total > 0 ? top.value / total : undefined;
   const top3Share = total > 0 ? ranked.slice(0, 3).reduce((sum, entry) => sum + entry.value, 0) / total : undefined;
+  const leaderGapRatio = second && second.value > 0 ? top.value / second.value : undefined;
 
   const metricLabel = humanizeLabel(metric) || "the metric";
   const metricLower = metricLabel.toLowerCase();
   const dimensionLabel = pluralizeLabel(humanizeLabel(dimension ?? xKey) || "segment");
   const concentrationVerb = /s$/i.test(metricLabel) ? "are" : "is";
 
-  if (top3Share !== undefined && top3Share >= 0.5) {
+  if (top3Share !== undefined && top3Share >= 0.72) {
     return `${metricLabel} ${concentrationVerb} concentrated in ${top.label}, and the top 3 ${dimensionLabel} drive ${Math.round(top3Share * 1000) / 10}% of total ${metricLower}.`;
   }
 
-  if (topShare !== undefined && topShare >= 0.35) {
+  if (topShare !== undefined && topShare >= 0.45) {
     return `${top.label} contributes ${Math.round(topShare * 1000) / 10}% of total ${metricLower}, making it the clear leader.`;
+  }
+
+  if (topShare !== undefined && topShare <= 0.28) {
+    return `${metricLabel} is broadly distributed across ${dimensionLabel}, with no single segment far ahead.`;
+  }
+
+  if (leaderGapRatio !== undefined && leaderGapRatio <= 1.15) {
+    return `${top.label} leads ${metricLower}, but the leading ${dimensionLabel} remain closely grouped.`;
+  }
+
+  if (leaderGapRatio !== undefined && leaderGapRatio <= 1.35) {
+    return `${top.label} holds a modest lead in ${metricLower}, with nearby competitors still in range.`;
   }
 
   if (bottom.label && bottom.label !== top.label) {
@@ -279,7 +351,7 @@ function buildTrendSubtitle(data: Record<string, string | number | boolean | nul
   const peakValue = valueAsNumber(peak[yKey]);
   const metricLabel = humanizeLabel(metric) || "Performance";
   const changeRatio = firstValue === 0 ? (lastValue > 0 ? 1 : 0) : (lastValue - firstValue) / Math.abs(firstValue);
-  const peakLabel = String(peak[xKey] ?? "").trim();
+  const peakLabel = formatReadableDateLabel(String(peak[xKey] ?? "").trim());
 
   if (Math.abs(changeRatio) <= 0.08) {
     return peak && peakLabel
@@ -346,10 +418,17 @@ function buildHistogramSubtitle(data: Record<string, string | number | boolean |
 
   const peakCount = valueAsNumber(peak.count ?? peak[yKey]);
   const share = total > 0 ? peakCount / total : 0;
+  const rangeStart = typeof peak.rangeStart === "number" ? peak.rangeStart : null;
+  const rangeEnd = typeof peak.rangeEnd === "number" ? peak.rangeEnd : null;
+  const rangeText =
+    rangeStart !== null && rangeEnd !== null
+      ? `${formatReadableValue(yKey, rangeStart)} and ${formatReadableValue(yKey, rangeEnd)}`
+      : String(peak.bucketLabel ?? peak.bucket ?? peak.label ?? "the main range");
+  const metricNoun = `${humanizeLabel(yKey).toLowerCase() || "values"} values`;
   if (share >= 0.35) {
-    return `Most values cluster in ${String(peak.bucket ?? peak.label ?? "one band")}, with a thinner tail beyond it.`;
+    return `Most ${metricNoun} fall between ${rangeText}, with only a small tail above that range.`;
   }
-  return `The distribution is fairly even, with no single range dominating.`;
+  return `${humanizeLabel(yKey) || "Values"} are spread across several ranges rather than one dominant band.`;
 }
 
 function buildFunnelSubtitle(data: Record<string, string | number | boolean | null>[], yKey: string, xKey: string) {
@@ -390,7 +469,7 @@ function buildChartSubtitle(blueprint: ChartBlueprint, data: Record<string, stri
     return buildScatterSubtitle(data, xKey, yKey);
   }
   if (blueprint.chartType === "histogram" || blueprint.chartType === "box_plot") {
-    return buildHistogramSubtitle(data, yKey);
+    return buildHistogramSubtitle(data, blueprint.metric ?? yKey);
   }
   if (blueprint.chartType === "funnel") {
     return buildFunnelSubtitle(data, yKey, xKey);
@@ -420,6 +499,26 @@ function sortChartData(
     return sorted.slice(0, limit);
   }
   return sorted;
+}
+
+function sortFunnelData(data: Record<string, string | number | boolean | null>[], xKey: string) {
+  return [...data].sort((left, right) => {
+    const leftLabel = String(left[xKey] ?? "");
+    const rightLabel = String(right[xKey] ?? "");
+    const leftRank = funnelStageRank(leftLabel);
+    const rightRank = funnelStageRank(rightLabel);
+
+    if (leftRank !== null && rightRank !== null) {
+      return leftRank - rightRank;
+    }
+    if (leftRank !== null) {
+      return -1;
+    }
+    if (rightRank !== null) {
+      return 1;
+    }
+    return leftLabel.localeCompare(rightLabel);
+  });
 }
 
 function buildMissingValuesChart(context: ChartSelectionContext, blueprint: ChartBlueprint): ChartConfig | null {
@@ -492,7 +591,10 @@ export function buildChartConfig(
     if (blueprint.groupBy) {
       series = [...new Set(data.flatMap((entry) => Object.keys(entry).filter((key) => key !== blueprint.dimension)))];
     }
-    data = sortChartData(data, blueprint.metric, blueprint.sort ?? "desc", blueprint.limit ?? 10);
+    data =
+      blueprint.chartType === "funnel"
+        ? sortFunnelData(data, blueprint.dimension)
+        : sortChartData(data, blueprint.metric, blueprint.sort ?? "desc", blueprint.limit ?? 10);
   } else if (blueprint.chartType === "histogram" || blueprint.chartType === "box_plot") {
     if (!blueprint.metric) {
       return null;
@@ -509,7 +611,10 @@ export function buildChartConfig(
     return null;
   }
 
-  const xKey = blueprint.xAxis ?? blueprint.dimension ?? "label";
+  const xKey =
+    blueprint.chartType === "line" || blueprint.chartType === "anomaly_trend"
+      ? "date"
+      : blueprint.xAxis ?? blueprint.dimension ?? "label";
   const yKey =
     blueprint.chartType === "histogram" || blueprint.chartType === "box_plot"
       ? "count"
