@@ -1,6 +1,9 @@
 import type { ChartConfig, DatasetCapabilities, DatasetProfile, DatasetRow, PrimitiveValue } from "../../../analytics/types.js";
 import { parseDateValue, parseNumber } from "../../../utils/inference.js";
-import { resolveSemanticMetricValue } from "../../../analytics/semanticContract.js";
+import {
+  normalizeSemanticDimensionValue,
+  resolveSemanticMetricValue
+} from "../../../analytics/semanticContract.js";
 
 type Filter = ChartConfig["filters"][number];
 
@@ -128,7 +131,7 @@ export function aggregateByDimension(
       continue;
     }
 
-    const dimensionKey = String(dimensionValue);
+    const dimensionKey = String(normalizeSemanticDimensionValue(dimensionValue, dimension, profile.semanticContract ?? profile));
     const groupKey = groupBy ? String(row[groupBy] ?? "Unknown") : metric;
     const bucket = grouped.get(dimensionKey) ?? new Map<string, number>();
     bucket.set(groupKey, (bucket.get(groupKey) ?? 0) + metricValue);

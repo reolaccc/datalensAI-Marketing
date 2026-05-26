@@ -47,8 +47,96 @@ export function parseDateValue(value: PrimitiveValue): Date | null {
     return null;
   }
 
-  const parsed = new Date(String(value));
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
+  if (typeof value === "number" && Number.isFinite(value)) {
+    if (value >= 946_684_800 && value <= 4_102_444_800) {
+      return new Date(value * 1000);
+    }
+
+    if (value >= 946_684_800_000 && value <= 4_102_444_800_000) {
+      return new Date(value);
+    }
+
+    return null;
+  }
+
+  const input = String(value).trim();
+  if (!input) {
+    return null;
+  }
+
+  if (/^\d+$/.test(input)) {
+    return null;
+  }
+
+  if (/^\d{4}-\d{2}-\d{2}(?:[ T]\d{2}:\d{2}(?::\d{2})?)?(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?$/i.test(input)) {
+    const parsed = new Date(input);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
+
+  const normalizedYmd = input.match(
+    /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/
+  );
+  if (normalizedYmd) {
+    return buildValidatedDate(
+      Number(normalizedYmd[1]),
+      Number(normalizedYmd[2]),
+      Number(normalizedYmd[3]),
+      Number(normalizedYmd[4] ?? 0),
+      Number(normalizedYmd[5] ?? 0),
+      Number(normalizedYmd[6] ?? 0)
+    );
+  }
+
+  const normalizedDmy = input.match(
+    /^(\d{1,2})[-/](\d{1,2})[-/](\d{4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/
+  );
+  if (normalizedDmy) {
+    return buildValidatedDate(
+      Number(normalizedDmy[3]),
+      Number(normalizedDmy[2]),
+      Number(normalizedDmy[1]),
+      Number(normalizedDmy[4] ?? 0),
+      Number(normalizedDmy[5] ?? 0),
+      Number(normalizedDmy[6] ?? 0)
+    );
+  }
+
+  return null;
+}
+
+function buildValidatedDate(
+  year: number,
+  month: number,
+  day: number,
+  hour = 0,
+  minute = 0,
+  second = 0
+): Date | null {
+  if (
+    !Number.isInteger(year) ||
+    !Number.isInteger(month) ||
+    !Number.isInteger(day) ||
+    !Number.isInteger(hour) ||
+    !Number.isInteger(minute) ||
+    !Number.isInteger(second)
+  ) {
+    return null;
+  }
+
+  if (month < 1 || month > 12 || day < 1 || hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 59) {
+    return null;
+  }
+
+  const candidate = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+  if (
+    candidate.getUTCFullYear() !== year ||
+    candidate.getUTCMonth() !== month - 1 ||
+    candidate.getUTCDate() !== day
+  ) {
+    return null;
+  }
+
+  return candidate;
 }
 
 export function median(values: number[]): number {

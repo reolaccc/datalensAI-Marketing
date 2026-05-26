@@ -9,6 +9,7 @@ import type {
 import { parseNumber } from "../utils/inference.js";
 import {
   aggregateSemanticMetric,
+  normalizeSemanticDimensionValue,
   resolveSemanticDimensionSourceColumn,
   resolveSemanticMetricValue
 } from "./semanticContract.js";
@@ -367,7 +368,8 @@ function buildSemanticMetricObservation(
                     denominatorGetter: (row) => resolveSemanticMetricValue(row, "calls", params.profile.semanticContract ?? params.profile),
                     scaleToPercent: true
                   }
-                : undefined
+                : undefined,
+        params.profile
       )
     : null;
 
@@ -775,7 +777,8 @@ function buildSemanticKpiCandidates(rows: DatasetRow[], profile: DatasetProfile)
 function aggregateNumericByDimension(
   rows: DatasetRow[],
   dimension: string,
-  valueGetter: (row: DatasetRow) => number | null
+  valueGetter: (row: DatasetRow) => number | null,
+  profile?: DatasetProfile
 ) {
   const grouped = new Map<string, number>();
 
@@ -786,7 +789,9 @@ function aggregateNumericByDimension(
       continue;
     }
 
-    const key = String(dimensionValue);
+    const key = String(
+      profile ? normalizeSemanticDimensionValue(dimensionValue, dimension, profile.semanticContract ?? profile) : dimensionValue
+    );
     grouped.set(key, (grouped.get(key) ?? 0) + value);
   }
 
@@ -804,7 +809,8 @@ function aggregateRatioByDimension(
   dimension: string,
   numeratorGetter: (row: DatasetRow) => number | null,
   denominatorGetter: (row: DatasetRow) => number | null,
-  scaleToPercent = false
+  scaleToPercent = false,
+  profile?: DatasetProfile
 ) {
   const grouped = new Map<string, { numerator: number; denominator: number }>();
 
@@ -823,7 +829,9 @@ function aggregateRatioByDimension(
       continue;
     }
 
-    const key = String(dimensionValue);
+    const key = String(
+      profile ? normalizeSemanticDimensionValue(dimensionValue, dimension, profile.semanticContract ?? profile) : dimensionValue
+    );
     const bucket = grouped.get(key) ?? { numerator: 0, denominator: 0 };
     bucket.numerator += numerator;
     bucket.denominator += denominator;
@@ -848,11 +856,12 @@ function buildSegmentSummary(
   rows: DatasetRow[],
   dimension: string,
   valueGetter: (row: DatasetRow) => number | null,
-  options?: { ratio?: boolean; denominatorGetter?: (row: DatasetRow) => number | null; scaleToPercent?: boolean }
+  options?: { ratio?: boolean; denominatorGetter?: (row: DatasetRow) => number | null; scaleToPercent?: boolean },
+  profile?: DatasetProfile
 ): SegmentSummary | null {
   const ranked = options?.ratio && options.denominatorGetter
-    ? aggregateRatioByDimension(rows, dimension, valueGetter, options.denominatorGetter, options.scaleToPercent).ranked
-    : aggregateNumericByDimension(rows, dimension, valueGetter).ranked;
+    ? aggregateRatioByDimension(rows, dimension, valueGetter, options.denominatorGetter, options.scaleToPercent, profile).ranked
+    : aggregateNumericByDimension(rows, dimension, valueGetter, profile).ranked;
 
   if (ranked.length === 0) {
     return null;
@@ -1760,6 +1769,10 @@ export function buildKpiObservations(rows: DatasetRow[], profile: DatasetProfile
 
 export function buildKpiCandidates(rows: DatasetRow[], profile: DatasetProfile): KpiCandidate[] {
   const semanticCandidates = buildSemanticKpiCandidates(rows, profile);
+  if (hasCallTrackingSemanticContract(profile)) {
+    return semanticCandidates;
+  }
+
   if (semanticCandidates.length > 0) {
     return semanticCandidates;
   }
@@ -1798,7 +1811,7 @@ export function buildKpiCandidates(rows: DatasetRow[], profile: DatasetProfile):
 export function buildKpiCards(rows: DatasetRow[], profile: DatasetProfile): KpiCard[] {
   const semanticCards = buildSemanticKpiCards(rows, profile);
   if (hasCallTrackingSemanticContract(profile)) {
-    return semanticCards.slice(0, 4);
+    return semanticCards.slice(0, 6);
   }
 
   const intelligence = buildKpiObservations(rows, profile);

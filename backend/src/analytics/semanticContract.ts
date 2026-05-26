@@ -58,6 +58,13 @@ export interface SemanticKpiAvailability {
   reason: string;
 }
 
+export interface SemanticSafetyWarning {
+  rawColumn: string;
+  blockedRole: string;
+  reason: string;
+  suggestedRole?: string;
+}
+
 export interface SemanticDatasetContract {
   metricResolutions: Record<string, SemanticMetricResolution>;
   dimensionResolutions: Record<string, SemanticDimensionResolution>;
@@ -70,6 +77,7 @@ export interface SemanticDatasetContract {
   detectedDomain?: SemanticDomainDetection;
   enabledKpis?: SemanticKpiAvailability[];
   disabledKpis?: SemanticKpiAvailability[];
+  safetyWarnings?: SemanticSafetyWarning[];
 }
 
 type RoleSpec = {
@@ -88,8 +96,21 @@ type RankedRoleCandidate = {
   evidence: string[];
 };
 
+type SemanticSafetyDecision = {
+  mapping: SemanticRoleMapping;
+  warning?: SemanticSafetyWarning;
+};
+
 const BOOLEAN_TRUE_VALUES = new Set(["true", "yes", "y", "1", "qualified", "converted", "answered", "booked"]);
 const BOOLEAN_FALSE_VALUES = new Set(["false", "no", "n", "0", "unqualified", "not qualified", "missed", "not answered"]);
+const FLAG_ROLE_KEYS = new Set(["qualifiedCall", "convertedCall", "missedCall", "answeredCall", "firstTimeCaller", "repeatCaller"]);
+const IDENTIFIER_ROLE_KEYS = new Set(["callId", "trackingNumber", "callerNumber", "destinationNumber"]);
+const CHANNEL_ALIAS_MAP: Array<{ matchers: RegExp[]; label: string }> = [
+  { matchers: [/^google[\s_-]*ads$/i, /^googleads$/i], label: "Google Ads" },
+  { matchers: [/^paid[\s_-]*search$/i, /^ppc$/i], label: "Paid Search" },
+  { matchers: [/^meta[\s_-]*ads$/i, /^facebook[\s_-]*ads$/i, /^paid[\s_-]*social$/i], label: "Paid Social" },
+  { matchers: [/^organic[\s_-]*search$/i, /^seo$/i], label: "Organic Search" }
+];
 const KPI_DEFINITIONS = [
   { key: "total_calls", label: "Total Calls", requiredRoles: ["callId"] },
   { key: "unique_callers", label: "Unique Callers", requiredRoles: ["callerNumber"] },
@@ -585,7 +606,7 @@ function scoreColumnMatch(column: string, alias: string) {
 function detectPhoneLikeValues(column: DatasetColumnProfile) {
   const samples = collectSampleStrings(column);
   const matches = samples.filter((sample) => {
-    if (parseDateValue(sample) !== null) {
+    if (isStrongDatetimeSample(sample)) {
       return false;
     }
     if (/[a-z]/i.test(sample.replace(/[tz]/gi, "")) && !/^\+?[\d\s().-]+$/i.test(sample)) {
@@ -607,7 +628,7 @@ function detectIdLikeValues(column: DatasetColumnProfile) {
   }
 
   const matches = samples.filter((sample) => {
-    if (parseDateValue(sample) !== null) {
+    if (isStrongDatetimeSample(sample)) {
       return false;
     }
     if (detectPhoneLikeValues(column).score > 0) {
@@ -632,18 +653,15 @@ function detectIdLikeValues(column: DatasetColumnProfile) {
 
 function detectDatetimeLikeValues(column: DatasetColumnProfile) {
   const samples = collectSampleStrings(column);
-  const matches = samples.filter((sample) => {
-    if (parseDateValue(sample) !== null) {
-      return true;
-    }
-    return /\d{4}-\d{2}-\d{2}/.test(sample) || /\d{1,2}:\d{2}/.test(sample) || /\b\d{10,13}\b/.test(sample);
-  }).length;
+  const hasTimeSignalInName = /\b(date|time|timestamp|datetime|created|start)\b/.test(normalizeName(column.name));
+  const matches = samples.filter((sample) => isStrongDatetimeSample(sample)).length;
 
   if (samples.length > 0 && matches / samples.length >= 0.5) {
     return { score: 2.4, evidence: ["Sample values look like datetime values"] };
   }
 
   if (
+    hasTimeSignalInName &&
     column.kind === "numeric" &&
     typeof column.min === "number" &&
     typeof column.max === "number" &&
@@ -654,6 +672,7 @@ function detectDatetimeLikeValues(column: DatasetColumnProfile) {
   }
 
   if (
+    hasTimeSignalInName &&
     column.kind === "numeric" &&
     typeof column.min === "number" &&
     typeof column.max === "number" &&
@@ -690,6 +709,65 @@ function detectBooleanLikeValues(column: DatasetColumnProfile) {
   return { score: 0, evidence: [] };
 }
 
+function isBooleanLikeColumn(column: DatasetColumnProfile) {
+  if (column.kind === "numeric" && typeof column.min === "number" && typeof column.max === "number") {
+    return column.min >= 0 && column.max <= 1;
+  }
+
+  const samples = collectSampleStrings(column);
+  if (samples.length === 0) {
+    return false;
+  }
+
+  const matches = samples.filter((sample) => {
+    const normalized = normalizeName(sample);
+    return BOOLEAN_TRUE_VALUES.has(normalized) || BOOLEAN_FALSE_VALUES.has(normalized);
+  }).length;
+
+  return matches / samples.length >= 0.75;
+}
+
+function hasMoneyValueSignal(column: DatasetColumnProfile) {
+  return /\b(conversion|lead|sales|job|deal|revenue|order)\s*(value)?\b|\b(value)\b/i.test(normalizeName(column.name));
+}
+
+function isContinuousNumericValueColumn(column: DatasetColumnProfile) {
+  return (
+    column.kind === "numeric" &&
+    typeof column.max === "number" &&
+    typeof column.min === "number" &&
+    (column.max > 1 || column.min < 0)
+  );
+}
+
+function inferSaferMetricRole(column: DatasetColumnProfile) {
+  const normalized = normalizeName(column.name);
+  if (/\blead value\b|\blead_value\b/i.test(normalized)) {
+    return "leadValue";
+  }
+  if (/\bsales value\b|\bsales_value\b|\border value\b|\border_value\b/i.test(normalized)) {
+    return "salesValue";
+  }
+  if (/\bconversion value\b|\bconversion_value\b|\bjob value\b|\bjob_value\b|\bdeal value\b|\bdeal_value\b|\brevenue value\b|\brevenue_value\b/i.test(normalized)) {
+    return "revenue";
+  }
+  return null;
+}
+
+function inferSaferDatetimeRole(column: DatasetColumnProfile) {
+  const normalized = normalizeName(column.name);
+  if (/\b(datetime|timestamp|created at|created|started at|call start|start time)\b/.test(normalized)) {
+    return "callDateTime";
+  }
+  if (/\b(call date|date|day)\b/.test(normalized)) {
+    return "callDate";
+  }
+  if (/\b(call time|time of call|hour|time)\b/.test(normalized)) {
+    return "callTime";
+  }
+  return "callDateTime";
+}
+
 function detectDurationLikeValues(column: DatasetColumnProfile) {
   if (column.kind !== "numeric") {
     return { score: 0, evidence: [] };
@@ -710,7 +788,7 @@ function detectAccountLikeValues(column: DatasetColumnProfile) {
   }
 
   const nameLike = samples.filter((sample) => {
-    if (parseDateValue(sample) !== null) {
+    if (isStrongDatetimeSample(sample)) {
       return false;
     }
     if (/^\+?[\d\s().-]+$/.test(sample)) {
@@ -790,6 +868,14 @@ function collectSampleStrings(column: DatasetColumnProfile) {
       .filter(Boolean)
       .slice(0, 8)
   );
+}
+
+function isStrongDatetimeSample(sample: string) {
+  if (!/(\d{4}[-/]\d{1,2}[-/]\d{1,2})|(\d{1,2}[-/]\d{1,2}[-/]\d{4})|(\d{1,2}:\d{2})|T\d{2}:\d{2}/.test(sample)) {
+    return false;
+  }
+
+  return parseDateValue(sample) !== null;
 }
 
 function scoreKindMatch(column: DatasetColumnProfile, spec: RoleSpec) {
@@ -1131,6 +1217,83 @@ function buildKpiAvailability(roleMap: Map<string, SemanticRoleMapping>) {
   });
 }
 
+function buildSafetyNormalizedRoleMappings(roleMappings: SemanticRoleMapping[], profile: DatasetProfile): {
+  roleMappings: SemanticRoleMapping[];
+  safetyWarnings: SemanticSafetyWarning[];
+} {
+  const columnsByName = new Map(profile.columns.map((column) => [column.name, column]));
+  const safetyWarnings: SemanticSafetyWarning[] = [];
+
+  const normalizedMappings = roleMappings.map((mapping): SemanticRoleMapping => {
+    if (!mapping.semanticRole) {
+      return mapping;
+    }
+
+    const column = columnsByName.get(mapping.rawColumn);
+    if (!column) {
+      return mapping;
+    }
+
+    if (FLAG_ROLE_KEYS.has(mapping.semanticRole)) {
+      const saferMetricRole = inferSaferMetricRole(column);
+      if ((hasMoneyValueSignal(column) || isContinuousNumericValueColumn(column)) && !isBooleanLikeColumn(column)) {
+        const warning: SemanticSafetyWarning = {
+          rawColumn: mapping.rawColumn,
+          blockedRole: mapping.semanticRole,
+          reason: `${mapping.rawColumn} looks monetary or continuous, not boolean-like.`,
+          suggestedRole: saferMetricRole ?? undefined
+        };
+        safetyWarnings.push(warning);
+
+        return {
+          ...mapping,
+          semanticRole: saferMetricRole,
+          kind: saferMetricRole ? "metric" : "unknown",
+          confidence: saferMetricRole ? Math.max(mapping.confidence, 0.78) : 0,
+          evidence: [
+            ...mapping.evidence,
+            `Safety normalization blocked ${mapping.rawColumn} from ${warning.blockedRole} because values look monetary/continuous, not boolean-like`,
+            ...(saferMetricRole ? [`Safety normalization rerouted the column to ${saferMetricRole}`] : [])
+          ]
+        };
+      }
+    }
+
+    if (IDENTIFIER_ROLE_KEYS.has(mapping.semanticRole)) {
+      const looksLikeDatetime = detectDatetimeLikeValues(column).score > 0 || /\b(date|time|timestamp|datetime|created|start)\b/.test(normalizeName(column.name));
+      if (looksLikeDatetime) {
+        const saferRole = inferSaferDatetimeRole(column);
+        const warning: SemanticSafetyWarning = {
+          rawColumn: mapping.rawColumn,
+          blockedRole: mapping.semanticRole,
+          reason: `${mapping.rawColumn} looks like a datetime field, not an identifier.`,
+          suggestedRole: saferRole
+        };
+        safetyWarnings.push(warning);
+
+        return {
+          ...mapping,
+          semanticRole: saferRole,
+          kind: "datetime",
+          confidence: Math.max(mapping.confidence, 0.8),
+          evidence: [
+            ...mapping.evidence,
+            `Safety normalization blocked ${mapping.rawColumn} from ${warning.blockedRole} because the field looks datetime-like`,
+            `Safety normalization rerouted the column to ${saferRole}`
+          ]
+        };
+      }
+    }
+
+    return mapping;
+  });
+
+  return {
+    roleMappings: normalizedMappings,
+    safetyWarnings
+  };
+}
+
 function parseFlagValue(value: PrimitiveValue) {
   if (typeof value === "boolean") {
     return value ? 1 : 0;
@@ -1155,7 +1318,8 @@ function parseFlagValue(value: PrimitiveValue) {
 }
 
 export function buildSemanticDatasetContract(profile: DatasetProfile): SemanticDatasetContract {
-  const roleMappings = profile.columns.map(inferRoleMapping);
+  const initialRoleMappings = profile.columns.map(inferRoleMapping);
+  const { roleMappings, safetyWarnings } = buildSafetyNormalizedRoleMappings(initialRoleMappings, profile);
   const bestRoleMappings = chooseBestRoleMappings(roleMappings);
   const metricResolutions: Record<string, SemanticMetricResolution> = {};
   const dimensionResolutions: Record<string, SemanticDimensionResolution> = {};
@@ -1267,7 +1431,8 @@ export function buildSemanticDatasetContract(profile: DatasetProfile): SemanticD
     roleMappings,
     detectedDomain,
     enabledKpis: kpiAvailability.filter((item) => item.status === "enabled"),
-    disabledKpis: kpiAvailability.filter((item) => item.status === "disabled")
+    disabledKpis: kpiAvailability.filter((item) => item.status === "disabled"),
+    safetyWarnings
   };
 }
 
@@ -1341,6 +1506,36 @@ export function resolveCanonicalDimensionKey(
   return contract.sourceToCanonical[normalized] ?? semanticRoleMap[normalized] ?? dimensionOrSource;
 }
 
+export function normalizeSemanticDimensionValue(
+  value: PrimitiveValue,
+  dimensionOrSource: string,
+  profileOrContract?: DatasetProfile | SemanticDatasetContract
+) {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  const rawValue = String(value).trim();
+  if (!rawValue) {
+    return "";
+  }
+
+  const canonicalDimension = profileOrContract
+    ? resolveCanonicalDimensionKey(profileOrContract, dimensionOrSource)
+    : dimensionOrSource;
+  const normalizedDimension = normalizeName(canonicalDimension);
+
+  if (["channel", "source", "medium"].includes(normalizedDimension)) {
+    for (const alias of CHANNEL_ALIAS_MAP) {
+      if (alias.matchers.some((matcher) => matcher.test(rawValue.trim()))) {
+        return alias.label;
+      }
+    }
+  }
+
+  return rawValue;
+}
+
 export function resolveSemanticMetricValue(
   row: DatasetRow,
   metric: string,
@@ -1395,11 +1590,7 @@ export function resolveSemanticMetricValue(
       return null;
     }
     const flagValue = parseFlagValue(row[sourceColumn]);
-    if (flagValue !== null) {
-      return flagValue;
-    }
-    const directNumeric = parseNumber(row[sourceColumn]);
-    return directNumeric === null ? null : Number(directNumeric.toFixed(2));
+    return flagValue === null ? null : flagValue;
   }
 
   if (sourceColumns.length > 0) {

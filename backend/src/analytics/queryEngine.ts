@@ -1,6 +1,10 @@
 import type { DatasetProfile, DatasetRow, PlannedQuery, QuestionAnswer } from "./types.js";
 import { parseDateValue, parseNumber } from "../utils/inference.js";
-import { aggregateSemanticMetric as aggregateSemanticRowsMetric, resolveSemanticMetricValue } from "./semanticContract.js";
+import {
+  aggregateSemanticMetric as aggregateSemanticRowsMetric,
+  normalizeSemanticDimensionValue,
+  resolveSemanticMetricValue
+} from "./semanticContract.js";
 
 interface QueryContext {
   rows: DatasetRow[];
@@ -238,9 +242,10 @@ function groupByMetric(
     if (key === null || key === undefined || String(key).trim() === "") {
       continue;
     }
-    const current = grouped.get(String(key)) ?? [];
+    const normalizedKey = String(normalizeSemanticDimensionValue(key, dimension, profile.semanticContract ?? profile));
+    const current = grouped.get(normalizedKey) ?? [];
     current.push(row);
-    grouped.set(String(key), current);
+    grouped.set(normalizedKey, current);
   }
 
   return [...grouped.entries()]
