@@ -37,6 +37,7 @@ import {
   getAxisLabel,
   getSemanticDisplayLabel,
   getTimeSeriesAxisLabel,
+  getTimeSeriesYearContext,
   isTimeSeriesChartAxis,
   humanizeLabel
 } from "./chartFormatting";
@@ -192,10 +193,11 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
   const isTimeSeriesChart =
     (chart.chartType === "line" || chart.chartType === "anomaly_trend") &&
     isTimeSeriesChartAxis(chart.xAxis ?? chart.dimension ?? chart.xKey, chart.xKey);
+  const timeSeriesYearContext = isTimeSeriesChart ? getTimeSeriesYearContext(chartData, chart.xKey) : null;
   const xAxisLabel = isHistogram
     ? getAxisLabel(chart.xAxis ?? chart.xKey, dimensionLabel)
     : isTimeSeriesChart
-      ? getTimeSeriesAxisLabel(chart.xAxis ?? chart.dimension ?? chart.xKey, chart.xKey)
+      ? getTimeSeriesAxisLabel(chart.xAxis ?? chart.dimension ?? chart.xKey, chart.xKey, timeSeriesYearContext?.axisYearLabel)
       : chart.chartType === "horizontal_bar"
         ? getAxisLabel(chart.metric ?? chart.yAxis ?? chart.yKey, null)
         : getAxisLabel(chart.xAxis ?? chart.xKey, dimensionLabel);
@@ -211,7 +213,8 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
   const chartInsight = buildChartInsightText(chart);
   const longestCategoryLabel = getLongestCategoryLabel(chartData, categoryKey);
   const hasLongCategoryLabels = longestCategoryLabel >= 14;
-  const shouldRotateCategoryTicks = chart.chartType === "bar" && hasLongCategoryLabels;
+  const hasManyCategoryLabels = chartData.length >= 6;
+  const shouldRotateCategoryTicks = chart.chartType === "bar" && (hasLongCategoryLabels || hasManyCategoryLabels);
   const shouldRotateHistogramTicks = isHistogram && chartData.length >= 4;
   const histogramTickInterval = chartData.length >= 6 ? "preserveStartEnd" : 0;
   const shouldShowLegend = legendPayload.length > 0;
@@ -276,7 +279,7 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
 
     const formattedLabel =
       isTimeSeriesChart
-        ? formatChartDateLabel(label, "tooltip")
+        ? formatChartDateLabel(label, "tooltip", { includeYear: Boolean(timeSeriesYearContext?.axisYearLabel) })
         : getSemanticDisplayLabel(String(label ?? "")) || String(label ?? "");
     const primaryEntry = payload[0];
     const primaryMetricValue = typeof primaryEntry?.value === "number" ? primaryEntry.value : Number(primaryEntry?.value ?? NaN);
@@ -316,10 +319,10 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
             ticks={lineTicks}
             interval={isTimeSeriesChart ? 0 : "preserveEnd"}
             stroke={AXIS_COLOR}
-            tickFormatter={(value) => isTimeSeriesChart ? formatChartDateLabel(value, "axis") : getSemanticDisplayLabel(String(value ?? "")) || String(value ?? "")}
+            tickFormatter={(value) => isTimeSeriesChart ? formatChartDateLabel(value, "axis", { includeYear: Boolean(timeSeriesYearContext?.includeYearInTicks) }) : getSemanticDisplayLabel(String(value ?? "")) || String(value ?? "")}
             minTickGap={24}
             tickMargin={14}
-            height={48}
+            height={timeSeriesYearContext?.includeYearInTicks ? 58 : 48}
             label={{ value: xAxisLabel || (isTimeSeriesChart ? "Date (Daily)" : "Category"), position: "insideBottom", offset: -8, ...LINE_AXIS_TITLE_STYLE }}
           />
           <YAxis stroke={AXIS_COLOR} width={DEFAULT_Y_AXIS_WIDTH} tickFormatter={(value) => formatChartValue(value, metricLabel)} tickMargin={10} label={{ value: yAxisLabel, angle: -90, position: "insideLeft", dx: -8, ...LINE_AXIS_TITLE_STYLE }} />
@@ -384,7 +387,7 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
           layout={chart.chartType === "horizontal_bar" ? "vertical" : "horizontal"}
           barCategoryGap={chart.chartType === "horizontal_bar" ? "34%" : "30%"}
           barGap={8}
-          margin={{ top: 10, right: 18, bottom: isHistogram ? 48 : shouldRotateCategoryTicks ? 38 : 22, left: chart.chartType === "horizontal_bar" ? WIDE_LEFT_MARGIN : DEFAULT_LEFT_MARGIN }}
+          margin={{ top: 10, right: 18, bottom: isHistogram ? 48 : shouldRotateCategoryTicks ? 50 : 24, left: chart.chartType === "horizontal_bar" ? WIDE_LEFT_MARGIN : DEFAULT_LEFT_MARGIN }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
           <XAxis
@@ -404,7 +407,7 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
             textAnchor={shouldRotateHistogramTicks || shouldRotateCategoryTicks ? "end" : "middle"}
             minTickGap={12}
             tickMargin={14}
-            height={shouldRotateHistogramTicks ? 72 : shouldRotateCategoryTicks ? 58 : 40}
+            height={shouldRotateHistogramTicks ? 72 : shouldRotateCategoryTicks ? 70 : 44}
             label={{
               value:
                 chart.chartType === "horizontal_bar"

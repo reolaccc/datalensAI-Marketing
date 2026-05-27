@@ -12,6 +12,7 @@ import { generateTemplateBasedChartExplanation } from "../explanations/TemplateB
 import { detectRuleBasedIntent } from "../intent/RuleBasedIntentDetector.js";
 import { rankRuleBasedCharts } from "../chart-ranking/RuleBasedChartRanker.js";
 import { generateRuleBasedChartCandidates } from "./RuleBasedChartCandidateGenerator.js";
+import { buildOpsSupportOverviewFallbackCharts } from "./opsSupportOverviewFallback.js";
 import type { ChartSelectionContext } from "./chartSelectionTypes.js";
 
 interface SelectionResult {
@@ -80,6 +81,9 @@ export function selectRuleBasedCharts(params: {
     const fallbackCharts = buildChartConfigs(generateRuleBasedChartCandidates(fallbackContext), fallbackContext);
     charts = rankRuleBasedCharts([...charts, ...fallbackCharts], intent);
   }
+
+  charts = buildOpsSupportOverviewFallbackCharts(context, charts);
+
   const explanation = generateTemplateBasedChartExplanation({
     question: params.question,
     intent,

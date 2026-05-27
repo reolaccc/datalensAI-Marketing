@@ -1598,7 +1598,7 @@ function answerSummary(question: string, rows: DatasetRow[], query: PlannedQuery
     return {
       question,
       interpretation: "summary fallback",
-      answer: "I could not build a numeric ranking from the available fields, so this is a high-level business read only.",
+      answer: "This question is too broad for a reliable ranking from the current dataset.",
       supportingData: []
     };
   }

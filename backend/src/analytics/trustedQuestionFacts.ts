@@ -31,10 +31,14 @@ function humanizeMetric(metric: string | null | undefined) {
     return "the requested metric";
   }
 
-  return metric
+  const label = metric
     .replace(/_/g, " ")
     .replace(/\bpct\b/gi, "percent")
     .trim();
+
+  return label
+    .replace(/\broas\b/gi, "ROAS")
+    .replace(/\bcpqc\b/gi, "CPQC");
 }
 
 function normalizeMetricText(value: string) {
@@ -135,6 +139,10 @@ function metricConfidence(metric: string, profile: DatasetProfile) {
   }
 
   return profile.numericColumns.includes(metric) ? 0.68 : 0;
+}
+
+function isKnownDerivedReliabilityMetric(metric: string | null | undefined) {
+  return Boolean(metric && ["qualified_call_rate", "missed_call_rate", "answered_call_rate"].includes(metric));
 }
 
 function isBinaryLikeDimension(dimension: string | null | undefined, profile: DatasetProfile) {
@@ -562,6 +570,7 @@ function detectWeakAnswer(answer: QuestionAnswer) {
   }
 
   return (
+    directAnswer.includes("too broad for a reliable ranking") ||
     directAnswer.includes("high-level business read only") ||
     directAnswer.includes("not enough time-series data") ||
     directAnswer.includes("no grouped aggregate could be computed") ||
@@ -593,21 +602,12 @@ function buildTrustExplanation(
     };
   }
 
-  if (semanticAlignment.status === "none" || semanticAlignment.status === "weak") {
-    return {
-      status: "weak" as const,
-      directAnswer: `I cannot answer that reliably because the question is grounded on ${semanticAlignment.requestedMetrics.map(humanizeMetric).join(", ") || "a metric the dataset did not ground"}, but the current Ask path would switch to ${humanizeMetric(answeredMetric ?? plan.metric)}.`,
-      reasons: [semanticAlignment.reason],
-      caution: semanticAlignment.reason
-    };
-  }
-
   if (!requestedMetric) {
     const reliabilityReasons = groundingConfidence?.reliabilityGrounding.reasons ?? [];
     if (reliabilityReasons.length > 0) {
       return {
         status: "weak" as const,
-        directAnswer: `I can explain the main trust limits, but not for one specific metric: ${reliabilityReasons.slice(0, 2).join(" ")}`,
+        directAnswer: `This is a dataset-level reliability question, not a ranking. The main trust limits are: ${reliabilityReasons.slice(0, 2).join(" ")}`,
         reasons: reliabilityReasons,
         caution: reliabilityReasons[0]
       };
@@ -615,28 +615,37 @@ function buildTrustExplanation(
 
     return {
       status: "weak" as const,
-      directAnswer: "I cannot give a reliable trust assessment because the question does not anchor to a specific metric.",
+      directAnswer: "This is a dataset-level reliability question, not a ranking. The current question does not name one metric to validate, so the safest answer is to treat comparisons as directional and ask a metric-specific trust question before choosing a winner.",
       reasons: ["No explicit metric was grounded for this trust question."],
-      caution: "Trust questions need an explicitly grounded metric to avoid answering a different question."
+      caution: "A metric-specific trust question is needed for a stronger reliability assessment."
+    };
+  }
+
+  if (semanticAlignment.status === "none" || semanticAlignment.status === "weak") {
+    return {
+      status: "weak" as const,
+      directAnswer: `This cannot be answered reliably without changing the metric being answered. The dataset does not clearly support ${semanticAlignment.requestedMetrics.map(humanizeMetric).join(", ") || "the requested metric"} for this question, so a ranking would be misleading.`,
+      reasons: [semanticAlignment.reason],
+      caution: semanticAlignment.reason
     };
   }
 
   const caveats: string[] = [];
-  if (resolution?.resolution === "derived" || resolution?.aggregation === "ratio") {
+  if (resolution?.resolution === "derived" || resolution?.aggregation === "ratio" || isKnownDerivedReliabilityMetric(requestedMetric)) {
     caveats.push(`${humanizeMetric(requestedMetric)} is derived rather than directly observed.`);
   }
   if (typeof resolution?.confidence === "number" && resolution.confidence < 0.8) {
-    caveats.push(`${humanizeMetric(requestedMetric)} is only weakly grounded from the current schema.`);
+    caveats.push(`${humanizeMetric(requestedMetric)} is only partially supported by the available fields.`);
   }
-  if (!resolution) {
-    caveats.push(`${humanizeMetric(requestedMetric)} is coming from a generic numeric field rather than a stabilized semantic metric.`);
+  if (!resolution && !isKnownDerivedReliabilityMetric(requestedMetric)) {
+    caveats.push(`${humanizeMetric(requestedMetric)} is available only as a generic numeric field, so interpretation should be cautious.`);
   }
   if (dimension && !profile.categoricalColumns.includes(dimension)) {
-    caveats.push(`The requested comparison dimension ${dimension} was not cleanly grounded.`);
+    caveats.push("The requested comparison segment is not cleanly supported by the available fields.");
   }
 
   const metricSentence = dimension
-    ? `${humanizeMetric(requestedMetric)} can be compared across ${dimension} at a basic level`
+    ? `${humanizeMetric(requestedMetric)} can be compared across ${humanizeMetric(dimension)} at a basic level`
     : `${humanizeMetric(requestedMetric)} can be assessed at a basic level`;
   const answer =
     caveats.length > 0
@@ -667,34 +676,37 @@ function buildGroundingLimitedAnswer(
   const reliability = groundingConfidence.reliabilityGrounding;
 
   if (groundingConfidence.overall === "unsupported") {
-    return firstReason(metric.reasons, relationship.reasons, dimension.reasons, reliability.reasons) ??
-      "The current dataset does not ground the metric or dimension needed to answer this question reliably.";
+    const missingMetric = metric.missingMetrics[0] ?? metric.requestedMetrics[0];
+    const missingMetricSentence = plan.unavailableMetricReasons?.[0]
+      ? plan.unavailableMetricReasons[0]
+      : missingMetric
+      ? `${humanizeMetric(missingMetric)} cannot be calculated reliably from the current dataset.`
+      : "The current dataset does not support a reliable answer to this question.";
+    return `${missingMetricSentence} The available fields do not clearly support the metric or segment needed for this comparison. A more reliable next question would name the metric and the segment you want to compare.`;
   }
 
-  if (/high-level business read only/i.test(fallbackAnswer.answer)) {
-    parts.push(fallbackAnswer.answer);
+  if (/too broad for a reliable ranking|high-level business read only/i.test(fallbackAnswer.answer)) {
+    parts.push("This question is too broad for a reliable ranking from the current dataset.");
   }
 
   if (metric.groundedMetrics.length > 0) {
-    parts.push(`I can ground ${metric.groundedMetrics.map(humanizeMetric).join(", ")}.`);
+    parts.push(`The dataset can partially support ${metric.groundedMetrics.map(humanizeMetric).join(", ")}.`);
   }
 
   if (dimension.groundedDimensions.length > 0 && dimension.status !== "weak") {
-    parts.push(`The segment dimension is grounded as ${dimension.groundedDimensions.join(", ")}.`);
+    parts.push("A segment comparison is partly available from the current fields.");
   }
 
   if (metric.missingMetrics.length > 0 || metric.weakMetrics.length > 0) {
-    const missingOrWeak = [...metric.missingMetrics, ...metric.weakMetrics];
-    parts.push(`I cannot treat ${missingOrWeak.map(humanizeMetric).join(", ")} as fully reliable from this schema.`);
+    parts.push("One or more requested metrics are not reliable enough for a strong answer.");
   }
 
   if (dimension.missingDimensions.length > 0 || dimension.weakDimensions.length > 0) {
-    const weakDims = [...dimension.missingDimensions, ...dimension.weakDimensions];
-    parts.push(`I should not rank by ${weakDims.join(", ")} because that dimension is missing or only weakly grounded.`);
+    parts.push("The available fields do not support a reliable segment comparison for this question.");
   }
 
   if (relationship.status !== "strong" && relationship.relationshipType && relationship.relationshipType !== "single_metric") {
-    parts.push("The full relationship across multiple metrics is only partially grounded, so a winner/ranking would overstate the data.");
+    parts.push("The requested relationship is only partially supported, so a winner or ranking would overstate the data.");
   }
 
   if (reliability.reasons.length > 0) {
@@ -708,7 +720,7 @@ function buildGroundingLimitedAnswer(
   const safeNextCheck =
     metric.groundedMetrics[0] && dimension.groundedDimensions[0]
       ? `A safer next check is to ask about ${humanizeMetric(metric.groundedMetrics[0])} by ${dimension.groundedDimensions[0]}.`
-      : "A safer next check is to ask for a single explicitly named metric and segment.";
+      : "A more reliable next question would name the metric and the segment you want to compare.";
 
   return `${parts.join(" ")} ${safeNextCheck}`;
 }

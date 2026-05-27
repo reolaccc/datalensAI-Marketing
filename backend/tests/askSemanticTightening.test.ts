@@ -32,7 +32,7 @@ test("qualified efficiency questions do not silently substitute to ROAS", async 
 
   assert.equal(trustedQuestion.facts.semanticAlignment.status, "partial");
   assert.equal(trustedQuestion.facts.answerability.status, "weak");
-  assert.match(answer.answer, /relationship across multiple metrics/i);
+  assert.match(answer.answer, /requested relationship is only partially supported/i);
   assert.doesNotMatch(answer.answer, /highest ROAS/i);
   assert.equal(answer.chartSuggestion, undefined);
   assert.equal(answer.recommendedCharts?.length ?? 0, 0);
@@ -72,7 +72,7 @@ test("inventory imbalance questions do not collapse into spend fallbacks", async
 
   assert.equal(trustedQuestion.facts.semanticAlignment.status, "partial");
   assert.equal(trustedQuestion.facts.answerability.status, "weak");
-  assert.match(answer.answer, /relationship across multiple metrics/i);
+  assert.match(answer.answer, /requested relationship is only partially supported/i);
   assert.doesNotMatch(answer.answer, /spend/i);
   assert.equal(answer.chartSuggestion, undefined);
   assert.equal(answer.recommendedCharts?.length ?? 0, 0);

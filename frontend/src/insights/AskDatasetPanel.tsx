@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { useAnalysisStore } from "../stores/analysisStore";
 import { buildQuestionSuggestions } from "../utils/questionSuggestions";
 import { normalizeDateForQuestionContext } from "../utils/dateNormalization";
-import { formatCompactNumber } from "../utils/numberFormatting";
 import type { QuestionAnswer } from "../types";
 
 function deriveFilterDefaults(analysis: ReturnType<typeof useAnalysisStore.getState>["analysis"]) {
@@ -55,136 +54,8 @@ function cleanText(value?: string | null) {
   return trimmed ? trimmed : "";
 }
 
-function humanizeMetricLabel(value?: string | null) {
-  const trimmed = cleanText(value);
-  if (!trimmed) {
-    return "";
-  }
-
-  if (/^(roas|ctr|cvr)$/i.test(trimmed)) {
-    return trimmed.toUpperCase();
-  }
-
-  return trimmed.replace(/_/g, " ").replace(/\b\w/g, (character) => character.toUpperCase());
-}
-
-function formatEvidenceValue(value: string | number, metricLabel?: string) {
-  if (typeof value === "number") {
-    const normalizedMetric = metricLabel?.toLowerCase() ?? "";
-
-    if (normalizedMetric.includes("roas")) {
-      return `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(value)}x`;
-    }
-
-    if (normalizedMetric.includes("ctr") || normalizedMetric.includes("cvr") || normalizedMetric.includes("rate")) {
-      const percentValue = Math.abs(value) <= 1.5 ? value * 100 : value;
-      return `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(percentValue)}%`;
-    }
-
-    if (
-      normalizedMetric.includes("revenue") ||
-      normalizedMetric.includes("sales") ||
-      normalizedMetric.includes("income") ||
-      normalizedMetric.includes("gmv") ||
-      normalizedMetric.includes("cost") ||
-      normalizedMetric.includes("spend") ||
-      normalizedMetric.includes("profit") ||
-      normalizedMetric.includes("value") ||
-      normalizedMetric.includes("amount")
-    ) {
-      return `$${formatCompactNumber(value)}`;
-    }
-
-    return formatCompactNumber(value);
-  }
-
-  return value;
-}
-
 function normalizeEvidenceLine(value: string) {
   return value.toLowerCase().replace(/\s+/g, " ").trim();
-}
-
-function parseEvidenceNumber(value: string | number) {
-  if (typeof value === "number") {
-    return Number.isFinite(value) ? value : null;
-  }
-
-  const parsed = Number(
-    value
-      .replace(/[$,%]/g, "")
-      .replace(/[xX]/g, "")
-      .replace(/,/g, "")
-      .trim()
-  );
-
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
-function formatEvidenceGap(metricLabel: string, delta: number) {
-  const normalizedMetric = metricLabel.toLowerCase();
-  if (normalizedMetric.includes("roas")) {
-    return `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(delta)}x`;
-  }
-
-  if (normalizedMetric.includes("ctr") || normalizedMetric.includes("cvr") || normalizedMetric.includes("rate")) {
-    return `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(delta)} pts`;
-  }
-
-  if (
-    normalizedMetric.includes("revenue") ||
-    normalizedMetric.includes("sales") ||
-    normalizedMetric.includes("income") ||
-    normalizedMetric.includes("gmv") ||
-    normalizedMetric.includes("cost") ||
-    normalizedMetric.includes("spend") ||
-    normalizedMetric.includes("profit") ||
-    normalizedMetric.includes("value") ||
-    normalizedMetric.includes("amount")
-  ) {
-    return `$${formatCompactNumber(delta)}`;
-  }
-
-  return formatCompactNumber(delta);
-}
-
-function buildContextSummary(context?: QuestionAnswer["questionContext"]) {
-  if (!context) {
-    return [];
-  }
-
-  const summary: string[] = [];
-
-  if (context.selectedMetric) {
-    summary.push(`Metric: ${humanizeMetricLabel(context.selectedMetric)}`);
-  }
-
-  if (context.selectedDimension) {
-    summary.push(`Dimension: ${humanizeMetricLabel(context.selectedDimension)}`);
-  }
-
-  if (context.selectedCategory) {
-    summary.push(`Focus: ${humanizeMetricLabel(context.selectedCategory)}`);
-  }
-
-  if (context.selectedSegmentA && context.selectedSegmentB) {
-    summary.push(`Compare: ${humanizeMetricLabel(context.selectedSegmentA)} vs ${humanizeMetricLabel(context.selectedSegmentB)}`);
-  }
-
-  if (context.selectedDate) {
-    summary.push(`Date: ${context.selectedDate}`);
-  }
-
-  return summary;
-}
-
-function isComplexInvestigation(entry: QuestionAnswer) {
-  return [
-    "trend_analysis",
-    "anomaly_detection",
-    "correlation",
-    "funnel_analysis"
-  ].includes(entry.detectedIntent?.primaryIntent ?? "general_overview");
 }
 
 function buildInvestigationChipLabel(question: string) {
@@ -219,46 +90,6 @@ function buildInvestigationChipLabel(question: string) {
 
 function buildAnswerSections(entry: QuestionAnswer) {
   const directAnswer = cleanText(entry.narrative?.directAnswer) || cleanText(entry.answer);
-  const metricLabel = humanizeMetricLabel(entry.detectedIntent?.targetMetrics?.[0]);
-  const supportingRows = entry.supportingData
-    .slice(0, 3)
-    .map((item) => ({
-      label: item.label,
-      value: formatEvidenceValue(item.value, metricLabel),
-      rawValue: item.value
-    }))
-    .filter((item, index, allItems) => {
-      const currentKey = normalizeEvidenceLine(`${item.label}:${item.value}`);
-      return (
-        allItems.findIndex(
-          (candidate) => normalizeEvidenceLine(`${candidate.label}:${candidate.value}`) === currentKey
-        ) === index
-      );
-    });
-
-  const numericSupportValues = supportingRows
-    .map((item) => parseEvidenceNumber(item.rawValue))
-    .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
-
-  const leadGapText =
-    metricLabel && numericSupportValues.length >= 2 && numericSupportValues[0] > numericSupportValues[1]
-      ? `${supportingRows[0]?.label ?? "The leading segment"} leads ${metricLabel} by ${formatEvidenceGap(
-          metricLabel,
-          numericSupportValues[0] - numericSupportValues[1]
-        )} over ${supportingRows[1]?.label ?? "the next segment"}.`
-      : "";
-
-  const seenEvidence = new Set(
-    supportingRows.map((item) => normalizeEvidenceLine(`${item.label}: ${item.value}`))
-  );
-  const evidenceLines = (isComplexInvestigation(entry) ? entry.narrative?.evidence ?? [] : [])
-    .map(cleanText)
-    .filter((line): line is string => Boolean(line))
-    .filter((line, index, allLines) => {
-      const normalized = normalizeEvidenceLine(line);
-      return !seenEvidence.has(normalized) && allLines.findIndex((candidate) => normalizeEvidenceLine(candidate) === normalized) === index;
-    })
-    .slice(0, 4);
   const continueInvestigation = [
     ...(entry.suggestedFollowUps ?? []),
     cleanText(entry.narrative?.suggestedNextQuestion)
@@ -274,10 +105,6 @@ function buildAnswerSections(entry: QuestionAnswer) {
 
   return {
     directAnswer,
-    metricLabel,
-    leadGapText,
-    evidenceLines,
-    supportingRows,
     continueInvestigation
   };
 }
@@ -390,7 +217,6 @@ export function AskDatasetPanel() {
   function renderConversationTurn(entry: QuestionAnswer, index: number) {
     const isLatest = index === 0;
     const sections = buildAnswerSections(entry);
-    const contextSummary = buildContextSummary(entry.questionContext);
     const investigationPreview = sections.directAnswer || entry.answer;
     const investigationKey = `${entry.question}::${investigationPreview}`;
     const isExpanded = openInvestigations[investigationKey] ?? isLatest;
@@ -414,7 +240,6 @@ export function AskDatasetPanel() {
           <div className="investigation-summary-copy">
             <p className="investigation-question">{entry.question}</p>
             <p className="investigation-preview">{investigationPreview}</p>
-            {contextSummary.length > 0 ? <p className="investigation-context">Context: {contextSummary.join(" · ")}</p> : null}
           </div>
         </button>
 
@@ -429,25 +254,6 @@ export function AskDatasetPanel() {
               <span className="conversation-role">DATALENS</span>
               <div className="ask-answer-stack">
                 <p className="ask-answer-direct">{sections.directAnswer}</p>
-
-                {sections.supportingRows.length > 0 ? (
-                  <div className="ask-evidence-block">
-                    <p className="ask-answer-text ask-evidence-summary">
-                      Top performers: {sections.supportingRows
-                        .map((item) => `${item.label} — ${item.value}`)
-                        .join(" · ")}.
-                    </p>
-                    {sections.leadGapText ? <p className="ask-evidence-gap">{sections.leadGapText}</p> : null}
-                  </div>
-                ) : null}
-
-                {sections.evidenceLines.length > 0 ? (
-                  <ul className="ask-evidence-list">
-                    {sections.evidenceLines.map((line) => (
-                      <li key={line}>{line}</li>
-                    ))}
-                  </ul>
-                ) : null}
 
                 {isLatest && sections.continueInvestigation.length > 0 ? (
                   <div className="continue-investigation-list">
@@ -486,7 +292,6 @@ export function AskDatasetPanel() {
       <div className="question-composer">
         {questionSuggestions.length > 0 ? (
           <label className="question-suggestion-field">
-            <span>Suggested questions</span>
             <select
               className="question-suggestion-select"
               aria-label="Suggested business questions"
@@ -540,7 +345,7 @@ export function AskDatasetPanel() {
           {asking ? (
             <p>Analyzing your question and building the answer now.</p>
           ) : (
-            <p>Ask a question to generate an answer, evidence, or table.</p>
+            <p>Ask a question to generate an answer or table.</p>
           )}
         </div>
       ) : null}

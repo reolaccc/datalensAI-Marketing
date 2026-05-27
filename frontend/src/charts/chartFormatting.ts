@@ -244,7 +244,11 @@ export function formatChartValue(value: unknown, metric?: string | null, mode: "
   return compact ? formatCompactNumber(value) : formatFullNumber(value);
 }
 
-export function formatChartDateLabel(value: unknown, mode: "axis" | "tooltip" = "axis") {
+export function formatChartDateLabel(
+  value: unknown,
+  mode: "axis" | "tooltip" = "axis",
+  options: { includeYear?: boolean } = {}
+) {
   const raw = String(value ?? "").trim();
   if (!raw) {
     return "";
@@ -264,12 +268,39 @@ export function formatChartDateLabel(value: unknown, mode: "axis" | "tooltip" = 
     return new Intl.DateTimeFormat(undefined, {
       month: "short",
       day: "numeric",
-      year: parsed.getFullYear() === new Date().getFullYear() ? undefined : "numeric",
+      year: options.includeYear || parsed.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined,
       ...(hasTime ? { hour: "numeric", minute: "2-digit" } : {})
     }).format(parsed);
   }
 
-  return new Intl.DateTimeFormat(undefined, hasTime ? { month: "short", day: "numeric", hour: "numeric" } : { month: "short", day: "numeric" }).format(parsed);
+  return new Intl.DateTimeFormat(
+    undefined,
+    hasTime
+      ? { month: "short", day: "numeric", year: options.includeYear ? "numeric" : undefined, hour: "numeric" }
+      : { month: "short", day: "numeric", year: options.includeYear ? "numeric" : undefined }
+  ).format(parsed);
+}
+
+export function getTimeSeriesYearContext(data: Record<string, PrimitiveValue>[], key: string) {
+  const years = data
+    .map((entry) => String(entry[key] ?? "").trim())
+    .map((value) => {
+      if (/^\d{4}$/.test(value)) {
+        return value;
+      }
+      if (!looksLikeIsoDate(value)) {
+        return "";
+      }
+      const parsed = parseDisplayDate(value);
+      return parsed ? String(parsed.getFullYear()) : "";
+    })
+    .filter(Boolean);
+  const uniqueYears = [...new Set(years)];
+
+  return {
+    includeYearInTicks: uniqueYears.length > 1,
+    axisYearLabel: uniqueYears.length === 1 ? uniqueYears[0] : uniqueYears.length > 1 ? `${uniqueYears[0]}-${uniqueYears[uniqueYears.length - 1]}` : ""
+  };
 }
 
 export function buildTimeSeriesTicks(data: Record<string, PrimitiveValue>[], key: string, targetCount = 6) {
@@ -300,29 +331,31 @@ export function isTimeSeriesChartAxis(source?: string | null, xKey?: string | nu
   return xKey === "date" || isTimeLikeLabel(source) || isTimeLikeLabel(xKey);
 }
 
-export function getTimeSeriesAxisLabel(source?: string | null, xKey?: string | null) {
+export function getTimeSeriesAxisLabel(source?: string | null, xKey?: string | null, yearLabel = "") {
   const normalizedSource = normalize(String(source ?? ""));
   const normalizedKey = normalize(String(xKey ?? ""));
+  const suffix = yearLabel ? ` (${yearLabel})` : "";
+  const dailySuffix = yearLabel ? ` (${yearLabel}, Daily)` : " (Daily)";
 
   if (normalizedSource.includes("month")) {
-    return "Month";
+    return `Month${suffix}`;
   }
   if (normalizedSource.includes("week")) {
-    return "Week";
+    return `Week${suffix}`;
   }
   if (normalizedKey === "date") {
-    return normalizedSource.includes("call") ? "Call Date (Daily)" : "Date (Daily)";
+    return normalizedSource.includes("call") ? `Call Date${dailySuffix}` : `Date${dailySuffix}`;
   }
   if (normalizedSource.includes("hour")) {
     return "Hour of Day";
   }
   if (normalizedSource.includes("time") || normalizedSource.includes("timestamp")) {
-    return "Call Date / Time";
+    return `Call Date / Time${suffix}`;
   }
   if (normalizedKey === "date") {
-    return "Date (Daily)";
+    return `Date${dailySuffix}`;
   }
-  return "Date";
+  return `Date${suffix}`;
 }
 
 export function formatHistogramRangeLabel(entry: Record<string, PrimitiveValue> | null | undefined) {

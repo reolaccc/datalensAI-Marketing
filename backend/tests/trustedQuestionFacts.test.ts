@@ -57,8 +57,31 @@ test("TrustedQuestionFacts marks weak fallback questions explicitly", () => {
   const trustedQuestion = buildTrustedQuestionFacts("Summarize the business performance.", context);
 
   assert.equal(trustedQuestion.facts.answerability.status, "weak");
-  assert.match(trustedQuestion.facts.answer.directAnswer, /high-level business read only/i);
+  assert.match(trustedQuestion.facts.answer.directAnswer, /too broad for a reliable ranking/i);
   assert.equal(trustedQuestion.facts.chartSupportRequest?.kind, "none");
+});
+
+test("TrustedQuestionFacts keeps missed-call reliability grounded on missed call rate", async () => {
+  const context = loadContext("blind_test_v4_callcentre_ops.csv");
+  const trustedQuestion = buildTrustedQuestionFacts("Can missed call rate be compared reliably by service line?", context);
+  const answer = await answerDatasetQuestion("Can missed call rate be compared reliably by service line?", context);
+
+  assert.equal(trustedQuestion.facts.routing.mode, "trust");
+  assert.deepEqual(trustedQuestion.facts.semanticAlignment.requestedMetrics, ["missed_call_rate"]);
+  assert.equal(trustedQuestion.facts.semanticAlignment.answeredMetric, "missed_call_rate");
+  assert.match(answer.answer, /missed call rate can be compared/i);
+  assert.doesNotMatch(answer.answer, /^calls can be compared/i);
+});
+
+test("TrustedQuestionFacts gives dataset-level reliability wording when no metric is named", async () => {
+  const context = loadContext("blind_test_v4_callcentre_ops.csv");
+  const trustedQuestion = buildTrustedQuestionFacts("What reliability limitations affect decision confidence?", context);
+  const answer = await answerDatasetQuestion("What reliability limitations affect decision confidence?", context);
+
+  assert.equal(trustedQuestion.facts.routing.mode, "trust");
+  assert.equal(trustedQuestion.facts.answerability.status, "weak");
+  assert.match(answer.answer, /dataset-level reliability question/i);
+  assert.doesNotMatch(answer.answer, /changing the metric being answered/i);
 });
 
 test("Ask chart support stays aligned to TrustedQuestionFacts for chart-supported questions", async () => {

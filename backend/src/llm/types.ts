@@ -198,6 +198,7 @@ export interface AnalyticsFacts {
     chartType: ChartConfig["chartType"];
     intent: ChartConfig["intent"];
     analysisRole?: ChartConfig["analysisRole"];
+    businessArea?: ChartConfig["businessArea"];
     semanticSignature?: string;
     metric?: string | null;
     dimension?: string | null;

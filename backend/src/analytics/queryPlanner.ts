@@ -549,6 +549,26 @@ function resolveMetrics(
     return ["qualified_call_rate"];
   }
 
+  if (
+    (normalizedQuestion.includes("missed call rate") ||
+      normalizedQuestion.includes("missed-call rate") ||
+      normalizedQuestion.includes("missed call pressure")) &&
+    contract.availableMetrics.includes("missedCall") &&
+    contract.availableMetrics.includes("calls")
+  ) {
+    return ["missed_call_rate"];
+  }
+
+  if (
+    (normalizedQuestion.includes("answered call rate") ||
+      normalizedQuestion.includes("answered-call rate") ||
+      normalizedQuestion.includes("answer rate")) &&
+    contract.availableMetrics.includes("answeredCall") &&
+    contract.availableMetrics.includes("calls")
+  ) {
+    return ["answered_call_rate"];
+  }
+
   const genericGroundedMetrics = genericMetricGroundingMatches(question, profile);
   if (genericGroundedMetrics.length > 0) {
     return [...new Set([...relationshipSeedMetrics, ...genericGroundedMetrics])];

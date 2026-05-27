@@ -67,6 +67,10 @@ export function TopBar() {
             />
             <span>{loading ? "Analyzing dataset..." : "Drop file here or browse"}</span>
             <small>{fileName ? `Current file: ${fileName}` : "Supports CSV, XLSX, XLS"}</small>
+            <small className="upload-limit-note">
+              Demo limit: best with CSV files under 1MB or 3,000–5,000 rows. Larger datasets require sampling or
+              upgraded processing.
+            </small>
           </label>
 
           <div className="upload-action-row">

@@ -109,6 +109,41 @@ function isCommercialInsightText(value: string) {
   return !/(data quality|missing cell|missing cells|duplicate row|duplicate rows|outlier|outliers|eda|profiling|dirty data|warning)/i.test(value);
 }
 
+function isLowValueExecutiveMetadataText(value: string) {
+  const normalized = normalizeInsightText(value);
+  return (
+    /\b(dataset|data set|file|profiled)\b.*\b(rows?|columns?|fields?)\b/.test(normalized) ||
+    /\b\d+\s+rows?\b/.test(normalized) ||
+    /\b\d+\s+columns?\b/.test(normalized) ||
+    /\b(row count|column count|number of fields|date range)\b/.test(normalized) ||
+    /\bvalidate whether the strongest signals hold across\b/.test(normalized) ||
+    /\binvestigate the (changing|improving|declining) .+ trend across .+ before making a broader recommendation\b/.test(normalized) ||
+    /\bthe (changing|improving|declining) .+ trend across .+ should be watched before committing budget\b/.test(normalized)
+  );
+}
+
+function isExecutiveInsightText(value: string) {
+  return isCommercialInsightText(value) && !isLowValueExecutiveMetadataText(value);
+}
+
+function hasCommercialDecisionContext(facts: AnalyticsFacts) {
+  const domain = facts.semanticContract?.detectedDomain?.domain;
+  return (
+    domain === "call_tracking" ||
+    domain === "marketing_attribution" ||
+    domain === "mixed_call_tracking_attribution" ||
+    facts.kpis.totalRevenue !== undefined ||
+    facts.kpis.totalCost !== undefined ||
+    facts.kpis.overallRoas !== undefined ||
+    facts.rankings.topRevenueEntities.length > 0 ||
+    facts.rankings.topRoasEntities.length > 0
+  );
+}
+
+function hasOperationalDecisionContext(facts: AnalyticsFacts) {
+  return facts.charts.some((chart) => chart.businessArea === "operations" || chart.businessArea === "quality");
+}
+
 type ExecutiveInsightTheme =
   | "revenue"
   | "concentration"
@@ -1009,6 +1044,7 @@ export function buildAnalyticsFactsFromAnalysis(params: {
       chartType: chart.chartType,
       intent: chart.intent,
       analysisRole: chart.analysisRole,
+      businessArea: chart.businessArea,
       semanticSignature: chart.semanticSignature,
       metric: chart.metric,
       dimension: chart.dimension,
@@ -1071,10 +1107,10 @@ function buildFallbackExecutiveInsightNarrative(facts: AnalyticsFacts): Executiv
           text: `Data quality needs a quick check: ${facts.qualitySignals.otherWarnings.slice(0, 2).join(" ")}`
         }
       : undefined,
-    facts.recommendedActions.find(isCommercialInsightText)
+    facts.recommendedActions.find(isExecutiveInsightText)
       ? {
           theme: "action",
-          text: facts.recommendedActions.find(isCommercialInsightText) ?? ""
+          text: facts.recommendedActions.find(isExecutiveInsightText) ?? ""
         }
       : undefined,
     facts.trends.recentChange
@@ -1089,6 +1125,12 @@ function buildFallbackExecutiveInsightNarrative(facts: AnalyticsFacts): Executiv
           text: `${facts.topFindings.bestConversionSegment.name} converts best at ${formatPercent(facts.topFindings.bestConversionSegment.conversionRate)}, so traffic quality should be benchmarked against that segment.`
         }
       : undefined,
+    hasOperationalDecisionContext(facts) && !hasCommercialDecisionContext(facts)
+      ? {
+          theme: "action",
+          text: "Operational workload and exception patterns should be reviewed by service line or team before treating the issue as a marketing performance problem."
+        }
+      : undefined,
     facts.segments.strongestSegment
       ? {
           theme: "strong_segment",
@@ -1101,18 +1143,16 @@ function buildFallbackExecutiveInsightNarrative(facts: AnalyticsFacts): Executiv
           text: `${facts.segments.weakestSegment.name} is the weakest ${facts.segments.weakestSegment.metric} segment, so it deserves review before budget is reallocated.`
         }
       : undefined,
-    {
-      theme: "general",
-      text: `The dataset spans ${facts.datasetSummary.rowCount} rows and ${facts.datasetSummary.columnCount} columns, so the next step is to validate whether the strongest signals hold across channels, campaigns, or other segments.`
-    },
-    {
-      theme: "general",
-      text: "The current signal points to a commercial review of revenue concentration, efficiency, and budget allocation rather than a broad exploratory analysis."
-    }
+    hasCommercialDecisionContext(facts)
+      ? {
+          theme: "general",
+          text: "The current signal points to a commercial review of revenue concentration, efficiency, and budget allocation rather than a broad exploratory analysis."
+        }
+      : undefined
   ].filter((candidate): candidate is ExecutiveInsightCandidate => Boolean(candidate?.text));
 
   const bullets = distinctInsightBullets(
-    candidates.filter((candidate) => isCommercialInsightText(candidate.text)),
+    candidates.filter((candidate) => isExecutiveInsightText(candidate.text)),
     6
   );
 
@@ -1365,7 +1405,7 @@ export async function generateExecutiveInsights(facts: AnalyticsFacts): Promise<
       if (parsed) {
         const fallback = buildFallbackExecutiveInsightNarrative(facts);
         const parsedCandidates = parsed.bullets
-          .filter(isCommercialInsightText)
+          .filter(isExecutiveInsightText)
           .map((text) => ({
             text,
             theme: classifyInsightTheme(text)

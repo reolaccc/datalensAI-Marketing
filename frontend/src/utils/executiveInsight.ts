@@ -5,8 +5,17 @@ function normalizeBullet(value: string) {
 }
 
 function isBusinessInsight(value: string) {
-  return !/(^next\s*:|next question:|data quality|missing cell|missing cells|duplicate row|duplicate rows|outlier|outliers|eda|profiling|dirty data|warning)/i.test(
-    value.trim()
+  const trimmed = value.trim();
+  const normalized = trimmed.toLowerCase().replace(/\s+/g, " ");
+  return (
+    !/(^next\s*:|next question:|data quality|missing cell|missing cells|duplicate row|duplicate rows|outlier|outliers|eda|profiling|dirty data|warning)/i.test(trimmed) &&
+    !/\b(dataset|data set|file|profiled)\b.*\b(rows?|columns?|fields?)\b/i.test(trimmed) &&
+    !/\b\d+\s+rows?\b/i.test(trimmed) &&
+    !/\b\d+\s+columns?\b/i.test(trimmed) &&
+    !/\b(row count|column count|number of fields|date range)\b/i.test(trimmed) &&
+    !normalized.includes("validate whether the strongest signals hold across") &&
+    !/\binvestigate the (changing|improving|declining) .+ trend across .+ before making a broader recommendation\b/i.test(trimmed) &&
+    !/\bthe (changing|improving|declining) .+ trend across .+ should be watched before committing budget\b/i.test(trimmed)
   );
 }
 

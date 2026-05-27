@@ -12,3 +12,6 @@ logs
 outputs
 *.tsbuildinfo
 tmp
+
+# Local QA scratch files that should not be committed as fixtures.
+datasets/local-scratch/
