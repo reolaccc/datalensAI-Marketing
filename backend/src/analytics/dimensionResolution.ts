@@ -10,7 +10,14 @@ export type ExplicitDimensionKey =
   | "date"
   | "account"
   | "customer"
-  | "client";
+  | "client"
+  | "queue"
+  | "team"
+  | "service_line"
+  | "warehouse"
+  | "product"
+  | "category"
+  | "supplier";
 
 export interface ExplicitDimensionMatch {
   canonicalKey: ExplicitDimensionKey;
@@ -47,7 +54,18 @@ const DIMENSION_SPECS: DimensionSpec[] = [
   { canonicalKey: "date", aliases: ["date"] },
   { canonicalKey: "account", aliases: ["account", "account name", "account_name"] },
   { canonicalKey: "customer", aliases: ["customer", "customer name", "customer_name"] },
-  { canonicalKey: "client", aliases: ["client", "client name", "client_name"] }
+  { canonicalKey: "client", aliases: ["client", "client name", "client_name"] },
+  { canonicalKey: "queue", aliases: ["queue", "queues"], rawFallbackAliases: ["queue", "queue name", "queue_name"] },
+  { canonicalKey: "team", aliases: ["team", "teams"], rawFallbackAliases: ["team", "agent team", "agent_team", "support team"] },
+  {
+    canonicalKey: "service_line",
+    aliases: ["service line", "service lines", "service", "services"],
+    rawFallbackAliases: ["service_line", "service line", "service"]
+  },
+  { canonicalKey: "warehouse", aliases: ["warehouse", "warehouses"], rawFallbackAliases: ["warehouse", "fulfillment center"] },
+  { canonicalKey: "product", aliases: ["product", "products", "sku", "skus"], rawFallbackAliases: ["product", "sku", "sku family", "sku_family"] },
+  { canonicalKey: "category", aliases: ["category", "categories"], rawFallbackAliases: ["category"] },
+  { canonicalKey: "supplier", aliases: ["supplier", "suppliers", "vendor", "vendors"], rawFallbackAliases: ["supplier", "vendor"] }
 ];
 
 function normalize(text: string) {

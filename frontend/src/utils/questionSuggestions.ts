@@ -10,8 +10,60 @@ function normalize(value: string) {
   return value.toLowerCase().replace(/\s+/g, " ").trim();
 }
 
+function humanizeLabel(value: string | undefined | null) {
+  return (value ?? "")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/_/g, " ")
+    .replace(/\bmissed call\b/gi, "missed call rate")
+    .replace(/\banswered call\b/gi, "answered call rate")
+    .replace(/\bpct\b/gi, "pct")
+    .replace(/\broas\b/gi, "ROAS")
+    .replace(/\bcpqc\b/gi, "CPQC")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase()
+    .replace(/\broas\b/g, "ROAS")
+    .replace(/\bcpqc\b/g, "CPQC");
+}
+
 function isDataQualityQuestion(question: string) {
   return /missing values|missing rows|duplicate rows|malformed|suspicious|invalid|anomal|quality|dirty data|outlier/i.test(question);
+}
+
+function isVisualLookupQuestion(question: string) {
+  const text = normalize(question);
+  return (
+    (
+      /^which\b/.test(text) &&
+      /\b(highest|lowest|most|least|biggest|smallest|largest|fewest|best)\b/.test(text)
+    ) ||
+    /\bdriving the strongest performance\b/.test(text)
+  ) &&
+    !/\b(risk|reliab|caveat|limitation|inconsistent|imbalance|bottleneck|pressure|review|investigat)\b/.test(text)
+  ;
+}
+
+function isMarketingDomain(contract: SemanticDatasetContract | null) {
+  const domain = contract?.detectedDomain?.domain;
+  return domain === "call_tracking" || domain === "marketing_attribution" || domain === "mixed_call_tracking_attribution";
+}
+
+function usesUngroundedMarketingLanguage(question: string, analysis: AnalysisResponse) {
+  const contract = getSemanticContract(analysis);
+  if (isMarketingDomain(contract)) {
+    return false;
+  }
+
+  return /\b(roas|campaign efficiency|marketing attribution|qualified calls?|qualified call rate|qualified efficiency|cost per qualified|traffic source)\b/i.test(question);
+}
+
+function isUnsafeSuggestedQuestion(question: string, analysis: AnalysisResponse) {
+  return (
+    isVisualLookupQuestion(question) ||
+    usesUngroundedMarketingLanguage(question, analysis) ||
+    (!isMarketingDomain(getSemanticContract(analysis)) && /\b(spend|spending|budget)\b/i.test(question)) ||
+    /\bclearest trade-off between scale and efficiency\b/i.test(question)
+  );
 }
 
 function hasSemanticContract(analysis: AnalysisResponse) {
@@ -80,11 +132,11 @@ function buildOperationsFallbackQuestions(analysis: AnalysisResponse) {
   const primaryDimension = dimensions[0] ?? "location";
   const secondaryDimension = dimensions[1] ?? primaryDimension;
   const suggestions = [
-    `Which ${primaryDimension} generated the most calls?`,
-    `Which ${secondaryDimension} has the highest missed call rate?`,
-    `Where did call volume increase or drop the most?`,
-    `Which ${primaryDimension} has the longest average handling time?`,
-    `Where are repeat callers most concentrated?`
+    `Can missed call rate be compared reliably by ${humanizeLabel(primaryDimension)}?`,
+    `Where does call handling time look inconsistent across ${humanizeLabel(primaryDimension)}?`,
+    `Which ${humanizeLabel(secondaryDimension)} segments show concentrated service risk?`,
+    "What operational bottlenecks deserve further investigation?",
+    "What reliability limitations affect decision confidence?"
   ];
 
   return uniq(suggestions).slice(0, 5);
@@ -97,35 +149,34 @@ function buildSemanticFallbackBusinessQuestions(analysis: AnalysisResponse) {
 
   const dimensions = preferredDimensionLabels(analysis);
   const metrics = preferredMetricLabels(analysis);
-  const primaryDimension = dimensions[0] ?? "channel";
+  const primaryDimension = dimensions[0] ?? "segment";
   const secondaryDimension = dimensions[1] ?? primaryDimension;
-  const primaryMetric = metrics[0] ?? "revenue";
+  const primaryMetric = metrics[0] ?? "performance";
   const secondaryMetric = metrics[1] ?? primaryMetric;
-  const timeText = hasDatetime(analysis) ? " over time" : "";
   const questions = [
-    `Which ${primaryDimension} generated the most ${primaryMetric}?`,
-    `Is ${primaryMetric} too concentrated in one ${primaryDimension}?`,
-    `Where did ${primaryMetric} increase or drop the most?`,
-    `Which ${secondaryDimension} has the best ROAS?`,
-    `Which ${primaryDimension} should receive more budget?`,
-    `Which ${secondaryDimension} converts clicks most efficiently?`
+    `Can ${humanizeLabel(primaryMetric)} be compared reliably by ${humanizeLabel(primaryDimension)}?`,
+    `Where does ${humanizeLabel(primaryMetric)} look inconsistent across ${humanizeLabel(primaryDimension)}?`,
+    `Is ${humanizeLabel(primaryMetric)} too concentrated in one ${humanizeLabel(primaryDimension)}?`,
+    `Which ${humanizeLabel(secondaryDimension)} segments show concentrated risk?`,
+    "What reliability limitations affect decision confidence?"
   ];
 
   if (hasFunnel(analysis)) {
-    questions.push("Where are users dropping off between impressions, clicks, and conversions?");
-    questions.push(`Which ${secondaryDimension} has the strongest funnel efficiency?`);
+    questions.push("Where do funnel stages show unusual drop-off pressure?");
   }
 
   if (hasMultipleNumericMetrics(analysis)) {
-    questions.push(`Which ${primaryDimension} has high spend but weak revenue?`);
-    questions.push(`What is the relationship between ${primaryMetric} and ${secondaryMetric}?`);
+    questions.push(`Where do ${humanizeLabel(primaryMetric)} and ${humanizeLabel(secondaryMetric)} look inconsistent?`);
   }
 
   if (hasDatetime(analysis)) {
-    questions.push(`Where did ${primaryMetric} drop the most${timeText}?`);
+    questions.push(`Where does ${humanizeLabel(primaryMetric)} show unusual movement over time?`);
   }
 
-  return uniq(questions).filter((question) => !isDataQualityQuestion(question)).slice(0, 5);
+  return uniq(questions)
+    .filter((question) => !isDataQualityQuestion(question))
+    .filter((question) => !isUnsafeSuggestedQuestion(question, analysis))
+    .slice(0, 5);
 }
 
 function buildDataQualityFallbackQuestions(analysis: AnalysisResponse) {
@@ -143,7 +194,9 @@ function buildDataQualityFallbackQuestions(analysis: AnalysisResponse) {
 }
 
 export function buildQuestionSuggestions(analysis: AnalysisResponse): string[] {
-  const backendSuggestions = uniq(analysis.executiveSummary.suggestedQuestions).filter((question) => !isDataQualityQuestion(question));
+  const backendSuggestions = uniq(analysis.executiveSummary.suggestedQuestions)
+    .filter((question) => !isDataQualityQuestion(question))
+    .filter((question) => !isUnsafeSuggestedQuestion(question, analysis));
   if (backendSuggestions.length > 0) {
     return backendSuggestions.slice(0, 5);
   }

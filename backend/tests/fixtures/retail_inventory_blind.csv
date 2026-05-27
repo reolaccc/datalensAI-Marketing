@@ -1,0 +1,25 @@
+snapshot_date,warehouse,category,sku_family,units_on_hand,units_backordered,stockout_events,fulfilled_orders,late_shipments,fulfillment_cost,gross_margin_pct,markdown_rate,inventory_turnover,sell_through_rate,return_units
+2025-01-05,Melbourne,Appliances,Coffee Machines,120,8,2,42,6,980,0.36,0.04,3.2,0.68,3
+2025-01-05,Melbourne,Appliances,Air Purifiers,84,22,5,31,9,1120,0.29,0.10,2.4,0.55,4
+2025-01-05,Sydney,Appliances,Coffee Machines,96,12,3,36,5,890,0.34,0.05,3.0,0.63,2
+2025-01-05,Sydney,Appliances,Air Purifiers,78,28,6,28,11,1195,0.25,0.12,2.1,0.49,5
+2025-01-05,Brisbane,Homewares,Storage Bins,210,4,1,58,4,760,0.42,0.03,4.6,0.74,6
+2025-01-05,Brisbane,Homewares,Bedding Sets,132,18,4,34,8,1010,0.31,0.08,2.8,0.57,7
+2025-02-09,Melbourne,Appliances,Coffee Machines,108,14,3,39,7,1015,0.35,0.05,3.0,0.64,4
+2025-02-09,Melbourne,Appliances,Air Purifiers,73,31,7,27,12,1260,0.23,0.14,1.9,0.45,6
+2025-02-09,Sydney,Appliances,Coffee Machines,91,16,4,33,6,940,0.33,0.06,2.8,0.60,3
+2025-02-09,Sydney,Appliances,Air Purifiers,69,35,8,24,13,1315,0.21,0.15,1.7,0.42,7
+2025-02-09,Brisbane,Homewares,Storage Bins,224,3,1,61,3,780,0.43,0.03,4.8,0.76,5
+2025-02-09,Brisbane,Homewares,Bedding Sets,125,21,5,30,9,1095,0.28,0.10,2.5,0.52,8
+2025-03-16,Melbourne,Appliances,Coffee Machines,94,19,5,35,8,1090,0.32,0.08,2.7,0.58,5
+2025-03-16,Melbourne,Appliances,Air Purifiers,61,42,10,21,15,1435,0.18,0.18,1.4,0.37,8
+2025-03-16,Sydney,Appliances,Coffee Machines,88,21,5,31,8,1010,0.30,0.08,2.5,0.54,4
+2025-03-16,Sydney,Appliances,Air Purifiers,55,46,11,19,16,1480,0.16,0.19,1.3,0.34,9
+2025-03-16,Brisbane,Homewares,Storage Bins,238,2,0,64,3,805,0.44,0.02,5.0,0.79,4
+2025-03-16,Brisbane,Homewares,Bedding Sets,118,24,6,28,10,1170,0.25,0.12,2.2,0.48,9
+2025-04-20,Melbourne,Appliances,Coffee Machines,90,24,6,32,9,1140,0.29,0.10,2.4,0.53,6
+2025-04-20,Melbourne,Appliances,Air Purifiers,49,51,12,17,18,1565,0.14,0.22,1.1,0.29,10
+2025-04-20,Sydney,Appliances,Coffee Machines,83,25,6,29,9,1085,0.28,0.10,2.2,0.50,5
+2025-04-20,Sydney,Appliances,Air Purifiers,44,55,13,16,19,1620,0.12,0.24,1.0,0.27,11
+2025-04-20,Brisbane,Homewares,Storage Bins,246,1,0,67,2,790,0.45,0.02,5.1,0.81,3
+2025-04-20,Brisbane,Homewares,Bedding Sets,112,27,7,25,11,1215,0.22,0.14,2.0,0.44,10

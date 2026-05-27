@@ -17,6 +17,13 @@ import {
 } from "./semanticContract.js";
 
 type DatasetType = "marketing" | "sales" | "ecommerce" | "generic";
+type DomainSemanticProfile = {
+  domain: "call_tracking" | "marketing" | "operations" | "retail" | "energy" | "generic";
+  confidence: "strong" | "partial" | "weak";
+  kpiExplanationMode: "domain_aware" | "neutral";
+  allowedLanguageHints: string[];
+  avoidLanguageHints: string[];
+};
 type MetricKey =
   | "revenue"
   | "cost"
@@ -119,6 +126,49 @@ function hasSignal(columns: string[], hints: string[]) {
     const normalized = normalizeName(column);
     return hints.some((hint) => normalized.includes(hint));
   });
+}
+
+function resolveDomainSemanticProfile(profile: DatasetProfile, datasetType: DatasetType): DomainSemanticProfile {
+  const semanticDomain = profile.semanticContract?.detectedDomain;
+  const domain = semanticDomain?.domain;
+  if (
+    domain === "call_tracking" ||
+    domain === "mixed_call_tracking_attribution" ||
+    domain === "call_operations"
+  ) {
+    return {
+      domain: "call_tracking",
+      confidence: (semanticDomain?.confidence ?? 0) >= 0.65 ? "strong" : "partial",
+      kpiExplanationMode: "domain_aware",
+      allowedLanguageHints: ["calls", "qualified calls", "spend", "revenue", "ROAS"],
+      avoidLanguageHints: []
+    };
+  }
+
+  if (datasetType === "marketing") {
+    return {
+      domain: "marketing",
+      confidence: "partial",
+      kpiExplanationMode: "domain_aware",
+      allowedLanguageHints: ["revenue", "spend", "conversion", "traffic"],
+      avoidLanguageHints: []
+    };
+  }
+
+  return {
+    domain: "generic",
+    confidence: "weak",
+    kpiExplanationMode: "neutral",
+    allowedLanguageHints: ["metric value", "total", "average", "selected period"],
+    avoidLanguageHints: [
+      "most related business metric",
+      "growth or noise",
+      "strongest signal",
+      "business impact",
+      "performance driver",
+      "optimization opportunity"
+    ]
+  };
 }
 
 function formatCount(value: number) {
@@ -1308,7 +1358,62 @@ function isDirectAggregateMetricKey(key: MetricKey) {
   );
 }
 
-function buildDescription(metricKey: MetricKey, observation: MetricObservation) {
+function buildNeutralKpiDescription(metricKey: MetricKey, observation: MetricObservation) {
+  const normalizedLabel = normalizeName(observation.label);
+  const normalizedSource = observation.sourceColumns.map(normalizeName).join(" ");
+  const metricText = `${normalizedLabel} ${normalizedSource}`;
+
+  if (/\b(grid import|imported|import)\b/.test(metricText)) {
+    return "Energy or volume drawn from an external source.";
+  }
+  if (/\b(grid export|exported|export)\b/.test(metricText)) {
+    return "Energy or volume sent back to an external destination.";
+  }
+  if (/\b(load|demand|consumption|consumed|usage)\b/.test(metricText)) {
+    return "Demand or consumption captured in the dataset.";
+  }
+  if (/\b(solar|generation|generated|production|produced|output)\b/.test(metricText)) {
+    return "Generation or production captured in the dataset.";
+  }
+  if (/\b(cost|spend|expense|outlay|budget)\b/.test(metricText)) {
+    return "Total cost recorded in the dataset.";
+  }
+  if (/\b(revenue|sales|income|gmv|booked value|sale value)\b/.test(metricText)) {
+    return "Total revenue or sales value recorded in the dataset.";
+  }
+  if (/\b(margin|profit)\b/.test(metricText)) {
+    return "Profitability measure captured in the dataset.";
+  }
+  if (observation.metricType === "duration" || /\b(delay|duration|time|seconds|minutes|hours|resolution|response|wait|handle)\b/.test(metricText)) {
+    return "Time-based measure of process duration.";
+  }
+  if (observation.metricType === "percentage" || observation.metricType === "rate" || /\b(rate|percent|percentage|ratio|pct)\b/.test(metricText)) {
+    return "Proportion-based measure.";
+  }
+  if (/\b(count|volume|records|events|transactions|activity|orders|tickets|cases|calls)\b/.test(metricText)) {
+    return "Activity volume captured in the dataset.";
+  }
+  if (/\b(inventory|stock|units on hand|stockout|backorder)\b/.test(metricText)) {
+    return "Inventory or stock movement captured in the dataset.";
+  }
+  if (/\b(return|refund)\b/.test(metricText)) {
+    return "Returns or refunds captured in the dataset.";
+  }
+  if (/\b(error|failure|failed|missed|defect|incident)\b/.test(metricText)) {
+    return "Exception or failure measure captured in the dataset.";
+  }
+  if (/\b(completion|completed|fulfillment|fulfilled|resolved|closed)\b/.test(metricText)) {
+    return "Completion or fulfillment activity captured in the dataset.";
+  }
+
+  return "";
+}
+
+function buildDescription(metricKey: MetricKey, observation: MetricObservation, domainProfile: DomainSemanticProfile) {
+  if (domainProfile.kpiExplanationMode === "neutral") {
+    return buildNeutralKpiDescription(metricKey, observation);
+  }
+
   const fmt = observation.formattedValue;
   const segment = observation.segmentSummary;
   const top = segment?.top?.name;
@@ -1388,7 +1493,8 @@ function buildMetricObservation(
   rows: DatasetRow[],
   profile: DatasetProfile,
   datasetType: DatasetType,
-  currencyCode: string
+  currencyCode: string,
+  domainProfile: DomainSemanticProfile
 ): MetricObservation | null {
   const metricDefinitions: Record<MetricKey, { label: string; metricType: KpiMetricType; unit: string; priority: Record<DatasetType, number>; sourceColumns: string[] }> = {
     revenue: {
@@ -1594,7 +1700,7 @@ function buildMetricObservation(
       observation.reliability = observation.reliability === "high" ? "medium" : observation.reliability;
     }
     observation.contextLine = buildContextLine(metricKey, observation);
-    observation.description = buildDescription(metricKey, observation);
+    observation.description = buildDescription(metricKey, observation, domainProfile);
     return observation;
   }
 
@@ -1929,7 +2035,7 @@ function buildMetricObservation(
     segmentSummary: segmentSummary ?? undefined
   };
   observation.contextLine = buildContextLine(key, observation);
-  observation.description = buildDescription(key, observation);
+  observation.description = buildDescription(key, observation, domainProfile);
   return observation;
 }
 
@@ -1937,7 +2043,8 @@ function buildGenericFallbackObservations(
   rows: DatasetRow[],
   profile: DatasetProfile,
   datasetType: DatasetType,
-  currencyCode: string
+  currencyCode: string,
+  domainProfile: DomainSemanticProfile
 ) {
   const genericHints = [
     "revenue",
@@ -1987,7 +2094,7 @@ function buildGenericFallbackObservations(
         : formatGenericNumber(value),
       unit: "",
       metricType: /revenue|sales|income|gmv|value|amount|cost|spend|profit/i.test(label) ? "currency" : "generic_number",
-      description: `The ${label.toLowerCase()} metric reached ${/revenue|sales|income|gmv|value|amount|cost|spend|profit/i.test(label) ? formatCurrencyLike(value, currencyCode) : formatGenericNumber(value)}. Compare it with the most related business metric to see whether this number reflects growth or noise.`,
+      description: "",
       formula: `sum(${column})`,
       reliability: getColumnProfile(profile, column)?.missingCount ? "medium" : "high",
       priority: 40,
@@ -1996,6 +2103,7 @@ function buildGenericFallbackObservations(
       relatedDimension: dimension,
       segmentSummary: segmentSummary ?? undefined
     };
+    observation.description = buildDescription("total_value", observation, domainProfile);
     const warning = getMissingWarning(label, [column], profile);
     if (warning) {
       observation.warnings.push(warning);
@@ -2036,6 +2144,7 @@ function toKpiCandidate(observation: MetricObservation): KpiCandidate {
 
 export function buildKpiObservations(rows: DatasetRow[], profile: DatasetProfile) {
   const datasetType = pickDatasetType(profile);
+  const domainProfile = resolveDomainSemanticProfile(profile, datasetType);
   const currencyCode = getConfiguredCurrencyCode();
   const observations: Partial<Record<MetricKey, MetricObservation>> = {};
 
@@ -2051,13 +2160,14 @@ export function buildKpiObservations(rows: DatasetRow[], profile: DatasetProfile
   ];
 
   for (const key of keys) {
-    observations[key] = buildMetricObservation(key, rows, profile, datasetType, currencyCode) ?? undefined;
+    observations[key] = buildMetricObservation(key, rows, profile, datasetType, currencyCode, domainProfile) ?? undefined;
   }
 
-  const fallbackObservations = datasetType === "generic" ? buildGenericFallbackObservations(rows, profile, datasetType, currencyCode) : [];
+  const fallbackObservations = datasetType === "generic" ? buildGenericFallbackObservations(rows, profile, datasetType, currencyCode, domainProfile) : [];
 
   return {
     datasetType,
+    domainProfile,
     observations,
     fallbackObservations
   };

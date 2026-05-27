@@ -1249,6 +1249,33 @@ export function buildFallbackChartExplanations(
 }
 
 export function buildFallbackAskAnswerNarrative(input: QuestionNarrativeInput): AskAnswerNarrative {
+  if (input.trustedQuestionFacts && (
+    input.trustedQuestionFacts.routing.mode === "trust" ||
+    input.trustedQuestionFacts.answerability.status !== "answerable"
+  )) {
+    const trustedFacts = input.trustedQuestionFacts;
+    const evidence = trustedFacts.answerability.reasons.length > 0
+      ? trustedFacts.answerability.reasons.map((reason, index) => `${index === 0 ? "reason" : `reason ${index + 1}`}: ${reason}`)
+      : trustedFacts.answer.supportingData.map((entry) => `${entry.label}: ${String(entry.value)}`);
+
+    return {
+      directAnswer: trustedFacts.answer.directAnswer,
+      evidence: evidence.length > 0 ? evidence : ["No supporting aggregates were available."],
+      caution: trustedFacts.answerability.caution,
+      suggestedNextQuestion: input.suggestedFollowUps[0],
+      analysisSummary: buildFallbackAskAnalysisSummary(input),
+      chartSelectionSummary: input.chartSelectionSummary,
+      confidenceNote:
+        trustedFacts.routing.mode === "trust"
+          ? "Confidence is intentionally conservative because this answer is explaining trust limits rather than ranking performance."
+          : trustedFacts.answerability.status === "unsupported"
+          ? "Confidence is limited because the requested metric is not supported by the current dataset."
+          : "Confidence is limited because the current answer relies on a weak fallback rather than a strong deterministic signal.",
+      warning: undefined,
+      source: "fallback"
+    };
+  }
+
   const summaryMatch = input.answer.match(/^(.+?) totals ([\d.]+) with an average of ([\d.]+) across (\d+) populated records\.$/i);
   const topRevenueSegment = input.facts.topFindings.topRevenueSegment;
   const bestRoasSegment = input.facts.topFindings.bestRoasSegment;
@@ -1412,6 +1439,7 @@ export async function generateAskAnswer(input: QuestionNarrativeInput): Promise<
 export function buildQuestionNarrativeInput(params: {
   question: string;
   answer: string;
+  trustedQuestionFacts?: QuestionNarrativeInput["trustedQuestionFacts"];
   detectedIntent?: IntentDetectionResult;
   semanticProfile?: QuestionNarrativeInput["semanticProfile"];
   semanticContract?: QuestionNarrativeInput["semanticContract"];

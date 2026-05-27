@@ -17,7 +17,117 @@ import {
 } from "../services/analytics/intent/semanticBusinessIntent.js";
 
 function normalize(text: string) {
-  return text.toLowerCase();
+  return text.toLowerCase().replace(/-/g, " ");
+}
+
+const METRIC_TOKEN_STOPWORDS = new Set([
+  "the",
+  "and",
+  "for",
+  "with",
+  "from",
+  "into",
+  "than",
+  "that",
+  "this",
+  "rate",
+  "ratio",
+  "value",
+  "total",
+  "count",
+  "amount",
+  "metric",
+  "score",
+  "number",
+  "data"
+]);
+
+const HIGH_SIGNAL_METRIC_TOKENS = new Set([
+  "margin",
+  "markdown",
+  "fulfillment",
+  "stockout",
+  "backorder",
+  "inventory",
+  "turnover",
+  "resolution",
+  "response",
+  "escalation",
+  "reopen",
+  "qualified",
+  "missed"
+]);
+
+function normalizeMetricText(value: string) {
+  return normalize(value)
+    .replace(/_/g, " ")
+    .replace(/\bpct\b/g, "percent")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function tokenizeMetricText(value: string) {
+  return normalizeMetricText(value)
+    .split(/[^a-z0-9]+/)
+    .map((token) => token.trim())
+    .map((token) => token.length > 4 && token.endsWith("s") ? token.slice(0, -1) : token)
+    .filter((token) => token.length >= 3 && !METRIC_TOKEN_STOPWORDS.has(token));
+}
+
+function questionAsksMetricRelationship(normalizedQuestion: string) {
+  return /\b(without|while|versus|vs|relative to|compared to|imbalance|matching|support|disagree|rather than|keep up|out of balance)\b/.test(
+    normalizedQuestion
+  );
+}
+
+function genericMetricGroundingMatches(question: string, profile: DatasetProfile) {
+  const normalizedQuestion = normalizeMetricText(question);
+  const contract = getSemanticContract(profile);
+  const questionTokens = new Set(tokenizeMetricText(question));
+  const candidates = [...new Set([...contract.availableMetrics, ...profile.numericColumns])];
+
+  return candidates
+    .map((candidate) => {
+      const canonical = resolveCanonicalMetricKey(contract, candidate);
+      const normalizedCandidate = normalizeMetricText(candidate);
+      const candidateTokens = tokenizeMetricText(candidate);
+      const resolution = contract.metricResolutions[canonical];
+      const shouldPreserveExplicitSourceColumn =
+        profile.numericColumns.includes(candidate) &&
+        normalizedCandidate &&
+        normalizedQuestion.includes(normalizedCandidate) &&
+        (!resolution || resolution.confidence < 0.8);
+
+      let score = 0;
+      if (normalizedCandidate && normalizedQuestion.includes(normalizedCandidate)) {
+        score += 10;
+      }
+
+      const percentVariant = normalizedCandidate.replace(/\bpercent\b/g, "percentage");
+      if (percentVariant !== normalizedCandidate && normalizedQuestion.includes(percentVariant)) {
+        score += 8;
+      }
+
+      if (candidateTokens.length > 0 && candidateTokens.every((token) => questionTokens.has(token))) {
+        score += 7;
+      }
+
+      const sharedTokens = candidateTokens.filter((token) => questionTokens.has(token));
+      score += Math.min(4, sharedTokens.length * 1.2);
+      if (sharedTokens.some((token) => HIGH_SIGNAL_METRIC_TOKENS.has(token))) {
+        score += 6;
+      }
+
+      return {
+        candidate,
+        canonical: shouldPreserveExplicitSourceColumn ? candidate : canonical,
+        score
+      };
+    })
+    .filter((entry) => entry.score >= 7)
+    .sort((left, right) => right.score - left.score)
+    .map((entry) => entry.canonical)
+    .filter((metric, index, list) => list.indexOf(metric) === index);
 }
 
 function getSemanticContract(profile: DatasetProfile) {
@@ -51,6 +161,10 @@ function isCallRelatedDomain(profile: DatasetProfile) {
 
 function buildUnavailableMetricReasons(question: string, profile: DatasetProfile) {
   const normalizedQuestion = normalize(question);
+  const genericGroundedMetrics = genericMetricGroundingMatches(question, profile);
+  const hasGroundedRevenueLikeMetric = genericGroundedMetrics.some((metric) =>
+    /\brevenue\b|\bsale\b|\bbooked\b/.test(normalizeMetricText(metric))
+  );
   const reasons: string[] = [];
 
   if (normalizedQuestion.includes("roas") && !hasSemanticMetric(profile, "roas")) {
@@ -61,19 +175,21 @@ function buildUnavailableMetricReasons(question: string, profile: DatasetProfile
     reasons.push("Qualified call metrics are not available because no qualified-call field was detected.");
   }
 
-  if ((normalizedQuestion.includes("conversion") || normalizedQuestion.includes("converted") || normalizedQuestion.includes("booked")) && !hasSemanticRole(profile, "convertedCall")) {
+  if ((normalizedQuestion.includes("conversion") || normalizedQuestion.includes("converted") || normalizedQuestion.includes("booked")) &&
+    !hasGroundedRevenueLikeMetric &&
+    !hasSemanticRole(profile, "convertedCall")) {
     reasons.push("Conversion metrics are not available because no converted-call field was detected.");
   }
 
-  if (normalizedQuestion.includes("revenue") && !hasSemanticRole(profile, "revenue")) {
+  if (normalizedQuestion.includes("revenue") && !hasGroundedRevenueLikeMetric && !hasSemanticRole(profile, "revenue")) {
     reasons.push("Revenue cannot be calculated because no revenue field was detected.");
   }
 
-  if ((normalizedQuestion.includes("missed call") || normalizedQuestion.includes("missed call rate")) && !hasSemanticRole(profile, "missedCall")) {
+  if ((normalizedQuestion.includes("missed call") || normalizedQuestion.includes("missed call rate") || normalizedQuestion.includes("missed call pressure")) && !hasSemanticRole(profile, "missedCall")) {
     reasons.push("Missed call rate cannot be calculated because no missed-call field was detected.");
   }
 
-  if ((normalizedQuestion.includes("answered call") || normalizedQuestion.includes("answered call rate")) && !hasSemanticRole(profile, "answeredCall")) {
+  if ((normalizedQuestion.includes("answered call") || normalizedQuestion.includes("answered call rate") || normalizedQuestion.includes("answered call performance")) && !hasSemanticRole(profile, "answeredCall")) {
     reasons.push("Answered call rate cannot be calculated because no answered-call field was detected.");
   }
 
@@ -304,6 +420,41 @@ function resolveDynamicContextReferences(question: string, input?: QuestionConte
   return resolvedQuestion;
 }
 
+function isBinaryLikeCategoricalColumn(profile: DatasetProfile, columnName: string) {
+  const column = profile.columns.find((entry) => entry.name === columnName);
+  if (!column || column.kind !== "categorical") {
+    return false;
+  }
+
+  return column.uniqueCount <= 2;
+}
+
+function isIdentifierLikeDimension(profile: DatasetProfile, columnName: string) {
+  const column = profile.columns.find((entry) => entry.name === columnName);
+  if (!column || column.kind !== "categorical") {
+    return false;
+  }
+
+  const normalizedName = normalize(column.name);
+  return (
+    /\b(id|key|uuid|guid|session)\b/.test(normalizedName) ||
+    (profile.rowCount > 20 && column.uniqueCount >= Math.min(profile.rowCount * 0.7, profile.rowCount - 1))
+  );
+}
+
+function businessSegmentationDimensionScore(columnName: string) {
+  const normalizedName = normalize(columnName).replace(/_/g, " ");
+  if (/\b(queue|team|service|warehouse|product|sku|category|region|location|branch|supplier|vendor|channel|source|campaign|account|customer|client)\b/.test(normalizedName)) {
+    return 4;
+  }
+
+  if (/\b(status|reason|flag|boolean|yes|no|true|false|answered|required|missed)\b/.test(normalizedName)) {
+    return -3;
+  }
+
+  return 0;
+}
+
 function resolveMetrics(
   question: string,
   profile: DatasetProfile,
@@ -313,8 +464,15 @@ function resolveMetrics(
   const contract = getSemanticContract(profile);
   const matches: string[] = [];
   const asksQualifiedEfficiency =
-    /\b(qualified calls?|qualified leads?|lead efficiency|sales qualified calls?)\b/.test(normalizedQuestion) &&
+    /\b(qualified calls?|qualified leads?|qualified efficiency|lead efficiency|sales qualified calls?)\b/.test(normalizedQuestion) &&
     /\b(efficient|efficiency|efficiently|best|lowest|highest|top)\b/.test(normalizedQuestion);
+  const relationshipSeedMetrics: string[] = [];
+
+  if (questionAsksMetricRelationship(normalizedQuestion)) {
+    if (normalizedQuestion.includes("call volume") && contract.availableMetrics.includes("calls")) {
+      relationshipSeedMetrics.push("calls");
+    }
+  }
 
   if (asksQualifiedEfficiency) {
     const qualifiedEfficiencyMetrics: string[] = [];
@@ -391,6 +549,15 @@ function resolveMetrics(
     return ["qualified_call_rate"];
   }
 
+  const genericGroundedMetrics = genericMetricGroundingMatches(question, profile);
+  if (genericGroundedMetrics.length > 0) {
+    return [...new Set([...relationshipSeedMetrics, ...genericGroundedMetrics])];
+  }
+
+  if (relationshipSeedMetrics.length > 0) {
+    return [...new Set(relationshipSeedMetrics)];
+  }
+
   for (const [metric, aliases] of Object.entries(KPI_ALIASES)) {
     const normalizedMetric = metric.replace(/_/g, " ");
     if (
@@ -431,7 +598,7 @@ function resolveDimension(
   semanticHints: string[] = [],
   conversationAnchor?: ConversationTurnContext | null
 ): string | null {
-  const normalizedQuestion = normalize(question);
+  const normalizedQuestion = normalize(question).replace(/_/g, " ");
   const normalizedSemanticHints = semanticHints.map((hint) => normalize(hint));
   const contract = getSemanticContract(profile);
   const explicitDimensionMention = findExplicitDimensionMention(question);
@@ -482,6 +649,16 @@ function resolveDimension(
         }
       }
 
+      score += businessSegmentationDimensionScore(column.name);
+
+      if (isBinaryLikeCategoricalColumn(profile, column.name) && !normalizedQuestion.includes(readableName)) {
+        score -= 4;
+      }
+
+      if (isIdentifierLikeDimension(profile, column.name) && !normalizedQuestion.includes(readableName)) {
+        score -= 5;
+      }
+
       return { name: column.name, score };
     })
     .sort((left, right) => right.score - left.score);
@@ -526,7 +703,7 @@ function resolveDimension(
     return profile.categoricalColumns.find((column) => normalize(column).includes(channelFamilyHint)) ?? null;
   }
 
-  return profile.categoricalColumns[0] ?? null;
+  return scoredDimensions.find((entry) => entry.score >= 0)?.name ?? profile.categoricalColumns[0] ?? null;
 }
 
 function detectIntent(
@@ -907,6 +1084,8 @@ export function planQuery(
         : standardFilters,
     comparisonValues: resolvedComparisonValues,
     semanticProfile: semanticProfile.businessIntent === "neutral" ? undefined : semanticProfile,
-    unavailableMetricReasons: unavailableMetricReasons.length > 0 ? unavailableMetricReasons : undefined
+    unavailableMetricReasons: unavailableMetricReasons.length > 0 ? unavailableMetricReasons : undefined,
+    explicitMetrics: explicitMetrics.length > 0 ? explicitMetrics : undefined,
+    semanticMetrics: semanticMetrics.length > 0 ? semanticMetrics : undefined
   };
 }

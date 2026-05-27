@@ -6,7 +6,8 @@ import type {
   KpiCandidate,
   PrimitiveValue,
   QuestionContextInput,
-  SemanticBusinessIntentAnalysis
+  SemanticBusinessIntentAnalysis,
+  TrustedQuestionFacts
 } from "../analytics/types.js";
 
 export type LlmRole = "system" | "user" | "assistant";
@@ -260,6 +261,7 @@ export interface ExecutiveInsightInput {
 export interface QuestionNarrativeInput {
   question: string;
   answer: string;
+  trustedQuestionFacts?: TrustedQuestionFacts;
   detectedIntent?: IntentDetectionResult;
   semanticProfile?: SemanticBusinessIntentAnalysis;
   semanticContract?: DatasetProfile["semanticContract"];

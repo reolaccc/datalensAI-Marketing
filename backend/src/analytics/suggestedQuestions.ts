@@ -1,7 +1,16 @@
-import type { ChartConfig, DatasetCapabilities, SemanticBusinessIntentAnalysis } from "./types.js";
+import type {
+  ChartConfig,
+  DatasetCapabilities,
+  DatasetProfile,
+  DatasetRow,
+  QuestionContextInput,
+  SemanticBusinessIntentAnalysis,
+  TrustedQuestionFacts
+} from "./types.js";
 import type { AnalyticsFacts } from "../llm/types.js";
 import type { SemanticDatasetContract } from "./semanticContract.js";
 import { resolveCanonicalDimensionKey } from "./semanticContract.js";
+import { buildTrustedQuestionFacts } from "./trustedQuestionFacts.js";
 
 export interface SuggestedQuestionCandidate {
   question: string;
@@ -12,8 +21,295 @@ export interface SuggestedQuestionCandidate {
   score: number;
 }
 
+export interface SuggestedQuestionSafetyDecision {
+  question: string;
+  kept: boolean;
+  reason: string;
+  answerability?: "answerable" | "unsupported" | "weak";
+  semanticAlignment?: "strong" | "partial" | "weak" | "none";
+  routingMode?: "standard" | "trust";
+}
+
+export interface SafeSuggestedQuestionsResult {
+  questions: string[];
+  decisions: SuggestedQuestionSafetyDecision[];
+}
+
+interface SuggestedQuestionSafetyContext {
+  rows: DatasetRow[];
+  profile: DatasetProfile;
+  input?: QuestionContextInput;
+}
+
 function normalize(text: string) {
   return text.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function humanizeQuestionLabel(value: string | null | undefined) {
+  if (!value) {
+    return "";
+  }
+
+  return value
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/_/g, " ")
+    .replace(/\bmissed call\b/gi, "missed call rate")
+    .replace(/\banswered call\b/gi, "answered call rate")
+    .replace(/\bpct\b/gi, "pct")
+    .replace(/\broas\b/gi, "ROAS")
+    .replace(/\bcpqc\b/gi, "CPQC")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase()
+    .replace(/\broas\b/g, "ROAS")
+    .replace(/\bcpqc\b/g, "CPQC");
+}
+
+function isMarketingDomain(contract?: SemanticDatasetContract | null) {
+  const domain = contract?.detectedDomain?.domain;
+  return domain === "call_tracking" || domain === "marketing_attribution" || domain === "mixed_call_tracking_attribution";
+}
+
+function isLikelyVisualLookupQuestion(question: string) {
+  const text = normalize(question);
+  return (
+    (
+      /^which\b/.test(text) &&
+      /\b(highest|lowest|most|least|biggest|smallest|largest|fewest|best)\b/.test(text)
+    ) ||
+    /\bdriving the strongest performance\b/.test(text)
+  ) &&
+    !/\b(risk|reliab|caveat|limitation|inconsistent|imbalance|bottleneck|pressure|review|investigat)\b/.test(text)
+  ;
+}
+
+function containsUnavailableMarketingLanguage(question: string, contract?: SemanticDatasetContract | null) {
+  if (isMarketingDomain(contract)) {
+    return false;
+  }
+
+  return /\b(roas|campaign efficiency|marketing attribution|qualified calls?|qualified call rate|qualified efficiency|cost per qualified|traffic source)\b/i.test(question);
+}
+
+function isExplicitlyUnsafeQuestion(question: string, contract?: SemanticDatasetContract | null) {
+  if (isLikelyVisualLookupQuestion(question)) {
+    return "This is mostly a visual lookup question rather than a higher-value investigation prompt.";
+  }
+
+  if (containsUnavailableMarketingLanguage(question, contract)) {
+    return "This question uses marketing/qualified-call language that is not strongly grounded for this dataset.";
+  }
+
+  if (!isMarketingDomain(contract) && /\b(spend|spending|budget)\b/i.test(question)) {
+    return "This question uses spend/budget language in a dataset that is not strongly grounded as marketing or attribution data.";
+  }
+
+  if (/\bclearest trade-off between scale and efficiency\b/i.test(question)) {
+    return "This question is too generic and can encourage metric substitution.";
+  }
+
+  return null;
+}
+
+function containsUnrequestedCommercialDrift(question: string, facts: TrustedQuestionFacts) {
+  const questionText = normalize([
+    question,
+    ...facts.resolvedIntent.requestedMetrics
+  ].join(" "));
+  const answerText = normalize([
+    facts.answer.directAnswer,
+    facts.answer.interpretation,
+    ...facts.answer.supportingData.map((entry) => entry.label)
+  ].join(" "));
+  const commercialMetrics = ["roas", "revenue", "spend", "budget", "cost per qualified", "qualified efficiency"];
+
+  return commercialMetrics.some((metric) => {
+    if (questionText.includes(metric)) {
+      return false;
+    }
+
+    return answerText.includes(metric);
+  });
+}
+
+function preferredQuestionDimensions(profile: DatasetProfile) {
+  const contract = profile.semanticContract ?? null;
+  const dimensions = [
+    ...(contract?.availableDimensions ?? []),
+    ...profile.categoricalColumns
+  ];
+  const preferredPatterns = [
+    /channel|source|campaign/i,
+    /queue|team|service|agent|location|region/i,
+    /warehouse|category|product|sku|store/i,
+    /account|customer|client/i
+  ];
+
+  const ordered = [
+    ...preferredPatterns.flatMap((pattern) => dimensions.filter((dimension) => pattern.test(dimension))),
+    ...dimensions
+  ];
+
+  return [...new Set(ordered)].slice(0, 4);
+}
+
+function preferredQuestionMetrics(profile: DatasetProfile) {
+  const contract = profile.semanticContract ?? null;
+  const metrics = [
+    ...Object.keys(contract?.metricResolutions ?? {}),
+    ...(contract?.availableMetrics ?? []),
+    ...(contract?.derivedMetrics ?? []),
+    ...profile.numericColumns
+  ];
+  const preferredPatterns = [
+    /roas|qualified_call_rate|missed|answered|duration|talk|wait|handle/i,
+    /margin|sell_through|stockout|backorder|fulfillment|markdown|return|turnover/i,
+    /revenue|spend|cost|profit|rate|score|count|volume/i
+  ];
+
+  const ordered = [
+    ...preferredPatterns.flatMap((pattern) => metrics.filter((metric) => pattern.test(metric))),
+    ...metrics
+  ];
+
+  return [...new Set(ordered)].slice(0, 6);
+}
+
+function buildSupplementalQuestionCandidates(profile: DatasetProfile) {
+  const contract = profile.semanticContract ?? null;
+  const dimensions = preferredQuestionDimensions(profile);
+  const metrics = preferredQuestionMetrics(profile);
+  const primaryDimension = dimensions[0];
+  const secondaryDimension = dimensions[1] ?? primaryDimension;
+  const candidates: string[] = [];
+
+  for (const metric of metrics) {
+    const metricLabel = humanizeQuestionLabel(metric);
+    if (!metricLabel || !primaryDimension) {
+      continue;
+    }
+
+    const dimensionLabel = humanizeQuestionLabel(primaryDimension);
+    candidates.push(`Can ${metricLabel} be compared reliably by ${dimensionLabel}?`);
+    candidates.push(`Where does ${metricLabel} look inconsistent across ${dimensionLabel}?`);
+
+    if (!/rate|ratio|pct|roas|margin|cost per/i.test(metricLabel)) {
+      candidates.push(`Is ${metricLabel} too concentrated in one ${dimensionLabel}?`);
+    }
+  }
+
+  if (primaryDimension) {
+    candidates.push(`Which ${humanizeQuestionLabel(primaryDimension)} segments show concentrated risk?`);
+  }
+
+  if (secondaryDimension && secondaryDimension !== primaryDimension) {
+    candidates.push(`Where does performance look inconsistent across ${humanizeQuestionLabel(secondaryDimension)}?`);
+  }
+
+  if (!isMarketingDomain(contract)) {
+    candidates.push("What operational bottlenecks deserve further investigation?");
+    candidates.push("What reliability limitations affect decision confidence?");
+  }
+
+  return uniqStrings(candidates);
+}
+
+function uniqStrings(values: string[]) {
+  return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
+}
+
+export function evaluateSuggestedQuestionSafety(
+  question: string,
+  context: SuggestedQuestionSafetyContext
+): SuggestedQuestionSafetyDecision {
+  const contract = context.profile.semanticContract ?? null;
+  const unsafeReason = isExplicitlyUnsafeQuestion(question, contract);
+  if (unsafeReason) {
+    return {
+      question,
+      kept: false,
+      reason: unsafeReason
+    };
+  }
+
+  const { facts } = buildTrustedQuestionFacts(question, {
+    rows: context.rows,
+    profile: context.profile,
+    input: { ...context.input, useAi: false }
+  });
+
+  if (facts.answerability.status !== "answerable") {
+    return {
+      question,
+      kept: false,
+      reason: `Ask marks this question as ${facts.answerability.status}: ${facts.answerability.reasons[0] ?? "no reliable grounded answer"}`,
+      answerability: facts.answerability.status,
+      semanticAlignment: facts.semanticAlignment.status,
+      routingMode: facts.routing.mode
+    };
+  }
+
+  if (facts.routing.mode !== "trust" && facts.semanticAlignment.status !== "strong") {
+    return {
+      question,
+      kept: false,
+      reason: `Ask would answer with ${facts.semanticAlignment.status} semantic alignment.`,
+      answerability: facts.answerability.status,
+      semanticAlignment: facts.semanticAlignment.status,
+      routingMode: facts.routing.mode
+    };
+  }
+
+  if (facts.routing.mode !== "trust" && containsUnrequestedCommercialDrift(question, facts)) {
+    return {
+      question,
+      kept: false,
+      reason: "Ask's trial answer introduces commercial metrics that the question did not request.",
+      answerability: facts.answerability.status,
+      semanticAlignment: facts.semanticAlignment.status,
+      routingMode: facts.routing.mode
+    };
+  }
+
+  return {
+    question,
+    kept: true,
+    reason: "Ask can answer this with grounded facts.",
+    answerability: facts.answerability.status,
+    semanticAlignment: facts.semanticAlignment.status,
+    routingMode: facts.routing.mode
+  };
+}
+
+export function buildSafeSuggestedQuestions(
+  questions: string[],
+  context: SuggestedQuestionSafetyContext,
+  limit = 5
+): SafeSuggestedQuestionsResult {
+  const allQuestions = uniqStrings([
+    ...questions,
+    ...buildSupplementalQuestionCandidates(context.profile)
+  ]);
+  const decisions: SuggestedQuestionSafetyDecision[] = [];
+  const kept: string[] = [];
+
+  for (const question of allQuestions) {
+    const decision = evaluateSuggestedQuestionSafety(question, context);
+    decisions.push(decision);
+
+    if (decision.kept && !kept.some((entry) => normalize(entry) === normalize(question))) {
+      kept.push(question);
+    }
+
+    if (kept.length >= limit) {
+      break;
+    }
+  }
+
+  return {
+    questions: kept,
+    decisions
+  };
 }
 
 function canonicalDimensionLabel(dimension: string | null | undefined, semanticContract?: SemanticDatasetContract | null) {

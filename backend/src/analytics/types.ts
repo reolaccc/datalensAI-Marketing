@@ -349,6 +349,105 @@ export interface QuestionContextInput {
   conversationHistory?: ConversationTurnContext[];
 }
 
+export type GroundingStatus = "strong" | "partial" | "weak" | "unsupported";
+
+export interface GroundingConfidence {
+  overall: GroundingStatus;
+  metricGrounding: {
+    status: GroundingStatus;
+    requestedMetrics: string[];
+    groundedMetrics: string[];
+    missingMetrics: string[];
+    weakMetrics: string[];
+    reasons: string[];
+  };
+  dimensionGrounding: {
+    status: GroundingStatus;
+    requestedDimensions: string[];
+    groundedDimensions: string[];
+    missingDimensions: string[];
+    weakDimensions: string[];
+    reasons: string[];
+  };
+  relationshipGrounding: {
+    status: GroundingStatus;
+    relationshipType?:
+      | "single_metric"
+      | "metric_vs_metric"
+      | "relative_to"
+      | "while"
+      | "without_matching"
+      | "trend_shift"
+      | "concentration"
+      | "unknown";
+    requiredMetrics: string[];
+    supportedMetrics: string[];
+    unsupportedMetrics: string[];
+    reasons: string[];
+  };
+  reliabilityGrounding: {
+    status: GroundingStatus;
+    coverageWarnings: string[];
+    ratioWarnings: string[];
+    semanticWarnings: string[];
+    reasons: string[];
+  };
+}
+
+export interface TrustedQuestionFacts {
+  question: string;
+  routing: {
+    mode: "standard" | "trust";
+    reasons: string[];
+  };
+  resolvedIntent: {
+    intent: string;
+    requestedMetrics: string[];
+    requestedDimensions: string[];
+    answeredMetric?: string | null;
+    semanticBusinessIntent?: string;
+  };
+  semanticAlignment: {
+    requestedMetrics: string[];
+    answeredMetric?: string | null;
+    status: "strong" | "partial" | "weak" | "none";
+    reason: string;
+  };
+  groundingConfidence: GroundingConfidence;
+  answerability: {
+    status: "answerable" | "unsupported" | "weak";
+    reasons: string[];
+    caution?: string;
+  };
+  answer: {
+    mode: "summary" | "ranking" | "trend" | "comparison" | "anomaly";
+    directAnswer: string;
+    interpretation: string;
+    supportingData: Array<{
+      label: string;
+      value: string | number;
+    }>;
+    resultTable?: {
+      columns: string[];
+      rows: Record<string, PrimitiveValue>[];
+    };
+  };
+  evidence: {
+    primaryMetric?: string | null;
+    primaryDimension?: string | null;
+    metricsUsed: string[];
+    dimensionsUsed: string[];
+    trustFlags: string[];
+  };
+  chartSupportRequest?: {
+    kind: "bar" | "line" | "table" | "none";
+    metric: string | null;
+    dimension: string | null;
+    sort?: "asc" | "desc" | null;
+    limit?: number;
+  };
+}
+
 export interface PlannedQuery {
   intent:
     | "top_segment"
@@ -374,4 +473,6 @@ export interface PlannedQuery {
   comparisonValues: string[];
   semanticProfile?: SemanticBusinessIntentAnalysis;
   unavailableMetricReasons?: string[];
+  explicitMetrics?: string[];
+  semanticMetrics?: string[];
 }

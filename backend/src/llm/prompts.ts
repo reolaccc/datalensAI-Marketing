@@ -155,6 +155,7 @@ export function buildAskAnswerPrompt(input: QuestionNarrativeInput): LlmTextGene
           {
           question: input.question,
           deterministicAnswer: input.answer,
+          trustedQuestionFacts: input.trustedQuestionFacts ?? null,
           detectedIntent: input.detectedIntent ?? null,
           semanticProfile: input.semanticProfile ?? null,
           semanticContract: input.semanticContract ?? null,
@@ -186,7 +187,9 @@ export function buildAskAnswerPrompt(input: QuestionNarrativeInput): LlmTextGene
           facts: input.facts,
           requirements: [
             "Use the deterministic answer as the factual basis.",
+            "Use trustedQuestionFacts as the canonical answerability and evidence boundary when it is present.",
             "Do not change the numbers or invent new ones.",
+            "Do not override unsupported or weak answerability states.",
             "Use the detected semantic business intent, dataset schema, and sampled rows to interpret the user's meaning when the wording is indirect.",
             "Prefer semanticContract fields and derived metrics when they are available; treat the raw dataset schema as supporting context, not as the primary contract.",
             "If conversationHistory is present and the current question is semantically related to a prior turn, treat the current question as a follow-up and continue the same thread; if the history is unrelated, ignore it.",
