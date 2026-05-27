@@ -1,4 +1,5 @@
 import type { DatasetColumnProfile, DatasetProfile, DatasetRow, PrimitiveValue } from "./types.js";
+import type { CleanedColumnProfile } from "./normalization/types.js";
 import { parseDateValue, parseNumber } from "../utils/inference.js";
 
 type ResolutionKind = "direct" | "alias" | "derived";
@@ -18,6 +19,8 @@ type DatasetDomain =
   | "mixed_call_tracking_attribution"
   | "generic_business"
   | "unknown";
+
+type DatasetGrain = "row_level_call_log" | "aggregated_call_summary" | "unknown";
 
 export interface SemanticMetricResolution {
   key: string;
@@ -87,7 +90,7 @@ type RoleSpec = {
   expectedKinds?: Array<DatasetColumnProfile["kind"]>;
   legacyMetricKey?: string;
   legacyDimensionKey?: string;
-  valueDetector?: (column: DatasetColumnProfile) => { score: number; evidence: string[] };
+  valueDetector?: (column: DatasetColumnProfile, normalizedColumn?: CleanedColumnProfile | null) => { score: number; evidence: string[] };
 };
 
 type RankedRoleCandidate = {
@@ -605,6 +608,54 @@ function normalizeName(value: string) {
   return value.toLowerCase().replace(/_/g, " ").replace(/\s+/g, " ").trim();
 }
 
+const EXPLICIT_CALL_COUNT_ALIASES = [
+  "total calls",
+  "calls",
+  "call count",
+  "call_count",
+  "call volume",
+  "call_volume",
+  "total call volume",
+  "inbound calls",
+  "inbound_calls"
+];
+
+const EXPLICIT_QUALIFIED_CALL_COUNT_ALIASES = [
+  "qualified calls",
+  "qualified_calls",
+  "qualified call count",
+  "qualified_call_count",
+  "qualified leads",
+  "qualified_leads",
+  "qualified count",
+  "qualified lead count",
+  "qualified_lead_count"
+];
+
+const EXPLICIT_CONVERTED_CALL_COUNT_ALIASES = [
+  "converted calls",
+  "converted_calls",
+  "converted call count",
+  "converted_call_count",
+  "conversion count",
+  "conversion_count",
+  "booked appointments",
+  "booked_appointments",
+  "closed won count",
+  "closed_won_count",
+  "sales count",
+  "sales_count"
+];
+
+const ORGANIC_UNPAID_DIMENSION_PATTERNS = [
+  /\borganic\b/i,
+  /\bseo\b/i,
+  /\bdirect\b/i,
+  /\breferral\b/i,
+  /\bemail\b/i,
+  /\bunpaid\b/i
+];
+
 function tokenize(value: string) {
   return normalizeName(value)
     .split(/[^a-z0-9]+/)
@@ -613,6 +664,233 @@ function tokenize(value: string) {
 
 function unique<T>(values: T[]) {
   return [...new Set(values)];
+}
+
+function scoreExplicitMetricColumnMatch(columnName: string, aliases: string[], blockers: RegExp[]) {
+  const normalized = normalizeName(columnName);
+  if (blockers.some((blocker) => blocker.test(normalized))) {
+    return 0;
+  }
+
+  return aliases.reduce((best, alias) => {
+    const normalizedAlias = normalizeName(alias);
+    if (normalized === normalizedAlias) {
+      return Math.max(best, 5);
+    }
+    if (normalized.startsWith(normalizedAlias) || normalized.endsWith(normalizedAlias)) {
+      return Math.max(best, 4);
+    }
+    if (normalized.includes(normalizedAlias)) {
+      return Math.max(best, 3);
+    }
+    const aliasTokens = tokenize(normalizedAlias);
+    if (aliasTokens.length > 0 && aliasTokens.every((token) => normalized.includes(token))) {
+      return Math.max(best, 2);
+    }
+    return best;
+  }, 0);
+}
+
+function findBestExplicitMetricColumn(
+  profile: DatasetProfile,
+  aliases: string[],
+  blockers: RegExp[] = []
+) {
+  const ranked = profile.numericColumns
+    .map((column) => ({
+      column,
+      score: Math.max(
+        ...getComparableColumnNames(profile, column).map((candidateName) =>
+          scoreExplicitMetricColumnMatch(candidateName, aliases, blockers)
+        )
+      )
+    }))
+    .filter((entry) => entry.score > 0)
+    .sort((left, right) => right.score - left.score || left.column.length - right.column.length);
+
+  return ranked[0]?.column ?? null;
+}
+
+function findExplicitCallCountColumn(profile: DatasetProfile) {
+  return findBestExplicitMetricColumn(profile, EXPLICIT_CALL_COUNT_ALIASES, [
+    /\bqualified\b/i,
+    /\bconverted\b/i,
+    /\bconversion\b/i,
+    /\bmissed\b/i,
+    /\banswered\b/i,
+    /\brepeat\b/i,
+    /\bunique\b/i,
+    /\bcaller\b/i,
+    /\brate\b/i,
+    /\bcost\b/i,
+    /\brevenue\b/i,
+    /\broas\b/i
+  ]);
+}
+
+function findExplicitQualifiedCallCountColumn(profile: DatasetProfile) {
+  return findBestExplicitMetricColumn(profile, EXPLICIT_QUALIFIED_CALL_COUNT_ALIASES, [
+    /\brate\b/i,
+    /\bcost\b/i,
+    /\bscore\b/i,
+    /\bvalue\b/i
+  ]);
+}
+
+function findExplicitConvertedCallCountColumn(profile: DatasetProfile) {
+  return findBestExplicitMetricColumn(profile, EXPLICIT_CONVERTED_CALL_COUNT_ALIASES, [
+    /\brate\b/i,
+    /\bcost\b/i,
+    /\bvalue\b/i
+  ]);
+}
+
+function getProfileFromContractInput(profileOrContract: DatasetProfile | SemanticDatasetContract) {
+  return "columns" in profileOrContract ? profileOrContract : null;
+}
+
+function getNormalizedProfile(profile: DatasetProfile | null) {
+  return profile?.normalizedProfile ?? null;
+}
+
+function getNormalizedColumnProfile(profile: DatasetProfile | null, columnName: string) {
+  const normalizedProfile = getNormalizedProfile(profile);
+  if (!normalizedProfile) {
+    return null;
+  }
+
+  return normalizedProfile.columns.find(
+    (column) => column.originalName === columnName || column.canonicalName === columnName
+  ) ?? null;
+}
+
+function getComparableColumnNames(profile: DatasetProfile | null, columnName: string) {
+  const normalizedColumn = getNormalizedColumnProfile(profile, columnName);
+  return unique([columnName, normalizedColumn?.canonicalName ?? ""]).filter(Boolean);
+}
+
+function getSemanticContractFromInput(
+  profileOrContract: DatasetProfile | SemanticDatasetContract
+): SemanticDatasetContract {
+  if ("metricResolutions" in profileOrContract) {
+    return profileOrContract;
+  }
+
+  return profileOrContract.semanticContract ?? buildSemanticDatasetContract(profileOrContract);
+}
+
+export function detectCallDatasetGrain(profileOrContract: DatasetProfile | SemanticDatasetContract): DatasetGrain {
+  const profile = getProfileFromContractInput(profileOrContract);
+  const contract = getSemanticContractFromInput(profileOrContract);
+  const normalizedGrain = profile?.normalizedProfile?.structureHint.grain;
+  if (normalizedGrain && normalizedGrain !== "unknown") {
+    return normalizedGrain;
+  }
+  if (profile && findExplicitCallCountColumn(profile)) {
+    return "aggregated_call_summary";
+  }
+
+  const callsResolution = contract.metricResolutions.calls;
+  if (callsResolution?.resolution !== "derived" && callsResolution?.sourceColumns.length) {
+    return "aggregated_call_summary";
+  }
+
+  const hasCallId = Boolean(contract.roleMappings?.some((mapping) => mapping.semanticRole === "callId" && mapping.confidence >= 0.5));
+  if (hasCallId) {
+    return "row_level_call_log";
+  }
+
+  return "unknown";
+}
+
+export function hasReliablePaidSpend(row: DatasetRow, profileOrContract: DatasetProfile | SemanticDatasetContract) {
+  const contract = getSemanticContractFromInput(profileOrContract);
+  const spend = resolveSemanticMetricValue(row, "spend", profileOrContract);
+  if (spend === null || spend <= 0) {
+    return false;
+  }
+
+  const dimensionColumns = [
+    resolveSemanticDimensionSourceColumn(contract, "channel"),
+    resolveSemanticDimensionSourceColumn(contract, "source"),
+    resolveSemanticDimensionSourceColumn(contract, "medium"),
+    resolveSemanticDimensionSourceColumn(contract, "campaign")
+  ].filter((column): column is string => Boolean(column));
+
+  return !dimensionColumns.some((column) => {
+    const rawValue = row[column];
+    return rawValue !== null && rawValue !== undefined && ORGANIC_UNPAID_DIMENSION_PATTERNS.some((pattern) => pattern.test(String(rawValue)));
+  });
+}
+
+export function getCpqcRowReliability(
+  row: DatasetRow,
+  profileOrContract: DatasetProfile | SemanticDatasetContract
+) {
+  const spend = resolveSemanticMetricValue(row, "spend", profileOrContract);
+  const qualifiedCall = resolveSemanticMetricValue(row, "qualifiedCall", profileOrContract);
+  const hasReliablePaid = hasReliablePaidSpend(row, profileOrContract);
+
+  const spendStatus =
+    spend === null
+      ? "missing"
+      : spend === 0
+        ? "zero"
+        : spend > 0
+          ? "positive"
+          : "invalid";
+
+  const qualifiedStatus =
+    qualifiedCall === null
+      ? "missing"
+      : qualifiedCall === 0
+        ? "zero"
+        : qualifiedCall > 0
+          ? "positive"
+          : "invalid";
+
+  return {
+    spend,
+    qualifiedCall,
+    spendStatus,
+    qualifiedStatus,
+    hasReliablePaid,
+    contributesToCpqcAggregate: hasReliablePaid && qualifiedCall !== null && qualifiedCall >= 0,
+    isRankableCpqcRow: hasReliablePaid && qualifiedCall !== null && qualifiedCall > 0
+  } as const;
+}
+
+export function getRoasRowReliability(
+  row: DatasetRow,
+  profileOrContract: DatasetProfile | SemanticDatasetContract
+) {
+  const revenue = resolveSemanticMetricValue(row, "revenue", profileOrContract);
+  const spend = resolveSemanticMetricValue(row, "spend", profileOrContract);
+
+  const revenueStatus =
+    revenue === null
+      ? "missing"
+      : revenue >= 0
+        ? "present"
+        : "invalid";
+
+  const spendStatus =
+    spend === null
+      ? "missing"
+      : spend === 0
+        ? "zero"
+        : spend > 0
+          ? "positive"
+          : "invalid";
+
+  return {
+    revenue,
+    spend,
+    revenueStatus,
+    spendStatus,
+    contributesToRoasAggregate: revenue !== null && spend !== null && spend > 0,
+    isRankableRoasRow: revenue !== null && spend !== null && spend > 0
+  } as const;
 }
 
 function scoreColumnMatch(column: string, alias: string) {
@@ -727,12 +1005,15 @@ function detectUrlLikeValues(column: DatasetColumnProfile) {
   return { score: 0, evidence: [] };
 }
 
-function detectBooleanLikeValues(column: DatasetColumnProfile) {
-  const samples = collectSampleStrings(column);
+function detectBooleanLikeValues(column: DatasetColumnProfile, normalizedColumn?: CleanedColumnProfile | null) {
+  const samples = collectSampleStrings(column, normalizedColumn);
   const matches = samples.filter((sample) => {
     const normalized = normalizeName(sample);
     return BOOLEAN_TRUE_VALUES.has(normalized) || BOOLEAN_FALSE_VALUES.has(normalized);
   }).length;
+  if (normalizedColumn?.outcomeHints.length) {
+    return { score: 2.2, evidence: ["Normalization hints indicate outcome-family values in this field"] };
+  }
   if (column.kind === "numeric" && typeof column.min === "number" && typeof column.max === "number" && column.min >= 0 && column.max <= 1) {
     return { score: 1.8, evidence: ["Numeric values are bounded like a boolean flag"] };
   }
@@ -825,18 +1106,26 @@ function classifyOutcomeSemanticRole(value: PrimitiveValue, semanticRole: string
 
 function deriveOutcomeFlagMapping(params: {
   column: DatasetColumnProfile;
+  normalizedColumn?: CleanedColumnProfile | null;
   semanticRole: "qualifiedCall" | "convertedCall" | "missedCall" | "answeredCall";
   evidenceLabel: string;
 }) {
-  const samples = collectSampleStrings(params.column);
+  const samples = collectSampleStrings(params.column, params.normalizedColumn);
   if (samples.length === 0) {
-    return null;
+    if (!params.normalizedColumn?.outcomeHints.length) {
+      return null;
+    }
   }
 
   const classifiedValues = samples
     .map((sample) => classifyOutcomeSemanticRole(sample, params.semanticRole))
     .filter((value): value is 0 | 1 => value !== null);
-  const positiveMatches = classifiedValues.filter((value) => value === 1).length;
+  const normalizationHintMatch =
+    (params.semanticRole === "qualifiedCall" && params.normalizedColumn?.outcomeHints.includes("qualified")) ||
+    (params.semanticRole === "convertedCall" && params.normalizedColumn?.outcomeHints.includes("converted")) ||
+    (params.semanticRole === "missedCall" && params.normalizedColumn?.outcomeHints.includes("missed")) ||
+    (params.semanticRole === "answeredCall" && params.normalizedColumn?.outcomeHints.includes("answered"));
+  const positiveMatches = classifiedValues.filter((value) => value === 1).length + (normalizationHintMatch ? 1 : 0);
 
   if (positiveMatches === 0) {
     return null;
@@ -850,7 +1139,9 @@ function deriveOutcomeFlagMapping(params: {
     kind: "flag" as const,
     evidence: [
       `${params.evidenceLabel} contains recognizable ${params.semanticRole} outcome values`,
-      `Examples matched the ${params.semanticRole} outcome pattern`
+      normalizationHintMatch
+        ? `Normalization hints support the ${params.semanticRole} outcome pattern`
+        : `Examples matched the ${params.semanticRole} outcome pattern`
     ]
   };
 }
@@ -930,8 +1221,11 @@ function detectScoreLikeValues(column: DatasetColumnProfile) {
   return { score: 1.5, evidence: ["Column name suggests a score or rating field"] };
 }
 
-function detectChannelLikeValues(column: DatasetColumnProfile) {
-  const samples = collectSampleStrings(column);
+function detectChannelLikeValues(column: DatasetColumnProfile, normalizedColumn?: CleanedColumnProfile | null) {
+  if (normalizedColumn?.channelHints.some((hint) => hint === "paid" || hint === "unpaid")) {
+    return { score: 2, evidence: ["Normalization hints indicate paid or unpaid channel values"] };
+  }
+  const samples = collectSampleStrings(column, normalizedColumn);
   const matches = samples.filter((sample) =>
     /(google|facebook|instagram|organic|direct|referral|paid|display|search|social|email)/i.test(sample)
   ).length;
@@ -950,8 +1244,11 @@ function detectDeviceLikeValues(column: DatasetColumnProfile) {
   return { score: 0, evidence: [] };
 }
 
-function detectCallStatusValues(column: DatasetColumnProfile) {
-  const samples = collectSampleStrings(column);
+function detectCallStatusValues(column: DatasetColumnProfile, normalizedColumn?: CleanedColumnProfile | null) {
+  if (normalizedColumn?.outcomeHints.length) {
+    return { score: 2.1, evidence: ["Normalization hints indicate recognizable call outcome families"] };
+  }
+  const samples = collectSampleStrings(column, normalizedColumn);
   const matches = samples.filter((sample) =>
     /(answered|missed|no answer|voicemail|busy|failed|converted|qualified)/i.test(sample)
   ).length;
@@ -961,13 +1258,18 @@ function detectCallStatusValues(column: DatasetColumnProfile) {
   return { score: 0, evidence: [] };
 }
 
-function collectSampleStrings(column: DatasetColumnProfile) {
+function collectSampleStrings(column: DatasetColumnProfile, normalizedColumn?: CleanedColumnProfile | null) {
   return unique(
-    column.sampleValues
-      .filter((value): value is string | number | boolean => value !== null)
-      .map((value) => String(value).trim())
-      .filter(Boolean)
-      .slice(0, 8)
+    [
+      ...column.sampleValues
+        .filter((value): value is string | number | boolean => value !== null)
+        .map((value) => String(value).trim())
+        .filter(Boolean),
+      ...(normalizedColumn?.cleanedSampleValues
+        .filter((value): value is string | number | boolean => value !== null)
+        .map((value) => String(value).trim())
+        .filter(Boolean) ?? [])
+    ].slice(0, 8)
   );
 }
 
@@ -994,8 +1296,9 @@ function scoreKindMatch(column: DatasetColumnProfile, spec: RoleSpec) {
   return { score: -0.6, evidence: [`Column type ${column.kind} is weaker for this role`] };
 }
 
-function inferRoleMapping(column: DatasetColumnProfile): SemanticRoleMapping {
+function inferRoleMapping(column: DatasetColumnProfile, profile: DatasetProfile): SemanticRoleMapping {
   const normalizedName = normalizeName(column.name);
+  const normalizedColumn = getNormalizedColumnProfile(profile, column.name);
   const nameTokens = tokenize(column.name);
   const hasTimeSignalInName = /\b(date|time|timestamp|datetime|created at|created|start|started|call datetime|call time|call date|call started at|timestamp local)\b/.test(
     normalizedName
@@ -1009,7 +1312,10 @@ function inferRoleMapping(column: DatasetColumnProfile): SemanticRoleMapping {
   const hasIdentifierSignalInName = nameTokens.includes("id") || /\b(id|identifier|number|no)\b/.test(normalizedName);
   const rankedCandidates: RankedRoleCandidate[] = ROLE_SPECS.map((spec) => {
     const aliasScores = spec.aliases
-      .map((alias) => ({ alias, score: scoreColumnMatch(column.name, alias) }))
+      .map((alias) => ({
+        alias,
+        score: Math.max(...getComparableColumnNames(profile, column.name).map((candidateName) => scoreColumnMatch(candidateName, alias)))
+      }))
       .sort((left, right) => right.score - left.score);
     const bestAlias = aliasScores[0];
     const evidence: string[] = [];
@@ -1023,7 +1329,7 @@ function inferRoleMapping(column: DatasetColumnProfile): SemanticRoleMapping {
     score += kindMatch.score;
     evidence.push(...kindMatch.evidence);
 
-    const valueSignal = spec.valueDetector?.(column);
+    const valueSignal = spec.valueDetector?.(column, normalizedColumn);
     if (valueSignal && valueSignal.score > 0) {
       score += valueSignal.score;
       evidence.push(...valueSignal.evidence);
@@ -1120,6 +1426,14 @@ function inferRoleMapping(column: DatasetColumnProfile): SemanticRoleMapping {
       evidence.push("Paid-media cost naming strongly suggests marketing spend");
     }
 
+    if (normalizedColumn?.canonicalName && normalizeName(normalizedColumn.canonicalName) !== normalizedName) {
+      const canonicalAliasMatch = spec.aliases.some((alias) => scoreColumnMatch(normalizedColumn.canonicalName, alias) >= 4);
+      if (canonicalAliasMatch) {
+        score += 0.9;
+        evidence.push(`Canonical column name supports the ${spec.key} interpretation`);
+      }
+    }
+
     if (spec.key === "cost" && hasPaidMediaCostSignalInName) {
       score -= 1.6;
       evidence.push("Paid-media cost naming is more specific to spend than generic cost");
@@ -1185,9 +1499,11 @@ function augmentOutcomeFlagMappings(roleMappings: SemanticRoleMapping[], profile
 
   for (const column of candidateColumns) {
     const evidenceLabel = normalizeName(column.name).includes("direction") ? "Direction field" : "Outcome field";
+    const normalizedColumn = getNormalizedColumnProfile(profile, column.name);
 
     const qualifiedMapping = deriveOutcomeFlagMapping({
       column,
+      normalizedColumn,
       semanticRole: "qualifiedCall",
       evidenceLabel
     });
@@ -1197,6 +1513,7 @@ function augmentOutcomeFlagMappings(roleMappings: SemanticRoleMapping[], profile
 
     const convertedMapping = deriveOutcomeFlagMapping({
       column,
+      normalizedColumn,
       semanticRole: "convertedCall",
       evidenceLabel
     });
@@ -1206,6 +1523,7 @@ function augmentOutcomeFlagMappings(roleMappings: SemanticRoleMapping[], profile
 
     const missedMapping = deriveOutcomeFlagMapping({
       column,
+      normalizedColumn,
       semanticRole: "missedCall",
       evidenceLabel
     });
@@ -1215,6 +1533,7 @@ function augmentOutcomeFlagMappings(roleMappings: SemanticRoleMapping[], profile
 
     const answeredMapping = deriveOutcomeFlagMapping({
       column,
+      normalizedColumn,
       semanticRole: "answeredCall",
       evidenceLabel
     });
@@ -1353,7 +1672,30 @@ function detectDatasetDomain(roleMap: Map<string, SemanticRoleMapping>): Semanti
   };
 }
 
-function buildKpiAvailability(roleMap: Map<string, SemanticRoleMapping>) {
+function buildKpiAvailability(
+  roleMap: Map<string, SemanticRoleMapping>,
+  metricResolutions: Record<string, SemanticMetricResolution>
+) {
+  const hasRoleOrMetric = (role: string) => {
+    if (roleMap.has(role)) {
+      return true;
+    }
+
+    if (role === "callId") {
+      return Boolean(metricResolutions.calls);
+    }
+
+    if (role === "qualifiedCall" || role === "convertedCall" || role === "missedCall" || role === "answeredCall") {
+      return Boolean(metricResolutions[role]);
+    }
+
+    if (role === "revenue" || role === "spend" || role === "repeatCaller") {
+      return Boolean(metricResolutions[role]);
+    }
+
+    return false;
+  };
+
   return KPI_DEFINITIONS.map((definition) => {
     const durationRoles = ["callDuration", "talkTime", "handleTime", "waitTime", "ringTime"];
     if (definition.key === "avg_call_duration" && durationRoles.some((role) => roleMap.has(role))) {
@@ -1366,7 +1708,7 @@ function buildKpiAvailability(roleMap: Map<string, SemanticRoleMapping>) {
       };
     }
 
-    const missingRoles = definition.requiredRoles.filter((role) => !roleMap.has(role));
+    const missingRoles = definition.requiredRoles.filter((role) => !hasRoleOrMetric(role));
     if (missingRoles.length === 0) {
       return {
         key: definition.key,
@@ -1492,7 +1834,7 @@ function parseFlagValue(value: PrimitiveValue, semanticRole?: string) {
 }
 
 export function buildSemanticDatasetContract(profile: DatasetProfile): SemanticDatasetContract {
-  const initialRoleMappings = profile.columns.map(inferRoleMapping);
+  const initialRoleMappings = profile.columns.map((column) => inferRoleMapping(column, profile));
   const { roleMappings, safetyWarnings } = buildSafetyNormalizedRoleMappings(initialRoleMappings, profile);
   const augmentedRoleMappings = augmentOutcomeFlagMappings(roleMappings, profile);
   const bestRoleMappings = chooseBestRoleMappings(augmentedRoleMappings);
@@ -1517,17 +1859,69 @@ export function buildSemanticDatasetContract(profile: DatasetProfile): SemanticD
     if (metricResolution) {
       metricResolutions[metricResolution.key] = metricResolution;
       sourceToCanonical[normalizeName(mapping.rawColumn)] ??= metricResolution.key;
+      const normalizedColumn = getNormalizedColumnProfile(profile, mapping.rawColumn);
+      if (normalizedColumn) {
+        sourceToCanonical[normalizeName(normalizedColumn.canonicalName)] ??= metricResolution.key;
+      }
     }
 
     const dimensionResolution = buildDimensionResolutionFromRole(mapping, spec);
     if (dimensionResolution) {
       dimensionResolutions[dimensionResolution.key] = dimensionResolution;
       sourceToCanonical[normalizeName(mapping.rawColumn)] ??= dimensionResolution.key;
+      const normalizedColumn = getNormalizedColumnProfile(profile, mapping.rawColumn);
+      if (normalizedColumn) {
+        sourceToCanonical[normalizeName(normalizedColumn.canonicalName)] ??= dimensionResolution.key;
+      }
     }
   }
 
+  const explicitCallCountColumn = findExplicitCallCountColumn(profile);
+  const explicitQualifiedCallCountColumn = findExplicitQualifiedCallCountColumn(profile);
+  const explicitConvertedCallCountColumn = findExplicitConvertedCallCountColumn(profile);
+  const normalizedStructureGrain = profile.normalizedProfile?.structureHint.grain;
+  const preferExplicitAggregatedCounts =
+    normalizedStructureGrain === "aggregated_call_summary" ||
+    Boolean(explicitCallCountColumn && (explicitQualifiedCallCountColumn || explicitConvertedCallCountColumn));
+
+  if (explicitCallCountColumn) {
+    metricResolutions.calls = {
+      key: "calls",
+      sourceColumns: [explicitCallCountColumn],
+      resolution: normalizeName(explicitCallCountColumn) === "calls" ? "direct" : "alias",
+      confidence: 0.94,
+      aggregation: "sum",
+      formula: `sum(${explicitCallCountColumn})`
+    };
+    sourceToCanonical[normalizeName(explicitCallCountColumn)] ??= "calls";
+  }
+
+  if (explicitQualifiedCallCountColumn && (!metricResolutions.qualifiedCall || preferExplicitAggregatedCounts)) {
+    metricResolutions.qualifiedCall = {
+      key: "qualifiedCall",
+      sourceColumns: [explicitQualifiedCallCountColumn],
+      resolution: normalizeName(explicitQualifiedCallCountColumn) === "qualifiedcall" ? "direct" : "alias",
+      confidence: 0.92,
+      aggregation: "sum",
+      formula: `sum(${explicitQualifiedCallCountColumn})`
+    };
+    sourceToCanonical[normalizeName(explicitQualifiedCallCountColumn)] ??= "qualifiedCall";
+  }
+
+  if (explicitConvertedCallCountColumn && (!metricResolutions.convertedCall || preferExplicitAggregatedCounts)) {
+    metricResolutions.convertedCall = {
+      key: "convertedCall",
+      sourceColumns: [explicitConvertedCallCountColumn],
+      resolution: normalizeName(explicitConvertedCallCountColumn) === "convertedcall" ? "direct" : "alias",
+      confidence: 0.9,
+      aggregation: "sum",
+      formula: `sum(${explicitConvertedCallCountColumn})`
+    };
+    sourceToCanonical[normalizeName(explicitConvertedCallCountColumn)] ??= "convertedCall";
+  }
+
   const callIdMapping = bestRoleMappings.get("callId");
-  if (callIdMapping) {
+  if (!metricResolutions.calls && callIdMapping) {
     metricResolutions.calls = {
       key: "calls",
       sourceColumns: [callIdMapping.rawColumn],
@@ -1542,27 +1936,43 @@ export function buildSemanticDatasetContract(profile: DatasetProfile): SemanticD
   const qualifiedMapping = bestRoleMappings.get("qualifiedCall") ?? null;
   const convertedMapping = bestRoleMappings.get("convertedCall") ?? null;
   const repeatMapping = bestRoleMappings.get("repeatCaller") ?? null;
-  if (spendMapping && qualifiedMapping) {
+  const spendResolution = metricResolutions.spend ?? metricResolutions.cost ?? null;
+  const qualifiedResolution = metricResolutions.qualifiedCall ?? null;
+  const convertedResolution = metricResolutions.convertedCall ?? null;
+
+  if (spendResolution && qualifiedResolution) {
     metricResolutions.cost_per_qualified_call = {
       key: "cost_per_qualified_call",
-      sourceColumns: [spendMapping.rawColumn, qualifiedMapping.rawColumn],
+      sourceColumns: [spendResolution.sourceColumns[0], qualifiedResolution.sourceColumns[0]],
       resolution: "derived",
-      confidence: Number(Math.min(spendMapping.confidence, qualifiedMapping.confidence).toFixed(2)),
+      confidence: Number(Math.min(spendResolution.confidence, qualifiedResolution.confidence).toFixed(2)),
       aggregation: "ratio",
       denominatorMetric: "qualifiedCall",
-      formula: `sum(${spendMapping.rawColumn}) / sum(${qualifiedMapping.rawColumn})`
+      formula: `sum(${spendResolution.sourceColumns[0]}) / sum(${qualifiedResolution.sourceColumns[0]})`
     };
   }
 
-  if (spendMapping && convertedMapping) {
+  if (spendResolution && convertedResolution) {
     metricResolutions.cost_per_conversion = {
       key: "cost_per_conversion",
-      sourceColumns: [spendMapping.rawColumn, convertedMapping.rawColumn],
+      sourceColumns: [spendResolution.sourceColumns[0], convertedResolution.sourceColumns[0]],
       resolution: "derived",
-      confidence: Number(Math.min(spendMapping.confidence, convertedMapping.confidence).toFixed(2)),
+      confidence: Number(Math.min(spendResolution.confidence, convertedResolution.confidence).toFixed(2)),
       aggregation: "ratio",
       denominatorMetric: "convertedCall",
-      formula: `sum(${spendMapping.rawColumn}) / sum(${convertedMapping.rawColumn})`
+      formula: `sum(${spendResolution.sourceColumns[0]}) / sum(${convertedResolution.sourceColumns[0]})`
+    };
+  }
+
+  if (spendResolution && metricResolutions.calls) {
+    metricResolutions.cost_per_call = {
+      key: "cost_per_call",
+      sourceColumns: [spendResolution.sourceColumns[0], metricResolutions.calls.sourceColumns[0]],
+      resolution: "derived",
+      confidence: Number(Math.min(spendResolution.confidence, metricResolutions.calls.confidence).toFixed(2)),
+      aggregation: "ratio",
+      denominatorMetric: "calls",
+      formula: `sum(${spendResolution.sourceColumns[0]}) / sum(${metricResolutions.calls.sourceColumns[0]})`
     };
   }
 
@@ -1591,7 +2001,7 @@ export function buildSemanticDatasetContract(profile: DatasetProfile): SemanticD
   }
 
   const detectedDomain = detectDatasetDomain(bestRoleMappings);
-  const kpiAvailability = buildKpiAvailability(bestRoleMappings);
+  const kpiAvailability = buildKpiAvailability(bestRoleMappings, metricResolutions);
 
   return {
     metricResolutions,
@@ -1642,7 +2052,7 @@ export function resolveSemanticMetricSourceColumns(
   profileOrContract: DatasetProfile | SemanticDatasetContract,
   metric: string
 ) {
-  const contract = "metricResolutions" in profileOrContract ? profileOrContract : buildSemanticDatasetContract(profileOrContract);
+  const contract = getSemanticContractFromInput(profileOrContract);
   return contract.metricResolutions[metric]?.sourceColumns ?? [];
 }
 
@@ -1650,7 +2060,7 @@ export function resolveSemanticDimensionSourceColumn(
   profileOrContract: DatasetProfile | SemanticDatasetContract,
   dimension: string
 ) {
-  const contract = "metricResolutions" in profileOrContract ? profileOrContract : buildSemanticDatasetContract(profileOrContract);
+  const contract = getSemanticContractFromInput(profileOrContract);
   return contract.dimensionResolutions[dimension]?.sourceColumns[0] ?? null;
 }
 
@@ -1658,7 +2068,7 @@ export function resolveCanonicalMetricKey(
   profileOrContract: DatasetProfile | SemanticDatasetContract,
   metricOrSource: string
 ) {
-  const contract = "metricResolutions" in profileOrContract ? profileOrContract : buildSemanticDatasetContract(profileOrContract);
+  const contract = getSemanticContractFromInput(profileOrContract);
   const normalized = normalizeName(metricOrSource);
   const semanticRoleMap = contract.sourceToSemanticRole ?? {};
   return (
@@ -1675,7 +2085,7 @@ export function resolveCanonicalDimensionKey(
   profileOrContract: DatasetProfile | SemanticDatasetContract,
   dimensionOrSource: string
 ) {
-  const contract = "metricResolutions" in profileOrContract ? profileOrContract : buildSemanticDatasetContract(profileOrContract);
+  const contract = getSemanticContractFromInput(profileOrContract);
   const normalized = normalizeName(dimensionOrSource);
   const semanticRoleMap = contract.sourceToSemanticRole ?? {};
   return contract.sourceToCanonical[normalized] ?? semanticRoleMap[normalized] ?? dimensionOrSource;
@@ -1716,7 +2126,9 @@ export function resolveSemanticMetricValue(
   metric: string,
   profileOrContract: DatasetProfile | SemanticDatasetContract
 ): number | null {
-  const contract = "metricResolutions" in profileOrContract ? profileOrContract : buildSemanticDatasetContract(profileOrContract);
+  const contract = getSemanticContractFromInput(profileOrContract);
+  const profile = getProfileFromContractInput(profileOrContract);
+  const grain = detectCallDatasetGrain(profileOrContract);
   const canonicalMetric = contract.metricResolutions[metric] ? metric : resolveCanonicalMetricKey(contract, metric);
   const resolution = contract.metricResolutions[canonicalMetric];
   const sourceColumns = resolution?.sourceColumns ?? [];
@@ -1749,17 +2161,34 @@ export function resolveSemanticMetricValue(
   }
 
   if (canonicalMetric === "calls") {
+    if (resolution && resolution.resolution !== "derived" && sourceColumns.length > 0) {
+      const total = sumRowColumns(row, sourceColumns);
+      return total === null ? null : Number(total.toFixed(2));
+    }
+
     const sourceColumn = sourceColumns[0];
     if (sourceColumn && row[sourceColumn] !== null && row[sourceColumn] !== undefined && String(row[sourceColumn]).trim() !== "") {
       return 1;
     }
+    if (profile && findExplicitCallCountColumn(profile)) {
+      return null;
+    }
+    if (grain === "aggregated_call_summary") {
+      return null;
+    }
     if (contract.detectedDomain?.domain === "call_tracking" || contract.detectedDomain?.domain === "call_operations" || contract.detectedDomain?.domain === "mixed_call_tracking_attribution") {
       return 1;
     }
-    return 0;
+    return grain === "unknown" ? null : 0;
   }
 
   if (["qualifiedCall", "convertedCall", "missedCall", "answeredCall", "firstTimeCaller", "repeatCaller"].includes(canonicalMetric)) {
+    const sourceColumnProfile = profile?.columns.find((column) => column.name === sourceColumns[0]);
+    if (resolution && resolution.aggregation === "sum" && sourceColumns.length > 0 && sourceColumnProfile?.kind === "numeric") {
+      const total = sumRowColumns(row, sourceColumns);
+      return total === null ? null : Number(total.toFixed(2));
+    }
+
     const sourceColumn = sourceColumns[0];
     if (!sourceColumn) {
       return null;
@@ -1786,12 +2215,73 @@ export function aggregateSemanticMetric(
     return null;
   }
 
-  const contract = "metricResolutions" in profileOrContract ? profileOrContract : buildSemanticDatasetContract(profileOrContract);
+  const contract = getSemanticContractFromInput(profileOrContract);
+  const grain = detectCallDatasetGrain(profileOrContract);
   const canonicalMetric = contract.metricResolutions[metric] ? metric : resolveCanonicalMetricKey(contract, metric);
   const resolution = contract.metricResolutions[canonicalMetric];
   const aggregation = resolution?.aggregation ?? "sum";
 
   if (aggregation === "ratio") {
+    if (canonicalMetric === "roas") {
+      let numeratorTotal = 0;
+      let denominatorTotal = 0;
+
+      for (const row of rows) {
+        const roasReliability = getRoasRowReliability(row, profileOrContract);
+        if (!roasReliability.contributesToRoasAggregate) {
+          continue;
+        }
+
+        numeratorTotal += roasReliability.revenue ?? 0;
+        denominatorTotal += roasReliability.spend ?? 0;
+      }
+
+      if (denominatorTotal <= 0) {
+        return null;
+      }
+
+      return Number((numeratorTotal / denominatorTotal).toFixed(2));
+    }
+
+    if (canonicalMetric === "cost_per_qualified_call" || canonicalMetric === "cost_per_conversion" || canonicalMetric === "cost_per_call") {
+      let numeratorTotal = 0;
+      let denominatorTotal = 0;
+
+      for (const row of rows) {
+        if (canonicalMetric === "cost_per_qualified_call") {
+          const cpqcReliability = getCpqcRowReliability(row, profileOrContract);
+          if (!cpqcReliability.contributesToCpqcAggregate) {
+            continue;
+          }
+        } else if (!hasReliablePaidSpend(row, profileOrContract)) {
+          continue;
+        }
+
+        const numerator = resolveSemanticMetricValue(row, "spend", profileOrContract);
+        const denominator =
+          canonicalMetric === "cost_per_qualified_call"
+            ? resolveSemanticMetricValue(row, "qualifiedCall", profileOrContract)
+            : canonicalMetric === "cost_per_conversion"
+              ? resolveSemanticMetricValue(row, "convertedCall", profileOrContract)
+              : resolveSemanticMetricValue(row, "calls", profileOrContract);
+
+        if (numerator === null || denominator === null || denominator < 0) {
+          continue;
+        }
+
+        numeratorTotal += numerator;
+        if (denominator > 0) {
+          denominatorTotal += denominator;
+        }
+      }
+
+      if (denominatorTotal === 0) {
+        return null;
+      }
+
+      return Number((numeratorTotal / denominatorTotal).toFixed(2));
+    }
+
     const denominatorMetric = resolution?.denominatorMetric ?? null;
     const numeratorMetric =
       canonicalMetric === "roas"
@@ -1822,10 +2312,14 @@ export function aggregateSemanticMetric(
   }
 
   const values = rows
-    .map((row) => resolveSemanticMetricValue(row, canonicalMetric, contract))
+    .map((row) => resolveSemanticMetricValue(row, canonicalMetric, profileOrContract))
     .filter((value): value is number => value !== null);
   if (values.length === 0) {
     return null;
+  }
+
+  if (canonicalMetric === "calls" && grain === "aggregated_call_summary") {
+    return Number(values.reduce((sum, value) => sum + value, 0).toFixed(2));
   }
 
   if (

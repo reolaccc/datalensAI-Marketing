@@ -1,0 +1,81 @@
+phone_call_id,call_datetime,utm_medium,campaign_label,call_result,qualified_flag,duration_seconds,media_cost,sale_value,device_type
+CALL-1001,2025-03-21 11:25,google / cpc,Brand Search AU,Qualified Lead,Y,726,57.51,2470.44,mobile
+CALL-1002,2025-03-06 17:27,google / cpc,Brand Search AU,Voicemail,No,3,49.77,,unknown
+CALL-1003,2025-04-10 09:36,google / cpc,Brand Search AU,Booked Appointment,Yes,700,50.86,475.61,unknown
+CALL-1004,2025-04-13 11:06,google / cpc,Brand Search AU,Wrong Number,No,160,37.77,,unknown
+CALL-1005,2025-03-04 12:31,google / cpc,Brand Search AU,Quote Sent,Y,729,54.45,947.37,mobile
+CALL-1006,2025-03-06 13:33,google / cpc,Brand Search AU,Closed Won,Y,753,40.07,383.91,desktop
+CALL-1007,2025-03-11 14:09,google / cpc,Brand Search AU,Qualified Lead,true,716,50.05,1280.96,unknown
+CALL-1008,2025-03-30 10:53,google / cpc,Brand Search AU,Qualified Lead,Yes,878,24.85,,unknown
+CALL-1009,2025-03-29 13:45,google / cpc,Brand Search AU,General Enquiry,N,110,47.76,,desktop
+CALL-1010,2025-03-09 12:25,google / cpc,Brand Search AU,General Enquiry,No,134,49.89,,desktop
+CALL-1011,2025-03-09 15:55,google / cpc,Brand Search AU,Wrong Number,false,246,39.04,,mobile
+CALL-1012,2025-03-15 12:00,google / cpc,Brand Search AU,Wrong Number,N,21,50.56,,unknown
+CALL-1013,2025-03-24 14:08,google / cpc,Brand Search AU,Qualified Lead,Y,826,48.33,,unknown
+CALL-1014,2025-03-26 09:12,google / cpc,Brand Search AU,Missed,No,14,34.27,,desktop
+CALL-1015,2025-04-08 09:06,google / cpc,Brand Search AU,Missed,No,17,53.59,0,mobile
+CALL-1016,2025-04-09 15:09,google / cpc,Brand Search AU,Wrong Number,N,51,51.37,,desktop
+CALL-1017,2025-03-30 16:30,google / cpc,Brand Search AU,Quote Sent,true,401,27.89,,unknown
+CALL-1018,2025-03-24 11:44,google / cpc,Brand Search AU,Quote Sent,true,223,47.31,,desktop
+CALL-1019,2025-03-11 14:49,paid search,Emergency Plumbing,Wrong Number,false,77,46.64,,mobile
+CALL-1020,2025-03-16 15:47,paid search,Emergency Plumbing,Closed Won,Y,878,49.86,560.39,desktop
+CALL-1021,2025-03-31 13:12,paid search,Emergency Plumbing,Existing Customer,false,109,86.01,,mobile
+CALL-1022,2025-03-31 12:21,paid search,Emergency Plumbing,General Enquiry,N,252,65.35,,unknown
+CALL-1023,2025-03-06 10:58,paid search,Emergency Plumbing,Spam,N,247,83.41,,unknown
+CALL-1024,2025-03-26 16:25,paid search,Emergency Plumbing,Booked Appointment,Yes,260,97.81,5070.17,unknown
+CALL-1025,2025-03-10 16:42,paid search,Emergency Plumbing,Booked Appointment,Yes,144,78.6,845.93,mobile
+CALL-1026,2025-03-14 09:16,paid search,Emergency Plumbing,Wrong Number,N,159,43.17,,mobile
+CALL-1027,2025-03-04 14:57,paid search,Emergency Plumbing,Existing Customer,false,53,49.12,0,desktop
+CALL-1028,2025-04-19 11:38,paid search,Emergency Plumbing,Missed,No,5,65.77,,unknown
+CALL-1029,2025-04-16 10:35,paid search,Emergency Plumbing,Voicemail,No,16,50.29,,unknown
+CALL-1030,2025-03-04 12:12,paid search,Emergency Plumbing,Existing Customer,false,27,66.15,,mobile
+CALL-1031,2025-03-29 14:39,paid search,Emergency Plumbing,Spam,false,90,49.36,,mobile
+CALL-1032,2025-04-14 17:56,paid search,Emergency Plumbing,Spam,N,55,76.37,,desktop
+CALL-1033,2025-03-29 14:04,facebook paid,Bathroom Reno Leads,Spam,false,97,38.95,,unknown
+CALL-1034,2025-04-11 14:09,facebook paid,Bathroom Reno Leads,Closed Won,Yes,894,16.77,440.65,desktop
+CALL-1035,2025-03-11 12:10,facebook paid,Bathroom Reno Leads,Existing Customer,N,127,37.56,,mobile
+CALL-1036,2025-03-22 17:29,facebook paid,Bathroom Reno Leads,Quote Sent,true,768,42.22,,mobile
+CALL-1037,2025-04-20 12:56,facebook paid,Bathroom Reno Leads,Qualified Lead,Yes,406,35.59,,desktop
+CALL-1038,2025-03-26 11:34,facebook paid,Bathroom Reno Leads,Wrong Number,No,91,18.81,,unknown
+CALL-1039,2025-03-12 15:57,facebook paid,Bathroom Reno Leads,Missed,No,20,40.77,,mobile
+CALL-1040,2025-03-05 13:55,facebook paid,Bathroom Reno Leads,Closed Won,Y,766,38.59,696.53,unknown
+CALL-1041,2025-03-16 10:10,facebook paid,Bathroom Reno Leads,Quote Sent,true,442,29.17,,desktop
+CALL-1042,2025-03-23 09:16,facebook paid,Bathroom Reno Leads,Missed,No,23,33.85,,mobile
+CALL-1043,2025-04-02 16:15,facebook paid,Bathroom Reno Leads,Closed Won,true,636,17.42,3941.71,mobile
+CALL-1044,2025-03-15 14:12,facebook paid,Bathroom Reno Leads,Spam,N,108,29.78,,mobile
+CALL-1045,2025-03-01 10:40,organic,Local SEO Pages,Booked Appointment,Yes,216,,,unknown
+CALL-1046,2025-04-12 13:38,organic,Local SEO Pages,Closed Won,Yes,291,,1200.75,desktop
+CALL-1047,2025-03-24 14:35,organic,Local SEO Pages,Quote Sent,Yes,495,,1166.08,desktop
+CALL-1048,2025-03-18 17:41,organic,Local SEO Pages,General Enquiry,No,87,,,mobile
+CALL-1049,2025-03-26 09:25,organic,Local SEO Pages,No Answer,No,20,,,unknown
+CALL-1050,2025-04-03 11:42,organic,Local SEO Pages,Existing Customer,N,204,,,mobile
+CALL-1051,2025-03-19 11:02,organic,Local SEO Pages,Existing Customer,false,199,,,mobile
+CALL-1052,2025-04-03 17:36,organic,Local SEO Pages,Spam,No,27,,0,unknown
+CALL-1053,2025-03-24 10:24,organic,Local SEO Pages,General Enquiry,false,156,,,desktop
+CALL-1054,2025-03-17 09:29,organic,Local SEO Pages,General Enquiry,false,154,,,unknown
+CALL-1055,2025-03-31 13:51,organic,Local SEO Pages,Booked Appointment,Yes,887,,,desktop
+CALL-1056,2025-03-05 16:58,organic,Local SEO Pages,Spam,No,173,,,desktop
+CALL-1057,2025-04-11 13:39,direct,Direct Website Calls,Qualified Lead,Y,405,,,mobile
+CALL-1058,2025-04-13 16:18,direct,Direct Website Calls,Closed Won,Y,251,,3736.58,mobile
+CALL-1059,2025-03-31 09:18,direct,Direct Website Calls,Existing Customer,N,119,,,mobile
+CALL-1060,2025-03-05 10:09,direct,Direct Website Calls,Quote Sent,Yes,747,,,mobile
+CALL-1061,2025-04-15 14:14,direct,Direct Website Calls,Existing Customer,No,60,,0,desktop
+CALL-1062,2025-04-13 16:25,direct,Direct Website Calls,Quote Sent,Y,453,,960.94,desktop
+CALL-1063,2025-03-26 10:59,direct,Direct Website Calls,Quote Sent,Y,511,,3123.64,unknown
+CALL-1064,2025-03-05 14:59,direct,Direct Website Calls,Qualified Lead,Y,234,,1302.88,mobile
+CALL-1065,2025-03-16 13:27,referral,Partner Directory,Quote Sent,Y,159,,,unknown
+CALL-1066,2025-04-05 12:46,referral,Partner Directory,Existing Customer,N,177,,,unknown
+CALL-1067,2025-03-19 16:03,referral,Partner Directory,Spam,N,126,,,desktop
+CALL-1068,2025-03-17 13:25,referral,Partner Directory,Closed Won,Yes,301,,708.75,unknown
+CALL-1069,2025-04-01 17:14,referral,Partner Directory,Closed Won,Y,272,,3723.65,mobile
+CALL-1070,2025-03-12 14:35,referral,Partner Directory,Quote Sent,true,336,,,desktop
+CALL-1071,2025-03-25 15:47,display,High Spend Test,Wrong Number,No,147,450.0,,unknown
+CALL-1072,2025-04-03 12:05,display,High Spend Test,Missed,No,12,296.14,,desktop
+CALL-1073,2025-03-28 13:54,display,High Spend Test,Spam,No,128,155.92,,unknown
+CALL-1074,2025-04-01 09:04,display,High Spend Test,Existing Customer,N,83,87.4,,mobile
+CALL-1075,2025-03-10 11:33,display,High Spend Test,Existing Customer,No,161,180.4,,unknown
+CALL-1076,2025-03-03 13:08,lead partner,Mystery Vendor B,Existing Customer,false,215,59.23,,mobile
+CALL-1077,2025-03-20 17:37,lead partner,Mystery Vendor B,General Enquiry,No,157,,,unknown
+CALL-1078,2025-03-16 16:33,lead partner,Mystery Vendor B,Existing Customer,false,186,75.8,,mobile
+CALL-1079,2025-03-13 16:56,lead partner,Mystery Vendor B,Wrong Number,No,190,,,unknown
+CALL-1080,2025-03-22 15:23,lead partner,Mystery Vendor B,Quote Sent,true,646,66.6,3091.09,desktop

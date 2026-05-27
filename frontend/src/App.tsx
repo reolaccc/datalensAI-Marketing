@@ -86,7 +86,7 @@ export default function App() {
                   <ul className="empty-state-steps">
                     <li>Upload dataset</li>
                     <li>Review data profiling and dashboard</li>
-                    <li>Ask a question, and DataLens curates the most relevant visualizations to explain the answer and reveal the insight behind your data.</li>
+                  <li>Ask a question, and DataLens highlights the charts and insights most relevant to your data.</li>
                   </ul>
                 </section>
               )}

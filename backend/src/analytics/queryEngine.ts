@@ -101,6 +101,14 @@ function formatPercent(value: number) {
 
 type RankingFocus = "concentration" | "efficiency" | "budget" | "conversion" | "revenue" | "generic";
 
+function hasQualifiedEfficiencyQuestion(question: string) {
+  const normalized = question.toLowerCase();
+  return (
+    /\b(qualified calls?|qualified leads?|lead efficiency|sales qualified calls?|conversion efficiency)\b/.test(normalized) &&
+    /\b(efficient|efficiency|efficiently|best|lowest|highest|top)\b/.test(normalized)
+  );
+}
+
 function detectRankingFocus(question: string, query: PlannedQuery): RankingFocus {
   const normalized = question.toLowerCase();
 
@@ -131,7 +139,23 @@ function detectRankingFocus(question: string, query: PlannedQuery): RankingFocus
   return "generic";
 }
 
-function pickPrimaryMetric(metrics: string[], focus: RankingFocus) {
+function pickPrimaryMetric(metrics: string[], focus: RankingFocus, question?: string) {
+  if (question && hasQualifiedEfficiencyQuestion(question)) {
+    const qualifiedEfficiencyPriority = [
+      "cost_per_qualified_call",
+      "qualified_call_rate",
+      "qualifiedCall",
+      "conversion_rate",
+      "roas"
+    ];
+    const preferredMetric = qualifiedEfficiencyPriority.find((metric) =>
+      metrics.some((candidate) => candidate.toLowerCase() === metric)
+    );
+    if (preferredMetric) {
+      return preferredMetric;
+    }
+  }
+
   const priorities: Record<RankingFocus, string[]> = {
     concentration: ["revenue", "sales", "income", "gmv", "value", "amount"],
     efficiency: ["roas", "roi", "cvr", "ctr", "revenue", "spend"],
@@ -249,9 +273,8 @@ function groupByMetric(
   }
 
   return [...grouped.entries()]
-    .map(([label, groupRows]) => ({
-      label,
-      value:
+    .map(([label, groupRows]) => {
+      const value =
         semanticMetricAggregation(metric) === "sum"
           ? aggregateValues(
               groupRows
@@ -259,8 +282,11 @@ function groupByMetric(
                 .filter((value): value is number => value !== null),
               operation
             )
-          : aggregateMetricForRows(groupRows, metric, profile)
-    }))
+          : aggregateMetricForRows(groupRows, metric, profile);
+
+      return { label, value };
+    })
+    .filter((entry): entry is { label: string; value: number } => entry.value !== null && Number.isFinite(entry.value))
     .sort((left, right) =>
       sortDirection === "asc" ? left.value - right.value : right.value - left.value
     );
@@ -293,20 +319,20 @@ function groupByMetrics(
     .map(([label, groupRows]) => {
       const row: Record<string, string | number> = { [dimension]: label };
       for (const metric of metrics) {
-        row[metric] = Number(
-          (semanticMetricAggregation(metric) === "sum"
+        const aggregatedValue =
+          semanticMetricAggregation(metric) === "sum"
             ? aggregateValues(
                 groupRows
                   .map((groupRow) => getSemanticMetricValue(groupRow, metric, profile))
                   .filter((value): value is number => value !== null),
                 operation
               )
-            : aggregateMetricForRows(groupRows, metric, profile)
-          ).toFixed(2)
-        );
+            : aggregateMetricForRows(groupRows, metric, profile);
+        row[metric] = aggregatedValue === null ? Number.NaN : Number(aggregatedValue.toFixed(2));
       }
       return row;
     })
+    .filter((row) => Number.isFinite(Number(row[primaryMetric])))
     .sort((left, right) =>
       sortDirection === "asc"
         ? Number(left[primaryMetric] ?? 0) - Number(right[primaryMetric] ?? 0)
@@ -348,6 +374,26 @@ function aggregateSemanticMetric(metric: string, values: number[]) {
 }
 
 function aggregateMetricForRows(rows: DatasetRow[], metric: string, profile: DatasetProfile) {
+  const normalizedMetric = metric.toLowerCase();
+
+  if (normalizedMetric === "qualified_call_rate") {
+    const qualifiedCalls = aggregateSemanticRowsMetric(rows, "qualifiedCall", profile);
+    const calls = aggregateSemanticRowsMetric(rows, "calls", profile);
+    if (qualifiedCalls === null || calls === null || calls <= 0) {
+      return null;
+    }
+    return Number(((qualifiedCalls / calls) * 100).toFixed(2));
+  }
+
+  if (normalizedMetric === "conversion_rate") {
+    const convertedCalls = aggregateSemanticRowsMetric(rows, "convertedCall", profile);
+    const calls = aggregateSemanticRowsMetric(rows, "calls", profile);
+    if (convertedCalls === null || calls === null || calls <= 0) {
+      return null;
+    }
+    return Number(((convertedCalls / calls) * 100).toFixed(2));
+  }
+
   if (semanticMetricAggregation(metric) === "sum") {
     const values = rows
       .map((row) => resolveSemanticMetricValue(row, metric, profile))
@@ -355,7 +401,23 @@ function aggregateMetricForRows(rows: DatasetRow[], metric: string, profile: Dat
     return values.reduce((sum, value) => sum + value, 0);
   }
 
-  return aggregateSemanticRowsMetric(rows, metric, profile) ?? 0;
+  return aggregateSemanticRowsMetric(rows, metric, profile);
+}
+
+function isRankableRatioMetric(metric: string) {
+  const normalized = metric.toLowerCase();
+  return (
+    normalized === "roas" ||
+    normalized === "roi" ||
+    normalized === "ctr" ||
+    normalized === "cvr" ||
+    normalized === "cost_per_qualified_call" ||
+    normalized === "cost_per_conversion" ||
+    normalized === "cost_per_call" ||
+    normalized.includes("cost per") ||
+    normalized.includes("cost_per") ||
+    normalized.includes("rate")
+  );
 }
 
 function inferSemanticMetricDirection(metric: string) {
@@ -389,6 +451,9 @@ function questionUsesDirectMetricFocus(question: string, metric: string) {
   if (normalizedMetric === "cost_per_conversion") {
     return /\b(lowest cost per conversion|highest cost per conversion)\b/.test(normalizedQuestion);
   }
+  if (normalizedMetric === "qualified_call_rate") {
+    return /\b(highest qualified rate|lowest qualified rate|highest qualified call rate|lowest qualified call rate|qualified rate)\b/.test(normalizedQuestion);
+  }
   if (normalizedMetric === "callDuration") {
     return /\b(longest calls?|shortest calls?|call duration)\b/.test(normalizedQuestion);
   }
@@ -412,6 +477,25 @@ function questionUsesDirectMetricFocus(question: string, metric: string) {
   }
 
   return false;
+}
+
+function buildEfficiencyAnswer(metric: string, label: string, value: number, comparisonText: string, revenue: string, spend: string) {
+  const normalizedMetric = metric.toLowerCase();
+  const metricLabel = humanize(metric).toLowerCase();
+
+  if (normalizedMetric === "cost_per_qualified_call") {
+    return `${label} has the lowest cost per qualified call at ${formatMetricValue(metric, value)}${spend}.${comparisonText}`;
+  }
+
+  if (normalizedMetric === "qualified_call_rate") {
+    return `${label} has the highest qualified call rate at ${formatMetricValue(metric, value)}${comparisonText}`;
+  }
+
+  if (normalizedMetric === "roas") {
+    return `${label} has the highest ROAS at ${formatMetricValue(metric, value)}${revenue}${spend}.${comparisonText}`;
+  }
+
+  return `${label} is the efficiency leader on ${metricLabel} at ${formatMetricValue(metric, value)}${revenue}${spend}.${comparisonText}`;
 }
 
 function buildSemanticRanking(
@@ -454,7 +538,7 @@ function buildSemanticRanking(
   }
 
   const focus = detectRankingFocus(question, query);
-  const primaryMetric = pickPrimaryMetric(query.metrics, focus);
+  const primaryMetric = pickPrimaryMetric(query.metrics, focus, question);
   const primaryMetricDetails = metricDetails.find((detail) => detail.metric === primaryMetric) ?? metricDetails[0];
   const directMetricHint = query.metrics.find((metric) => questionUsesDirectMetricFocus(question, metric));
   const rankingMetric = directMetricHint ?? primaryMetricDetails?.metric ?? query.metrics[0];
@@ -464,11 +548,11 @@ function buildSemanticRanking(
     query.semanticProfile?.businessIntent === "wasting_budget";
 
   const aggregatedRows = [...grouped.entries()].map(([label, groupRows]) => {
-    const aggregatedMetrics: Record<string, number> = {};
+    const aggregatedMetrics: Record<string, number | null> = {};
 
     for (const detail of metricDetails) {
       const value = aggregateMetricForRows(groupRows, detail.metric, profile);
-      aggregatedMetrics[detail.metric] = Number(value.toFixed(2));
+      aggregatedMetrics[detail.metric] = value === null ? null : Number(value.toFixed(2));
     }
 
     return {
@@ -480,7 +564,9 @@ function buildSemanticRanking(
   const totalRankingMetric = aggregatedRows.reduce((sum, entry) => sum + (entry.metrics[rankingMetric] ?? 0), 0);
   const ranges = new Map<string, { min: number; max: number }>();
   for (const detail of metricDetails) {
-    const values = aggregatedRows.map((entry) => entry.metrics[detail.metric]).filter((value) => Number.isFinite(value));
+    const values = aggregatedRows
+      .map((entry) => entry.metrics[detail.metric])
+      .filter((value): value is number => Number.isFinite(value));
     if (values.length === 0) {
       continue;
     }
@@ -502,8 +588,9 @@ function buildSemanticRanking(
           continue;
         }
 
+        const numericValue = value as number;
         const normalized =
-          range.max === range.min ? 0.5 : (value - range.min) / (range.max - range.min);
+          range.max === range.min ? 0.5 : (numericValue - range.min) / (range.max - range.min);
         const oriented = detail.direction === "high" ? normalized : 1 - normalized;
         weightedScore += oriented * detail.weight;
         totalWeight += detail.weight;
@@ -519,6 +606,7 @@ function buildSemanticRanking(
   const normalizedQuestion = question.toLowerCase();
   if (/\b(cost per qualified call|cpqc)\b/.test(normalizedQuestion) && aggregatedRows.some((entry) => Number.isFinite(entry.metrics.cost_per_qualified_call))) {
     const rankedByCpqc = [...scoredRows]
+      .filter((entry) => Number.isFinite(entry.metrics.cost_per_qualified_call))
       .sort((left, right) => (left.metrics.cost_per_qualified_call ?? Number.POSITIVE_INFINITY) - (right.metrics.cost_per_qualified_call ?? Number.POSITIVE_INFINITY));
     const leaderCpqc = rankedByCpqc[0];
     const runnerUpCpqc = rankedByCpqc[1];
@@ -533,7 +621,7 @@ function buildSemanticRanking(
       answer: `${leaderCpqc.label} has the lowest cost per qualified call at ${formatMetricValue("cost_per_qualified_call", leaderValueCpqc)}.${comparisonCpqc}`,
       supportingData: rankedByCpqc.slice(0, query.limit).map((entry) => ({
         label: entry.label,
-        value: formatMetricValue("cost_per_qualified_call", entry.metrics.cost_per_qualified_call ?? 0)
+        value: formatMetricValue("cost_per_qualified_call", entry.metrics.cost_per_qualified_call as number)
       })),
       resultTable: {
         columns: [query.dimension, "semantic_score", ...query.metrics],
@@ -549,7 +637,7 @@ function buildSemanticRanking(
         yKey: "cost_per_qualified_call",
         data: rankedByCpqc.slice(0, query.limit).map((entry) => ({
           [query.dimension!]: entry.label,
-          cost_per_qualified_call: Number((entry.metrics.cost_per_qualified_call ?? 0).toFixed(2)),
+          cost_per_qualified_call: Number((entry.metrics.cost_per_qualified_call as number).toFixed(2)),
           semantic_score: Number(entry.score.toFixed(4))
         }))
       }
@@ -649,9 +737,14 @@ function buildSemanticRanking(
     query.semanticProfile?.businessIntent === "best_performing" ||
     query.semanticProfile?.businessIntent === "efficient");
 
+  const rankableRows =
+    isRankableRatioMetric(rankingMetric)
+      ? scoredRows.filter((entry) => Number.isFinite(entry.metrics[rankingMetric]))
+      : scoredRows;
+
   const rankedRows = useCompositeRanking
-    ? scoredRows.sort((left, right) => right.score - left.score)
-    : scoredRows.sort((left, right) => {
+    ? rankableRows.sort((left, right) => right.score - left.score)
+    : rankableRows.sort((left, right) => {
         const leftValue = left.metrics[rankingMetric] ?? 0;
         const rightValue = right.metrics[rankingMetric] ?? 0;
         return questionPrefersLowerValues ? leftValue - rightValue : rightValue - leftValue;
@@ -715,12 +808,12 @@ function buildSemanticRanking(
   }
 
   if (focus === "efficiency") {
-    const spend = leader.metrics.spend !== undefined ? ` and ${formatMetricValue("spend", leader.metrics.spend)} spend` : "";
-    const revenue = leader.metrics.revenue !== undefined ? ` with ${formatMetricValue("revenue", leader.metrics.revenue)} revenue` : "";
+    const spend = leader.metrics.spend != null ? ` and ${formatMetricValue("spend", leader.metrics.spend)} spend` : "";
+    const revenue = leader.metrics.revenue != null ? ` with ${formatMetricValue("revenue", leader.metrics.revenue)} revenue` : "";
     return {
       question,
       interpretation: `semantic ranking for ${metricLabel}`,
-      answer: `${leader.label} is the efficiency leader at ${formatMetricValue(rankingMetric, leaderValue)}${revenue}${spend}.${comparisonText}`,
+      answer: buildEfficiencyAnswer(rankingMetric, leader.label, leaderValue, comparisonText, revenue, spend),
       supportingData: rankedRows.slice(0, query.limit).map((entry) => ({
         label: entry.label,
         value: formatMetricValue(rankingMetric, entry.metrics[rankingMetric] ?? 0)
@@ -747,8 +840,8 @@ function buildSemanticRanking(
   }
 
   if (focus === "budget") {
-    const spend = leader.metrics.spend !== undefined ? ` with ${formatMetricValue("spend", leader.metrics.spend)} spend` : "";
-    const revenue = leader.metrics.revenue !== undefined ? ` and ${formatMetricValue("revenue", leader.metrics.revenue)} revenue` : "";
+    const spend = leader.metrics.spend != null ? ` with ${formatMetricValue("spend", leader.metrics.spend)} spend` : "";
+    const revenue = leader.metrics.revenue != null ? ` and ${formatMetricValue("revenue", leader.metrics.revenue)} revenue` : "";
     const budgetLabel = questionPrefersLowerValues ? "the weakest efficiency signal" : "the strongest scale candidate";
     return {
       question,
@@ -780,8 +873,8 @@ function buildSemanticRanking(
   }
 
   if (focus === "conversion") {
-    const clicks = leader.metrics.clicks !== undefined ? ` with ${formatMetricValue("clicks", leader.metrics.clicks)} of traffic` : "";
-    const revenue = leader.metrics.revenue !== undefined ? ` with ${formatMetricValue("revenue", leader.metrics.revenue)} revenue` : "";
+    const clicks = leader.metrics.clicks != null ? ` with ${formatMetricValue("clicks", leader.metrics.clicks)} of traffic` : "";
+    const revenue = leader.metrics.revenue != null ? ` with ${formatMetricValue("revenue", leader.metrics.revenue)} revenue` : "";
     return {
       question,
       interpretation: `semantic ranking for conversion efficiency`,

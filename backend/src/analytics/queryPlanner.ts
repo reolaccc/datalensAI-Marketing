@@ -40,6 +40,10 @@ function hasSemanticRole(profile: DatasetProfile, role: string) {
   );
 }
 
+function hasSemanticMetric(profile: DatasetProfile, metric: string) {
+  return getSemanticContract(profile).availableMetrics.includes(metric);
+}
+
 function isCallRelatedDomain(profile: DatasetProfile) {
   const domain = getSemanticContract(profile).detectedDomain?.domain;
   return domain === "call_tracking" || domain === "call_operations" || domain === "mixed_call_tracking_attribution";
@@ -49,11 +53,11 @@ function buildUnavailableMetricReasons(question: string, profile: DatasetProfile
   const normalizedQuestion = normalize(question);
   const reasons: string[] = [];
 
-  if (normalizedQuestion.includes("roas") && (!hasSemanticRole(profile, "revenue") || !hasSemanticRole(profile, "spend"))) {
+  if (normalizedQuestion.includes("roas") && !hasSemanticMetric(profile, "roas")) {
     reasons.push("ROAS cannot be calculated because revenue and spend are both required.");
   }
 
-  if ((normalizedQuestion.includes("qualified") || normalizedQuestion.includes("qualified call")) && !hasSemanticRole(profile, "qualifiedCall")) {
+  if ((normalizedQuestion.includes("qualified") || normalizedQuestion.includes("qualified call")) && !hasSemanticMetric(profile, "qualifiedCall")) {
     reasons.push("Qualified call metrics are not available because no qualified-call field was detected.");
   }
 
@@ -104,6 +108,7 @@ function buildUnavailableMetricReasons(question: string, profile: DatasetProfile
   if (
     (normalizedQuestion.includes("call volume") ||
       /\b(most|fewest|highest|lowest)\s+calls?\b/.test(normalizedQuestion)) &&
+    !hasSemanticMetric(profile, "calls") &&
     !hasSemanticRole(profile, "callId") &&
     !isCallRelatedDomain(profile)
   ) {
@@ -111,7 +116,7 @@ function buildUnavailableMetricReasons(question: string, profile: DatasetProfile
   }
 
   if ((normalizedQuestion.includes("cost per qualified call") || normalizedQuestion.includes("cpqc")) &&
-    (!hasSemanticRole(profile, "spend") || !hasSemanticRole(profile, "qualifiedCall"))) {
+    !hasSemanticMetric(profile, "cost_per_qualified_call")) {
     reasons.push("Cost per qualified call requires both spend and qualified-call fields.");
   }
 
@@ -307,6 +312,25 @@ function resolveMetrics(
   const normalizedQuestion = normalize(question);
   const contract = getSemanticContract(profile);
   const matches: string[] = [];
+  const asksQualifiedEfficiency =
+    /\b(qualified calls?|qualified leads?|lead efficiency|sales qualified calls?)\b/.test(normalizedQuestion) &&
+    /\b(efficient|efficiency|efficiently|best|lowest|highest|top)\b/.test(normalizedQuestion);
+
+  if (asksQualifiedEfficiency) {
+    const qualifiedEfficiencyMetrics: string[] = [];
+    if (contract.availableMetrics.includes("cost_per_qualified_call")) {
+      qualifiedEfficiencyMetrics.push("cost_per_qualified_call");
+    }
+    if (contract.availableMetrics.includes("qualifiedCall") && contract.availableMetrics.includes("calls")) {
+      qualifiedEfficiencyMetrics.push("qualified_call_rate");
+    }
+    if (contract.availableMetrics.includes("qualifiedCall")) {
+      qualifiedEfficiencyMetrics.push("qualifiedCall");
+    }
+    if (qualifiedEfficiencyMetrics.length > 0) {
+      return qualifiedEfficiencyMetrics;
+    }
+  }
 
   if (
     (normalizedQuestion.includes("longest calls") ||
@@ -355,6 +379,16 @@ function resolveMetrics(
     contract.availableMetrics.includes("cost_per_conversion")
   ) {
     return ["cost_per_conversion"];
+  }
+
+  if (
+    (normalizedQuestion.includes("qualified rate") ||
+      normalizedQuestion.includes("qualified call rate") ||
+      normalizedQuestion.includes("qualified-call rate")) &&
+    contract.availableMetrics.includes("qualifiedCall") &&
+    contract.availableMetrics.includes("calls")
+  ) {
+    return ["qualified_call_rate"];
   }
 
   for (const [metric, aliases] of Object.entries(KPI_ALIASES)) {
@@ -478,11 +512,21 @@ function resolveDimension(
     return semanticDimensionMatch;
   }
 
-  const preferred = ["channel", "campaign", "device", "source"];
+  const preferred = ["channel", "source", "medium", "campaign", "device"];
   const preferredMatch = preferred
     .map((hint) => resolveSemanticDimensionSourceColumn(contract, hint) ?? hint)
     .find((column) => profile.categoricalColumns.includes(column));
-  return preferredMatch ?? profile.categoricalColumns[0] ?? null;
+  if (preferredMatch) {
+    return preferredMatch;
+  }
+
+  const channelFamilyHint = ["channel", "source", "medium", "traffic source", "traffic_source", "source medium", "source_medium", "acquisition"]
+    .find((hint) => profile.categoricalColumns.some((column) => normalize(column).includes(hint)));
+  if (channelFamilyHint) {
+    return profile.categoricalColumns.find((column) => normalize(column).includes(channelFamilyHint)) ?? null;
+  }
+
+  return profile.categoricalColumns[0] ?? null;
 }
 
 function detectIntent(
@@ -661,7 +705,18 @@ function extractFilters(question: string, profile: DatasetProfile): PlannedQuery
   for (const column of profile.categoricalColumns) {
     const profileEntry = profile.columns.find((entry) => entry.name === column);
     for (const category of profileEntry?.topCategories ?? []) {
-      if (normalizedQuestion.includes(category.value.toLowerCase())) {
+      const normalizedCategory = category.value.toLowerCase().trim();
+      if (normalizedCategory.length < 2) {
+        continue;
+      }
+
+      const escapedCategory = normalizedCategory.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const boundedPattern =
+        /^[a-z0-9][a-z0-9 /_-]*[a-z0-9]$/i.test(normalizedCategory)
+          ? new RegExp(`(^|[^a-z0-9])${escapedCategory}([^a-z0-9]|$)`, "i")
+          : null;
+
+      if ((boundedPattern && boundedPattern.test(normalizedQuestion)) || (!boundedPattern && normalizedQuestion.includes(normalizedCategory))) {
         filters.push({ column, operator: "eq", value: category.value });
       }
     }

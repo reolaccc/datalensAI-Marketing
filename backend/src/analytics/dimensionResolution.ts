@@ -29,10 +29,17 @@ type DimensionSpec = {
   canonicalKey: ExplicitDimensionKey;
   aliases: string[];
   preferDateColumns?: boolean;
+  semanticFallbacks?: string[];
+  rawFallbackAliases?: string[];
 };
 
 const DIMENSION_SPECS: DimensionSpec[] = [
-  { canonicalKey: "channel", aliases: ["channel"] },
+  {
+    canonicalKey: "channel",
+    aliases: ["channel"],
+    semanticFallbacks: ["channel", "source", "medium"],
+    rawFallbackAliases: ["source", "medium", "traffic source", "traffic_source", "source medium", "source_medium", "acquisition"]
+  },
   { canonicalKey: "campaign", aliases: ["campaign"] },
   { canonicalKey: "region", aliases: ["region"] },
   { canonicalKey: "location", aliases: ["location", "locations", "branch", "branches", "office", "offices", "city", "cities"] },
@@ -86,13 +93,30 @@ function scoreCandidateColumn(column: string, aliases: string[]) {
   return bestScore;
 }
 
+function resolveSemanticSourceColumn(context: DimensionResolutionContext, spec: DimensionSpec) {
+  if (!context.semanticContract) {
+    return null;
+  }
+
+  const candidateKeys = spec.semanticFallbacks ?? [spec.canonicalKey];
+  for (const candidateKey of candidateKeys) {
+    const sourceColumn = resolveSemanticDimensionSourceColumn(context.semanticContract, candidateKey);
+    if (sourceColumn) {
+      return sourceColumn;
+    }
+  }
+
+  return null;
+}
+
 function resolveRawSourceColumn(context: DimensionResolutionContext, spec: DimensionSpec) {
   const candidates = spec.canonicalKey === "date"
     ? [...(context.datetimeColumns ?? []), ...context.categoricalColumns]
     : context.categoricalColumns;
+  const aliases = [...spec.aliases, ...(spec.rawFallbackAliases ?? [])];
 
   const ranked = candidates
-    .map((column) => ({ column, score: scoreCandidateColumn(column, spec.aliases) }))
+    .map((column) => ({ column, score: scoreCandidateColumn(column, aliases) }))
     .filter((entry) => entry.score > 0)
     .sort((left, right) => right.score - left.score);
 
@@ -112,9 +136,7 @@ export function resolveExplicitDimensionSourceColumn(
         continue;
       }
 
-      const semanticSource = context.semanticContract
-        ? resolveSemanticDimensionSourceColumn(context.semanticContract, spec.canonicalKey)
-        : null;
+      const semanticSource = resolveSemanticSourceColumn(context, spec);
       const sourceColumn = semanticSource ?? resolveRawSourceColumn(context, spec);
 
       if (!sourceColumn) {

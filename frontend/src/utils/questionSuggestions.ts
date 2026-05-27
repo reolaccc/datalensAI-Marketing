@@ -59,7 +59,42 @@ function hasMultipleNumericMetrics(analysis: AnalysisResponse) {
   return analysis.profile.numericColumns.length > 1;
 }
 
+function hasMetricHint(analysis: AnalysisResponse, hints: string[]) {
+  const metrics = uniq([
+    ...analysis.profile.numericColumns,
+    ...(analysis.profile.semanticContract?.availableMetrics ?? []),
+    ...analysis.kpis.map((kpi) => kpi.label)
+  ]).map((value) => normalize(value));
+
+  return hints.some((hint) => metrics.some((metric) => metric.includes(normalize(hint))));
+}
+
+function isOperationsFocusedDataset(analysis: AnalysisResponse) {
+  const domain = analysis.profile.semanticContract?.detectedDomain?.domain;
+  const hasCommercialMetric = hasMetricHint(analysis, ["revenue", "spend", "roas", "roi", "cost per qualified", "cost per conversion"]);
+  return (domain === "call_operations" || domain === "call_tracking") && !hasCommercialMetric;
+}
+
+function buildOperationsFallbackQuestions(analysis: AnalysisResponse) {
+  const dimensions = preferredDimensionLabels(analysis);
+  const primaryDimension = dimensions[0] ?? "location";
+  const secondaryDimension = dimensions[1] ?? primaryDimension;
+  const suggestions = [
+    `Which ${primaryDimension} generated the most calls?`,
+    `Which ${secondaryDimension} has the highest missed call rate?`,
+    `Where did call volume increase or drop the most?`,
+    `Which ${primaryDimension} has the longest average handling time?`,
+    `Where are repeat callers most concentrated?`
+  ];
+
+  return uniq(suggestions).slice(0, 5);
+}
+
 function buildSemanticFallbackBusinessQuestions(analysis: AnalysisResponse) {
+  if (isOperationsFocusedDataset(analysis)) {
+    return buildOperationsFallbackQuestions(analysis);
+  }
+
   const dimensions = preferredDimensionLabels(analysis);
   const metrics = preferredMetricLabels(analysis);
   const primaryDimension = dimensions[0] ?? "channel";

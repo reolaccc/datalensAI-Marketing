@@ -1,0 +1,122 @@
+phone_call_id,call_timestamp,utm_medium,campaign_name,media spend,sales_value$,call_result_status,duration_sec
+CALL-10000,2025-02-01 00:00:00,direct,CRM-1,,,Voicemail,321
+CALL-10001,2025-02-01 00:37:00,meta / paid,CRM-1,291.5,3505.36,Sale,1382
+CALL-10002,2025-02-01 01:14:00,organic,CRM-4,,,Qualified Lead,1242
+CALL-10003,2025-02-01 01:51:00,direct,CRM-3,,,Booked Appointment,1344
+CALL-10004,2025-02-01 02:28:00,direct,CRM-5,,,Voicemail,525
+CALL-10005,2025-02-01 03:05:00,direct,CRM-3,,,No Answer,930
+CALL-10006,2025-02-01 03:42:00,email,CRM-2,,,No Answer,62
+CALL-10007,2025-02-01 04:19:00,google / cpc,CRM-4,189.48,,No Answer,496
+CALL-10008,2025-02-01 04:56:00,direct,CRM-4,,,Booked Appointment,1728
+CALL-10009,2025-02-01 05:33:00,meta / paid,CRM-1,245.05,,No Answer,152
+CALL-10010,2025-02-01 06:10:00,meta / paid,CRM-1,113.99,,Voicemail,1658
+CALL-10011,2025-02-01 06:47:00,direct,CRM-5,,,Booked Appointment,1360
+CALL-10012,2025-02-01 07:24:00,google / cpc,CRM-5,21.79,4480.84,Sale,178
+CALL-10013,2025-02-01 08:01:00,google / cpc,CRM-2,228.1,,No Answer,67
+CALL-10014,2025-02-01 08:38:00,google / cpc,CRM-1,298.88,,Converted,411
+CALL-10015,2025-02-01 09:15:00,meta / paid,CRM-3,294.7,,No Answer,1675
+CALL-10016,2025-02-01 09:52:00,meta / paid,CRM-1,208.98,,Converted,1721
+CALL-10017,2025-02-01 10:29:00,organic,CRM-3,,,Booked Appointment,340
+CALL-10018,2025-02-01 11:06:00,organic,CRM-3,,,Booked Appointment,1685
+CALL-10019,2025-02-01 11:43:00,direct,CRM-4,,5796.67,Sale,441
+CALL-10020,2025-02-01 12:20:00,email,CRM-5,,,Voicemail,1051
+CALL-10021,2025-02-01 12:57:00,meta / paid,CRM-2,102.53,,Qualified Lead,387
+CALL-10022,2025-02-01 13:34:00,direct,CRM-3,,,Sale,1406
+CALL-10023,2025-02-01 14:11:00,organic,CRM-2,,,No Answer,1637
+CALL-10024,2025-02-01 14:48:00,organic,CRM-5,,,Qualified Lead,114
+CALL-10025,2025-02-01 15:25:00,referral,CRM-4,,,Voicemail,1152
+CALL-10026,2025-02-01 16:02:00,email,CRM-1,,,Booked Appointment,531
+CALL-10027,2025-02-01 16:39:00,email,CRM-3,,,Converted,557
+CALL-10028,2025-02-01 17:16:00,direct,CRM-5,,,Voicemail,314
+CALL-10029,2025-02-01 17:53:00,organic,CRM-1,,,Voicemail,920
+CALL-10030,2025-02-01 18:30:00,meta / paid,CRM-3,61.26,,Converted,1694
+CALL-10031,2025-02-01 19:07:00,email,CRM-3,,,Voicemail,1324
+CALL-10032,2025-02-01 19:44:00,email,CRM-1,,,Converted,1545
+CALL-10033,2025-02-01 20:21:00,google / cpc,CRM-5,74.27,,Voicemail,1296
+CALL-10034,2025-02-01 20:58:00,direct,CRM-5,,,No Answer,760
+CALL-10035,2025-02-01 21:35:00,google / cpc,CRM-1,48.29,,Sale,60
+CALL-10036,2025-02-01 22:12:00,google / cpc,CRM-3,10.76,,Voicemail,232
+CALL-10037,2025-02-01 22:49:00,email,CRM-5,,,Voicemail,474
+CALL-10038,2025-02-01 23:26:00,direct,CRM-3,,,Booked Appointment,1221
+CALL-10039,2025-02-02 00:03:00,meta / paid,CRM-4,69.21,,Booked Appointment,339
+CALL-10040,2025-02-02 00:40:00,meta / paid,CRM-4,14.09,,Sale,211
+CALL-10041,2025-02-02 01:17:00,google / cpc,CRM-4,195.08,,Converted,1677
+CALL-10042,2025-02-02 01:54:00,organic,CRM-1,,,Qualified Lead,1335
+CALL-10043,2025-02-02 02:31:00,email,CRM-5,,,Voicemail,1337
+CALL-10044,2025-02-02 03:08:00,email,CRM-5,,,No Answer,1075
+CALL-10045,2025-02-02 03:45:00,referral,CRM-2,,,No Answer,353
+CALL-10046,2025-02-02 04:22:00,google / cpc,CRM-1,22.76,,Booked Appointment,846
+CALL-10047,2025-02-02 04:59:00,meta / paid,CRM-1,78.92,,Qualified Lead,40
+CALL-10048,2025-02-02 05:36:00,email,CRM-2,,,Booked Appointment,306
+CALL-10049,2025-02-02 06:13:00,direct,CRM-4,,3963.35,Sale,1680
+CALL-10050,2025-02-02 06:50:00,email,CRM-1,,663.47,Sale,1498
+CALL-10051,2025-02-02 07:27:00,direct,CRM-4,,2438.4,Converted,1541
+CALL-10052,2025-02-02 08:04:00,direct,CRM-4,,,Qualified Lead,374
+CALL-10053,2025-02-02 08:41:00,meta / paid,CRM-2,299.02,,Voicemail,1333
+CALL-10054,2025-02-02 09:18:00,google / cpc,CRM-3,45.75,,Converted,1472
+CALL-10055,2025-02-02 09:55:00,google / cpc,CRM-4,87.14,,Booked Appointment,1419
+CALL-10056,2025-02-02 10:32:00,email,CRM-3,,,Voicemail,1329
+CALL-10057,2025-02-02 11:09:00,meta / paid,CRM-1,34.77,,Booked Appointment,362
+CALL-10058,2025-02-02 11:46:00,organic,CRM-2,,,Sale,341
+CALL-10059,2025-02-02 12:23:00,referral,CRM-2,,,Voicemail,811
+CALL-10060,2025-02-02 13:00:00,organic,CRM-2,,,Booked Appointment,792
+CALL-10061,2025-02-02 13:37:00,referral,CRM-5,,,Converted,976
+CALL-10062,2025-02-02 14:14:00,direct,CRM-1,,,Booked Appointment,1771
+CALL-10063,2025-02-02 14:51:00,google / cpc,CRM-2,136.79,5343.12,Converted,816
+CALL-10064,2025-02-02 15:28:00,email,CRM-1,,,Booked Appointment,1172
+CALL-10065,2025-02-02 16:05:00,meta / paid,CRM-1,51.93,,Qualified Lead,233
+CALL-10066,2025-02-02 16:42:00,email,CRM-1,,1108.5,Sale,78
+CALL-10067,2025-02-02 17:19:00,google / cpc,CRM-1,50.14,,Converted,1523
+CALL-10068,2025-02-02 17:56:00,google / cpc,CRM-3,29.07,,Booked Appointment,423
+CALL-10069,2025-02-02 18:33:00,email,CRM-4,,5246.42,Converted,234
+CALL-10070,2025-02-02 19:10:00,meta / paid,CRM-1,69.66,,Qualified Lead,85
+CALL-10071,2025-02-02 19:47:00,referral,CRM-3,,,Qualified Lead,992
+CALL-10072,2025-02-02 20:24:00,google / cpc,CRM-4,48.47,2119.09,Converted,549
+CALL-10073,2025-02-02 21:01:00,google / cpc,CRM-1,111.76,,Voicemail,1480
+CALL-10074,2025-02-02 21:38:00,organic,CRM-5,,,Voicemail,1046
+CALL-10075,2025-02-02 22:15:00,direct,CRM-5,,,Voicemail,1542
+CALL-10076,2025-02-02 22:52:00,google / cpc,CRM-4,238.83,,Qualified Lead,1077
+CALL-10077,2025-02-02 23:29:00,google / cpc,CRM-1,110.57,3526.76,Converted,1191
+CALL-10078,2025-02-03 00:06:00,organic,CRM-3,,3284.27,Sale,1575
+CALL-10079,2025-02-03 00:43:00,google / cpc,CRM-1,11.26,,No Answer,1021
+CALL-10080,2025-02-03 01:20:00,referral,CRM-5,,,Sale,726
+CALL-10081,2025-02-03 01:57:00,email,CRM-5,,,Voicemail,340
+CALL-10082,2025-02-03 02:34:00,organic,CRM-2,,,Sale,1035
+CALL-10083,2025-02-03 03:11:00,meta / paid,CRM-4,41.88,,Converted,1628
+CALL-10084,2025-02-03 03:48:00,referral,CRM-1,,,Booked Appointment,1301
+CALL-10085,2025-02-03 04:25:00,organic,CRM-1,,,Voicemail,836
+CALL-10086,2025-02-03 05:02:00,direct,CRM-1,,5364.16,Converted,776
+CALL-10087,2025-02-03 05:39:00,meta / paid,CRM-5,97.91,,No Answer,1041
+CALL-10088,2025-02-03 06:16:00,meta / paid,CRM-5,120.0,2927.18,Converted,1231
+CALL-10089,2025-02-03 06:53:00,referral,CRM-1,,,Booked Appointment,728
+CALL-10090,2025-02-03 07:30:00,email,CRM-5,,,Voicemail,333
+CALL-10091,2025-02-03 08:07:00,direct,CRM-4,,2143.0,Converted,913
+CALL-10092,2025-02-03 08:44:00,referral,CRM-5,,,Voicemail,488
+CALL-10093,2025-02-03 09:21:00,meta / paid,CRM-2,106.88,,Converted,1054
+CALL-10094,2025-02-03 09:58:00,meta / paid,CRM-5,87.57,,Converted,331
+CALL-10095,2025-02-03 10:35:00,referral,CRM-3,,,Sale,1249
+CALL-10096,2025-02-03 11:12:00,email,CRM-2,,,Voicemail,498
+CALL-10097,2025-02-03 11:49:00,organic,CRM-1,,5743.32,Sale,352
+CALL-10098,2025-02-03 12:26:00,referral,CRM-2,,,Qualified Lead,801
+CALL-10099,2025-02-03 13:03:00,meta / paid,CRM-3,295.31,,Voicemail,905
+CALL-10100,2025-02-03 13:40:00,organic,CRM-3,,5494.99,Sale,437
+CALL-10101,2025-02-03 14:17:00,direct,CRM-1,,,No Answer,40
+CALL-10102,2025-02-03 14:54:00,direct,CRM-2,,,No Answer,1039
+CALL-10103,2025-02-03 15:31:00,referral,CRM-4,,,Voicemail,60
+CALL-10104,2025-02-03 16:08:00,meta / paid,CRM-4,84.59,4523.39,Converted,1450
+CALL-10105,2025-02-03 16:45:00,email,CRM-4,,,Booked Appointment,1747
+CALL-10106,2025-02-03 17:22:00,meta / paid,CRM-5,203.69,,Converted,1760
+CALL-10107,2025-02-03 17:59:00,meta / paid,CRM-3,207.08,2765.41,Converted,1301
+CALL-10108,2025-02-03 18:36:00,referral,CRM-4,,,Qualified Lead,511
+CALL-10109,2025-02-03 19:13:00,direct,CRM-2,,,Converted,527
+CALL-10110,2025-02-03 19:50:00,direct,CRM-4,,,No Answer,55
+CALL-10111,2025-02-03 20:27:00,email,CRM-5,,,No Answer,1397
+CALL-10112,2025-02-03 21:04:00,referral,CRM-3,,,Sale,1608
+CALL-10113,2025-02-03 21:41:00,google / cpc,CRM-1,122.73,,No Answer,93
+CALL-10114,2025-02-03 22:18:00,organic,CRM-2,,,Booked Appointment,344
+CALL-10115,2025-02-03 22:55:00,referral,CRM-5,,876.2,Sale,950
+CALL-10116,2025-02-03 23:32:00,email,CRM-5,,,Sale,47
+CALL-10117,2025-02-04 00:09:00,referral,CRM-5,,,Voicemail,717
+CALL-10118,2025-02-04 00:46:00,direct,CRM-2,,,Converted,1416
+CALL-10119,2025-02-04 01:23:00,meta / paid,CRM-5,123.82,,Qualified Lead,743
+CALL-EDGE-1,2025-04-11 09:15:00,mystery source,Mystery Campaign,999.0,,No Answer,45

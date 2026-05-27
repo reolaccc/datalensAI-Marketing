@@ -244,7 +244,16 @@ function semanticSignature(blueprint: ChartBlueprint, context: ChartSelectionCon
 }
 
 function valueAsNumber(value: unknown) {
-  return typeof value === "number" && Number.isFinite(value) ? value : Number(value ?? 0);
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : Number.NaN;
+  }
+
+  if (value === null || value === undefined || value === "") {
+    return Number.NaN;
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : Number.NaN;
 }
 
 function buildModernChartTitle(blueprint: ChartBlueprint, context: ChartSelectionContext) {
@@ -331,9 +340,9 @@ function buildTopBottomSubtitle(
 
   if (isEfficiencyMetric) {
     if (bottom.label && bottom.label !== top.label) {
-      return `${top.label} has the lowest ${metricLower}, while ${bottom.label} is highest.`;
+      return `${bottom.label} has the lowest ${metricLower}, while ${top.label} is highest.`;
     }
-    return `${top.label} has the lowest ${metricLower}.`;
+    return `${bottom.label} has the lowest ${metricLower}.`;
   }
 
   if (isRateMetric) {

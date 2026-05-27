@@ -1,0 +1,142 @@
+call_session_key,service_line,queue_name,call_answered,talk_time_sec,missed_reason,callback_required,agent_team,call_started_at,ops_cost_est
+CALL-70000,Residential,After Hours,Yes,143,Voicemail,N,South,2025-02-01 00:00:00,107.17
+CALL-70001,VIP,Priority,No,13,No Agent,N,South,2025-02-01 00:19:00,
+CALL-70002,Commercial,Sales Queue,No,18,No Agent,Y,South,2025-02-01 00:38:00,
+CALL-70003,Residential,Sales Queue,No,38,Resolved,N,South,2025-02-01 00:57:00,
+CALL-70004,Support,Overflow,Yes,1383,Busy,Y,Overflow,2025-02-01 01:16:00,15.17
+CALL-70005,Residential,General Support,No,6,Abandoned,Y,South,2025-02-01 01:35:00,
+CALL-70006,Residential,Sales Queue,No,12,Escalated,N,Tier2,2025-02-01 01:54:00,
+CALL-70007,Commercial,General Support,Yes,2273,Resolved,Y,Tier2,2025-02-01 02:13:00,7.89
+CALL-70008,Support,After Hours,Yes,1219,Resolved,Y,Overflow,2025-02-01 02:32:00,79.6
+CALL-70009,VIP,Sales Queue,No,30,No Agent,Y,North,2025-02-01 02:51:00,
+CALL-70010,Commercial,Sales Queue,No,35,Escalated,N,Overflow,2025-02-01 03:10:00,
+CALL-70011,Commercial,Overflow,Yes,1423,Resolved,N,North,2025-02-01 03:29:00,6.89
+CALL-70012,Commercial,Priority,No,9,Busy,Y,Tier2,2025-02-01 03:48:00,
+CALL-70013,Commercial,Overflow,No,23,No Agent,Y,Tier2,2025-02-01 04:07:00,
+CALL-70014,Support,Sales Queue,Yes,1405,Escalated,Y,North,2025-02-01 04:26:00,25.19
+CALL-70015,Support,Priority,Yes,1944,Resolved,N,Tier2,2025-02-01 04:45:00,73.09
+CALL-70016,Residential,Sales Queue,No,16,No Agent,Y,North,2025-02-01 05:04:00,
+CALL-70017,Residential,After Hours,No,6,Voicemail,N,South,2025-02-01 05:23:00,
+CALL-70018,VIP,Priority,Yes,1185,Abandoned,Y,South,2025-02-01 05:42:00,38.02
+CALL-70019,VIP,Sales Queue,Yes,2245,Abandoned,N,South,2025-02-01 06:01:00,35.49
+CALL-70020,Residential,After Hours,No,24,Busy,N,South,2025-02-01 06:20:00,
+CALL-70021,Support,After Hours,No,4,Abandoned,Y,South,2025-02-01 06:39:00,
+CALL-70022,VIP,Overflow,No,4,Abandoned,N,North,2025-02-01 06:58:00,
+CALL-70023,Commercial,General Support,Yes,61,Voicemail,Y,Overflow,2025-02-01 07:17:00,62.11
+CALL-70024,Residential,Overflow,Yes,887,Abandoned,Y,Overflow,2025-02-01 07:36:00,26.21
+CALL-70025,Support,After Hours,Yes,2249,Resolved,Y,North,2025-02-01 07:55:00,39.68
+CALL-70026,Support,After Hours,Yes,1020,Voicemail,Y,Tier2,2025-02-01 08:14:00,71.0
+CALL-70027,VIP,Overflow,Yes,130,No Agent,Y,Overflow,2025-02-01 08:33:00,114.95
+CALL-70028,VIP,Priority,No,11,Busy,N,Overflow,2025-02-01 08:52:00,
+CALL-70029,VIP,Priority,No,38,Busy,Y,North,2025-02-01 09:11:00,
+CALL-70030,Commercial,General Support,No,14,Abandoned,Y,Tier2,2025-02-01 09:30:00,
+CALL-70031,Support,After Hours,No,20,Voicemail,Y,Tier2,2025-02-01 09:49:00,
+CALL-70032,Residential,Sales Queue,No,10,Resolved,N,Overflow,2025-02-01 10:08:00,
+CALL-70033,VIP,Sales Queue,No,30,No Agent,Y,North,2025-02-01 10:27:00,
+CALL-70034,Commercial,Priority,No,35,Abandoned,Y,Overflow,2025-02-01 10:46:00,
+CALL-70035,VIP,After Hours,No,27,Abandoned,Y,North,2025-02-01 11:05:00,
+CALL-70036,Support,Sales Queue,Yes,1013,Abandoned,N,South,2025-02-01 11:24:00,44.23
+CALL-70037,Residential,General Support,Yes,243,Escalated,N,Overflow,2025-02-01 11:43:00,29.76
+CALL-70038,VIP,Overflow,No,28,Busy,Y,Overflow,2025-02-01 12:02:00,
+CALL-70039,VIP,Sales Queue,No,20,Resolved,Y,Overflow,2025-02-01 12:21:00,
+CALL-70040,Support,Priority,No,8,Voicemail,Y,Overflow,2025-02-01 12:40:00,
+CALL-70041,VIP,Overflow,No,38,Voicemail,N,North,2025-02-01 12:59:00,
+CALL-70042,Support,Sales Queue,No,2,Busy,N,Overflow,2025-02-01 13:18:00,
+CALL-70043,Support,After Hours,Yes,1560,Busy,Y,South,2025-02-01 13:37:00,105.95
+CALL-70044,Support,Overflow,Yes,2243,Busy,Y,South,2025-02-01 13:56:00,72.71
+CALL-70045,Commercial,After Hours,Yes,548,Busy,N,North,2025-02-01 14:15:00,115.19
+CALL-70046,Commercial,Sales Queue,Yes,159,Resolved,Y,South,2025-02-01 14:34:00,64.46
+CALL-70047,Support,After Hours,Yes,753,Voicemail,N,Tier2,2025-02-01 14:53:00,44.88
+CALL-70048,VIP,General Support,No,15,Escalated,N,North,2025-02-01 15:12:00,
+CALL-70049,Residential,Sales Queue,Yes,2382,Voicemail,N,Tier2,2025-02-01 15:31:00,44.12
+CALL-70050,VIP,Priority,No,21,Escalated,N,North,2025-02-01 15:50:00,
+CALL-70051,VIP,Overflow,No,1,Resolved,Y,Tier2,2025-02-01 16:09:00,
+CALL-70052,Support,After Hours,Yes,115,Escalated,Y,South,2025-02-01 16:28:00,47.86
+CALL-70053,VIP,After Hours,No,37,No Agent,N,Overflow,2025-02-01 16:47:00,
+CALL-70054,VIP,Overflow,Yes,945,Busy,Y,Overflow,2025-02-01 17:06:00,13.29
+CALL-70055,Residential,After Hours,Yes,828,Voicemail,N,South,2025-02-01 17:25:00,103.69
+CALL-70056,VIP,Overflow,Yes,543,Voicemail,Y,North,2025-02-01 17:44:00,105.06
+CALL-70057,Support,After Hours,No,12,Voicemail,Y,South,2025-02-01 18:03:00,
+CALL-70058,Commercial,General Support,Yes,253,No Agent,N,Overflow,2025-02-01 18:22:00,21.67
+CALL-70059,VIP,Overflow,Yes,1178,No Agent,Y,Tier2,2025-02-01 18:41:00,111.46
+CALL-70060,VIP,Priority,Yes,1017,Busy,Y,South,2025-02-01 19:00:00,5.12
+CALL-70061,Support,Priority,Yes,1297,No Agent,Y,South,2025-02-01 19:19:00,29.69
+CALL-70062,Support,After Hours,No,32,Voicemail,Y,Overflow,2025-02-01 19:38:00,
+CALL-70063,Residential,Sales Queue,Yes,1152,No Agent,N,South,2025-02-01 19:57:00,16.55
+CALL-70064,Residential,Sales Queue,Yes,715,No Agent,N,North,2025-02-01 20:16:00,13.13
+CALL-70065,Commercial,General Support,Yes,64,Busy,Y,North,2025-02-01 20:35:00,14.08
+CALL-70066,VIP,Sales Queue,No,23,Voicemail,N,North,2025-02-01 20:54:00,
+CALL-70067,Support,Sales Queue,No,11,Resolved,N,Tier2,2025-02-01 21:13:00,
+CALL-70068,Commercial,After Hours,Yes,1451,Escalated,N,North,2025-02-01 21:32:00,78.35
+CALL-70069,VIP,Sales Queue,Yes,182,Resolved,N,North,2025-02-01 21:51:00,36.04
+CALL-70070,Residential,General Support,No,13,Abandoned,N,North,2025-02-01 22:10:00,
+CALL-70071,Commercial,Sales Queue,Yes,826,Escalated,N,North,2025-02-01 22:29:00,72.62
+CALL-70072,Commercial,Sales Queue,No,5,Resolved,Y,Overflow,2025-02-01 22:48:00,
+CALL-70073,VIP,Overflow,No,39,No Agent,N,South,2025-02-01 23:07:00,
+CALL-70074,VIP,Priority,No,34,Abandoned,Y,South,2025-02-01 23:26:00,
+CALL-70075,Commercial,Overflow,Yes,285,Abandoned,Y,Overflow,2025-02-01 23:45:00,92.45
+CALL-70076,VIP,Priority,No,1,Abandoned,N,North,2025-02-02 00:04:00,
+CALL-70077,VIP,After Hours,Yes,810,Abandoned,Y,Overflow,2025-02-02 00:23:00,45.13
+CALL-70078,VIP,After Hours,No,10,Escalated,Y,South,2025-02-02 00:42:00,
+CALL-70079,Commercial,Overflow,No,17,Resolved,Y,Overflow,2025-02-02 01:01:00,
+CALL-70080,VIP,After Hours,Yes,1948,Voicemail,Y,South,2025-02-02 01:20:00,111.4
+CALL-70081,Support,After Hours,No,1,Busy,N,North,2025-02-02 01:39:00,
+CALL-70082,VIP,Overflow,No,8,Busy,Y,Overflow,2025-02-02 01:58:00,
+CALL-70083,VIP,Sales Queue,Yes,2199,Abandoned,Y,North,2025-02-02 02:17:00,60.41
+CALL-70084,Support,Overflow,No,19,Resolved,N,North,2025-02-02 02:36:00,
+CALL-70085,VIP,Sales Queue,Yes,1863,No Agent,N,North,2025-02-02 02:55:00,84.32
+CALL-70086,Commercial,Sales Queue,Yes,488,Escalated,N,South,2025-02-02 03:14:00,96.69
+CALL-70087,VIP,Sales Queue,No,2,Voicemail,N,Tier2,2025-02-02 03:33:00,
+CALL-70088,Commercial,Overflow,Yes,722,Busy,Y,Overflow,2025-02-02 03:52:00,26.18
+CALL-70089,Commercial,Sales Queue,No,39,Resolved,N,Tier2,2025-02-02 04:11:00,
+CALL-70090,Residential,After Hours,Yes,341,Voicemail,Y,South,2025-02-02 04:30:00,100.13
+CALL-70091,Support,Sales Queue,Yes,282,Resolved,N,Overflow,2025-02-02 04:49:00,27.91
+CALL-70092,Support,Overflow,No,37,Resolved,N,South,2025-02-02 05:08:00,
+CALL-70093,Commercial,Sales Queue,No,8,Voicemail,N,Overflow,2025-02-02 05:27:00,
+CALL-70094,Support,After Hours,No,23,Busy,Y,South,2025-02-02 05:46:00,
+CALL-70095,Residential,Priority,No,33,Escalated,N,North,2025-02-02 06:05:00,
+CALL-70096,Support,Overflow,Yes,382,Escalated,N,Overflow,2025-02-02 06:24:00,7.12
+CALL-70097,Commercial,Overflow,Yes,309,Escalated,N,South,2025-02-02 06:43:00,21.15
+CALL-70098,Support,After Hours,Yes,1282,Escalated,Y,Overflow,2025-02-02 07:02:00,8.67
+CALL-70099,Support,Sales Queue,Yes,1690,Busy,N,Tier2,2025-02-02 07:21:00,27.42
+CALL-70100,Commercial,Priority,No,7,No Agent,N,Tier2,2025-02-02 07:40:00,
+CALL-70101,Residential,General Support,No,10,Resolved,Y,Tier2,2025-02-02 07:59:00,
+CALL-70102,Residential,General Support,No,29,Voicemail,Y,South,2025-02-02 08:18:00,
+CALL-70103,Support,After Hours,No,40,Busy,Y,Tier2,2025-02-02 08:37:00,
+CALL-70104,Support,General Support,No,36,Abandoned,Y,Overflow,2025-02-02 08:56:00,
+CALL-70105,Commercial,Priority,Yes,887,No Agent,Y,Overflow,2025-02-02 09:15:00,62.51
+CALL-70106,Commercial,General Support,No,38,Resolved,Y,Overflow,2025-02-02 09:34:00,
+CALL-70107,VIP,Sales Queue,Yes,925,Escalated,Y,North,2025-02-02 09:53:00,34.6
+CALL-70108,Commercial,Priority,No,30,Voicemail,N,North,2025-02-02 10:12:00,
+CALL-70109,Residential,After Hours,No,40,Abandoned,Y,Tier2,2025-02-02 10:31:00,
+CALL-70110,Commercial,Priority,Yes,0,Resolved,Y,Tier2,2025-02-02 10:50:00,64.96
+CALL-70111,Commercial,General Support,No,23,No Agent,Y,South,2025-02-02 11:09:00,
+CALL-70112,VIP,Priority,Yes,157,Busy,N,Tier2,2025-02-02 11:28:00,107.03
+CALL-70113,Commercial,General Support,Yes,319,No Agent,Y,North,2025-02-02 11:47:00,75.68
+CALL-70114,Residential,After Hours,No,33,Resolved,Y,Overflow,2025-02-02 12:06:00,
+CALL-70115,Commercial,After Hours,Yes,634,Escalated,Y,Tier2,2025-02-02 12:25:00,116.72
+CALL-70116,Residential,Sales Queue,No,27,Resolved,N,South,2025-02-02 12:44:00,
+CALL-70117,VIP,Priority,No,34,Escalated,Y,North,2025-02-02 13:03:00,
+CALL-70118,Residential,Sales Queue,Yes,162,No Agent,N,South,2025-02-02 13:22:00,107.16
+CALL-70119,Commercial,Sales Queue,No,28,Voicemail,N,Tier2,2025-02-02 13:41:00,
+CALL-70120,Residential,Overflow,No,7,Busy,N,Overflow,2025-02-02 14:00:00,
+CALL-70121,VIP,After Hours,No,15,Escalated,Y,South,2025-02-02 14:19:00,
+CALL-70122,VIP,Overflow,Yes,289,No Agent,Y,South,2025-02-02 14:38:00,31.16
+CALL-70123,Commercial,General Support,No,11,Resolved,Y,North,2025-02-02 14:57:00,
+CALL-70124,Support,Priority,No,1,No Agent,N,South,2025-02-02 15:16:00,
+CALL-70125,Commercial,Overflow,Yes,1721,No Agent,Y,North,2025-02-02 15:35:00,43.71
+CALL-70126,Residential,General Support,Yes,7,Resolved,Y,Overflow,2025-02-02 15:54:00,25.96
+CALL-70127,VIP,Priority,Yes,1023,Resolved,N,South,2025-02-02 16:13:00,34.42
+CALL-70128,VIP,Priority,Yes,1835,Voicemail,N,Tier2,2025-02-02 16:32:00,61.43
+CALL-70129,Commercial,After Hours,Yes,1994,Abandoned,N,Tier2,2025-02-02 16:51:00,55.55
+CALL-70130,VIP,After Hours,No,19,Abandoned,N,South,2025-02-02 17:10:00,
+CALL-70131,VIP,General Support,No,6,No Agent,N,South,2025-02-02 17:29:00,
+CALL-70132,Support,Sales Queue,No,7,Voicemail,Y,Overflow,2025-02-02 17:48:00,
+CALL-70133,Residential,General Support,No,14,Resolved,N,South,2025-02-02 18:07:00,
+CALL-70134,Residential,After Hours,Yes,438,Voicemail,Y,Tier2,2025-02-02 18:26:00,32.76
+CALL-70135,Support,General Support,No,21,Busy,Y,Overflow,2025-02-02 18:45:00,
+CALL-70136,Commercial,General Support,Yes,835,Abandoned,Y,Tier2,2025-02-02 19:04:00,22.27
+CALL-70137,VIP,After Hours,Yes,105,No Agent,Y,North,2025-02-02 19:23:00,27.33
+CALL-70138,VIP,Priority,No,40,Escalated,Y,Tier2,2025-02-02 19:42:00,
+CALL-70139,VIP,Overflow,No,24,Busy,N,North,2025-02-02 20:01:00,
+OPS-EDGE-1,Commercial,Sales Queue,No,0,No Agent,Y,Overflow,2025-04-18 14:22:00,450

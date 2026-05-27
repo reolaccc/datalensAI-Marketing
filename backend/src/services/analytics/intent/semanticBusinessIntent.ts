@@ -171,6 +171,11 @@ function metricIsAvailable(metric: string, availableMetrics: string[]) {
   return availableMetricMatches(metric, availableMetrics) || hasDerivedSupport(metric, availableMetrics);
 }
 
+function hasQualifiedEfficiencySignal(question: string) {
+  return /\b(qualified calls?|qualified leads?|lead efficiency|sales qualified calls?)\b/.test(question) &&
+    /\b(efficient|efficiency|efficiently|best|top|lowest|highest)\b/.test(question);
+}
+
 function resolveSemanticMetrics(rules: SemanticRule[], availableMetrics: string[]) {
   const resolved = rules.flatMap((rule) =>
     rule.metricSignals
@@ -214,6 +219,14 @@ export function detectSemanticBusinessIntent(
 
   const prioritizedRules = matchedRule ? [matchedRule] : [];
   const metricSignals = matchedRule ? resolveSemanticMetrics(prioritizedRules, context.availableMetrics) : [];
+  if (hasQualifiedEfficiencySignal(normalizedQuestion)) {
+    const preferredSignals: SemanticMetricSignal[] = [
+      { metric: "cost_per_qualified_call", direction: "low" as const, weight: 0.42 },
+      { metric: "qualified_call_rate", direction: "high" as const, weight: 0.28 },
+      { metric: "qualifiedCall", direction: "high" as const, weight: 0.18 }
+    ].filter((signal) => metricIsAvailable(signal.metric, context.availableMetrics));
+    metricSignals.unshift(...preferredSignals);
+  }
   const dimensionHints = matchedRule?.dimensionHints.filter((hint) =>
     context.availableDimensions.some((dimension) => normalize(dimension).includes(normalize(hint)))
   ) ?? [];

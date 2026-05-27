@@ -257,7 +257,7 @@ function isRevenueMetric(value?: string | null) {
 }
 
 function isEfficiencyMetric(value?: string | null) {
-  return Boolean(value) && ["roas", "spend", "efficiency"].some((label) => normalizeName(value ?? "").includes(label));
+  return Boolean(value) && ["roas", "spend", "efficiency", "cost per", "cost_per", "cpqc", "cpa", "cpc"].some((label) => normalizeName(value ?? "").includes(label));
 }
 
 function isConversionMetric(value?: string | null) {
@@ -511,11 +511,17 @@ function buildChartObservation(
   if (isEfficiencyMetric(chart.metric)) {
     const top = summary.top;
     const bottom = summary.bottom;
-    const topLabel = top?.label ?? "the leading segment";
-    const topValue = top ? formatObservationValue(metricLabel, top.value) : null;
-    const bottomText = bottom && bottom.label !== top?.label ? ` ${bottom.label} sits lowest, which is where the budget pressure is highest.` : "";
-    return topValue
-      ? `${metricLabel} is strongest in ${topLabel} at ${topValue}, so efficiency should be judged against scale rather than volume alone.${bottomText}`
+    const lowerIsBetter = /cost per|cpc|cpa/i.test(metricLabel.toLowerCase());
+    const leader = lowerIsBetter ? bottom : top;
+    const laggard = lowerIsBetter ? top : bottom;
+    const leaderLabel = leader?.label ?? "the leading segment";
+    const leaderValue = leader ? formatObservationValue(metricLabel, leader.value) : null;
+    const laggardText =
+      laggard && laggard.label !== leader?.label
+        ? ` ${laggard.label} sits ${lowerIsBetter ? "highest" : "lowest"}, which is where the budget pressure is highest.`
+        : "";
+    return leaderValue
+      ? `${metricLabel} is strongest in ${leaderLabel} at ${leaderValue}, so efficiency should be judged against scale rather than volume alone.${laggardText}`
       : `${metricLabel} varies across segments, so the budget story depends on which channel or campaign leads.`;
   }
 

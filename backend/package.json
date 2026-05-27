@@ -7,6 +7,7 @@
     "dev": "node --watch --import tsx src/index.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/src/index.js",
+    "test": "node --test --import tsx tests/**/*.test.ts",
     "eval": "npm run build && node dist/evaluations/runEvaluations.js && node dist/evaluations/runQuestionEvaluations.js && node dist/evaluations/runChartSelectionEvaluations.js"
   },
   "dependencies": {

@@ -1,6 +1,11 @@
 import type { ChartConfig, DatasetCapabilities, DatasetProfile, DatasetRow, PrimitiveValue } from "../../../analytics/types.js";
 import { parseDateValue, parseNumber } from "../../../utils/inference.js";
 import {
+  aggregateSemanticMetric,
+  detectCallDatasetGrain,
+  getCpqcRowReliability,
+  getRoasRowReliability,
+  hasReliablePaidSpend,
   normalizeSemanticDimensionValue,
   resolveSemanticMetricValue
 } from "../../../analytics/semanticContract.js";
@@ -28,6 +33,31 @@ function isRatioMetric(metric: string) {
   ].includes(metric);
 }
 
+function usesSemanticGroupedRatio(metric: string) {
+  return [
+    "roas",
+    "cost_per_qualified_call",
+    "cost_per_conversion",
+    "cost_per_call"
+  ].includes(metric);
+}
+
+function shouldPreserveNullSemanticRatioGroup(
+  metric: string,
+  rows: DatasetRow[],
+  profile: DatasetProfile
+) {
+  if (metric === "cost_per_qualified_call") {
+    return rows.some((row) => getCpqcRowReliability(row, profile).hasReliablePaid);
+  }
+
+  return false;
+}
+
+function allowsZeroDenominatorRows(metric: string) {
+  return metric === "cost_per_qualified_call" || metric === "cost_per_conversion" || metric === "cost_per_call";
+}
+
 function resolveRatioMetricParts(
   row: DatasetRow,
   metric: string,
@@ -38,21 +68,35 @@ function resolveRatioMetricParts(
 
   switch (metric) {
     case "roas": {
+      const roasReliability = getRoasRowReliability(row, profile);
+      if (!roasReliability.contributesToRoasAggregate) {
+        return null;
+      }
       const numerator = resolve("revenue");
       const denominator = resolve("spend");
       return numerator === null || denominator === null ? null : { numerator, denominator, scale: 1 };
     }
     case "cost_per_qualified_call": {
+      const cpqcReliability = getCpqcRowReliability(row, profile);
+      if (!cpqcReliability.contributesToCpqcAggregate) {
+        return null;
+      }
       const numerator = resolve("spend");
       const denominator = resolve("qualifiedCall");
       return numerator === null || denominator === null ? null : { numerator, denominator, scale: 1 };
     }
     case "cost_per_conversion": {
+      if (!hasReliablePaidSpend(row, profile)) {
+        return null;
+      }
       const numerator = resolve("spend");
       const denominator = resolve("convertedCall");
       return numerator === null || denominator === null ? null : { numerator, denominator, scale: 1 };
     }
     case "cost_per_call": {
+      if (!hasReliablePaidSpend(row, profile)) {
+        return null;
+      }
       const numerator = resolve("spend");
       const denominator = resolve("calls");
       return numerator === null || denominator === null ? null : { numerator, denominator, scale: 1 };
@@ -148,13 +192,20 @@ export function resolveMetricValue(
   capabilities: DatasetCapabilities,
   profile: DatasetProfile
 ): number | null {
-  if (metric === "row_count" || metric === "calls") {
+  if (metric === "row_count") {
     return 1;
   }
 
-  const directValue = resolveSemanticMetricValue(row, metric, profile.semanticContract ?? profile);
+  const directValue = resolveSemanticMetricValue(row, metric, profile);
   if (directValue !== null) {
     return directValue;
+  }
+
+  if (metric === "calls") {
+    if (detectCallDatasetGrain(profile) === "aggregated_call_summary") {
+      return null;
+    }
+    return 1;
   }
 
   if (metric === "roas" && capabilities.derivedMetrics.includes("roas")) {
@@ -186,13 +237,49 @@ export function aggregateByDate(
   profile: DatasetProfile,
   groupBy?: string | null
 ) {
+  if (isRatioMetric(metric) && usesSemanticGroupedRatio(metric)) {
+    const grouped = new Map<string, Map<string, DatasetRow[]>>();
+
+    for (const row of rows) {
+      const date = parseDateValue(row[dateField]);
+      if (!date) {
+        continue;
+      }
+
+      const dateKey = date.toISOString().slice(0, 10);
+      const groupKey = groupBy ? String(row[groupBy] ?? "Unknown") : metric;
+      const bucket = grouped.get(dateKey) ?? new Map<string, DatasetRow[]>();
+      const bucketRows = bucket.get(groupKey) ?? [];
+      bucketRows.push(row);
+      bucket.set(groupKey, bucketRows);
+      grouped.set(dateKey, bucket);
+    }
+
+    return [...grouped.entries()]
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([date, values]) => ({
+        date,
+        ...Object.fromEntries(
+          [...values.entries()]
+            .map(([key, bucketRows]) => {
+              const aggregatedValue = aggregateSemanticMetric(bucketRows, metric, profile);
+              if (aggregatedValue === null && !shouldPreserveNullSemanticRatioGroup(metric, bucketRows, profile)) {
+                return null;
+              }
+              return [key, aggregatedValue] as const;
+            })
+            .filter((entry): entry is readonly [string, number | null] => entry !== null)
+        )
+      }));
+  }
+
   if (isRatioMetric(metric)) {
     const grouped = new Map<string, Map<string, { numerator: number; denominator: number; scale: number }>>();
 
     for (const row of rows) {
       const date = parseDateValue(row[dateField]);
       const ratioParts = resolveRatioMetricParts(row, metric, capabilities, profile);
-      if (!date || !ratioParts || ratioParts.denominator <= 0) {
+      if (!date || !ratioParts || ratioParts.denominator < 0 || (!allowsZeroDenominatorRows(metric) && ratioParts.denominator <= 0)) {
         continue;
       }
 
@@ -213,7 +300,7 @@ export function aggregateByDate(
         ...Object.fromEntries(
           [...values.entries()].map(([key, value]) => [
             key,
-            value.denominator > 0 ? Number(((value.numerator / value.denominator) * value.scale).toFixed(2)) : 0
+            value.denominator > 0 ? Number(((value.numerator / value.denominator) * value.scale).toFixed(2)) : null
           ])
         )
       }));
@@ -251,13 +338,59 @@ export function aggregateByDimension(
   profile: DatasetProfile,
   groupBy?: string | null
 ) {
+  if (isRatioMetric(metric) && usesSemanticGroupedRatio(metric)) {
+    const grouped = new Map<string, Map<string, DatasetRow[]>>();
+
+    for (const row of rows) {
+      const dimensionValue = row[dimension];
+      if (dimensionValue === null || dimensionValue === "") {
+        continue;
+      }
+
+      const dimensionKey = String(normalizeSemanticDimensionValue(dimensionValue, dimension, profile.semanticContract ?? profile));
+      const groupKey = groupBy ? String(row[groupBy] ?? "Unknown") : metric;
+      const bucket = grouped.get(dimensionKey) ?? new Map<string, DatasetRow[]>();
+      const bucketRows = bucket.get(groupKey) ?? [];
+      bucketRows.push(row);
+      bucket.set(groupKey, bucketRows);
+      grouped.set(dimensionKey, bucket);
+    }
+
+    return [...grouped.entries()]
+      .map(([dimensionValue, values]) => {
+        const aggregatedEntries = [...values.entries()]
+          .map(([key, bucketRows]) => {
+            const aggregatedValue = aggregateSemanticMetric(bucketRows, metric, profile);
+            if (aggregatedValue === null && !shouldPreserveNullSemanticRatioGroup(metric, bucketRows, profile)) {
+              return null;
+            }
+            return [key, aggregatedValue] as const;
+          })
+          .filter((entry): entry is readonly [string, number | null] => entry !== null);
+        if (aggregatedEntries.length === 0) {
+          return null;
+        }
+        return {
+          [dimension]: dimensionValue,
+          ...Object.fromEntries(aggregatedEntries)
+        };
+      })
+      .filter((entry): entry is Record<string, string | number | null> => entry !== null);
+  }
+
   if (isRatioMetric(metric)) {
     const grouped = new Map<string, Map<string, { numerator: number; denominator: number; scale: number }>>();
 
     for (const row of rows) {
       const dimensionValue = row[dimension];
       const ratioParts = resolveRatioMetricParts(row, metric, capabilities, profile);
-      if (dimensionValue === null || dimensionValue === "" || !ratioParts || ratioParts.denominator <= 0) {
+      if (
+        dimensionValue === null ||
+        dimensionValue === "" ||
+        !ratioParts ||
+        ratioParts.denominator < 0 ||
+        (!allowsZeroDenominatorRows(metric) && ratioParts.denominator <= 0)
+      ) {
         continue;
       }
 
@@ -276,7 +409,7 @@ export function aggregateByDimension(
       ...Object.fromEntries(
         [...values.entries()].map(([key, value]) => [
           key,
-          value.denominator > 0 ? Number(((value.numerator / value.denominator) * value.scale).toFixed(2)) : 0
+          value.denominator > 0 ? Number(((value.numerator / value.denominator) * value.scale).toFixed(2)) : null
         ])
       )
     }));

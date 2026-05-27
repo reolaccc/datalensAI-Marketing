@@ -96,6 +96,7 @@ export interface ColumnProfile {
 export interface AnalysisResponse {
   analysisId: string;
   fileName: string;
+  dataSummaryNotes?: string[];
   datasetSummary: {
     rowCount: number;
     columnCount: number;

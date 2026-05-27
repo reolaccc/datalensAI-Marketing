@@ -1,0 +1,87 @@
+phone_enquiry_ref,lead_origin,sales_stage,estimated_value,marketing_cost_est,agent_queue,customer_journey,created_on
+ENQ-30000,Unknown Source,No Response,,,Team B,Callback,01-02-2025
+ENQ-30001,SEO Discovery,Quoted,,,VIP,Inbound Call,01-05-2025
+ENQ-30002,Referral Contact,Won,,,Team B,Web Form,16-04-2025
+ENQ-30003,Unknown Source,Won,,,Overflow,Inbound Call,02-04-2025
+ENQ-30004,Walk-In,Booked Consult,,,Team A,Web Form,13-03-2025
+ENQ-30005,Partner Network,No Response,,,Team A,SMS,08-03-2025
+ENQ-30006,Google Lead Form,Booked Consult,,488.71,Overflow,Callback,28-01-2025
+ENQ-30007,SEO Discovery,Booked Consult,,,Team B,Callback,05-01-2025
+ENQ-30008,Walk-In,Discovery,,,VIP,Inbound Call,30-04-2025
+ENQ-30009,Unknown Source,Quoted,,,Team A,SMS,12-02-2025
+ENQ-30010,SEO Discovery,No Response,,,Team A,Callback,26-02-2025
+ENQ-30011,Meta Instant Form,No Response,,415.19,Team B,Web Form,01-05-2025
+ENQ-30012,Referral Contact,Discovery,,,Team B,SMS,16-01-2025
+ENQ-30013,Walk-In,Quoted,,,Team B,Callback,22-02-2025
+ENQ-30014,SEO Discovery,Won,9385.1,,Team B,Web Form,16-01-2025
+ENQ-30015,Existing Customer,Qualified Opportunity,991.75,,Team A,Web Form,28-01-2025
+ENQ-30016,Unknown Source,No Response,,,VIP,SMS,23-02-2025
+ENQ-30017,Existing Customer,Quoted,,,Team A,Web Form,03-04-2025
+ENQ-30018,Unknown Source,Booked Consult,,,Team B,Web Form,14-01-2025
+ENQ-30019,Existing Customer,Won,,,Team B,SMS,07-02-2025
+ENQ-30020,Referral Contact,Quoted,,,VIP,Web Form,09-01-2025
+ENQ-30021,Meta Instant Form,Follow Up,,397.28,Team B,Web Form,25-02-2025
+ENQ-30022,Meta Instant Form,No Response,,484.54,Team B,Web Form,18-02-2025
+ENQ-30023,Referral Contact,Won,,,Overflow,Inbound Call,27-03-2025
+ENQ-30024,Existing Customer,Lost,,,Team B,Callback,12-04-2025
+ENQ-30025,Meta Instant Form,No Response,,375.36,Team B,SMS,21-04-2025
+ENQ-30026,Existing Customer,No Response,,0,Team B,Inbound Call,08-03-2025
+ENQ-30027,Meta Instant Form,Qualified Opportunity,,262.89,Team B,Web Form,06-04-2025
+ENQ-30028,Unknown Source,Booked Consult,,,Overflow,Callback,05-04-2025
+ENQ-30029,Partner Network,Quoted,,,Team A,Inbound Call,08-01-2025
+ENQ-30030,Unknown Source,Lost,,,Overflow,Callback,07-04-2025
+ENQ-30031,Walk-In,No Response,,,Team B,Web Form,28-02-2025
+ENQ-30032,Existing Customer,Qualified Opportunity,,,VIP,SMS,13-03-2025
+ENQ-30033,SEO Discovery,Follow Up,,,Overflow,SMS,15-03-2025
+ENQ-30034,Unknown Source,Qualified Opportunity,,,VIP,SMS,27-03-2025
+ENQ-30035,SEO Discovery,Quoted,,,VIP,Inbound Call,15-01-2025
+ENQ-30036,Existing Customer,Booked Consult,,0,Team A,Web Form,23-03-2025
+ENQ-30037,Partner Network,Follow Up,,,Team B,Callback,17-03-2025
+ENQ-30038,Partner Network,No Response,,0,Overflow,Callback,13-03-2025
+ENQ-30039,Meta Instant Form,Qualified Opportunity,14130.53,421.35,Team B,Callback,15-01-2025
+ENQ-30040,Referral Contact,Qualified Opportunity,,,Team A,Callback,10-04-2025
+ENQ-30041,SEO Discovery,Follow Up,,,Team A,Inbound Call,03-04-2025
+ENQ-30042,SEO Discovery,Qualified Opportunity,13857.96,,VIP,Callback,15-02-2025
+ENQ-30043,Google Lead Form,Qualified Opportunity,6689.32,179.94,VIP,Callback,09-02-2025
+ENQ-30044,SEO Discovery,Quoted,,,Team A,Callback,18-02-2025
+ENQ-30045,Walk-In,Won,,,Team A,Callback,23-04-2025
+ENQ-30046,SEO Discovery,Booked Consult,,,Overflow,Inbound Call,16-03-2025
+ENQ-30047,Unknown Source,Discovery,,,Team B,Callback,01-05-2025
+ENQ-30048,Partner Network,Lost,,,Overflow,Web Form,16-01-2025
+ENQ-30049,Referral Contact,No Response,,,Team A,Web Form,21-01-2025
+ENQ-30050,Existing Customer,Follow Up,,,Team A,SMS,15-04-2025
+ENQ-30051,Meta Instant Form,Won,,280.77,Team A,Web Form,05-04-2025
+ENQ-30052,Unknown Source,No Response,,,Team B,Callback,09-03-2025
+ENQ-30053,Unknown Source,Discovery,,,Overflow,Callback,18-04-2025
+ENQ-30054,Walk-In,No Response,,0,Team A,Callback,17-01-2025
+ENQ-30055,SEO Discovery,Lost,,0,Overflow,Callback,16-03-2025
+ENQ-30056,Unknown Source,Qualified Opportunity,,0,VIP,SMS,10-01-2025
+ENQ-30057,SEO Discovery,Won,16571.16,,Team A,Web Form,06-03-2025
+ENQ-30058,SEO Discovery,Won,13106.06,,Team A,SMS,20-03-2025
+ENQ-30059,Google Lead Form,Qualified Opportunity,,80.29,Team B,Callback,18-04-2025
+ENQ-30060,Meta Instant Form,Qualified Opportunity,,330.96,Team A,Callback,31-01-2025
+ENQ-30061,Google Lead Form,No Response,,206.78,Team A,Callback,02-02-2025
+ENQ-30062,Existing Customer,Follow Up,,,Team A,Inbound Call,01-05-2025
+ENQ-30063,Partner Network,No Response,,0,Team B,Inbound Call,26-03-2025
+ENQ-30064,Meta Instant Form,Qualified Opportunity,,145.09,Overflow,Inbound Call,15-03-2025
+ENQ-30065,Meta Instant Form,Won,6726.59,366.96,Team B,Web Form,09-03-2025
+ENQ-30066,Meta Instant Form,Won,,234.41,Team A,Web Form,30-01-2025
+ENQ-30067,SEO Discovery,Quoted,,,VIP,Inbound Call,15-02-2025
+ENQ-30068,Existing Customer,No Response,,,Team B,Inbound Call,03-01-2025
+ENQ-30069,Partner Network,Qualified Opportunity,5201.81,,Team A,Inbound Call,25-02-2025
+ENQ-30070,Walk-In,No Response,,,Overflow,SMS,24-02-2025
+ENQ-30071,Unknown Source,Lost,,,Overflow,Inbound Call,04-02-2025
+ENQ-30072,Google Lead Form,Quoted,,466.21,Team B,Web Form,11-02-2025
+ENQ-30073,Walk-In,Lost,,,Team B,Callback,26-02-2025
+ENQ-30074,Referral Contact,Discovery,,,Overflow,Inbound Call,10-04-2025
+ENQ-30075,Unknown Source,Quoted,,,Overflow,SMS,08-04-2025
+ENQ-30076,Referral Contact,No Response,,,Overflow,Callback,19-03-2025
+ENQ-30077,Walk-In,Lost,,,Team B,Inbound Call,17-03-2025
+ENQ-30078,Meta Instant Form,Booked Consult,,375.21,Overflow,Inbound Call,31-03-2025
+ENQ-30079,Partner Network,Discovery,,,Team B,SMS,25-01-2025
+ENQ-30080,Unknown Source,Discovery,,0,Overflow,Callback,27-01-2025
+ENQ-30081,Walk-In,Discovery,,,Overflow,Callback,18-04-2025
+ENQ-30082,SEO Discovery,Lost,,,VIP,Inbound Call,09-02-2025
+ENQ-30083,SEO Discovery,No Response,,,Team A,Inbound Call,04-02-2025
+ENQ-30084,Meta Instant Form,Lost,,426.7,Team B,Web Form,04-04-2025
+EDGE-CRM-1,Mystery Channel,Won,24000,,VIP,Inbound Call,14-04-2025

@@ -1,0 +1,4 @@
+Call ID,Call Datetime,Caller Number,Call Duration (sec),Disposition,Source / Medium,Ad Spend ($)
+A-1001,2026-05-01 09:30,0412345678,180,Qualified Lead,Google Ads,$120
+A-1002,2026-05-01 10:15,0412345679,45,Missed,SEO Organic,
+A-1003,2026-05-01 11:00,0412345680,240,Closed Won,Meta Ads,$180

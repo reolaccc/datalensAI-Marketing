@@ -3,6 +3,7 @@ import type {
   DatasetProfile,
   DatasetRow
 } from "../analytics/types.js";
+import { buildCleanedDatasetProfile } from "../analytics/normalization/index.js";
 import { buildSemanticDatasetContract } from "../analytics/semanticContract.js";
 import {
   median,
@@ -119,6 +120,7 @@ function getOutliers(column: DatasetColumnProfile, values: number[]) {
 
 export function profileDataset(rows: DatasetRow[]): DatasetProfile {
   const headers = Object.keys(rows[0] ?? {});
+  const normalizedProfile = buildCleanedDatasetProfile(rows);
   const columns = headers.map((header) => {
     const values = rows.map((row) => row[header] ?? null);
     const kind = detectColumnKind(values);
@@ -174,7 +176,7 @@ export function profileDataset(rows: DatasetRow[]): DatasetProfile {
     }
   }
 
-  return {
+  const profileWithoutSemantic: DatasetProfile = {
     rowCount: rows.length,
     columnCount: headers.length,
     duplicateRowCount,
@@ -185,17 +187,11 @@ export function profileDataset(rows: DatasetRow[]): DatasetProfile {
     columns,
     outliers,
     correlations,
-    semanticContract: buildSemanticDatasetContract({
-      rowCount: rows.length,
-      columnCount: headers.length,
-      duplicateRowCount,
-      missingCells,
-      numericColumns: numericColumns.map((column) => column.name),
-      categoricalColumns,
-      datetimeColumns,
-      columns,
-      outliers,
-      correlations
-    })
+    normalizedProfile
+  };
+
+  return {
+    ...profileWithoutSemantic,
+    semanticContract: buildSemanticDatasetContract(profileWithoutSemantic)
   };
 }

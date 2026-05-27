@@ -1,3 +1,5 @@
+import type { CleanedDatasetProfile } from "./normalization/types.js";
+
 export type PrimitiveValue = string | number | boolean | null;
 
 export type DatasetRow = Record<string, PrimitiveValue>;
@@ -37,6 +39,7 @@ export interface DatasetProfile {
     y: string;
     coefficient: number;
   }>;
+  normalizedProfile?: CleanedDatasetProfile;
   semanticContract?: SemanticDatasetContract;
 }
 
@@ -262,6 +265,7 @@ export interface ChartConfig {
 export interface AnalysisResult {
   analysisId: string;
   fileName: string;
+  dataSummaryNotes?: string[];
   datasetSummary: {
     rowCount: number;
     columnCount: number;
