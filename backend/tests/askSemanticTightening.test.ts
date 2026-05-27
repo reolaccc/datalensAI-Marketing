@@ -91,3 +91,11 @@ test("trust explanations for generic business metrics stay grounded on the reque
   assert.equal(answer.chartSuggestion, undefined);
   assert.equal(answer.recommendedCharts?.length ?? 0, 0);
 });
+
+test("trusted wording routes to trust explanation mode", () => {
+  const context = loadContext("datasets/blind-qa/blind_test_v4_weird_crm_export.csv");
+  const trustedQuestion = buildTrustedQuestionFacts("Can ROAS be trusted for this dataset?", context);
+
+  assert.equal(trustedQuestion.facts.routing.mode, "trust");
+  assert.notEqual(trustedQuestion.facts.answer.mode, "ranking");
+});

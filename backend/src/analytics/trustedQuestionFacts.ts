@@ -51,7 +51,11 @@ function detectTrustRouting(question: string) {
   const normalizedQuestion = normalizeMetricText(question);
   const reasons: string[] = [];
 
-  if (/\breliab/i.test(normalizedQuestion) || normalizedQuestion.includes("trustworthy") || normalizedQuestion.includes("trust limitation")) {
+  if (
+    /\breliab/i.test(normalizedQuestion) ||
+    /\btrust(ed|worthy|worthiness)?\b/i.test(normalizedQuestion) ||
+    normalizedQuestion.includes("trust limitation")
+  ) {
     reasons.push("reliability");
   }
   if (normalizedQuestion.includes("caveat") || normalizedQuestion.includes("limitation")) {
