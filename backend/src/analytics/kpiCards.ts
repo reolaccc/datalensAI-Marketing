@@ -700,6 +700,7 @@ function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): Kpi
   const roleSet = buildSemanticRoleSet(profile);
   const businessMode = getCallKpiMode(profile, roleSet);
   const callFocusedPriority = hasStrongCallTrackingSignals(roleSet);
+  const attributionCopy = businessMode === "attribution";
   const enabledSemanticKpiKeys = new Set(profile.semanticContract.enabledKpis?.map((item) => item.key) ?? []);
   const cards: MetricObservation[] = [];
   const calls = aggregateSemanticMetric(rows, "calls", profile);
@@ -751,7 +752,9 @@ function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): Kpi
         metricType: "count",
         unit: "calls",
         formula: explicitCallsColumn ? `sum(${explicitCallsColumn})` : callIdColumn ? "count(callId)" : "count(rows)",
-        description: "Total tracked calls across marketing channels.",
+        description: attributionCopy
+          ? "Total tracked calls across marketing channels."
+          : "Total call activity captured in the dataset.",
         sourceColumns: [explicitCallsColumn ?? callIdColumn ?? "calls"],
         priority: 100,
         profile,
@@ -795,7 +798,9 @@ function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): Kpi
         metricType: "count",
         unit: "qualified calls",
         formula: "sum(qualifiedCall)",
-        description: "Calls identified as qualified sales opportunities.",
+        description: attributionCopy
+          ? "Calls identified as qualified sales opportunities."
+          : "Calls counted by the dataset's qualified-call field.",
         sourceColumns: [findSemanticSourceColumn(profile, "qualifiedCall") ?? "qualifiedCall"],
         priority: 94,
         profile,
@@ -831,7 +836,9 @@ function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): Kpi
         metricType: "percentage",
         unit: "%",
         formula: "qualifiedCalls / totalCalls",
-        description: "Share of calls that were marked as qualified.",
+        description: attributionCopy
+          ? "Share of calls that were marked as qualified."
+          : "Share of calls counted by the qualified-call field.",
         sourceColumns: [findSemanticSourceColumn(profile, "qualifiedCall") ?? "qualifiedCall"],
         priority: 90,
         profile,
@@ -849,7 +856,9 @@ function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): Kpi
         metricType: "percentage",
         unit: "%",
         formula: "convertedCalls / totalCalls",
-        description: "Share of calls that became conversions.",
+        description: attributionCopy
+          ? "Share of calls that became conversions."
+          : "Share of calls counted by the conversion field.",
         sourceColumns: [findSemanticSourceColumn(profile, "convertedCall") ?? "convertedCall"],
         priority: 89,
         profile,
@@ -867,7 +876,9 @@ function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): Kpi
         metricType: "currency",
         unit: "",
         formula: "sum(revenue)",
-        description: "Revenue attributed to tracked marketing calls.",
+        description: attributionCopy
+          ? "Revenue attributed to tracked marketing calls."
+          : "Revenue total captured in the dataset.",
         sourceColumns: [findSemanticSourceColumn(profile, "revenue") ?? "revenue"],
         priority: 98,
         profile,
@@ -885,7 +896,9 @@ function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): Kpi
         metricType: "currency",
         unit: "",
         formula: "sum(spend)",
-        description: "Marketing spend attributed to tracked campaigns.",
+        description: attributionCopy
+          ? "Marketing spend attributed to tracked campaigns."
+          : "Cost or spend total captured in the dataset.",
         sourceColumns: [findSemanticSourceColumn(profile, "spend") ?? "spend"],
         priority: 95,
         profile,
@@ -903,7 +916,9 @@ function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): Kpi
         metricType: "ratio",
         unit: "x",
         formula: "revenue / spend",
-        description: "Revenue generated for every dollar spent on marketing.",
+        description: attributionCopy
+          ? "Revenue generated for every dollar spent on marketing."
+          : "Revenue divided by spend where both fields are available.",
         sourceColumns: [findSemanticSourceColumn(profile, "revenue") ?? "revenue", findSemanticSourceColumn(profile, "spend") ?? "spend"],
         priority: 97,
         profile,
@@ -939,7 +954,9 @@ function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): Kpi
         metricType: "currency",
         unit: "",
         formula: "spend / totalCalls",
-        description: "Average spend required to generate a tracked call.",
+        description: attributionCopy
+          ? "Average spend required to generate a tracked call."
+          : "Cost or spend divided by call activity.",
         sourceColumns: [findSemanticSourceColumn(profile, "spend") ?? "spend"],
         priority: 86,
         profile,
@@ -957,7 +974,9 @@ function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): Kpi
         metricType: "currency",
         unit: "",
         formula: "spend / qualifiedCalls",
-        description: "Average spend required to generate a qualified call.",
+        description: attributionCopy
+          ? "Average spend required to generate a qualified call."
+          : "Cost or spend divided by calls counted as qualified.",
         sourceColumns: [findSemanticSourceColumn(profile, "spend") ?? "spend", findSemanticSourceColumn(profile, "qualifiedCall") ?? "qualifiedCall"],
         priority: 85,
         profile,
@@ -975,7 +994,9 @@ function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): Kpi
         metricType: "currency",
         unit: "",
         formula: "spend / convertedCalls",
-        description: "Average spend required to generate a converted call.",
+        description: attributionCopy
+          ? "Average spend required to generate a converted call."
+          : "Cost or spend divided by calls counted as converted.",
         sourceColumns: [findSemanticSourceColumn(profile, "spend") ?? "spend", findSemanticSourceColumn(profile, "convertedCall") ?? "convertedCall"],
         priority: 84,
         profile,

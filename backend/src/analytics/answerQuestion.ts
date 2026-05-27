@@ -11,6 +11,7 @@ import {
   generateChartExplanations
 } from "../llm/insightService.js";
 import { buildTrustedQuestionFacts } from "./trustedQuestionFacts.js";
+import { filterValidatedSuggestedQuestionTexts } from "./suggestedQuestionsNative.js";
 
 interface QuestionContext {
   fileName?: string;
@@ -362,6 +363,15 @@ export async function answerDatasetQuestion(question: string, context: QuestionC
   const trustedQuestion = buildTrustedQuestionFacts(question, context);
   const kpis = detectKpis(context.rows, context.profile);
   const chartSelection = selectChartsFromTrustedFacts(trustedQuestion.facts, context, kpis, trustedQuestion.queryAnswer);
+  const validatedFollowUps = filterValidatedSuggestedQuestionTexts(
+    chartSelection.followUps.filter((followUp) => followUp.trim().toLowerCase() !== question.trim().toLowerCase()),
+    {
+      rows: context.rows,
+      profile: context.profile,
+      input: context.input
+    },
+    4
+  ).questions;
   const alignedChartSuggestion = buildAlignedChartSuggestion(trustedQuestion.queryAnswer.chartSuggestion, trustedQuestion.facts.chartSupportRequest);
   const facts = buildAnalyticsFactsFromAnalysis({
     fileName: context.fileName ?? "dataset",
@@ -394,7 +404,7 @@ export async function answerDatasetQuestion(question: string, context: QuestionC
     chartSelectionSummary: chartSelection.summary,
     chartSelectionExplanation: chartSelection.explanation,
     chartSelectionWarnings: chartSelection.warnings,
-    suggestedFollowUps: chartSelection.followUps,
+    suggestedFollowUps: validatedFollowUps,
     recommendedCharts: chartSelection.charts,
     context: context.input,
     facts
@@ -423,7 +433,7 @@ export async function answerDatasetQuestion(question: string, context: QuestionC
     analysisSummary: narrative.analysisSummary,
     chartSelectionSummary: narrative.chartSelectionSummary,
     missingFieldWarnings: chartSelection.warnings,
-    suggestedFollowUps: chartSelection.followUps,
+    suggestedFollowUps: validatedFollowUps,
     chartSuggestion: alignedChartSuggestion,
     recommendedCharts: chartsWithNarratives,
     narrative: {

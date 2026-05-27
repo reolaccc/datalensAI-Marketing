@@ -17,7 +17,7 @@ import {
   mapExecutiveInsightToLegacy
 } from "../llm/insightService.js";
 import { applyChartRecommendations } from "./analytics/recommendations/ChartRecommendationBuilder.js";
-import { buildSafeSuggestedQuestions } from "../analytics/suggestedQuestions.js";
+import { buildNativeSuggestedQuestions } from "../analytics/suggestedQuestionsNative.js";
 
 export async function analyzeUploadedDataset(buffer: Buffer, fileName: string): Promise<AnalysisResult> {
   const parsed = parseDataset(buffer, fileName);
@@ -50,8 +50,7 @@ export async function analyzeUploadedDataset(buffer: Buffer, fileName: string): 
     generateChartExplanations(facts, charts)
   ]);
   const executiveSummary = mapExecutiveInsightToLegacy(executiveSummaryNarrative);
-  const safeSuggestedQuestions = buildSafeSuggestedQuestions(
-    executiveSummary.suggestedQuestions,
+  const nativeSuggestedQuestions = buildNativeSuggestedQuestions(
     {
       rows: parsed.rows,
       profile,
@@ -59,7 +58,7 @@ export async function analyzeUploadedDataset(buffer: Buffer, fileName: string): 
     },
     5
   );
-  executiveSummary.suggestedQuestions = safeSuggestedQuestions.questions;
+  executiveSummary.suggestedQuestions = nativeSuggestedQuestions.questions;
   const chartsWithNarratives = applyChartNarratives(charts, chartNarratives);
   const chartsWithRecommendations = applyChartRecommendations(chartsWithNarratives);
 
