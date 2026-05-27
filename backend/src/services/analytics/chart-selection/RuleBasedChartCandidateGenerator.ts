@@ -1,6 +1,6 @@
 import { resolveSemanticDimensionSourceColumn } from "../../../analytics/semanticContract.js";
 import { resolveMetricValue } from "./chartDataUtils.js";
-import type { ChartAnalysisRole, ChartBlueprint, ChartSelectionContext, ChartSemanticRole } from "./chartSelectionTypes.js";
+import type { ChartAnalysisRole, ChartBlueprint, ChartBusinessArea, ChartSelectionContext, ChartSemanticRole } from "./chartSelectionTypes.js";
 
 const FORBIDDEN_RELATIONSHIP_METRIC_KEYS = new Set([
   "qualifiedcall",
@@ -420,6 +420,80 @@ function isOperationsOnlyContext(context: ChartSelectionContext) {
   return (domain === "call_tracking" || domain === "call_operations") && !hasMarketingValueMetric;
 }
 
+function isCallTrackingBusinessContext(context: ChartSelectionContext) {
+  const domain = context.capabilities.semanticContract?.detectedDomain?.domain;
+  return (
+    domain === "call_tracking" ||
+    domain === "call_operations" ||
+    domain === "marketing_attribution" ||
+    domain === "mixed_call_tracking_attribution"
+  );
+}
+
+function isCallTrackingAttributionContext(context: ChartSelectionContext) {
+  return isCallTrackingBusinessContext(context) && !isOperationsOnlyContext(context);
+}
+
+function hasStrongCallTrackingChartSignals(context: ChartSelectionContext) {
+  return (
+    hasMetricCapability(context, "calls") ||
+    hasMetricCapability(context, "qualifiedCall") ||
+    hasMetricCapability(context, "missedCall") ||
+    hasMetricCapability(context, "repeat_caller_rate") ||
+    Boolean(semanticDimensionColumn(context, ["callOutcome", "callStatus", "location", "queue", "branch"]))
+  );
+}
+
+function hasMetricCapability(context: ChartSelectionContext, metric: string) {
+  return [...context.capabilities.numericMetrics, ...context.capabilities.derivedMetrics].includes(metric);
+}
+
+function pickDimensionByHints(context: ChartSelectionContext, hints: string[]) {
+  const normalizedHints = hints.map((hint) => normalize(hint));
+  const dimensions = context.capabilities.categoricalDimensions;
+  return (
+    dimensions.find((dimension) => {
+      const normalizedDimension = normalize(dimension);
+      return normalizedHints.some((hint) => normalizedDimension.includes(hint));
+    }) ?? null
+  );
+}
+
+function preferredAttributionVolumeDimension(context: ChartSelectionContext) {
+  return (
+    semanticDimensionColumn(context, ["marketingChannel", "channel", "source", "campaignName", "campaign"]) ??
+    pickDimensionByHints(context, ["channel", "campaign", "source", "medium"]) ??
+    context.capabilities.defaultDimension
+  );
+}
+
+function preferredAttributionOperationsDimension(context: ChartSelectionContext) {
+  return (
+    semanticDimensionColumn(context, ["location", "branch", "queue", "accountName", "account"]) ??
+    pickDimensionByHints(context, ["location", "branch", "queue", "account"]) ??
+    preferredAttributionVolumeDimension(context)
+  );
+}
+
+function preferredAttributionPerformanceDimension(context: ChartSelectionContext) {
+  return (
+    semanticDimensionColumn(context, ["campaignName", "campaign", "marketingChannel", "channel", "source", "medium"]) ??
+    pickDimensionByHints(context, ["campaign", "channel", "source", "medium"]) ??
+    context.capabilities.defaultDimension
+  );
+}
+
+function preferredAttributionOutcomeMetric(context: ChartSelectionContext) {
+  if (hasMetricCapability(context, "roas")) {
+    return "roas";
+  }
+  return ["revenue", "convertedCall"].find((metric) => hasMetricCapability(context, metric)) ?? null;
+}
+
+function preferredAttributionEfficiencyMetric(context: ChartSelectionContext) {
+  return ["cost_per_qualified_call", "cost_per_conversion", "roas", "spend"].find((metric) => hasMetricCapability(context, metric)) ?? null;
+}
+
 function maybeAddOperationsOverviewCandidates(
   candidates: ChartBlueprint[],
   context: ChartSelectionContext,
@@ -447,7 +521,8 @@ function maybeAddOperationsOverviewCandidates(
       filters: [],
       priority: 100,
       semanticRole: "main_answer",
-      analysisRole: "trend"
+      analysisRole: "trend",
+      businessArea: "volume"
     });
   }
 
@@ -468,7 +543,30 @@ function maybeAddOperationsOverviewCandidates(
       filters: [],
       priority: 92,
       semanticRole: "supporting_comparison",
-      analysisRole: "comparison"
+      analysisRole: "comparison",
+      businessArea: "quality"
+    });
+  }
+
+  if (locationDimension) {
+    pushCandidate(candidates, {
+      chartType: preferredComparisonChartType(context, locationDimension),
+      intent: "comparison",
+      title: "calls by location",
+      description: "Compare call volume across business locations or queues.",
+      reason: "Location volume helps teams see where demand and staffing pressure are concentrated.",
+      whyThisChart: "Operations dashboards should include one segment view for where calls are landing.",
+      metric: "calls",
+      dimension: locationDimension,
+      xAxis: locationDimension,
+      yAxis: "calls",
+      sort: "desc",
+      limit: 8,
+      filters: [],
+      priority: 88,
+      semanticRole: "supporting_comparison",
+      analysisRole: "comparison",
+      businessArea: "volume"
     });
   }
 
@@ -489,7 +587,8 @@ function maybeAddOperationsOverviewCandidates(
       filters: [],
       priority: 84,
       semanticRole: "trend_or_distribution",
-      analysisRole: "comparison"
+      analysisRole: "comparison",
+      businessArea: "operations"
     });
   }
 
@@ -511,7 +610,257 @@ function maybeAddOperationsOverviewCandidates(
       filters: [],
       priority: 76,
       semanticRole: "diagnostic",
-      analysisRole: "comparison"
+      analysisRole: "comparison",
+      businessArea: "operations"
+    });
+  }
+}
+
+function maybeAddCallTrackingAttributionOverviewCandidates(
+  candidates: ChartBlueprint[],
+  context: ChartSelectionContext,
+  dateField: string | null
+) {
+  const volumeDimension = preferredAttributionVolumeDimension(context);
+  const performanceDimension = preferredAttributionPerformanceDimension(context);
+  const operationsDimension = preferredAttributionOperationsDimension(context);
+  const outcomeMetric = preferredAttributionOutcomeMetric(context);
+  const efficiencyMetric = preferredAttributionEfficiencyMetric(context);
+
+  if (dateField && hasMetricCapability(context, "calls")) {
+    pushCandidate(candidates, {
+      chartType: "line",
+      intent: "general_overview",
+      title: "calls over time",
+      description: "Track overall call volume across time.",
+      reason: "Call volume is the clearest starting point for an attribution dashboard.",
+      whyThisChart: "Call-tracking dashboards should open with demand volume before drilling into efficiency or revenue.",
+      metric: "calls",
+      xAxis: dateField,
+      yAxis: "calls",
+      limit: 0,
+      filters: [],
+      priority: 100,
+      semanticRole: "main_answer",
+      analysisRole: "trend",
+      businessArea: "volume"
+    });
+  }
+
+  if (performanceDimension && hasMetricCapability(context, "qualifiedCall")) {
+    pushCandidate(candidates, {
+      chartType: preferredComparisonChartType(context, performanceDimension),
+      intent: "comparison",
+      title: "Qualified Calls by Campaign",
+      description: "Compare qualified call volume across the strongest performance segment.",
+      reason: "This shows which sources produce calls that are actually sales-relevant.",
+      whyThisChart: "A call-tracking dashboard should separate call quality from raw volume.",
+      metric: "qualifiedCall",
+      dimension: performanceDimension,
+      xAxis: performanceDimension,
+      yAxis: "qualifiedCall",
+      sort: "desc",
+      limit: 8,
+      filters: [],
+      priority: 96,
+      semanticRole: "supporting_comparison",
+      analysisRole: "comparison",
+      businessArea: "quality"
+    });
+  } else if (performanceDimension && hasMetricCapability(context, "convertedCall")) {
+    pushCandidate(candidates, {
+      chartType: preferredComparisonChartType(context, performanceDimension),
+      intent: "comparison",
+      title: "Converted Calls by Campaign",
+      description: "Compare converted call volume across the strongest performance segment.",
+      reason: "This highlights which sources turn demand into completed outcomes.",
+      whyThisChart: "When qualified-call fields are not available, converted calls are the closest quality signal.",
+      metric: "convertedCall",
+      dimension: performanceDimension,
+      xAxis: performanceDimension,
+      yAxis: "convertedCall",
+      sort: "desc",
+      limit: 8,
+      filters: [],
+      priority: 94,
+      semanticRole: "supporting_comparison",
+      analysisRole: "comparison",
+      businessArea: "conversion"
+    });
+  }
+
+  if (efficiencyMetric && performanceDimension) {
+    pushCandidate(candidates, {
+      chartType: preferredComparisonChartType(context, performanceDimension),
+      intent: "efficiency_analysis",
+      title:
+        efficiencyMetric === "cost_per_qualified_call"
+          ? "Cost per Qualified Call by Campaign"
+          : efficiencyMetric === "cost_per_conversion"
+            ? "Cost per Conversion by Campaign"
+            : efficiencyMetric === "roas"
+              ? "ROAS by Campaign"
+              : "Spend by Campaign",
+      description:
+        efficiencyMetric === "cost_per_qualified_call"
+          ? "Compare the cost required to generate a qualified call."
+          : efficiencyMetric === "cost_per_conversion"
+            ? "Compare the cost required to generate a converted call."
+            : efficiencyMetric === "roas"
+              ? "Compare return on ad spend across the strongest performance segment."
+              : "Show where budget is concentrated.",
+      reason:
+        efficiencyMetric === "spend"
+          ? "This gives spend context without letting it dominate the dashboard."
+          : "This highlights which campaigns are most cost-efficient.",
+      whyThisChart:
+        efficiencyMetric === "spend"
+          ? "Spend should only appear as supporting context when stronger efficiency metrics are unavailable."
+          : "Call-tracking dashboards should show budget efficiency, not just raw spend.",
+      metric: efficiencyMetric,
+      dimension: performanceDimension,
+      xAxis: performanceDimension,
+      yAxis: efficiencyMetric,
+      sort: efficiencyMetric === "cost_per_qualified_call" || efficiencyMetric === "cost_per_conversion" || efficiencyMetric === "cost_per_call" ? "asc" : "desc",
+      limit: 8,
+      filters: [],
+      priority: 92,
+      semanticRole: "trend_or_distribution",
+      analysisRole: "efficiency",
+      businessArea: "efficiency"
+    });
+  }
+
+  if (hasMetricCapability(context, "spend") && hasMetricCapability(context, "qualifiedCall")) {
+    const addedScatter = maybeAddScatterCandidate(candidates, context, {
+      chartType: "scatter",
+      intent: "efficiency_analysis",
+      title: "Qualified Calls vs Spend",
+      description: "Compare spend against qualified call volume.",
+      reason: "This highlights where budget is generating meaningful call quality instead of volume alone.",
+      whyThisChart: "Call-tracking dashboards need one efficiency relationship view when the data supports it.",
+      metric: "spend",
+      secondaryMetric: "qualifiedCall",
+      xAxis: "spend",
+      yAxis: "qualifiedCall",
+      limit: 0,
+      filters: [],
+      priority: 84,
+      semanticRole: "diagnostic",
+      analysisRole: "efficiency",
+      businessArea: "efficiency"
+    });
+    if (!addedScatter && performanceDimension && hasMetricCapability(context, "spend") && efficiencyMetric !== "spend") {
+      pushCandidate(candidates, {
+        chartType: preferredComparisonChartType(context, performanceDimension),
+        intent: "efficiency_analysis",
+        title: "Spend by Campaign",
+        description: "Show where budget is concentrated.",
+        reason: "This keeps spend visible without letting it dominate the dashboard.",
+        whyThisChart: "Spend should only appear as supporting context when paired with stronger call-tracking charts.",
+        metric: "spend",
+        dimension: performanceDimension,
+        xAxis: performanceDimension,
+        yAxis: "spend",
+        sort: "desc",
+        limit: 8,
+        filters: [],
+        priority: 74,
+        semanticRole: "diagnostic",
+        analysisRole: "efficiency",
+        businessArea: "efficiency"
+      });
+    }
+  }
+
+  if (performanceDimension && hasMetricCapability(context, "convertedCall")) {
+    pushCandidate(candidates, {
+      chartType: preferredComparisonChartType(context, performanceDimension),
+      intent: "comparison",
+      title: "Converted Calls by Campaign",
+      description: "Compare converted call volume across the strongest performance segment.",
+      reason: "This answers which campaigns actually convert best.",
+      whyThisChart: "Converted calls are the clearest conversion chart when explicit conversion-rate metrics are unavailable.",
+      metric: "convertedCall",
+      dimension: performanceDimension,
+      xAxis: performanceDimension,
+      yAxis: "convertedCall",
+      sort: "desc",
+      limit: 8,
+      filters: [],
+      priority: 90,
+      semanticRole: "trend_or_distribution",
+      analysisRole: "comparison",
+      businessArea: "conversion"
+    });
+  }
+
+  if (performanceDimension && outcomeMetric && outcomeMetric !== "roas") {
+    pushCandidate(candidates, {
+      chartType: preferredComparisonChartType(context, performanceDimension),
+      intent: "comparison",
+      title: `${outcomeMetric} by ${performanceDimension}`,
+      description: `Compare ${outcomeMetric} across the strongest performance segment.`,
+      reason: "This keeps commercial outcome visible alongside call volume and efficiency.",
+      whyThisChart: "Revenue should appear as an outcome view, not as the entire dashboard story.",
+      metric: outcomeMetric,
+      dimension: performanceDimension,
+      xAxis: performanceDimension,
+      yAxis: outcomeMetric,
+      sort: "desc",
+      limit: 8,
+      filters: [],
+      priority: 78,
+      semanticRole: "diagnostic",
+      analysisRole: "comparison",
+      businessArea: "outcome"
+    });
+  }
+
+  if (operationsDimension && hasMetricCapability(context, "missedCall")) {
+    pushCandidate(candidates, {
+      chartType: preferredComparisonChartType(context, operationsDimension),
+      intent: "comparison",
+      title: "Missed Calls by Location",
+      description: "Show where missed calls are concentrated.",
+      reason: "Missed calls highlight where opportunity is leaking after demand is created.",
+      whyThisChart: "Attribution dashboards should still surface operational loss when the field exists.",
+      metric: "missedCall",
+      dimension: operationsDimension,
+      xAxis: operationsDimension,
+      yAxis: "missedCall",
+      sort: "desc",
+      limit: 8,
+      filters: [],
+      priority: 84,
+      semanticRole: "diagnostic",
+      analysisRole: "comparison",
+      businessArea: "operations"
+    });
+  }
+
+  const durationMetric = ["talkTime", "handleTime", "waitTime", "ringTime"].find((metric) =>
+    hasMetricCapability(context, metric)
+  );
+  if (durationMetric && operationsDimension) {
+    pushCandidate(candidates, {
+      chartType: preferredComparisonChartType(context, operationsDimension),
+      intent: "comparison",
+      title: `${durationMetric} by ${operationsDimension}`,
+      description: "Show where call handling load is heaviest.",
+      reason: "Duration helps expose operational drag even when missed-call data is unavailable.",
+      whyThisChart: "Operations risk can also appear through unusually long call handling or wait times.",
+      metric: durationMetric,
+      dimension: operationsDimension,
+      xAxis: operationsDimension,
+      yAxis: durationMetric,
+      sort: "desc",
+      limit: 8,
+      filters: [],
+      priority: 80,
+      semanticRole: "diagnostic",
+      analysisRole: "comparison",
+      businessArea: "operations"
     });
   }
 }
@@ -554,14 +903,23 @@ function inferAnalysisRole(input: Omit<ChartBlueprint, "id" | "score">): ChartAn
 function createBlueprint(
   input: Omit<ChartBlueprint, "id" | "score">
 ): ChartBlueprint {
+  const normalizedAxes =
+    input.chartType === "horizontal_bar" && input.metric && input.dimension
+      ? {
+          ...input,
+          xAxis: input.metric,
+          yAxis: input.dimension
+        }
+      : input;
+
   return {
-    id: `${input.chartType}-${input.metric ?? "none"}-${input.dimension ?? "none"}-${input.groupBy ?? "none"}`,
-    analysisRole: input.analysisRole ?? inferAnalysisRole(input),
+    id: `${normalizedAxes.chartType}-${normalizedAxes.metric ?? "none"}-${normalizedAxes.dimension ?? "none"}-${normalizedAxes.groupBy ?? "none"}`,
+    analysisRole: normalizedAxes.analysisRole ?? inferAnalysisRole(normalizedAxes),
     businessQuestionAnswered:
-      input.businessQuestionAnswered ??
-      buildBusinessQuestionAnswered(input.metric ?? null, input.dimension ?? input.groupBy ?? null, input.semanticRole),
-    score: input.priority,
-    ...input
+      normalizedAxes.businessQuestionAnswered ??
+      buildBusinessQuestionAnswered(normalizedAxes.metric ?? null, normalizedAxes.dimension ?? normalizedAxes.groupBy ?? null, normalizedAxes.semanticRole),
+    score: normalizedAxes.priority,
+    ...normalizedAxes
   };
 }
 
@@ -1373,6 +1731,11 @@ export function generateRuleBasedChartCandidates(context: ChartSelectionContext)
         break;
       }
 
+      if (isCallTrackingAttributionContext(context) && hasStrongCallTrackingChartSignals(context)) {
+        maybeAddCallTrackingAttributionOverviewCandidates(candidates, context, dateField);
+        break;
+      }
+
       if (dateField) {
         candidates.push(
           createBlueprint({
@@ -1388,7 +1751,8 @@ export function generateRuleBasedChartCandidates(context: ChartSelectionContext)
             limit: 0,
             filters: [],
             priority: 95,
-            semanticRole: "main_answer"
+            semanticRole: "main_answer",
+            businessArea: isCallTrackingAttributionContext(context) ? "outcome" : undefined
           })
         );
       }
@@ -1418,7 +1782,8 @@ export function generateRuleBasedChartCandidates(context: ChartSelectionContext)
               limit: 10,
               filters: [],
               priority: 85,
-              semanticRole: "supporting_comparison"
+              semanticRole: "supporting_comparison",
+              businessArea: isCallTrackingAttributionContext(context) ? "outcome" : undefined
             })
           );
         }
@@ -1437,7 +1802,8 @@ export function generateRuleBasedChartCandidates(context: ChartSelectionContext)
           limit: 0,
           filters: [],
           priority: 72,
-          semanticRole: "trend_or_distribution"
+          semanticRole: "trend_or_distribution",
+          businessArea: isCallTrackingAttributionContext(context) ? "outcome" : undefined
         })
       );
       if (secondaryMetric) {

@@ -103,6 +103,25 @@ type SemanticSafetyDecision = {
 
 const BOOLEAN_TRUE_VALUES = new Set(["true", "yes", "y", "1", "qualified", "converted", "answered", "booked"]);
 const BOOLEAN_FALSE_VALUES = new Set(["false", "no", "n", "0", "unqualified", "not qualified", "missed", "not answered"]);
+const QUALIFIED_OUTCOME_PATTERNS = [
+  /\bqualified lead\b/i,
+  /\bbooked appointment\b/i,
+  /\bclosed won\b/i,
+  /\bconverted\b/i,
+  /\bsale\b/i,
+  /\bquote sent\b/i
+];
+const CONVERTED_OUTCOME_PATTERNS = [/\bclosed won\b/i, /\bconverted\b/i, /\bsale\b/i];
+const MISSED_OUTCOME_PATTERNS = [/\bmissed\b/i, /\babandoned\b/i, /\bno answer\b/i, /\bvoicemail\b/i, /\bhung up\b/i];
+const ANSWERED_OUTCOME_PATTERNS = [
+  /\binbound\b/i,
+  /\boutbound\b/i,
+  /\banswered\b/i,
+  /\bconnected\b/i,
+  /\bqualified lead\b/i,
+  /\bbooked appointment\b/i,
+  /\bclosed won\b/i
+];
 const FLAG_ROLE_KEYS = new Set(["qualifiedCall", "convertedCall", "missedCall", "answeredCall", "firstTimeCaller", "repeatCaller"]);
 const IDENTIFIER_ROLE_KEYS = new Set(["callId", "trackingNumber", "callerNumber", "destinationNumber"]);
 const CHANNEL_ALIAS_MAP: Array<{ matchers: RegExp[]; label: string }> = [
@@ -312,7 +331,7 @@ const ROLE_SPECS: RoleSpec[] = [
   },
   {
     key: "callStatus",
-    aliases: ["call status", "status", "call outcome status", "disposition"],
+    aliases: ["call status", "status", "call outcome status", "disposition", "call direction", "direction", "call type"],
     kind: "dimension",
     expectedKinds: ["categorical"],
     legacyDimensionKey: "callStatus",
@@ -426,7 +445,21 @@ const ROLE_SPECS: RoleSpec[] = [
   },
   {
     key: "revenue",
-    aliases: ["revenue", "sales value", "sales_value", "sales", "deal value", "deal_value", "value"],
+    aliases: [
+      "revenue",
+      "revenue value",
+      "revenue_value",
+      "sale value",
+      "sale_value",
+      "sales value",
+      "sales_value",
+      "sales",
+      "deal value",
+      "deal_value",
+      "booking value",
+      "booking_value",
+      "value"
+    ],
     kind: "metric",
     expectedKinds: ["numeric"],
     legacyMetricKey: "revenue"
@@ -745,13 +778,81 @@ function inferSaferMetricRole(column: DatasetColumnProfile) {
   if (/\blead value\b|\blead_value\b/i.test(normalized)) {
     return "leadValue";
   }
-  if (/\bsales value\b|\bsales_value\b|\border value\b|\border_value\b/i.test(normalized)) {
+  if (/\bsale value\b|\bsale_value\b|\bsales value\b|\bsales_value\b|\border value\b|\border_value\b/i.test(normalized)) {
     return "salesValue";
   }
-  if (/\bconversion value\b|\bconversion_value\b|\bjob value\b|\bjob_value\b|\bdeal value\b|\bdeal_value\b|\brevenue value\b|\brevenue_value\b/i.test(normalized)) {
+  if (/\bconversion value\b|\bconversion_value\b|\bjob value\b|\bjob_value\b|\bdeal value\b|\bdeal_value\b|\bbooking value\b|\bbooking_value\b|\brevenue value\b|\brevenue_value\b|\bsale value\b|\bsale_value\b/i.test(normalized)) {
     return "revenue";
   }
   return null;
+}
+
+function matchesAnyPattern(value: string, patterns: RegExp[]) {
+  return patterns.some((pattern) => pattern.test(value));
+}
+
+function classifyOutcomeSemanticRole(value: PrimitiveValue, semanticRole: string) {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const normalized = normalizeName(value);
+  if (!normalized) {
+    return null;
+  }
+
+  if (semanticRole === "qualifiedCall") {
+    return matchesAnyPattern(normalized, QUALIFIED_OUTCOME_PATTERNS) ? 1 : 0;
+  }
+
+  if (semanticRole === "convertedCall") {
+    return matchesAnyPattern(normalized, CONVERTED_OUTCOME_PATTERNS) ? 1 : 0;
+  }
+
+  if (semanticRole === "missedCall") {
+    return matchesAnyPattern(normalized, MISSED_OUTCOME_PATTERNS) ? 1 : 0;
+  }
+
+  if (semanticRole === "answeredCall") {
+    if (matchesAnyPattern(normalized, MISSED_OUTCOME_PATTERNS)) {
+      return 0;
+    }
+    return matchesAnyPattern(normalized, ANSWERED_OUTCOME_PATTERNS) ? 1 : 0;
+  }
+
+  return null;
+}
+
+function deriveOutcomeFlagMapping(params: {
+  column: DatasetColumnProfile;
+  semanticRole: "qualifiedCall" | "convertedCall" | "missedCall" | "answeredCall";
+  evidenceLabel: string;
+}) {
+  const samples = collectSampleStrings(params.column);
+  if (samples.length === 0) {
+    return null;
+  }
+
+  const classifiedValues = samples
+    .map((sample) => classifyOutcomeSemanticRole(sample, params.semanticRole))
+    .filter((value): value is 0 | 1 => value !== null);
+  const positiveMatches = classifiedValues.filter((value) => value === 1).length;
+
+  if (positiveMatches === 0) {
+    return null;
+  }
+
+  const confidenceBase = params.semanticRole === "qualifiedCall" ? 0.88 : params.semanticRole === "missedCall" ? 0.9 : 0.82;
+  return {
+    rawColumn: params.column.name,
+    semanticRole: params.semanticRole,
+    confidence: Number(Math.min(0.96, confidenceBase + Math.min(0.06, positiveMatches * 0.01)).toFixed(2)),
+    kind: "flag" as const,
+    evidence: [
+      `${params.evidenceLabel} contains recognizable ${params.semanticRole} outcome values`,
+      `Examples matched the ${params.semanticRole} outcome pattern`
+    ]
+  };
 }
 
 function inferSaferDatetimeRole(column: DatasetColumnProfile) {
@@ -902,6 +1003,7 @@ function inferRoleMapping(column: DatasetColumnProfile): SemanticRoleMapping {
   const hasAccountSignalInName = /\b(account|client|customer|business|advertiser|brand|company)\b/.test(normalizedName);
   const hasRepeatCustomerSignalInName = /\b(repeat|returning|existing)\b/.test(normalizedName) && /\b(customer|caller)\b/.test(normalizedName);
   const hasRefSignalInName = /\b(ref|reference|uuid|interaction|session|enquiry|inquiry)\b/.test(normalizedName);
+  const hasDirectionSignalInName = /\b(direction|call direction|call type|type)\b/.test(normalizedName);
   const hasRecordingSignalInName = /\b(recording|audio|ivr)\b/.test(normalizedName);
   const hasPaidMediaCostSignalInName = /\b(ad|media|campaign|marketing|paid)\b/.test(normalizedName) && /\b(cost|spend)\b/.test(normalizedName);
   const hasIdentifierSignalInName = nameTokens.includes("id") || /\b(id|identifier|number|no)\b/.test(normalizedName);
@@ -960,6 +1062,16 @@ function inferRoleMapping(column: DatasetColumnProfile): SemanticRoleMapping {
     if (spec.key === "callId" && !hasRefSignalInName && !/\b(call|interaction|lead|session|enquiry|inquiry)\b/.test(normalizedName)) {
       score -= 2.4;
       evidence.push("Call identifier inference needs a stronger call-specific naming signal");
+    }
+
+    if (spec.key === "callId" && hasDirectionSignalInName) {
+      score -= 3.2;
+      evidence.push("Direction-style naming weakens the call-identifier interpretation");
+    }
+
+    if (spec.key === "callStatus" && hasDirectionSignalInName) {
+      score += 2.4;
+      evidence.push("Direction-style naming strongly suggests a call status or outcome field");
     }
 
     if (["callerNumber", "trackingNumber", "destinationNumber"].includes(spec.key) && hasRefSignalInName) {
@@ -1054,6 +1166,64 @@ function chooseBestRoleMappings(roleMappings: SemanticRoleMapping[]) {
   }
 
   return bestByRole;
+}
+
+function augmentOutcomeFlagMappings(roleMappings: SemanticRoleMapping[], profile: DatasetProfile) {
+  const columnsByName = new Map(profile.columns.map((column) => [column.name, column]));
+  const candidateColumns = roleMappings
+    .filter(
+      (mapping) =>
+        mapping.semanticRole === "callStatus" ||
+        mapping.semanticRole === "callOutcome" ||
+        normalizeName(mapping.rawColumn).includes("disposition") ||
+        normalizeName(mapping.rawColumn).includes("direction")
+    )
+    .map((mapping) => columnsByName.get(mapping.rawColumn))
+    .filter((column): column is DatasetColumnProfile => Boolean(column));
+
+  const derivedMappings: SemanticRoleMapping[] = [];
+
+  for (const column of candidateColumns) {
+    const evidenceLabel = normalizeName(column.name).includes("direction") ? "Direction field" : "Outcome field";
+
+    const qualifiedMapping = deriveOutcomeFlagMapping({
+      column,
+      semanticRole: "qualifiedCall",
+      evidenceLabel
+    });
+    if (qualifiedMapping) {
+      derivedMappings.push(qualifiedMapping);
+    }
+
+    const convertedMapping = deriveOutcomeFlagMapping({
+      column,
+      semanticRole: "convertedCall",
+      evidenceLabel
+    });
+    if (convertedMapping) {
+      derivedMappings.push(convertedMapping);
+    }
+
+    const missedMapping = deriveOutcomeFlagMapping({
+      column,
+      semanticRole: "missedCall",
+      evidenceLabel
+    });
+    if (missedMapping) {
+      derivedMappings.push(missedMapping);
+    }
+
+    const answeredMapping = deriveOutcomeFlagMapping({
+      column,
+      semanticRole: "answeredCall",
+      evidenceLabel
+    });
+    if (answeredMapping) {
+      derivedMappings.push(answeredMapping);
+    }
+  }
+
+  return [...roleMappings, ...derivedMappings];
 }
 
 function buildMetricResolutionFromRole(mapping: SemanticRoleMapping, spec: RoleSpec): SemanticMetricResolution | null {
@@ -1294,7 +1464,7 @@ function buildSafetyNormalizedRoleMappings(roleMappings: SemanticRoleMapping[], 
   };
 }
 
-function parseFlagValue(value: PrimitiveValue) {
+function parseFlagValue(value: PrimitiveValue, semanticRole?: string) {
   if (typeof value === "boolean") {
     return value ? 1 : 0;
   }
@@ -1314,20 +1484,25 @@ function parseFlagValue(value: PrimitiveValue) {
     }
   }
 
+  if (semanticRole) {
+    return classifyOutcomeSemanticRole(value, semanticRole);
+  }
+
   return null;
 }
 
 export function buildSemanticDatasetContract(profile: DatasetProfile): SemanticDatasetContract {
   const initialRoleMappings = profile.columns.map(inferRoleMapping);
   const { roleMappings, safetyWarnings } = buildSafetyNormalizedRoleMappings(initialRoleMappings, profile);
-  const bestRoleMappings = chooseBestRoleMappings(roleMappings);
+  const augmentedRoleMappings = augmentOutcomeFlagMappings(roleMappings, profile);
+  const bestRoleMappings = chooseBestRoleMappings(augmentedRoleMappings);
   const metricResolutions: Record<string, SemanticMetricResolution> = {};
   const dimensionResolutions: Record<string, SemanticDimensionResolution> = {};
   const sourceToCanonical: Record<string, string> = {};
   const sourceToSemanticRole: Record<string, string> = {};
 
-  for (const mapping of roleMappings) {
-    if (mapping.semanticRole) {
+  for (const mapping of augmentedRoleMappings) {
+    if (mapping.semanticRole && !sourceToSemanticRole[normalizeName(mapping.rawColumn)]) {
       sourceToSemanticRole[normalizeName(mapping.rawColumn)] = mapping.semanticRole;
     }
   }
@@ -1341,13 +1516,13 @@ export function buildSemanticDatasetContract(profile: DatasetProfile): SemanticD
     const metricResolution = buildMetricResolutionFromRole(mapping, spec);
     if (metricResolution) {
       metricResolutions[metricResolution.key] = metricResolution;
-      sourceToCanonical[normalizeName(mapping.rawColumn)] = metricResolution.key;
+      sourceToCanonical[normalizeName(mapping.rawColumn)] ??= metricResolution.key;
     }
 
     const dimensionResolution = buildDimensionResolutionFromRole(mapping, spec);
     if (dimensionResolution) {
       dimensionResolutions[dimensionResolution.key] = dimensionResolution;
-      sourceToCanonical[normalizeName(mapping.rawColumn)] = dimensionResolution.key;
+      sourceToCanonical[normalizeName(mapping.rawColumn)] ??= dimensionResolution.key;
     }
   }
 
@@ -1428,7 +1603,7 @@ export function buildSemanticDatasetContract(profile: DatasetProfile): SemanticD
       .map((resolution) => resolution.key),
     sourceToCanonical,
     sourceToSemanticRole,
-    roleMappings,
+    roleMappings: augmentedRoleMappings,
     detectedDomain,
     enabledKpis: kpiAvailability.filter((item) => item.status === "enabled"),
     disabledKpis: kpiAvailability.filter((item) => item.status === "disabled"),
@@ -1589,7 +1764,7 @@ export function resolveSemanticMetricValue(
     if (!sourceColumn) {
       return null;
     }
-    const flagValue = parseFlagValue(row[sourceColumn]);
+    const flagValue = parseFlagValue(row[sourceColumn], canonicalMetric);
     return flagValue === null ? null : flagValue;
   }
 

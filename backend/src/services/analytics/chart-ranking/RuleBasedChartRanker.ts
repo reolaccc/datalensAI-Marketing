@@ -91,14 +91,18 @@ function semanticKey(chart: ChartConfig) {
   return chart.semanticSignature ?? meaningKey(chart);
 }
 
-function roleQuota(role: ReturnType<typeof inferAnalysisRole>, intent: IntentDetectionResult) {
+function roleQuota(
+  role: ReturnType<typeof inferAnalysisRole>,
+  intent: IntentDetectionResult,
+  hasBusinessCoverage = false
+) {
   switch (role) {
     case "composition":
       return 1;
     case "trend":
       return intent.primaryIntent === "trend_analysis" ? 2 : 1;
     case "comparison":
-      return 2;
+      return hasBusinessCoverage ? 3 : 2;
     case "efficiency":
       return 1;
     case "relationship":
@@ -133,6 +137,17 @@ function countSameChartType(selected: ChartConfig[], chartType: string) {
   return selected.filter((chart) => chart.chartType === chartType).length;
 }
 
+function countSameBusinessArea(
+  selected: ChartConfig[],
+  businessArea?: ChartConfig["businessArea"]
+) {
+  if (!businessArea) {
+    return 0;
+  }
+
+  return selected.filter((chart) => chart.businessArea === businessArea).length;
+}
+
 function sameBarFamilyPair(selected: ChartConfig[], candidate: ChartConfig) {
   if (!candidate.metric || !candidate.dimension || !BAR_FAMILY.has(candidate.chartType)) {
     return false;
@@ -151,6 +166,7 @@ function diversityScore(candidate: ChartConfig, selected: ChartConfig[], roleCou
   const metricCount = countSameMetric(selected, candidate.metric);
   const dimensionCount = countSameDimension(selected, candidate.dimension);
   const chartTypeCount = countSameChartType(selected, candidate.chartType);
+  const businessAreaCount = countSameBusinessArea(selected, candidate.businessArea);
   const hasSameRole = (roleCounts.get(role) ?? 0) > 0;
 
   let score = 0;
@@ -197,6 +213,16 @@ function diversityScore(candidate: ChartConfig, selected: ChartConfig[], roleCou
     score -= 20;
   }
 
+  if (candidate.businessArea) {
+    if (businessAreaCount === 0) {
+      score += 20;
+    } else if (businessAreaCount === 1) {
+      score -= 8;
+    } else {
+      score -= 24;
+    }
+  }
+
   return score;
 }
 
@@ -208,26 +234,59 @@ function buildSelectionOrder(intent: IntentDetectionResult) {
   return ["trend", "composition", "comparison", "efficiency", "relationship", "funnel", "anomaly", "distribution", "diagnostic"] as const;
 }
 
-export function rankRuleBasedCharts(
-  charts: ChartConfig[],
-  intent: IntentDetectionResult
-): ChartConfig[] {
-  const scoredCharts = charts
+function buildScoredCharts(charts: ChartConfig[], intent: IntentDetectionResult) {
+  return charts
     .map((chart) => ({
       chart,
       baseScore: scoreChart(chart, intent),
       role: inferAnalysisRole(chart)
     }))
     .sort((left, right) => right.baseScore - left.baseScore);
+}
 
+function summarizeChart(chart: ChartConfig) {
+  return {
+    id: chart.id,
+    title: chart.title,
+    chartType: chart.chartType,
+    metric: chart.metric ?? null,
+    dimension: chart.dimension ?? null,
+    businessArea: chart.businessArea ?? null,
+    analysisRole: chart.analysisRole ?? null,
+    reason: chart.reason,
+    whyThisChart: chart.whyThisChart
+  };
+}
+
+function selectChartsWithDebug(
+  scoredCharts: ReturnType<typeof buildScoredCharts>,
+  intent: IntentDetectionResult,
+  hasBusinessCoverage: boolean
+) {
   const selected: ChartConfig[] = [];
   const seenSignatures = new Set<string>();
   const roleCounts = new Map<string, number>();
   const roleOrder = buildSelectionOrder(intent);
+  const decisionLog: Array<{
+    id: string;
+    title: string;
+    chartType: string;
+    metric: string | null;
+    dimension: string | null;
+    businessArea: ChartConfig["businessArea"] | null;
+    analysisRole: string;
+    baseScore: number;
+    rolePriorityBonus: number;
+    diversityBonus: number;
+    adjustedScore: number;
+    quota: number;
+    selectedAtStep: number;
+  }> = [];
 
   while (selected.length < 4) {
     let bestIndex = -1;
     let bestScore = Number.NEGATIVE_INFINITY;
+    let bestBreakdown: (typeof decisionLog)[number] | null = null;
 
     for (let index = 0; index < scoredCharts.length; index += 1) {
       const entry = scoredCharts[index];
@@ -236,25 +295,38 @@ export function rankRuleBasedCharts(
       }
 
       const currentRole = entry.role;
-      const quota = roleQuota(currentRole, intent);
+      const quota = roleQuota(currentRole, intent, hasBusinessCoverage);
       if ((roleCounts.get(currentRole) ?? 0) >= quota) {
         continue;
       }
 
       const rolePriority = roleOrder.indexOf(currentRole as (typeof roleOrder)[number]);
       const rolePriorityBonus = rolePriority >= 0 ? (roleOrder.length - rolePriority) * 2 : 0;
-      const adjustedScore =
-        entry.baseScore +
-        rolePriorityBonus +
-        diversityScore(entry.chart, selected, roleCounts);
+      const diversityBonus = diversityScore(entry.chart, selected, roleCounts);
+      const adjustedScore = entry.baseScore + rolePriorityBonus + diversityBonus;
 
       if (adjustedScore > bestScore) {
         bestScore = adjustedScore;
         bestIndex = index;
+        bestBreakdown = {
+          id: entry.chart.id,
+          title: entry.chart.title,
+          chartType: entry.chart.chartType,
+          metric: entry.chart.metric ?? null,
+          dimension: entry.chart.dimension ?? null,
+          businessArea: entry.chart.businessArea ?? null,
+          analysisRole: currentRole,
+          baseScore: entry.baseScore,
+          rolePriorityBonus,
+          diversityBonus,
+          adjustedScore,
+          quota,
+          selectedAtStep: selected.length + 1
+        };
       }
     }
 
-    if (bestIndex === -1) {
+    if (bestIndex === -1 || !bestBreakdown) {
       break;
     }
 
@@ -262,6 +334,7 @@ export function rankRuleBasedCharts(
     selected.push(chosen.chart);
     seenSignatures.add(semanticKey(chosen.chart));
     roleCounts.set(chosen.role, (roleCounts.get(chosen.role) ?? 0) + 1);
+    decisionLog.push(bestBreakdown);
   }
 
   if (selected.length < 4) {
@@ -270,7 +343,7 @@ export function rankRuleBasedCharts(
         continue;
       }
       const role = inferAnalysisRole(chart);
-      if ((roleCounts.get(role) ?? 0) >= roleQuota(role, intent)) {
+      if ((roleCounts.get(role) ?? 0) >= roleQuota(role, intent, hasBusinessCoverage)) {
         continue;
       }
       if (sameBarFamilyPair(selected, chart)) {
@@ -278,11 +351,54 @@ export function rankRuleBasedCharts(
       }
       selected.push(chart);
       roleCounts.set(role, (roleCounts.get(role) ?? 0) + 1);
+      decisionLog.push({
+        id: chart.id,
+        title: chart.title,
+        chartType: chart.chartType,
+        metric: chart.metric ?? null,
+        dimension: chart.dimension ?? null,
+        businessArea: chart.businessArea ?? null,
+        analysisRole: role,
+        baseScore: scoreChart(chart, intent),
+        rolePriorityBonus: 0,
+        diversityBonus: 0,
+        adjustedScore: scoreChart(chart, intent),
+        quota: roleQuota(role, intent, hasBusinessCoverage),
+        selectedAtStep: selected.length
+      });
       if (selected.length === 4) {
         break;
       }
     }
   }
 
-  return selected.slice(0, 4);
+  return { selected, decisionLog };
+}
+
+export function rankRuleBasedCharts(
+  charts: ChartConfig[],
+  intent: IntentDetectionResult
+): ChartConfig[] {
+  const hasBusinessCoverage = charts.some((chart) => Boolean(chart.businessArea));
+  const scoredCharts = buildScoredCharts(charts, intent);
+  return selectChartsWithDebug(scoredCharts, intent, hasBusinessCoverage).selected.slice(0, 4);
+}
+
+export function debugRankRuleBasedCharts(
+  charts: ChartConfig[],
+  intent: IntentDetectionResult
+) {
+  const hasBusinessCoverage = charts.some((chart) => Boolean(chart.businessArea));
+  const scoredCharts = buildScoredCharts(charts, intent);
+  const { selected, decisionLog } = selectChartsWithDebug(scoredCharts, intent, hasBusinessCoverage);
+
+  return {
+    topCandidates: scoredCharts.slice(0, 10).map(({ chart, baseScore, role }) => ({
+      ...summarizeChart(chart),
+      baseScore,
+      analysisRole: role
+    })),
+    finalSelected: selected.slice(0, 4).map(summarizeChart),
+    decisionLog
+  };
 }

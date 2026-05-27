@@ -206,6 +206,13 @@ export interface ChartConfig {
   title: string;
   subtitle?: string;
   semanticSignature?: string;
+  businessArea?:
+    | "volume"
+    | "quality"
+    | "conversion"
+    | "efficiency"
+    | "outcome"
+    | "operations";
   analysisRole?:
     | "trend"
     | "comparison"

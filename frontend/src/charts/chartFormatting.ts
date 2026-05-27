@@ -337,6 +337,52 @@ export function formatHistogramRangeLabel(entry: Record<string, PrimitiveValue> 
   return typeof bucket === "string" ? bucket : "";
 }
 
+function formatCompactHistogramBoundary(metric: string, value: number) {
+  const normalizedMetric = normalize(metric);
+
+  if (
+    normalizedMetric.includes("revenue") ||
+    normalizedMetric.includes("sales") ||
+    normalizedMetric.includes("cost") ||
+    normalizedMetric.includes("spend") ||
+    normalizedMetric.includes("income") ||
+    normalizedMetric.includes("amount") ||
+    normalizedMetric.includes("value")
+  ) {
+    const rounded = Math.abs(value) >= 10 ? Math.round(value) : Number(value.toFixed(1));
+    return `$${formatFullNumber(rounded)}`;
+  }
+
+  if (
+    normalizedMetric.includes("rate") ||
+    normalizedMetric.includes("ctr") ||
+    normalizedMetric.includes("cvr") ||
+    normalizedMetric.includes("percent")
+  ) {
+    const percentValue = Math.abs(value) <= 1.5 ? value * 100 : value;
+    const rounded = Math.abs(percentValue) >= 10 ? Math.round(percentValue) : Number(percentValue.toFixed(1));
+    return `${formatFullNumber(rounded)}%`;
+  }
+
+  const rounded = Math.abs(value) >= 10 ? Math.round(value) : Number(value.toFixed(1));
+  return formatFullNumber(rounded);
+}
+
+export function formatHistogramAxisLabel(entry: Record<string, PrimitiveValue> | null | undefined, metric?: string | null) {
+  if (!entry) {
+    return "";
+  }
+
+  const rangeStart = typeof entry.rangeStart === "number" ? entry.rangeStart : null;
+  const rangeEnd = typeof entry.rangeEnd === "number" ? entry.rangeEnd : null;
+  if (rangeStart !== null && rangeEnd !== null) {
+    const metricLabel = String(metric ?? "");
+    return `${formatCompactHistogramBoundary(metricLabel, rangeStart)}–${formatCompactHistogramBoundary(metricLabel, rangeEnd)}`;
+  }
+
+  return formatHistogramRangeLabel(entry);
+}
+
 export function formatCategoryTickLabel(value: unknown, maxLength = 16) {
   const label = getSemanticDisplayLabel(String(value ?? ""));
   if (label.length <= maxLength) {

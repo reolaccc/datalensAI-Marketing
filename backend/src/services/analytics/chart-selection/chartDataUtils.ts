@@ -14,6 +14,75 @@ function formatCompactNumber(value: number) {
   }).format(value);
 }
 
+function isRatioMetric(metric: string) {
+  return [
+    "roas",
+    "cost_per_qualified_call",
+    "cost_per_conversion",
+    "cost_per_call",
+    "qualified_call_rate",
+    "conversion_rate",
+    "cvr",
+    "missed_call_rate",
+    "repeat_caller_rate"
+  ].includes(metric);
+}
+
+function resolveRatioMetricParts(
+  row: DatasetRow,
+  metric: string,
+  capabilities: DatasetCapabilities,
+  profile: DatasetProfile
+) {
+  const resolve = (metricKey: string) => resolveMetricValue(row, metricKey, capabilities, profile);
+
+  switch (metric) {
+    case "roas": {
+      const numerator = resolve("revenue");
+      const denominator = resolve("spend");
+      return numerator === null || denominator === null ? null : { numerator, denominator, scale: 1 };
+    }
+    case "cost_per_qualified_call": {
+      const numerator = resolve("spend");
+      const denominator = resolve("qualifiedCall");
+      return numerator === null || denominator === null ? null : { numerator, denominator, scale: 1 };
+    }
+    case "cost_per_conversion": {
+      const numerator = resolve("spend");
+      const denominator = resolve("convertedCall");
+      return numerator === null || denominator === null ? null : { numerator, denominator, scale: 1 };
+    }
+    case "cost_per_call": {
+      const numerator = resolve("spend");
+      const denominator = resolve("calls");
+      return numerator === null || denominator === null ? null : { numerator, denominator, scale: 1 };
+    }
+    case "qualified_call_rate": {
+      const numerator = resolve("qualifiedCall");
+      const denominator = resolve("calls");
+      return numerator === null || denominator === null ? null : { numerator, denominator, scale: 100 };
+    }
+    case "conversion_rate":
+    case "cvr": {
+      const numerator = resolve("convertedCall") ?? resolve("conversions");
+      const denominator = resolve("calls") ?? resolve("clicks");
+      return numerator === null || denominator === null ? null : { numerator, denominator, scale: 100 };
+    }
+    case "missed_call_rate": {
+      const numerator = resolve("missedCall");
+      const denominator = resolve("calls");
+      return numerator === null || denominator === null ? null : { numerator, denominator, scale: 100 };
+    }
+    case "repeat_caller_rate": {
+      const numerator = resolve("repeatCaller");
+      const denominator = resolve("calls");
+      return numerator === null || denominator === null ? null : { numerator, denominator, scale: 100 };
+    }
+    default:
+      return null;
+  }
+}
+
 function formatHistogramBoundary(metric: string, value: number) {
   const normalized = metric.toLowerCase();
   if (normalized.includes("revenue") || normalized.includes("sales") || normalized.includes("income") || normalized.includes("cost") || normalized.includes("spend") || normalized.includes("amount") || normalized.includes("value")) {
@@ -117,6 +186,39 @@ export function aggregateByDate(
   profile: DatasetProfile,
   groupBy?: string | null
 ) {
+  if (isRatioMetric(metric)) {
+    const grouped = new Map<string, Map<string, { numerator: number; denominator: number; scale: number }>>();
+
+    for (const row of rows) {
+      const date = parseDateValue(row[dateField]);
+      const ratioParts = resolveRatioMetricParts(row, metric, capabilities, profile);
+      if (!date || !ratioParts || ratioParts.denominator <= 0) {
+        continue;
+      }
+
+      const dateKey = date.toISOString().slice(0, 10);
+      const groupKey = groupBy ? String(row[groupBy] ?? "Unknown") : metric;
+      const bucket = grouped.get(dateKey) ?? new Map<string, { numerator: number; denominator: number; scale: number }>();
+      const totals = bucket.get(groupKey) ?? { numerator: 0, denominator: 0, scale: ratioParts.scale };
+      totals.numerator += ratioParts.numerator;
+      totals.denominator += ratioParts.denominator;
+      bucket.set(groupKey, totals);
+      grouped.set(dateKey, bucket);
+    }
+
+    return [...grouped.entries()]
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([date, values]) => ({
+        date,
+        ...Object.fromEntries(
+          [...values.entries()].map(([key, value]) => [
+            key,
+            value.denominator > 0 ? Number(((value.numerator / value.denominator) * value.scale).toFixed(2)) : 0
+          ])
+        )
+      }));
+  }
+
   const grouped = new Map<string, Map<string, number>>();
 
   for (const row of rows) {
@@ -149,6 +251,37 @@ export function aggregateByDimension(
   profile: DatasetProfile,
   groupBy?: string | null
 ) {
+  if (isRatioMetric(metric)) {
+    const grouped = new Map<string, Map<string, { numerator: number; denominator: number; scale: number }>>();
+
+    for (const row of rows) {
+      const dimensionValue = row[dimension];
+      const ratioParts = resolveRatioMetricParts(row, metric, capabilities, profile);
+      if (dimensionValue === null || dimensionValue === "" || !ratioParts || ratioParts.denominator <= 0) {
+        continue;
+      }
+
+      const dimensionKey = String(normalizeSemanticDimensionValue(dimensionValue, dimension, profile.semanticContract ?? profile));
+      const groupKey = groupBy ? String(row[groupBy] ?? "Unknown") : metric;
+      const bucket = grouped.get(dimensionKey) ?? new Map<string, { numerator: number; denominator: number; scale: number }>();
+      const totals = bucket.get(groupKey) ?? { numerator: 0, denominator: 0, scale: ratioParts.scale };
+      totals.numerator += ratioParts.numerator;
+      totals.denominator += ratioParts.denominator;
+      bucket.set(groupKey, totals);
+      grouped.set(dimensionKey, bucket);
+    }
+
+    return [...grouped.entries()].map(([dimensionValue, values]) => ({
+      [dimension]: dimensionValue,
+      ...Object.fromEntries(
+        [...values.entries()].map(([key, value]) => [
+          key,
+          value.denominator > 0 ? Number(((value.numerator / value.denominator) * value.scale).toFixed(2)) : 0
+        ])
+      )
+    }));
+  }
+
   const grouped = new Map<string, Map<string, number>>();
 
   for (const row of rows) {

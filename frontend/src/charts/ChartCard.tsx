@@ -32,6 +32,7 @@ import {
   formatCategoryTickLabel,
   formatChartDateLabel,
   formatChartValue,
+  formatHistogramAxisLabel,
   formatHistogramRangeLabel,
   getAxisLabel,
   getSemanticDisplayLabel,
@@ -137,8 +138,8 @@ function getPresentationData(chart: Props["chart"]) {
     !chart.series?.length &&
     chart.data.length > 8 &&
     chart.yKey;
-  const categoryKey = chart.xKey;
-  const valueKey = chart.yKey!;
+  const categoryKey = chart.chartType === "horizontal_bar" ? chart.yKey! : chart.xKey;
+  const valueKey = chart.chartType === "horizontal_bar" ? chart.xKey : chart.yKey!;
 
   if (!shouldCondense) {
     return { data: chart.data, categoryKey, valueKey };
@@ -369,7 +370,7 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
               chart.chartType === "horizontal_bar"
                 ? (value) => formatChartValue(value, metricLabel)
                 : isHistogram
-                  ? undefined
+                  ? (_value, index) => formatHistogramAxisLabel(chartData[index], chart.metric ?? chart.xAxis ?? chart.xKey)
                   : (value) => formatCategoryTickLabel(value, shouldRotateCategoryTicks ? 12 : 18)
             }
             interval={chart.chartType === "horizontal_bar" ? undefined : isHistogram ? histogramTickInterval : 0}

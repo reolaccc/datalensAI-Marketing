@@ -26,6 +26,14 @@ export type ChartAnalysisRole =
   | "distribution"
   | "diagnostic";
 
+export type ChartBusinessArea =
+  | "volume"
+  | "quality"
+  | "conversion"
+  | "efficiency"
+  | "outcome"
+  | "operations";
+
 export interface ChartBlueprint {
   id: string;
   title: string;
@@ -47,6 +55,7 @@ export interface ChartBlueprint {
   analysisRole?: ChartAnalysisRole;
   secondaryMetric?: string | null;
   businessQuestionAnswered?: string;
+  businessArea?: ChartBusinessArea;
   score?: number;
 }
 

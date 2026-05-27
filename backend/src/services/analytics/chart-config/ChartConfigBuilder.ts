@@ -185,6 +185,21 @@ function humanizeLabel(value?: string | null) {
     .join(" ");
 }
 
+function normalizeDisplayMetricLabel(value?: string | null) {
+  const humanized = humanizeLabel(value);
+  if (!humanized) {
+    return "";
+  }
+
+  return humanized
+    .replace(/\bCost per Qualified Calls\b/g, "Cost per Qualified Call")
+    .replace(/\bCost per Calls\b/g, "Cost per Call")
+    .replace(/\bRevenue per Calls\b/g, "Revenue per Call")
+    .replace(/\bMissed Calls Rate\b/g, "Missed Call Rate")
+    .replace(/\bQualified Calls Rate\b/g, "Qualified Rate")
+    .replace(/\bConverted Calls Rate\b/g, "Conversion Rate");
+}
+
 function canonicalMetricKey(context: ChartSelectionContext, metric?: string | null) {
   if (!metric) {
     return null;
@@ -233,9 +248,11 @@ function valueAsNumber(value: unknown) {
 }
 
 function buildModernChartTitle(blueprint: ChartBlueprint, context: ChartSelectionContext) {
-  const metricLabel = humanizeLabel(canonicalMetricKey(context, blueprint.metric ?? blueprint.yAxis ?? blueprint.title) ?? blueprint.metric ?? blueprint.title);
+  const metricLabel = normalizeDisplayMetricLabel(
+    canonicalMetricKey(context, blueprint.metric ?? blueprint.yAxis ?? blueprint.title) ?? blueprint.metric ?? blueprint.title
+  );
   const dimensionLabel = humanizeLabel(canonicalDimensionKey(context, blueprint.dimension ?? blueprint.groupBy ?? blueprint.xAxis) ?? blueprint.dimension ?? blueprint.groupBy ?? "segment");
-  const secondaryMetricLabel = humanizeLabel(canonicalMetricKey(context, blueprint.secondaryMetric ?? null) ?? blueprint.secondaryMetric ?? "");
+  const secondaryMetricLabel = normalizeDisplayMetricLabel(canonicalMetricKey(context, blueprint.secondaryMetric ?? null) ?? blueprint.secondaryMetric ?? "");
   const metricName = metricLabel || "Metric";
   const dimensionName = dimensionLabel || "Segment";
 
@@ -307,34 +324,54 @@ function buildTopBottomSubtitle(
 
   const metricLabel = humanizeLabel(metric) || "the metric";
   const metricLower = metricLabel.toLowerCase();
-  const dimensionLabel = pluralizeLabel(humanizeLabel(dimension ?? xKey) || "segment");
-  const concentrationVerb = /s$/i.test(metricLabel) ? "are" : "is";
+  const metricBeVerb = /s$/i.test(metricLabel) ? "are" : "is";
+  const dimensionLabel = pluralizeLabel(humanizeLabel(dimension ?? xKey) || "segment").toLowerCase();
+  const isRateMetric = /\brate\b|\broas\b|\broi\b|\bctr\b|\bcvr\b/.test(metricLower);
+  const isEfficiencyMetric = /cost per|cpc|cpa/.test(metricLower);
 
-  if (top3Share !== undefined && top3Share >= 0.72) {
-    return `${metricLabel} ${concentrationVerb} concentrated in ${top.label}, and the top 3 ${dimensionLabel} drive ${Math.round(top3Share * 1000) / 10}% of total ${metricLower}.`;
+  if (isEfficiencyMetric) {
+    if (bottom.label && bottom.label !== top.label) {
+      return `${top.label} has the lowest ${metricLower}, while ${bottom.label} is highest.`;
+    }
+    return `${top.label} has the lowest ${metricLower}.`;
   }
 
-  if (topShare !== undefined && topShare >= 0.45) {
-    return `${top.label} contributes ${Math.round(topShare * 1000) / 10}% of total ${metricLower}, making it the clear leader.`;
+  if (isRateMetric) {
+    if (bottom.label && bottom.label !== top.label) {
+      return `${top.label} has the highest ${metricLower}, while ${bottom.label} trails.`;
+    }
+    return `${top.label} leads on ${metricLower}.`;
+  }
+
+  if (topShare !== undefined && topShare >= 0.5) {
+    return `${top.label} contributes over half of ${metricLower}.`;
+  }
+
+  if (top3Share !== undefined && top3Share >= 0.72) {
+    return `Top three ${dimensionLabel} drive most ${metricLower}.`;
+  }
+
+  if (topShare !== undefined && topShare >= 0.4) {
+    return `${top.label} is the clear leader in ${metricLower}.`;
   }
 
   if (topShare !== undefined && topShare <= 0.28) {
-    return `${metricLabel} is broadly distributed across ${dimensionLabel}, with no single segment far ahead.`;
+    return `${metricLabel} ${metricBeVerb} broadly distributed across ${dimensionLabel}.`;
   }
 
   if (leaderGapRatio !== undefined && leaderGapRatio <= 1.15) {
-    return `${top.label} leads ${metricLower}, but the leading ${dimensionLabel} remain closely grouped.`;
+    return `${top.label} leads ${metricLower}, but rivals stay close.`;
   }
 
   if (leaderGapRatio !== undefined && leaderGapRatio <= 1.35) {
-    return `${top.label} holds a modest lead in ${metricLower}, with nearby competitors still in range.`;
+    return `${top.label} holds a modest lead in ${metricLower}.`;
   }
 
   if (bottom.label && bottom.label !== top.label) {
-    return `${top.label} leads ${metricLower}, while ${bottom.label} trails well behind.`;
+    return `${top.label} leads ${metricLower}, while ${bottom.label} trails.`;
   }
 
-  return `${top.label} is the leading ${humanizeLabel(dimension ?? xKey) || "segment"} for ${metricLower}.`;
+  return `${top.label} leads ${metricLower}.`;
 }
 
 function buildTrendSubtitle(data: Record<string, string | number | boolean | null>[], yKey: string, xKey: string, metric?: string | null) {
@@ -350,24 +387,25 @@ function buildTrendSubtitle(data: Record<string, string | number | boolean | nul
   const lastValue = valueAsNumber(last[yKey]);
   const peakValue = valueAsNumber(peak[yKey]);
   const metricLabel = humanizeLabel(metric) || "Performance";
+  const steadyVerb = /s$/i.test(metricLabel) ? "stay" : "stays";
   const changeRatio = firstValue === 0 ? (lastValue > 0 ? 1 : 0) : (lastValue - firstValue) / Math.abs(firstValue);
   const peakLabel = formatReadableDateLabel(String(peak[xKey] ?? "").trim());
 
   if (Math.abs(changeRatio) <= 0.08) {
     return peak && peakLabel
-      ? `${metricLabel} stays broadly steady, with the clearest spike around ${peakLabel}.`
-      : `${metricLabel} stays broadly steady across the period.`;
+      ? `${metricLabel} ${steadyVerb} steady, with a brief peak around ${peakLabel}.`
+      : `${metricLabel} ${steadyVerb} steady across the period.`;
   }
 
   if (changeRatio > 0) {
     return peak && peak !== last && peakLabel
-      ? `${metricLabel} finishes above its starting level, with the strongest burst around ${peakLabel}.`
-      : `${metricLabel} builds over the period and ends above its starting level.`;
+      ? `${metricLabel} peaks around ${peakLabel} before settling higher.`
+      : `${metricLabel} builds over the period.`;
   }
 
   return peak && peakLabel
-    ? `${metricLabel} softens over time after an earlier high around ${peakLabel}.`
-    : `${metricLabel} softens over the period and does not recover to its earlier level.`;
+    ? `${metricLabel} softens after peaking around ${peakLabel}.`
+    : `${metricLabel} softens over the period.`;
 }
 
 function buildScatterSubtitle(data: Record<string, string | number | boolean | null>[], xKey: string, yKey: string) {
@@ -395,14 +433,13 @@ function buildScatterSubtitle(data: Record<string, string | number | boolean | n
   }
 
   const correlation = numerator / Math.sqrt(denominatorX * denominatorY || 1);
-  const strength = Math.abs(correlation) >= 0.55 ? "clear" : Math.abs(correlation) >= 0.25 ? "loose" : "weak";
   if (correlation >= 0.55) {
-    return `${humanizeLabel(yKey) || "Performance"} rises alongside ${humanizeLabel(xKey) || "the comparison metric"}, with a few outliers worth checking.`;
+    return `${humanizeLabel(yKey) || "Performance"} rises with ${humanizeLabel(xKey) || "the comparison metric"}.`;
   }
   if (correlation <= -0.55) {
-    return `${humanizeLabel(xKey) || "The first metric"} and ${humanizeLabel(yKey) || "the second metric"} move in opposite directions, suggesting a trade-off.`;
+    return `${humanizeLabel(xKey) || "The first metric"} and ${humanizeLabel(yKey) || "the second metric"} move in opposite directions.`;
   }
-  return `Outliers matter more than the overall relationship in this view.`;
+  return `Outliers matter more than any clear relationship here.`;
 }
 
 function buildHistogramSubtitle(data: Record<string, string | number | boolean | null>[], yKey: string) {
@@ -424,11 +461,13 @@ function buildHistogramSubtitle(data: Record<string, string | number | boolean |
     rangeStart !== null && rangeEnd !== null
       ? `${formatReadableValue(yKey, rangeStart)} and ${formatReadableValue(yKey, rangeEnd)}`
       : String(peak.bucketLabel ?? peak.bucket ?? peak.label ?? "the main range");
-  const metricNoun = `${humanizeLabel(yKey).toLowerCase() || "values"} values`;
+  const metricName = humanizeLabel(yKey).toLowerCase() || "values";
   if (share >= 0.35) {
-    return `Most ${metricNoun} fall between ${rangeText}, with only a small tail above that range.`;
+    return metricName.endsWith("s")
+      ? `Most ${metricName} fall between ${rangeText}.`
+      : `Most ${metricName} values fall between ${rangeText}.`;
   }
-  return `${humanizeLabel(yKey) || "Values"} are spread across several ranges rather than one dominant band.`;
+  return `${humanizeLabel(yKey) || "Values"} are spread across several ranges.`;
 }
 
 function buildFunnelSubtitle(data: Record<string, string | number | boolean | null>[], yKey: string, xKey: string) {
@@ -437,10 +476,8 @@ function buildFunnelSubtitle(data: Record<string, string | number | boolean | nu
   }
 
   type FunnelDrop = { drop: number; from: string; to: string };
-  const ordered = [...data].sort((left, right) => valueAsNumber(right[yKey]) - valueAsNumber(left[yKey]));
+  const ordered = [...data];
   const first = ordered[0];
-  const second = ordered[1];
-  const last = ordered[ordered.length - 1];
   const biggestDrop = ordered.slice(1).reduce<FunnelDrop>(
     (best, current, index) => {
       const previous = ordered[index];
@@ -451,19 +488,15 @@ function buildFunnelSubtitle(data: Record<string, string | number | boolean | nu
   );
 
   if (biggestDrop.drop > 0 && biggestDrop.from && biggestDrop.to) {
-    return `The sharpest drop happens between ${biggestDrop.from} and ${biggestDrop.to}.`;
+    return `The biggest drop happens between ${biggestDrop.from} and ${biggestDrop.to}.`;
   }
 
-  if (second) {
-    return `The biggest loss happens immediately after ${String(first[xKey] ?? first.stage ?? "the first stage")}.`;
-  }
-
-  return `${String(first[xKey] ?? first.stage ?? "The first stage")} carries the most volume, while the final stage trails furthest behind.`;
+  return `${String(first[xKey] ?? first.stage ?? "The first stage")} carries the most volume.`;
 }
 
 function buildChartSubtitle(blueprint: ChartBlueprint, data: Record<string, string | number | boolean | null>[], xKey: string, yKey: string) {
   if (blueprint.chartType === "line" || blueprint.chartType === "anomaly_trend") {
-    return buildTrendSubtitle(data, yKey, xKey);
+    return buildTrendSubtitle(data, yKey, xKey, blueprint.metric);
   }
   if (blueprint.chartType === "scatter" || blueprint.chartType === "heatmap") {
     return buildScatterSubtitle(data, xKey, yKey);
@@ -475,7 +508,9 @@ function buildChartSubtitle(blueprint: ChartBlueprint, data: Record<string, stri
     return buildFunnelSubtitle(data, yKey, xKey);
   }
   if (blueprint.chartType === "bar" || blueprint.chartType === "horizontal_bar" || blueprint.chartType === "stacked_bar" || blueprint.chartType === "donut") {
-    return buildTopBottomSubtitle(data, yKey, xKey, blueprint.metric, blueprint.dimension ?? blueprint.groupBy ?? null);
+    const categoryKey = blueprint.chartType === "horizontal_bar" ? yKey : xKey;
+    const valueKey = blueprint.chartType === "horizontal_bar" ? xKey : yKey;
+    return buildTopBottomSubtitle(data, valueKey, categoryKey, blueprint.metric, blueprint.dimension ?? blueprint.groupBy ?? null);
   }
   return "";
 }
@@ -535,6 +570,7 @@ function buildMissingValuesChart(context: ChartSelectionContext, blueprint: Char
     title: buildModernChartTitle(blueprint, context),
     subtitle: buildTopBottomSubtitle(data, "missing_count", "column", "missing count", "column") || undefined,
     semanticSignature: semanticSignature(blueprint, context),
+    businessArea: blueprint.businessArea,
     analysisRole: inferAnalysisRole(blueprint),
     chartType: blueprint.chartType,
     intent: blueprint.intent,
@@ -640,6 +676,7 @@ export function buildChartConfig(
     title: buildModernChartTitle(blueprint, context),
     subtitle: buildChartSubtitle(blueprint, data, xKey, yKey) || undefined,
     semanticSignature: semanticSignature(blueprint, context),
+    businessArea: blueprint.businessArea,
     analysisRole: inferAnalysisRole(blueprint),
     chartType: blueprint.chartType,
     intent: blueprint.intent,
