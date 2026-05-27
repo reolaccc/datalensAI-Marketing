@@ -1,29 +1,31 @@
 export const CHART_PALETTE = [
-  "#ff6b6b",
-  "#ff8e72",
-  "#f7b267",
-  "#f9d56e",
-  "#7bd389",
-  "#57cc99",
-  "#38a3a5",
-  "#5aa9e6"
+  "#d4af5a",
+  "#5d8f96",
+  "#8aa086",
+  "#b98557",
+  "#6f86b6",
+  "#9c7aa5",
+  "#c07c68",
+  "#7d94a3"
 ];
 
 export const COMPOSITION_PALETTE = [
-  "#7bd389",
-  "#ff6b8a",
-  "#5bc0be",
-  "#f6bd60",
-  "#84a59d",
-  "#f28482",
-  "#8ecae6",
-  "#cdb4db"
+  "#d4af5a",
+  "#5d8f96",
+  "#8aa086",
+  "#b98557",
+  "#6f86b6",
+  "#9c7aa5",
+  "#c07c68",
+  "#7d94a3"
 ];
 
 export const AXIS_COLOR = "#7ea8a5";
 export const GRID_COLOR = "rgba(126, 168, 165, 0.12)";
-export const OTHER_CATEGORY_COLOR = "#8f9ba8";
-export const SINGLE_SERIES_COMPARISON_COLOR = "#F6D365";
+export const OTHER_CATEGORY_COLOR = "#72808b";
+export const SINGLE_SERIES_COMPARISON_COLOR = "#d4af5a";
+export const SINGLE_SERIES_COMPARISON_HOVER_COLOR = "#e2c06b";
+export const SINGLE_SERIES_COMPARISON_MUTED_COLOR = "#b8923f";
 
 function normalizeKey(key?: string | null) {
   return String(key ?? "")
@@ -90,7 +92,7 @@ function normalizeColorKey(key?: string | null) {
 export function getChartColorForKey(key?: string | null) {
   const normalized = normalizeColorKey(key);
   if (!normalized) {
-    return CHART_PALETTE[0];
+    return COMPOSITION_PALETTE[0];
   }
 
   if (normalized === "other") {
@@ -102,7 +104,7 @@ export function getChartColorForKey(key?: string | null) {
     hash = (hash * 31 + normalized.charCodeAt(index)) >>> 0;
   }
 
-  return CHART_PALETTE[hash % CHART_PALETTE.length];
+  return COMPOSITION_PALETTE[hash % COMPOSITION_PALETTE.length];
 }
 
 export function getCompositionColor(index: number, key?: string | null) {

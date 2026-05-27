@@ -73,6 +73,18 @@ const DEFAULT_LEFT_MARGIN = 24;
 const WIDE_LEFT_MARGIN = 32;
 const DEFAULT_Y_AXIS_WIDTH = 78;
 
+function getBarThickness(chart: Props["chart"], dataLength: number) {
+  if (chart.chartType === "horizontal_bar") {
+    return dataLength > 8 ? 10 : 12;
+  }
+
+  if (chart.chartType === "stacked_bar") {
+    return dataLength > 8 ? 16 : 20;
+  }
+
+  return dataLength > 8 ? 18 : 22;
+}
+
 function formatChartRole(role?: string | null) {
   if (!role) {
     return "";
@@ -223,6 +235,7 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
     isTimeSeriesChart
       ? buildTimeSeriesTicks(chartData, chart.xKey)
       : undefined;
+  const barThickness = getBarThickness(chart, chartData.length);
   const chartHeight = compact
     ? 224
     : chart.chartType === "donut"
@@ -311,7 +324,14 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
           />
           <YAxis stroke={AXIS_COLOR} width={DEFAULT_Y_AXIS_WIDTH} tickFormatter={(value) => formatChartValue(value, metricLabel)} tickMargin={10} label={{ value: yAxisLabel, angle: -90, position: "insideLeft", dx: -8, ...LINE_AXIS_TITLE_STYLE }} />
           <Tooltip content={renderTooltipContent} />
-          {shouldShowLegend ? <Legend verticalAlign="top" align="right" wrapperStyle={{ paddingBottom: 6 }} payload={legendPayload as never} /> : null}
+          {shouldShowLegend ? (
+            <Legend
+              verticalAlign="top"
+              align="right"
+              wrapperStyle={{ top: 2, right: 8, left: "auto", width: "auto", paddingBottom: 6 }}
+              payload={legendPayload as never}
+            />
+          ) : null}
           {chart.series?.length ? (
             chart.series.map((seriesKey, index) =>
               seriesKey === "anomaly_marker" ? (
@@ -359,7 +379,13 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
       }
 
       return (
-        <BarChart data={chartData} layout={chart.chartType === "horizontal_bar" ? "vertical" : "horizontal"} margin={{ top: 10, right: 18, bottom: isHistogram ? 48 : shouldRotateCategoryTicks ? 38 : 22, left: chart.chartType === "horizontal_bar" ? WIDE_LEFT_MARGIN : DEFAULT_LEFT_MARGIN }}>
+        <BarChart
+          data={chartData}
+          layout={chart.chartType === "horizontal_bar" ? "vertical" : "horizontal"}
+          barCategoryGap={chart.chartType === "horizontal_bar" ? "34%" : "30%"}
+          barGap={8}
+          margin={{ top: 10, right: 18, bottom: isHistogram ? 48 : shouldRotateCategoryTicks ? 38 : 22, left: chart.chartType === "horizontal_bar" ? WIDE_LEFT_MARGIN : DEFAULT_LEFT_MARGIN }}
+        >
           <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
           <XAxis
             dataKey={chart.chartType === "horizontal_bar" ? undefined : isHistogram ? "bucketLabel" : categoryKey}
@@ -417,11 +443,17 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
                 name={getSemanticDisplayLabel(seriesKey)}
                 stackId={chart.chartType === "stacked_bar" ? "stack" : undefined}
                 fill={getChartColorForKey(seriesKey)}
+                maxBarSize={barThickness}
                 radius={[8, 8, 0, 0]}
               />
             ))
           ) : (
-            <Bar dataKey={barValueKey} name={getSemanticDisplayLabel(chartValueMetric ?? chart.yKey ?? chart.title)} radius={[8, 8, 0, 0]}>
+            <Bar
+              dataKey={barValueKey}
+              name={getSemanticDisplayLabel(chartValueMetric ?? chart.yKey ?? chart.title)}
+              maxBarSize={barThickness}
+              radius={[8, 8, 0, 0]}
+            >
               {chartData.map((_entry, index) => (
               <Cell
                   key={`${chart.id}-${index}`}
@@ -452,10 +484,12 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
             dataKey={chart.yKey!}
             name={getSemanticDisplayLabel(chart.metric ?? chart.yKey ?? chart.title)}
             nameKey={chart.xKey}
-            innerRadius={46}
-            outerRadius={68}
+            innerRadius={39}
+            outerRadius={86}
             cy={shouldShowLegend ? "46%" : "52%"}
-            paddingAngle={2}
+            paddingAngle={3}
+            stroke="rgba(9, 23, 24, 0.92)"
+            strokeWidth={2}
           >
             {chartData.map((_entry, index) => (
               <Cell key={`${chart.id}-${index}`} fill={String(chartData[index]?.[categoryKey] ?? index) === "Other" ? OTHER_CATEGORY_COLOR : getCompositionColor(index, String(chartData[index]?.[categoryKey] ?? index))} />
