@@ -2,7 +2,6 @@ import { InsightWorkspace } from "./dashboard/InsightWorkspace";
 import { findRelevantChartId } from "./dashboard/chartMatching";
 import { KpiCardGrid } from "./dashboard/KpiCardGrid";
 import { ChartCard } from "./charts/ChartCard";
-import { LeftNav } from "./layout/LeftNav";
 import { RightRail } from "./layout/RightRail";
 import { TopBar } from "./layout/TopBar";
 import { AskDatasetPanel } from "./insights/AskDatasetPanel";
@@ -62,8 +61,6 @@ export default function App() {
             <section className="report-canvas">
               {analysis ? (
                 <>
-                  <LeftNav />
-
                   <section className="panel report-page" id="kpi-strip">
                     <KpiCardGrid analysis={analysis} />
                   </section>
@@ -82,12 +79,13 @@ export default function App() {
                 </>
               ) : (
                 <section className="panel report-page empty-state-workspace">
-                  <p className="eyebrow">Workflow</p>
-                  <ul className="empty-state-steps">
-                    <li>Upload dataset</li>
-                    <li>Review data profiling and dashboard</li>
-                  <li>Ask a question, and DataLens highlights the charts and insights most relevant to your data.</li>
-                  </ul>
+                  <p className="empty-state-copy">
+                    Upload dataset
+                    <br />
+                    Review data profiling and dashboard
+                    <br />
+                    Ask a question, and DataLens highlights the charts and insights most relevant to your data.
+                  </p>
                 </section>
               )}
             </section>

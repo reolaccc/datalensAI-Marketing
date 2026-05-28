@@ -1,0 +1,381 @@
+work_date,support_stream,region_name,case_intake,resolved_cases,escalated_cases,reopened_cases,avg_handle_minutes,csat_score,sla_met_flag
+2026-03-01,Technical Support,NSW,31,24,1,1,8.7,3.4,1
+2026-03-02,Field Service,NSW,25,21,2,1,12.6,4.5,1
+2026-03-03,Account Changes,SA,53,46,9,0,30.2,4.0,1
+2026-03-04,Retention,SA,38,34,2,0,33.3,4.1,1
+2026-03-05,Retention,QLD,34,26,5,1,30.5,4.8,1
+2026-03-06,Billing,SA,21,16,2,1,26.2,2.6,0
+2026-03-07,Field Service,WA,69,66,2,4,24.7,3.6,1
+2026-03-08,Account Changes,TAS,15,11,0,1,7.6,4.7,1
+2026-03-09,Account Changes,VIC,13,9,1,0,22.8,4.5,1
+2026-03-10,Billing,QLD,29,23,7,1,9.0,4.2,1
+2026-03-11,Complaints,TAS,18,12,2,0,7.0,3.7,1
+2026-03-12,Field Service,WA,16,13,0,0,9.7,3.7,0
+2026-03-13,Field Service,QLD,23,20,1,1,25.9,3.9,0
+2026-03-14,Installations,QLD,13,10,3,0,16.1,4.0,0
+2026-03-15,Technical Support,QLD,19,14,2,0,13.6,4.4,1
+2026-03-16,Billing,QLD,36,34,7,3,22.5,4.4,1
+2026-03-17,Field Service,VIC,19,16,1,0,15.5,2.9,1
+2026-03-18,Account Changes,QLD,58,46,10,5,17.6,2.6,1
+2026-03-19,Technical Support,NSW,14,9,2,0,35.4,3.3,1
+2026-03-20,Billing,TAS,26,24,6,0,7.8,4.3,0
+2026-03-21,Complaints,VIC,48,46,11,3,27.6,3.5,1
+2026-03-22,Billing,VIC,52,45,6,2,33.1,4.8,1
+2026-03-23,Installations,WA,49,45,6,2,11.4,2.8,1
+2026-03-24,Retention,WA,48,32,8,2,19.8,3.4,1
+2026-03-25,Retention,WA,37,31,5,3,17.9,,1
+2026-03-26,Field Service,VIC,46,28,2,2,24.9,,1
+2026-03-27,Technical Support,VIC,13,9,2,0,14.8,4.7,1
+2026-03-28,Field Service,WA,52,47,7,1,35.7,2.7,1
+2026-03-29,Installations,QLD,23,16,1,1,16.2,3.5,0
+2026-03-30,Account Changes,NSW,18,12,4,0,24.8,2.9,1
+2026-03-31,Field Service,NSW,18,12,5,0,20.9,,0
+2026-04-01,Technical Support,VIC,51,32,11,0,31.6,3.0,1
+2026-04-02,Billing,SA,23,15,5,1,15.0,3.0,1
+2026-04-03,Retention,TAS,50,43,2,1,17.0,2.8,1
+2026-04-04,Complaints,QLD,22,18,3,1,11.1,4.6,1
+2026-04-05,Billing,TAS,32,30,7,2,19.5,4.4,1
+2026-04-06,Account Changes,WA,29,24,4,2,10.9,2.6,1
+2026-04-07,Retention,SA,50,32,12,2,20.7,3.8,1
+2026-04-08,Field Service,TAS,34,22,5,1,29.9,4.0,0
+2026-04-09,Billing,NSW,25,17,5,1,18.3,4.8,0
+2026-04-10,Complaints,VIC,28,25,3,0,21.7,4.9,1
+2026-04-11,Installations,NSW,40,27,7,1,18.9,2.7,1
+2026-04-12,Installations,NSW,14,12,1,0,29.5,,0
+2026-04-13,Technical Support,SA,9,7,1,0,28.3,2.7,1
+2026-04-14,Retention,VIC,19,16,4,1,13.8,,1
+2026-04-15,Retention,TAS,33,21,8,1,33.0,4.4,0
+2026-04-16,Complaints,VIC,55,52,4,1,32.6,4.2,1
+2026-04-17,Complaints,SA,33,26,5,1,17.6,4.2,1
+2026-04-18,Retention,VIC,51,40,7,0,22.5,3.1,0
+2026-04-19,Complaints,NSW,34,21,5,2,16.2,4.8,1
+2026-04-20,Technical Support,SA,48,32,7,3,29.5,2.4,0
+2026-04-21,Billing,QLD,52,41,9,0,27.1,,1
+2026-04-22,Account Changes,QLD,31,24,2,0,8.0,4.8,0
+2026-04-23,Retention,SA,34,27,2,1,19.3,2.8,0
+2026-04-24,Installations,QLD,58,47,13,4,11.4,4.7,1
+2026-04-25,Technical Support,NSW,10,8,1,0,6.2,4.9,0
+2026-04-26,Installations,SA,63,40,4,4,23.4,4.2,1
+2026-04-27,Retention,NSW,18,11,3,0,22.7,3.6,1
+2026-04-28,Retention,NSW,24,16,4,0,18.1,4.5,1
+2026-04-29,Complaints,NSW,10,8,2,0,8.1,3.5,1
+2026-04-30,Technical Support,WA,56,51,3,3,25.0,4.2,1
+2026-05-01,Technical Support,WA,55,36,8,0,23.8,3.0,1
+2026-05-02,Complaints,VIC,62,48,3,4,8.6,4.5,1
+2026-05-03,Technical Support,QLD,42,40,7,2,7.6,4.9,1
+2026-05-04,Billing,VIC,38,28,9,1,24.1,4.3,1
+2026-05-05,Billing,SA,56,35,3,2,15.4,3.3,1
+2026-05-06,Retention,WA,24,21,2,2,15.0,3.0,1
+2026-05-07,Installations,NSW,52,37,14,3,14.7,3.8,1
+2026-05-08,Retention,NSW,36,25,3,1,6.7,,0
+2026-05-09,Complaints,QLD,64,61,17,0,26.3,4.5,0
+2026-05-10,Technical Support,VIC,63,52,4,0,19.7,4.6,1
+2026-05-11,Retention,QLD,25,20,3,1,7.1,3.0,0
+2026-05-12,Field Service,SA,13,9,0,0,6.5,4.1,1
+2026-05-13,Installations,NSW,52,42,8,1,21.2,2.9,1
+2026-05-14,Billing,NSW,65,41,10,0,29.4,,0
+2026-03-01,Account Changes,QLD,39,25,9,1,29.7,3.3,1
+2026-03-02,Account Changes,TAS,55,48,11,5,26.6,,1
+2026-03-03,Installations,NSW,18,12,4,0,14.6,3.0,1
+2026-03-04,Complaints,NSW,46,35,1,3,7.6,4.4,0
+2026-03-05,Installations,WA,18,16,3,1,16.6,4.4,1
+2026-03-06,Billing,WA,32,23,1,2,33.1,,1
+2026-03-07,Account Changes,NSW,24,20,6,0,17.1,4.7,1
+2026-03-08,Field Service,NSW,62,48,2,2,35.9,2.5,1
+2026-03-09,Complaints,WA,44,35,11,1,8.2,3.8,1
+2026-03-10,Retention,SA,67,42,11,3,6.3,4.0,1
+2026-03-11,Account Changes,QLD,51,37,9,3,23.5,,1
+2026-03-12,Technical Support,WA,34,27,9,2,32.6,3.4,0
+2026-03-13,Retention,WA,44,30,2,1,31.2,2.9,1
+2026-03-14,Installations,NSW,14,10,0,0,19.0,4.5,1
+2026-03-15,Billing,WA,68,44,11,4,7.7,4.0,1
+2026-03-16,Technical Support,WA,41,37,6,3,18.2,3.6,0
+2026-03-17,Billing,QLD,46,41,3,0,30.8,4.0,1
+2026-03-18,Complaints,SA,70,56,12,3,28.5,4.2,1
+2026-03-19,Account Changes,NSW,24,21,5,0,11.0,,1
+2026-03-20,Account Changes,TAS,60,54,7,4,33.9,,1
+2026-03-21,Billing,SA,66,51,3,1,28.9,4.4,1
+2026-03-22,Complaints,WA,30,19,4,0,31.2,4.3,1
+2026-03-23,Account Changes,WA,38,25,2,2,31.7,3.2,1
+2026-03-24,Retention,SA,10,6,2,0,28.1,2.9,1
+2026-03-25,Installations,NSW,63,51,3,2,24.7,3.1,1
+2026-03-26,Field Service,TAS,32,27,6,0,34.8,4.8,1
+2026-03-27,Installations,VIC,29,26,2,0,32.1,3.2,1
+2026-03-28,Technical Support,VIC,14,12,1,0,31.3,3.4,1
+2026-03-29,Account Changes,QLD,48,46,2,1,33.4,3.6,1
+2026-03-30,Retention,WA,15,14,3,0,21.3,3.6,1
+2026-03-31,Billing,WA,40,36,10,2,29.4,3.9,1
+2026-04-01,Billing,VIC,47,41,7,1,6.0,3.2,0
+2026-04-02,Installations,WA,31,20,2,1,8.9,3.3,1
+2026-04-03,Retention,NSW,8,7,1,0,15.8,4.2,0
+2026-04-04,Technical Support,WA,30,25,6,1,12.1,3.7,0
+2026-04-05,Field Service,NSW,69,54,11,2,34.6,2.6,1
+2026-04-06,Installations,WA,48,34,6,1,13.5,4.5,1
+2026-04-07,Complaints,SA,36,25,3,0,14.7,4.5,1
+2026-04-08,Technical Support,NSW,17,16,2,1,7.6,3.1,0
+2026-04-09,Complaints,SA,18,17,1,1,17.0,3.7,1
+2026-04-10,Field Service,TAS,56,42,3,2,18.0,,1
+2026-04-11,Technical Support,NSW,65,55,16,0,29.6,2.9,1
+2026-04-12,Field Service,QLD,10,8,2,0,16.2,3.7,0
+2026-04-13,Billing,NSW,13,9,3,0,6.7,,1
+2026-04-14,Complaints,SA,11,8,1,0,11.8,4.2,1
+2026-04-15,Technical Support,WA,39,28,5,1,19.7,4.8,1
+2026-04-16,Retention,QLD,67,45,4,0,33.2,3.9,0
+2026-04-17,Field Service,NSW,41,35,4,2,22.8,,1
+2026-04-18,Technical Support,VIC,34,27,2,1,32.9,4.2,1
+2026-04-19,Installations,NSW,18,17,0,0,34.7,4.7,1
+2026-04-20,Retention,VIC,41,35,11,2,22.0,4.1,1
+2026-04-21,Field Service,NSW,70,64,2,1,17.2,4.7,1
+2026-04-22,Installations,QLD,35,30,2,0,13.5,4.3,1
+2026-04-23,Account Changes,SA,18,15,4,1,31.3,4.6,1
+2026-04-24,Field Service,WA,23,17,6,2,9.4,4.4,1
+2026-04-25,Installations,TAS,24,16,5,0,35.4,,1
+2026-04-26,Technical Support,WA,43,34,8,2,20.6,3.0,1
+2026-04-27,Field Service,QLD,11,6,2,0,19.9,3.3,1
+2026-04-28,Retention,NSW,35,24,8,2,8.5,3.0,1
+2026-04-29,Field Service,NSW,43,37,5,0,13.0,3.0,1
+2026-04-30,Installations,SA,30,25,1,1,23.4,3.1,0
+2026-05-01,Retention,WA,14,12,1,1,9.4,,0
+2026-05-02,Billing,QLD,16,10,3,0,21.0,2.6,1
+2026-05-03,Billing,QLD,47,40,7,3,11.5,3.3,1
+2026-05-04,Retention,VIC,54,45,10,2,6.7,,1
+2026-05-05,Installations,VIC,36,28,5,0,23.3,,1
+2026-05-06,Retention,QLD,52,36,4,3,32.5,3.7,1
+2026-05-07,Account Changes,QLD,50,37,8,1,35.4,4.9,1
+2026-05-08,Installations,QLD,25,23,4,0,31.9,3.8,1
+2026-05-09,Technical Support,WA,53,42,7,1,16.4,3.4,1
+2026-05-10,Technical Support,TAS,56,45,12,0,29.4,,1
+2026-05-11,Billing,QLD,59,42,4,4,32.8,2.5,1
+2026-05-12,Field Service,SA,25,17,6,0,30.6,4.7,1
+2026-05-13,Billing,VIC,8,5,0,0,33.6,,1
+2026-05-14,Installations,QLD,31,22,6,0,8.5,2.5,1
+2026-03-01,Installations,WA,14,13,2,1,22.6,2.8,1
+2026-03-02,Billing,NSW,13,11,0,1,21.6,2.8,1
+2026-03-03,Billing,TAS,58,36,7,1,6.7,3.9,1
+2026-03-04,Billing,NSW,35,23,4,1,6.9,3.9,1
+2026-03-05,Retention,QLD,39,31,8,1,21.3,3.2,1
+2026-03-06,Billing,SA,11,10,2,0,16.6,4.7,0
+2026-03-07,Installations,QLD,49,46,6,5,16.4,,1
+2026-03-08,Technical Support,QLD,11,8,2,0,16.2,4.8,1
+2026-03-09,Installations,WA,38,32,3,3,10.5,4.2,1
+2026-03-10,Field Service,WA,51,34,13,3,10.9,3.8,0
+2026-03-11,Retention,VIC,28,20,1,0,15.3,3.7,1
+2026-03-12,Billing,QLD,51,33,11,2,8.5,4.8,1
+2026-03-13,Account Changes,NSW,39,25,9,1,18.5,3.0,1
+2026-03-14,Field Service,VIC,17,14,2,0,17.6,4.3,0
+2026-03-15,Field Service,QLD,25,18,1,1,6.5,4.9,1
+2026-03-16,Technical Support,VIC,61,49,7,1,10.9,,1
+2026-03-17,Retention,SA,44,39,8,4,6.6,3.8,1
+2026-03-18,Field Service,NSW,14,12,2,0,14.3,,1
+2026-03-19,Retention,NSW,47,35,1,3,15.4,,1
+2026-03-20,Retention,NSW,54,44,13,3,13.3,3.4,1
+2026-03-21,Billing,VIC,15,10,0,0,29.5,4.5,1
+2026-03-22,Field Service,SA,42,31,4,2,32.9,2.9,1
+2026-03-23,Account Changes,QLD,34,25,5,1,32.2,3.6,1
+2026-03-24,Retention,VIC,60,56,1,3,16.5,2.8,1
+2026-03-25,Retention,NSW,66,42,12,3,9.7,,1
+2026-03-26,Billing,VIC,46,33,4,0,12.4,3.7,1
+2026-03-27,Installations,WA,28,23,1,0,29.9,4.6,1
+2026-03-28,Installations,NSW,33,24,8,1,33.0,,1
+2026-03-29,Retention,QLD,14,13,3,0,15.1,2.5,0
+2026-03-30,Billing,SA,34,26,4,0,17.4,2.9,1
+2026-03-31,Technical Support,TAS,25,20,2,1,14.8,4.5,1
+2026-04-01,Billing,VIC,24,18,5,0,9.6,2.8,1
+2026-04-02,Technical Support,TAS,15,10,2,0,19.0,4.3,0
+2026-04-03,Billing,QLD,59,45,13,0,29.5,3.8,1
+2026-04-04,Retention,VIC,28,24,0,0,29.5,4.3,1
+2026-04-05,Field Service,WA,58,49,7,2,9.5,,1
+2026-04-06,Field Service,VIC,59,57,12,5,6.1,4.7,1
+2026-04-07,Installations,SA,36,26,2,1,8.0,4.2,1
+2026-04-08,Retention,NSW,51,33,4,3,29.3,2.6,0
+2026-04-09,Field Service,NSW,49,37,4,1,25.1,3.8,0
+2026-04-10,Account Changes,SA,44,30,5,1,26.3,3.6,1
+2026-04-11,Technical Support,NSW,58,48,9,3,11.7,3.5,1
+2026-04-12,Installations,VIC,49,33,5,1,21.0,3.2,0
+2026-04-13,Technical Support,NSW,70,46,8,3,8.9,3.6,1
+2026-04-14,Field Service,SA,30,22,4,0,19.8,2.9,1
+2026-04-15,Field Service,NSW,10,8,2,0,13.9,3.9,1
+2026-04-16,Retention,SA,67,52,14,1,7.1,3.9,1
+2026-04-17,Retention,NSW,44,31,6,0,8.9,,1
+2026-04-18,Complaints,SA,64,59,13,1,25.1,,1
+2026-04-19,Account Changes,TAS,15,13,0,0,26.8,,0
+2026-04-20,Complaints,WA,59,52,5,2,14.7,,0
+2026-04-21,Account Changes,TAS,34,26,4,2,17.7,,1
+2026-04-22,Account Changes,WA,9,8,2,0,28.9,4.3,1
+2026-04-23,Retention,SA,27,17,7,0,21.8,4.8,1
+2026-04-24,Retention,NSW,50,38,10,3,35.6,2.9,1
+2026-04-25,Field Service,VIC,14,11,2,0,32.0,,0
+2026-04-26,Technical Support,NSW,14,9,1,0,35.3,3.9,1
+2026-04-27,Installations,SA,19,16,2,1,8.0,3.2,1
+2026-04-28,Technical Support,SA,45,29,3,3,24.4,,1
+2026-04-29,Field Service,TAS,54,41,7,3,26.4,3.4,1
+2026-04-30,Field Service,SA,55,51,2,0,19.1,4.1,1
+2026-05-01,Billing,QLD,14,12,2,1,25.2,4.0,1
+2026-05-02,Account Changes,QLD,30,20,6,1,17.4,2.4,1
+2026-05-03,Installations,WA,48,30,7,2,13.6,2.5,1
+2026-05-04,Billing,TAS,21,19,1,0,24.7,4.0,1
+2026-05-05,Field Service,SA,57,38,10,1,26.9,4.9,0
+2026-05-06,Complaints,QLD,22,18,5,0,35.2,3.7,1
+2026-05-07,Complaints,TAS,17,14,2,0,8.3,3.5,0
+2026-05-08,Installations,SA,32,28,3,1,12.6,2.9,1
+2026-05-09,Retention,WA,9,7,0,0,23.2,3.7,1
+2026-05-10,Field Service,WA,28,17,7,0,16.9,3.8,1
+2026-05-11,Retention,NSW,35,32,7,3,12.4,3.1,1
+2026-05-12,Technical Support,NSW,21,13,3,0,22.0,4.7,1
+2026-05-13,Technical Support,SA,31,27,4,0,34.0,,0
+2026-05-14,Technical Support,NSW,56,47,7,4,30.5,4.7,1
+2026-03-01,Billing,NSW,53,33,13,3,33.5,3.8,1
+2026-03-02,Billing,WA,12,10,0,0,10.7,4.2,1
+2026-03-03,Complaints,NSW,21,14,3,0,22.7,2.5,1
+2026-03-04,Billing,SA,15,9,0,0,20.9,,1
+2026-03-05,Installations,WA,68,46,16,5,27.1,4.4,1
+2026-03-06,Technical Support,QLD,54,47,2,1,14.3,3.0,0
+2026-03-07,Account Changes,SA,63,44,9,4,27.3,4.6,1
+2026-03-08,Field Service,NSW,61,48,8,5,22.9,2.9,1
+2026-03-09,Technical Support,WA,53,46,7,2,28.8,4.7,1
+2026-03-10,Account Changes,VIC,34,27,5,1,28.4,,1
+2026-03-11,Account Changes,WA,59,48,5,1,28.2,3.0,1
+2026-03-12,Account Changes,QLD,58,51,7,2,29.6,4.5,1
+2026-03-13,Account Changes,QLD,11,10,2,0,26.9,3.0,1
+2026-03-14,Installations,WA,10,8,0,0,24.8,3.9,1
+2026-03-15,Retention,WA,51,39,14,2,14.8,4.3,0
+2026-03-16,Billing,VIC,59,54,12,2,22.9,,1
+2026-03-17,Complaints,SA,48,40,9,2,35.1,4.0,1
+2026-03-18,Installations,SA,63,46,2,4,28.7,,1
+2026-03-19,Field Service,NSW,54,35,13,0,16.4,3.6,1
+2026-03-20,Account Changes,WA,45,36,10,3,17.1,3.1,1
+2026-03-21,Billing,VIC,44,37,12,3,8.1,3.5,1
+2026-03-22,Billing,WA,20,19,1,0,28.2,3.7,1
+2026-03-23,Field Service,VIC,18,13,3,0,14.8,3.4,1
+2026-03-24,Retention,SA,39,26,8,1,24.6,3.8,0
+2026-03-25,Account Changes,VIC,27,21,0,0,26.0,4.9,1
+2026-03-26,Installations,SA,36,29,2,2,9.8,,1
+2026-03-27,Installations,QLD,63,46,5,2,35.4,3.5,1
+2026-03-28,Retention,TAS,43,33,10,1,15.4,4.1,1
+2026-03-29,Complaints,QLD,53,49,13,4,14.2,3.4,0
+2026-03-30,Installations,QLD,56,44,15,1,11.0,3.5,1
+2026-03-31,Field Service,NSW,51,39,7,3,19.4,4.3,1
+2026-04-01,Field Service,TAS,59,38,14,0,11.1,3.9,1
+2026-04-02,Field Service,QLD,19,15,0,1,17.7,4.7,1
+2026-04-03,Complaints,VIC,21,18,2,1,10.0,,1
+2026-04-04,Installations,SA,67,46,3,0,8.3,,1
+2026-04-05,Billing,TAS,25,15,5,0,28.9,4.8,1
+2026-04-06,Retention,VIC,14,10,0,0,16.9,3.0,1
+2026-04-07,Field Service,TAS,37,33,1,3,26.5,3.9,1
+2026-04-08,Field Service,NSW,64,45,12,0,21.7,2.8,1
+2026-04-09,Complaints,SA,70,66,7,3,6.1,2.9,1
+2026-04-10,Account Changes,SA,64,52,5,3,34.5,,1
+2026-04-11,Field Service,QLD,46,30,2,2,12.5,2.4,1
+2026-04-12,Technical Support,SA,67,55,12,2,15.4,4.9,1
+2026-04-13,Technical Support,TAS,21,13,3,0,27.4,2.9,0
+2026-04-14,Account Changes,WA,15,10,3,0,6.8,2.8,0
+2026-04-15,Billing,WA,44,32,2,0,18.0,,1
+2026-04-16,Installations,WA,51,46,7,2,9.2,3.4,1
+2026-04-17,Field Service,VIC,23,18,1,1,25.8,,1
+2026-04-18,Retention,VIC,65,41,6,4,33.1,3.9,1
+2026-04-19,Account Changes,WA,60,46,3,3,13.9,3.6,0
+2026-04-20,Account Changes,QLD,39,37,9,4,34.7,3.5,1
+2026-04-21,Account Changes,NSW,60,53,13,3,17.9,4.7,0
+2026-04-22,Installations,WA,44,29,6,0,25.3,3.4,0
+2026-04-23,Complaints,VIC,55,45,14,0,34.2,4.0,1
+2026-04-24,Complaints,WA,21,20,2,0,16.0,3.1,1
+2026-04-25,Retention,NSW,54,47,11,3,34.8,3.0,1
+2026-04-26,Complaints,SA,28,22,2,1,16.3,3.8,1
+2026-04-27,Account Changes,VIC,68,50,10,5,14.4,4.1,1
+2026-04-28,Billing,SA,39,34,10,0,26.8,4.8,1
+2026-04-29,Field Service,WA,33,31,4,1,10.9,3.5,1
+2026-04-30,Retention,SA,57,40,13,1,10.6,,1
+2026-05-01,Field Service,QLD,43,33,11,3,14.4,,1
+2026-05-02,Complaints,TAS,12,10,2,0,17.0,2.4,0
+2026-05-03,Technical Support,QLD,25,19,3,2,14.4,4.7,1
+2026-05-04,Installations,SA,48,34,1,3,13.5,3.6,1
+2026-05-05,Billing,TAS,46,44,8,2,32.4,4.9,1
+2026-05-06,Account Changes,WA,25,23,1,1,22.5,4.2,0
+2026-05-07,Retention,VIC,35,33,4,0,34.0,4.7,1
+2026-05-08,Technical Support,SA,29,27,5,2,25.8,4.6,1
+2026-05-09,Account Changes,VIC,38,31,10,0,10.1,4.6,1
+2026-05-10,Billing,TAS,11,9,0,0,18.1,4.8,0
+2026-05-11,Installations,NSW,20,17,1,0,22.6,4.4,1
+2026-05-12,Retention,TAS,51,38,6,0,15.9,2.7,1
+2026-05-13,Account Changes,WA,32,28,8,0,19.7,,1
+2026-05-14,Technical Support,WA,38,36,10,0,19.0,4.1,1
+2026-03-01,Billing,TAS,59,40,14,2,28.4,4.7,1
+2026-03-02,Account Changes,WA,29,23,3,0,18.8,4.6,1
+2026-03-03,Billing,VIC,49,43,10,2,25.0,2.6,1
+2026-03-04,Billing,WA,21,18,4,0,10.8,3.8,1
+2026-03-05,Technical Support,QLD,47,39,5,0,14.7,3.1,1
+2026-03-06,Field Service,QLD,26,22,3,2,34.2,4.3,1
+2026-03-07,Field Service,VIC,42,35,1,2,26.3,3.9,1
+2026-03-08,Field Service,VIC,70,65,9,0,20.6,4.0,1
+2026-03-09,Complaints,TAS,69,59,11,0,23.1,3.6,1
+2026-03-10,Complaints,NSW,47,39,7,2,23.8,,0
+2026-03-11,Retention,WA,63,45,5,5,33.9,3.2,1
+2026-03-12,Field Service,QLD,32,21,5,1,26.5,3.1,0
+2026-03-13,Account Changes,SA,17,14,0,1,21.3,3.3,1
+2026-03-14,Billing,VIC,42,37,4,1,26.3,3.9,1
+2026-03-15,Technical Support,WA,33,20,4,2,31.2,4.3,1
+2026-03-16,Account Changes,NSW,48,32,6,1,11.4,4.6,1
+2026-03-17,Account Changes,NSW,32,28,4,1,24.8,3.1,1
+2026-03-18,Technical Support,QLD,57,47,9,0,21.3,2.8,1
+2026-03-19,Retention,QLD,39,34,6,1,16.9,3.2,1
+2026-03-20,Retention,QLD,61,58,10,4,15.9,3.9,1
+2026-03-21,Installations,SA,48,33,7,1,35.6,,0
+2026-03-22,Complaints,SA,8,5,2,0,26.4,,1
+2026-03-23,Complaints,SA,18,17,3,1,22.7,,1
+2026-03-24,Technical Support,VIC,37,24,3,2,18.0,4.3,1
+2026-03-25,Account Changes,VIC,69,58,10,6,29.6,,1
+2026-03-26,Technical Support,TAS,53,36,6,1,10.5,3.7,0
+2026-03-27,Account Changes,QLD,35,33,6,0,22.3,4.3,1
+2026-03-28,Billing,VIC,17,12,1,0,10.6,3.3,1
+2026-03-29,Billing,SA,60,39,6,2,20.3,2.7,1
+2026-03-30,Account Changes,VIC,34,27,3,0,14.3,4.1,1
+2026-03-31,Installations,VIC,30,19,6,2,27.6,3.0,0
+2026-04-01,Account Changes,SA,67,49,15,3,14.0,3.7,1
+2026-04-02,Complaints,SA,16,10,1,0,19.8,,1
+2026-04-03,Complaints,VIC,14,11,1,0,31.2,,1
+2026-04-04,Technical Support,VIC,28,17,5,0,33.9,3.5,1
+2026-04-05,Installations,VIC,69,49,5,0,21.9,2.8,1
+2026-04-06,Installations,QLD,61,48,9,4,23.1,4.6,1
+2026-04-07,Account Changes,QLD,47,37,3,0,7.4,4.6,1
+2026-04-08,Field Service,NSW,62,51,2,4,18.1,3.4,1
+2026-04-09,Technical Support,SA,66,49,18,0,9.1,3.0,1
+2026-04-10,Complaints,WA,66,56,13,0,16.6,4.2,0
+2026-04-11,Complaints,TAS,34,30,2,2,36.0,3.0,1
+2026-04-12,Field Service,TAS,27,19,2,0,16.1,3.7,1
+2026-04-13,Retention,WA,54,45,6,5,27.6,2.5,1
+2026-04-14,Complaints,VIC,22,16,5,0,34.3,4.5,1
+2026-04-15,Installations,NSW,11,9,0,1,8.8,3.6,1
+2026-04-16,Complaints,NSW,28,26,5,0,6.6,4.7,1
+2026-04-17,Billing,QLD,57,36,6,2,22.6,3.2,1
+2026-04-18,Complaints,TAS,58,47,15,3,34.5,3.9,1
+2026-04-19,Retention,SA,44,31,8,0,30.7,3.3,1
+2026-04-20,Installations,SA,23,14,3,0,19.1,3.5,1
+2026-04-21,Billing,SA,53,48,8,2,31.2,3.3,1
+2026-04-22,Billing,TAS,46,43,11,2,9.8,3.5,1
+2026-04-23,Retention,QLD,22,19,1,1,22.3,2.6,1
+2026-04-24,Account Changes,WA,44,34,1,3,23.2,4.2,1
+2026-04-25,Retention,SA,31,29,7,2,11.0,4.3,1
+2026-04-26,Complaints,VIC,48,39,5,0,18.0,,1
+2026-04-27,Installations,QLD,67,52,11,5,7.2,4.5,1
+2026-04-28,Complaints,WA,32,27,0,0,32.9,3.1,1
+2026-04-29,Retention,SA,23,19,4,1,7.0,4.4,0
+2026-04-30,Account Changes,QLD,41,26,9,1,30.5,3.3,1
+2026-05-01,Installations,QLD,21,14,3,1,17.2,3.6,1
+2026-05-02,Field Service,VIC,9,6,1,0,34.6,2.7,0
+2026-05-03,Billing,SA,62,43,10,4,30.5,3.1,1
+2026-05-04,Complaints,VIC,37,23,1,0,13.6,2.6,1
+2026-05-05,Account Changes,QLD,32,27,5,2,10.4,2.7,1
+2026-05-06,Complaints,SA,10,6,0,0,29.4,2.6,1
+2026-05-07,Retention,QLD,59,39,2,1,11.5,3.3,1
+2026-05-08,Account Changes,NSW,44,39,6,3,19.1,3.2,1
+2026-05-09,Billing,VIC,11,7,2,0,28.6,,1
+2026-05-10,Technical Support,QLD,23,21,4,1,27.1,3.8,1
+2026-05-11,Installations,VIC,49,30,8,2,7.4,2.6,0
+2026-05-12,Installations,QLD,36,31,2,0,23.7,2.7,1
+2026-05-13,Retention,SA,21,19,3,0,22.5,3.6,1
+2026-05-14,Technical Support,TAS,29,19,4,0,35.3,4.7,1
+2026-03-01,Billing,SA,33,22,6,0,34.2,4.0,1
+2026-03-02,Technical Support,NSW,46,31,2,0,32.6,3.2,1
+2026-03-03,Billing,TAS,39,25,6,1,22.6,2.5,1
+2026-03-04,Billing,VIC,13,12,1,0,9.6,3.7,1
+2026-03-05,Billing,TAS,23,16,4,1,35.6,4.4,1

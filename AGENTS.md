@@ -46,6 +46,32 @@ Module boundary principles:
 - Chart selection owns evidence selection and visualization relevance. Charts should explain trusted facts, not invent or override them.
 - Suggested Questions own safe follow-up discovery. They should propose likely next questions based on capabilities and trusted facts, not push the user into unsupported analyses.
 
+Executive Insight Principles:
+
+- Executive Insight and Suggested Questions are sibling consumers of trusted facts, grounding context, domain profile, KPI summaries, and chart summaries. Executive Insight must not generate Suggested Questions, rewrite Suggested Questions into insight bullets, or use Suggested Questions as fallback insight filler.
+- Preferred flow: trusted facts / grounding / domain profile -> Executive Insight, Suggested Questions, and Ask as separate consumers. Avoid Executive Insight -> Suggested Questions and Suggested Questions -> Executive Insight filler loops.
+- Executive Insight must be grounded in computed KPI facts, chart summaries, domain profile, grounding confidence, reliability warnings, and validated semantic signals. It must not invent business conclusions, unsupported causality, optimization advice, or promote weak metrics as strong conclusions.
+- LLMs may organize and explain grounded Executive Insight facts, but must not invent unsupported business meaning, choose winners from weak evidence, use external knowledge, or expose unsupported composite scores as public insight.
+- Executive Insight must be domain-aware. Do not assume every dataset is performance marketing: call tracking / attribution can use performance marketing framing; operations / support should use operations framing; retail / inventory should use commercial operations framing; energy / solar should use operational or usage framing; generic / unknown should use cautious business analyst framing.
+- Avoid campaign optimization language on energy data, budget allocation language on operations data, and ROAS language on generic datasets unless those meanings are strongly grounded.
+- Prefer 2-4 strong grounded insights over 6 weak filler bullets. If insight quality is low, show fewer bullets rather than padding with row counts, column counts, obvious chart restatements, generic trend advice, or recommendations without grounded business meaning.
+- Keep Data Summary and Executive Insight separated. Data Summary owns row count, column count, date range, missingness, and schema/profile metadata. Executive Insight owns business implications, operational risk, concentration, decision-relevant reliability caveats, and grounded investigation direction.
+- Metadata should not leak into Executive Insight unless it directly affects decision confidence.
+- Future architecture should move toward a lightweight `ExecutiveInsightFacts` adapter built from trusted KPIs, chart summaries, grounding confidence, trust warnings, domain profile, and validated semantic signals. Avoid raw chart/profile -> direct LLM narrative flows.
+- Executive Insight fixes should improve generalized behavior, avoid dataset-specific wording hacks, avoid giant taxonomy systems, and avoid overfitting to synthetic blind QA datasets.
+
+Executive Insight <-> Chart Interaction Principles:
+
+- Existing dashboard chart highlighting is the primary behavior. When a user interacts with an Executive Insight, first try to match and highlight an existing dashboard chart; prefer navigation and highlighting over creating new charts.
+- Default flow: Executive Insight -> existing chart highlight. Avoid Executive Insight -> automatically generated dashboard charts.
+- Lightweight contextual charts are fallback-only when no suitable dashboard chart exists. They are temporary, contextual support and must not permanently modify the dashboard layout, enter dashboard chart ranking, replace upload-time chart selection, or become part of dashboard orchestration.
+- Contextual charts should stay simple: one active contextual chart at a time is preferred, using a simple bar chart, trend line, or comparison chart. Avoid multi-chart dashboards, autonomous chart generation, complex orchestration, or chart flooding.
+- Insight-to-chart linkage must be deterministic and grounded. Preferred flow: `ExecutiveInsightFacts` -> grounded metric/dimension -> existing chart match -> highlight -> optional contextual fallback.
+- Do not allow hallucinated chart evidence, freeform LLM chart selection, or unsupported metric/dimension chart generation.
+- Executive Insight should not directly control dashboard chart ranking, dashboard chart orchestration, or upload-time chart selection. Contextual visualization is a support layer, not a replacement chart system.
+- Trustworthiness is more important than visual richness. No chart is better than a misleading chart, especially when grounding is weak, metric/dimension linkage is unclear, relationship evidence is unsupported, or domain interpretation is uncertain.
+- Avoid giant chart ontology systems, autonomous chart reasoning agents, and excessive chart lifecycle complexity. Prefer lightweight linkage metadata, deterministic chart matching, and a simple contextual visualization fallback.
+
 LLM permission principles:
 
 - LLM output may rewrite, summarize, or explain trusted computed facts.

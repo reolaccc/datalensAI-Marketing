@@ -386,6 +386,28 @@ function hasStrongCallTrackingSignals(roleSet: Set<string>) {
   ].some((role) => roleSet.has(role));
 }
 
+function profileHasAnyColumn(profile: DatasetProfile, patterns: RegExp[]) {
+  const names = [
+    ...profile.columns.map((column) => column.name),
+    ...profile.numericColumns,
+    ...profile.categoricalColumns,
+    ...profile.datetimeColumns
+  ].map((name) => normalizeName(name));
+
+  return names.some((name) => patterns.some((pattern) => pattern.test(name)));
+}
+
+function isCrmPipelineProfile(profile: DatasetProfile) {
+  const stage = profileHasAnyColumn(profile, [/\bcustomer journey\b/, /\bjourney\b/, /\blifecycle\b/, /\bsales stage\b/, /\bpipeline\b/]);
+  const followUp = profileHasAnyColumn(profile, [/\bcallback\b/, /\bcontact attempts\b/, /\bfollow up\b/, /\brecontact\b/]);
+  const owner = profileHasAnyColumn(profile, [/\bowner team\b/, /\bowner pod\b/, /\bsales owner\b/, /\baccount owner\b/]);
+  const outcome = profileHasAnyColumn(profile, [/\bclosed won\b/, /\bdeal won\b/, /\bopportunity\b/]);
+  const value = profileHasAnyColumn(profile, [/\bestimated pipeline value\b/, /\bexpected pipeline amount\b/, /\brealized revenue\b/]);
+  const explicitCall = profileHasAnyColumn(profile, [/\bcall uid\b/, /\bcall id\b/, /\bcaller number\b/, /\btracking number\b/, /\bcall started\b/, /\btalk time\b/]);
+
+  return !explicitCall && stage && [followUp, owner, outcome, value].filter(Boolean).length >= 2;
+}
+
 function getSemanticKpiBusinessPriority(key: string, mode: CallKpiMode, callFocused = true) {
   const callAttributionPriorities: Record<string, number> = {
     total_calls: 1000,
@@ -544,6 +566,28 @@ function revenueDescription(sourceColumn: string | null, attributionCopy: boolea
     return "Job value attributed to tracked calls.";
   }
   return "Revenue value attributed to tracked calls.";
+}
+
+function crmValueLabel(sourceColumn: string | null) {
+  const normalized = normalizeName(String(sourceColumn ?? ""));
+  if (/\bestimated\b|\bpipeline\b|\bexpected\b/.test(normalized)) {
+    return "Estimated Pipeline Value";
+  }
+  if (/\brealized\b|\brevenue\b/.test(normalized)) {
+    return "Realized Revenue";
+  }
+  return "Pipeline Value";
+}
+
+function crmValueDescription(sourceColumn: string | null) {
+  const normalized = normalizeName(String(sourceColumn ?? ""));
+  if (/\bestimated\b|\bpipeline\b|\bexpected\b/.test(normalized)) {
+    return "Estimated pipeline value captured in the CRM dataset.";
+  }
+  if (/\brealized\b|\brevenue\b/.test(normalized)) {
+    return "Realized revenue captured in the CRM dataset.";
+  }
+  return "Value captured in the CRM pipeline dataset.";
 }
 
 function hasValidRatio(numerator: number | null, denominator: number | null) {
@@ -779,8 +823,9 @@ function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): Kpi
 
   const roleSet = buildSemanticRoleSet(profile);
   const businessMode = getCallKpiMode(profile, roleSet);
-  const callFocusedPriority = hasStrongCallTrackingSignals(roleSet);
-  const attributionCopy = businessMode === "attribution";
+  const crmPipelineProfile = isCrmPipelineProfile(profile);
+  const callFocusedPriority = !crmPipelineProfile && hasStrongCallTrackingSignals(roleSet);
+  const attributionCopy = businessMode === "attribution" && !crmPipelineProfile;
   const enabledSemanticKpiKeys = new Set(profile.semanticContract.enabledKpis?.map((item) => item.key) ?? []);
   const cards: MetricObservation[] = [];
   const calls = aggregateSemanticMetric(rows, "calls", profile);
@@ -842,12 +887,14 @@ function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): Kpi
     cards.push(
       buildSemanticMetricObservation({
         key: "total_calls",
-        label: populationIsLeads ? "Total Leads" : populationIsCalls ? "Total Calls" : "Total Activity",
+        label: crmPipelineProfile ? "Lead Volume" : populationIsLeads ? "Total Leads" : populationIsCalls ? "Total Calls" : "Total Activity",
         value: callVolumeFallback,
         metricType: "count",
         unit: populationMeaning.plural,
         formula: callsFormula,
-        description: attributionCopy
+        description: crmPipelineProfile
+          ? "Total lead volume captured in the CRM pipeline dataset."
+          : attributionCopy
           ? `Total tracked ${populationMeaning.plural} across marketing channels.`
           : `Total ${populationMeaning.plural} captured in the dataset.`,
         sourceColumns: [explicitCallsColumn ?? callIdColumn ?? "calls"],
@@ -893,7 +940,9 @@ function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): Kpi
         metricType: "count",
         unit: qualifiedMeaning.plural,
         formula: "sum(qualifiedCall)",
-        description: attributionCopy && populationIsCalls
+        description: crmPipelineProfile
+          ? "Leads marked as qualified in the CRM pipeline fields."
+          : attributionCopy && populationIsCalls
           ? "Tracked calls marked as sales-qualified."
           : attributionCopy
             ? `${humanize(qualifiedMeaning.plural)} marked as sales-qualified.`
@@ -910,12 +959,18 @@ function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): Kpi
     cards.push(
       buildSemanticMetricObservation({
         key: "converted_calls",
-        label: conversionMeaning.plural === "closed-won conversions" ? "Closed-Won Conversions" : "Conversions",
+        label: crmPipelineProfile
+          ? "Closed-Won Outcomes"
+          : conversionMeaning.plural === "closed-won conversions"
+            ? "Closed-Won Conversions"
+            : "Conversions",
         value: convertedCalls,
         metricType: "count",
         unit: conversionMeaning.plural,
         formula: "sum(convertedCall)",
-        description: `${humanize(conversionMeaning.plural)} captured by the conversion field.`,
+        description: crmPipelineProfile
+          ? "Closed-won outcomes captured in the CRM pipeline fields."
+          : `${humanize(conversionMeaning.plural)} captured by the conversion field.`,
         sourceColumns: [convertedSourceColumn],
         priority: 92,
         profile,
@@ -934,7 +989,9 @@ function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): Kpi
         metricType: "percentage",
         unit: "%",
         formula: `sum(${qualifiedSourceColumn}) / ${callsFormula}`,
-        description: populationIsLeads
+        description: crmPipelineProfile
+          ? "Share of lead volume marked as qualified."
+          : populationIsLeads
           ? "Share of leads that met the qualified threshold."
           : populationIsCalls
             ? "Share of tracked calls that were marked as qualified."
@@ -952,12 +1009,14 @@ function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): Kpi
     cards.push(
       buildSemanticMetricObservation({
         key: "conversion_rate",
-        label: "Conversion Rate",
+        label: crmPipelineProfile ? "Closed-Won Rate" : "Conversion Rate",
         value: conversionRatePercent,
         metricType: "percentage",
         unit: "%",
         formula: `sum(${convertedSourceColumn}) / ${callsFormula}`,
-        description: `Share of ${populationMeaning.plural} that became ${conversionMeaning.plural}.`,
+        description: crmPipelineProfile
+          ? "Share of lead volume that reached closed-won outcome status."
+          : `Share of ${populationMeaning.plural} that became ${conversionMeaning.plural}.`,
         sourceColumns: [convertedSourceColumn, callsSourceColumn ?? "tracked records"],
         priority: 89,
         profile,
@@ -970,12 +1029,12 @@ function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): Kpi
     cards.push(
       buildSemanticMetricObservation({
         key: "total_revenue",
-        label: callFocusedPriority ? "Revenue from Calls" : "Total Revenue",
+        label: crmPipelineProfile ? crmValueLabel(revenueSourceColumn) : callFocusedPriority ? "Revenue from Calls" : "Total Revenue",
         value: revenue,
         metricType: "currency",
         unit: "",
         formula: "sum(revenue)",
-        description: revenueDescription(revenueSourceColumn, attributionCopy),
+        description: crmPipelineProfile ? crmValueDescription(revenueSourceColumn) : revenueDescription(revenueSourceColumn, attributionCopy),
         sourceColumns: [revenueSourceColumn],
         priority: 98,
         profile,
@@ -1028,12 +1087,14 @@ function buildSemanticKpiCards(rows: DatasetRow[], profile: DatasetProfile): Kpi
     cards.push(
       buildSemanticMetricObservation({
         key: "revenue_per_call",
-        label: populationIsLeads ? "Revenue per Lead" : populationIsCalls ? "Revenue per Call" : "Revenue per Activity",
+        label: crmPipelineProfile ? "Pipeline Value per Lead" : populationIsLeads ? "Revenue per Lead" : populationIsCalls ? "Revenue per Call" : "Revenue per Activity",
         value: revenue / calls,
         metricType: "currency",
         unit: "",
         formula: `sum(revenue) / ${callsFormula}`,
-        description: `Average revenue generated per tracked ${populationMeaning.singular}.`,
+        description: crmPipelineProfile
+          ? "Average pipeline value per tracked lead."
+          : `Average revenue generated per tracked ${populationMeaning.singular}.`,
         sourceColumns: [findSemanticSourceColumn(profile, "revenue") ?? "revenue", callsSourceColumn ?? "tracked records"],
         priority: 87,
         profile,

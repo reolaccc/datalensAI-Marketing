@@ -1,7 +1,6 @@
-import { useState } from "react";
 import { useAnalysisStore } from "../stores/analysisStore";
 import { downloadWorkspaceReportMarkdown } from "../dashboard/workspaceReport";
-import { WorkspaceLibraryPanel } from "../dashboard/WorkspaceLibraryPanel";
+import { useState } from "react";
 
 export function TopBar() {
   const [dragActive, setDragActive] = useState(false);
@@ -12,11 +11,7 @@ export function TopBar() {
   const pinnedInsights = useAnalysisStore((state) => state.pinnedInsights);
   const analyzeFile = useAnalysisStore((state) => state.analyzeFile);
   const clearCurrentAnalysis = useAnalysisStore((state) => state.clearCurrentAnalysis);
-  const saveCurrentWorkspaceSnapshot = useAnalysisStore((state) => state.saveCurrentWorkspaceSnapshot);
   const shareCurrentWorkspace = useAnalysisStore((state) => state.shareCurrentWorkspace);
-  const workspaceSnapshots = useAnalysisStore((state) => state.workspaceSnapshots);
-  const activeWorkspaceSnapshotId = useAnalysisStore((state) => state.activeWorkspaceSnapshotId);
-  const [sessionsOpen, setSessionsOpen] = useState(false);
   const loading = useAnalysisStore((state) => state.loading);
   const error = useAnalysisStore((state) => state.error);
   const hasCurrentSession = Boolean(analysis || fileName || error || loading);
@@ -76,16 +71,6 @@ export function TopBar() {
           <div className="upload-action-row">
             <div className="top-bar-actions">
               <button
-                className="primary-action"
-                disabled={!analysis}
-                onClick={() => {
-                  saveCurrentWorkspaceSnapshot();
-                }}
-                type="button"
-              >
-                Save
-              </button>
-              <button
                 className="secondary-action"
                 disabled={!analysis}
                 onClick={() => {
@@ -98,8 +83,7 @@ export function TopBar() {
                     analysis,
                     questionAnswer,
                     questionHistory,
-                    pinnedInsights,
-                    savedAt: workspaceSnapshots.find((snapshot) => snapshot.id === activeWorkspaceSnapshotId)?.savedAt
+                    pinnedInsights
                   });
                 }}
                 type="button"
@@ -127,30 +111,17 @@ export function TopBar() {
               </button>
               <button
                 className="secondary-action"
-                type="button"
-                onClick={() => setSessionsOpen((current) => !current)}
-              >
-                Sessions
-              </button>
-              <button
-                className="secondary-action"
                 disabled={!hasCurrentSession}
                 onClick={() => clearCurrentAnalysis()}
                 type="button"
               >
-                Clear
+                Reset Analysis
               </button>
             </div>
             {error && !analysis ? <p className="error-text">{error}</p> : null}
           </div>
         </div>
       </div>
-
-      {sessionsOpen ? (
-        <div className="top-bar-sessions-popover panel">
-          <WorkspaceLibraryPanel compact showActions={false} />
-        </div>
-      ) : null}
     </header>
   );
 }

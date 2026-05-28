@@ -1,0 +1,361 @@
+call_uid,call_start_local,traffic_src,campaign_name,device,call_count,missed_calls,qualified_calls,converted_calls,duration_sec,media_spend_aud,job_revenue_aud,call_status
+CALL-10000,2025-01-18,Organic Search,Local Service,desktop,2,0,1,0,381,,922.38,answered
+CALL-10001,2025-03-03,Meta Ads,Promo,mobile,4,0,2,0,136,44.64,425.74,voicemail
+CALL-10002,2025-03-11,Direct,Brand,mobile,1,0,0,0,287,,0.0,answered
+CALL-10003,2025-02-07,Programmatic,Local Service,mobile,4,0,1,0,156,101.27,609.87,answered
+CALL-10004,2025-03-25,Referral,Promo,tablet,3,0,0,0,72,,0.0,answered
+CALL-10005,2025-02-17,Google Ads,Generic,mobile,9,2,1,1,219,55.41,,voicemail
+CALL-10006,2025-01-26,Email,Retargeting,mobile,3,0,1,0,352,,354.03,abandoned
+CALL-10007,2025-01-21,Google Ads,Retargeting,desktop,6,0,2,1,344,50.78,1788.5,answered
+CALL-10008,2025-02-12,Organic Search,Generic,mobile,3,1,0,0,300,,,answered
+CALL-10009,2025-02-13,Direct,Retargeting,mobile,3,1,0,0,152,,0.0,answered
+CALL-10010,2025-01-28,Meta Ads,Competitor,mobile,6,0,1,0,224,60.38,515.97,answered
+CALL-10011,2025-03-01,Meta Ads,Generic,desktop,6,0,0,0,41,33.69,0.0,answered
+CALL-10012,2025-03-03,Google Ads,Promo,mobile,9,1,4,0,71,95.87,3350.76,answered
+CALL-10013,2025-02-28,Organic Search,Competitor,mobile,5,0,1,1,167,,597.93,missed
+CALL-10014,2025-01-24,Referral,Promo,mobile,1,0,0,0,262,,0.0,answered
+CALL-10015,2025-01-29,Organic Search,Local Service,desktop,4,0,1,0,390,,470.47,answered
+CALL-10016,2025-01-18,Email,Emergency,mobile,1,0,1,0,368,,542.84,answered
+CALL-10017,2025-03-17,Organic Search,Generic,mobile,5,0,1,0,83,,466.12,voicemail
+CALL-10018,2025-02-08,Organic Search,Brand,desktop,2,1,0,0,167,,,missed
+CALL-10019,2025-01-15,Referral,Local Service,mobile,4,1,1,0,279,,1162.63,abandoned
+CALL-10020,2025-01-17,Meta Ads,Promo,mobile,4,0,2,0,208,148.7,1073.59,answered
+CALL-10021,2025-03-17,Meta Ads,Brand,mobile,1,0,1,1,262,65.9,613.42,answered
+CALL-10022,2025-03-04,Email,Promo,mobile,2,0,0,0,323,,0.0,missed
+CALL-10023,2025-01-27,Google Ads,Emergency,desktop,6,0,1,0,74,93.79,740.46,answered
+CALL-10024,2025-01-15,Google Ads,Emergency,mobile,7,1,2,2,295,30.47,2058.56,answered
+CALL-10025,2025-03-10,Organic Search,Retargeting,desktop,6,1,0,0,207,,0.0,answered
+CALL-10026,2025-02-07,Google Ads,Emergency,mobile,10,1,3,1,129,55.67,3523.69,missed
+CALL-10027,2025-02-28,Organic Search,Retargeting,mobile,3,1,1,1,192,,,answered
+CALL-10028,2025-03-07,Referral,Promo,tablet,1,0,0,0,240,,,answered
+CALL-10029,2025-01-08,Meta Ads,Generic,desktop,2,0,1,0,134,226.48,470.58,answered
+CALL-10030,2025-01-01,Referral,Retargeting,mobile,3,0,3,1,291,,3595.84,abandoned
+CALL-10031,2025-01-23,Programmatic,Competitor,mobile,1,1,0,0,112,91.71,,answered
+CALL-10032,2025-01-14,Email,Brand,mobile,2,0,1,0,230,,467.75,answered
+CALL-10033,2025-03-07,Meta Ads,Local Service,mobile,4,2,0,0,292,88.76,0.0,missed
+CALL-10034,2025-03-12,Google Ads,Emergency,desktop,6,0,3,0,174,53.28,3156.0,answered
+CALL-10035,2025-03-23,Email,Promo,desktop,2,1,0,0,322,,0.0,missed
+CALL-10036,2025-01-10,Organic Search,Promo,mobile,5,1,2,2,210,,1169.94,answered
+CALL-10037,2025-02-27,Organic Search,Retargeting,mobile,2,0,1,1,362,,856.9,answered
+CALL-10038,2025-02-21,Direct,Generic,mobile,3,0,0,0,129,,0.0,abandoned
+CALL-10039,2025-03-07,Google Ads,Promo,mobile,5,0,1,0,233,13.87,,answered
+CALL-10040,2025-03-18,Meta Ads,Local Service,mobile,3,1,0,0,196,16.54,,answered
+CALL-10041,2025-01-21,Organic Search,Local Service,mobile,5,2,0,0,282,,0.0,answered
+CALL-10042,2025-02-18,Referral,Emergency,desktop,3,0,2,0,244,,2174.29,answered
+CALL-10043,2025-03-17,Meta Ads,Local Service,mobile,5,1,0,0,215,229.98,0.0,abandoned
+CALL-10044,2025-01-22,Google Ads,Local Service,desktop,4,0,1,0,161,52.64,730.81,answered
+CALL-10045,2025-03-27,Direct,Emergency,mobile,3,1,0,0,243,,0.0,answered
+CALL-10046,2025-01-27,Meta Ads,Emergency,mobile,6,1,4,3,106,34.28,,missed
+CALL-10047,2025-02-27,Google Ads,Competitor,mobile,4,0,3,1,206,186.16,2360.71,answered
+CALL-10048,2025-03-11,Email,Retargeting,desktop,5,0,3,1,180,,2031.77,answered
+CALL-10049,2025-02-05,Google Ads,Generic,desktop,8,1,1,0,410,71.66,681.56,answered
+CALL-10050,2025-01-05,Google Ads,Retargeting,mobile,6,0,2,0,107,104.29,1716.42,answered
+CALL-10051,2025-02-24,Google Ads,Promo,mobile,7,2,1,1,254,41.17,849.91,answered
+CALL-10052,2025-01-01,Direct,Competitor,desktop,4,0,1,0,122,,905.85,missed
+CALL-10053,2025-02-01,Google Ads,Local Service,desktop,2,1,1,0,185,142.66,1082.29,answered
+CALL-10054,2025-02-24,Google Ads,Brand,mobile,4,0,3,3,209,16.92,1983.85,missed
+CALL-10055,2025-02-22,Programmatic,Local Service,mobile,2,0,0,0,163,95.86,,answered
+CALL-10056,2025-01-02,Google Ads,Promo,mobile,6,1,3,1,130,303.94,3118.91,answered
+CALL-10057,2025-02-17,Direct,Competitor,desktop,3,0,1,1,152,,322.31,missed
+CALL-10058,2025-01-13,Google Ads,Retargeting,desktop,7,0,3,1,458,200.61,,answered
+CALL-10059,2025-02-04,Programmatic,Retargeting,desktop,3,0,2,1,221,51.32,1500.92,voicemail
+CALL-10060,2025-02-09,Programmatic,Retargeting,mobile,1,0,0,0,276,51.15,0.0,answered
+CALL-10061,2025-03-13,Email,Competitor,mobile,3,1,0,0,281,,0.0,abandoned
+CALL-10062,2025-03-01,Direct,Local Service,mobile,4,0,1,1,110,,753.05,answered
+CALL-10063,2025-02-25,Organic Search,Brand,mobile,3,0,0,0,210,,0.0,answered
+CALL-10064,2025-03-08,Meta Ads,Generic,mobile,7,1,0,0,164,83.25,0.0,answered
+CALL-10065,2025-01-19,Google Ads,Promo,mobile,7,1,3,1,276,78.31,3509.08,answered
+CALL-10066,2025-03-04,Meta Ads,Competitor,mobile,5,2,2,1,590,58.61,786.96,answered
+CALL-10067,2025-02-19,Programmatic,Emergency,tablet,3,0,1,1,216,124.37,489.04,answered
+CALL-10068,2025-01-31,Programmatic,Retargeting,mobile,3,0,0,0,189,113.17,0.0,answered
+CALL-10069,2025-03-04,Email,Brand,desktop,2,0,1,0,191,,568.28,answered
+CALL-10070,2025-02-14,Google Ads,Generic,mobile,8,3,3,2,209,61.03,2526.2,answered
+CALL-10071,2025-03-01,Programmatic,Local Service,mobile,1,1,0,0,150,68.84,0.0,answered
+CALL-10072,2025-03-16,Programmatic,Local Service,mobile,4,1,1,0,105,49.5,632.49,answered
+CALL-10073,2025-01-19,Referral,Generic,desktop,2,0,2,2,195,,2394.27,answered
+CALL-10074,2025-01-28,Email,Promo,mobile,1,0,0,0,108,,0.0,answered
+CALL-10075,2025-03-11,Google Ads,Brand,mobile,3,1,1,0,174,153.11,633.05,voicemail
+CALL-10076,2025-03-04,Organic Search,Competitor,mobile,4,1,0,0,218,,0.0,answered
+CALL-10077,2025-01-13,Programmatic,Brand,mobile,2,0,0,0,262,145.91,0.0,missed
+CALL-10078,2025-03-05,Email,Competitor,mobile,2,0,1,1,79,,536.21,answered
+CALL-10079,2025-01-28,Google Ads,Competitor,mobile,4,1,2,1,165,90.32,1863.32,answered
+CALL-10080,2025-01-19,Direct,Promo,mobile,3,0,1,0,227,,,voicemail
+CALL-10081,2025-03-02,Google Ads,Emergency,mobile,6,0,3,2,167,78.71,2182.83,voicemail
+CALL-10082,2025-02-07,Direct,Competitor,desktop,2,1,0,0,75,,0.0,voicemail
+CALL-10083,2025-02-22,Programmatic,Brand,tablet,6,0,2,1,261,136.14,1777.47,answered
+CALL-10084,2025-03-27,Programmatic,Generic,desktop,3,1,1,0,274,147.59,690.39,answered
+CALL-10085,2025-01-16,Programmatic,Competitor,mobile,5,1,1,0,166,244.63,695.08,answered
+CALL-10086,2025-02-13,Meta Ads,Competitor,desktop,6,1,2,1,225,110.97,1278.91,missed
+CALL-10087,2025-03-26,Referral,Emergency,mobile,3,1,0,0,206,,0.0,answered
+CALL-10088,2025-01-08,Meta Ads,Competitor,desktop,8,1,1,0,107,109.9,502.36,answered
+CALL-10089,2025-01-21,Referral,Generic,mobile,1,0,0,0,294,,,answered
+CALL-10090,2025-01-16,Organic Search,Promo,mobile,6,1,3,0,246,,2204.4,answered
+CALL-10091,2025-02-16,Meta Ads,Competitor,desktop,4,1,1,1,282,48.87,330.89,answered
+CALL-10092,2025-01-25,Referral,Emergency,desktop,1,0,0,0,184,,,abandoned
+CALL-10093,2025-01-16,Direct,Competitor,desktop,5,0,0,0,138,,,missed
+CALL-10094,2025-01-11,Meta Ads,Competitor,mobile,6,0,1,1,255,65.98,654.14,answered
+CALL-10095,2025-01-07,Referral,Competitor,mobile,4,0,3,2,135,,3919.55,missed
+CALL-10096,2025-03-17,Programmatic,Retargeting,desktop,2,0,0,0,242,326.88,,answered
+CALL-10097,2025-02-25,Referral,Generic,mobile,4,0,2,1,376,,2754.64,answered
+CALL-10098,2025-01-31,Meta Ads,Competitor,tablet,5,1,2,1,434,140.37,,answered
+CALL-10099,2025-03-15,Referral,Retargeting,mobile,4,0,2,1,170,,2583.6,missed
+CALL-10100,2025-01-21,Direct,Retargeting,desktop,3,0,0,0,114,,,answered
+CALL-10101,2025-03-29,Organic Search,Brand,mobile,2,1,0,0,173,,0.0,answered
+CALL-10102,2025-01-07,Referral,Brand,mobile,3,0,1,0,481,,1272.09,answered
+CALL-10103,2025-02-27,Referral,Local Service,mobile,4,0,3,2,182,,,answered
+CALL-10104,2025-01-19,Organic Search,Emergency,mobile,3,2,0,0,87,,0.0,answered
+CALL-10105,2025-02-13,Programmatic,Local Service,mobile,1,0,0,0,102,38.49,0.0,answered
+CALL-10106,2025-01-10,Email,Local Service,mobile,2,0,1,0,348,,354.54,answered
+CALL-10107,2025-02-04,Meta Ads,Emergency,mobile,9,5,3,2,103,73.34,1337.55,abandoned
+CALL-10108,2025-01-21,Organic Search,Promo,desktop,1,0,0,0,283,,0.0,answered
+CALL-10109,2025-01-03,Programmatic,Retargeting,desktop,4,2,0,0,159,22.71,0.0,abandoned
+CALL-10110,2025-03-03,Referral,Competitor,tablet,3,0,1,0,225,,1453.8,answered
+CALL-10111,2025-01-29,Programmatic,Emergency,desktop,2,0,1,1,177,47.64,700.98,voicemail
+CALL-10112,2025-01-30,Programmatic,Emergency,mobile,3,0,2,0,103,70.64,,missed
+CALL-10113,2025-03-01,Direct,Competitor,desktop,5,0,4,1,262,,,answered
+CALL-10114,2025-02-23,Referral,Retargeting,mobile,2,0,1,1,202,,1590.71,answered
+CALL-10115,2025-03-30,Meta Ads,Retargeting,desktop,9,1,1,0,245,22.87,,missed
+CALL-10116,2025-01-09,Referral,Competitor,mobile,4,0,3,2,221,,3891.05,answered
+CALL-10117,2025-01-29,Referral,Emergency,desktop,2,0,2,1,205,,2866.01,answered
+CALL-10118,2025-03-03,Organic Search,Promo,desktop,3,0,1,0,179,,634.14,answered
+CALL-10119,2025-01-09,Email,Brand,mobile,4,1,0,0,299,,,missed
+CALL-10120,2025-02-26,Email,Generic,mobile,3,0,1,1,229,,352.89,answered
+CALL-10121,2025-02-23,Google Ads,Brand,mobile,6,1,1,0,179,106.49,,missed
+CALL-10122,2025-01-11,Programmatic,Emergency,mobile,7,1,3,0,42,61.18,2680.52,answered
+CALL-10123,2025-02-09,Google Ads,Promo,mobile,4,1,2,2,402,195.48,1113.66,answered
+CALL-10124,2025-03-25,Organic Search,Local Service,mobile,4,1,1,0,202,,483.65,answered
+CALL-10125,2025-01-30,Referral,Emergency,mobile,4,0,2,0,300,,2435.66,voicemail
+CALL-10126,2025-01-30,Organic Search,Local Service,mobile,5,2,1,1,189,,560.23,abandoned
+CALL-10127,2025-01-28,Email,Local Service,mobile,2,2,0,0,98,,0.0,answered
+CALL-10128,2025-01-01,Google Ads,Generic,mobile,3,0,2,1,166,115.92,1700.75,answered
+CALL-10129,2025-02-26,Meta Ads,Brand,mobile,8,0,1,0,146,117.66,659.72,answered
+CALL-10130,2025-03-08,Programmatic,Local Service,mobile,2,0,1,0,124,89.81,443.31,answered
+CALL-10131,2025-03-29,Programmatic,Local Service,desktop,4,0,1,1,286,18.33,,answered
+CALL-10132,2025-03-09,Organic Search,Retargeting,tablet,3,0,3,1,147,,,answered
+CALL-10133,2025-02-14,Organic Search,Competitor,desktop,2,0,1,1,163,,530.28,answered
+CALL-10134,2025-03-26,Meta Ads,Local Service,desktop,7,1,1,0,101,96.07,582.97,answered
+CALL-10135,2025-03-04,Organic Search,Promo,mobile,2,0,0,0,239,,0.0,answered
+CALL-10136,2025-01-16,Referral,Generic,desktop,6,0,1,1,86,,1259.21,missed
+CALL-10137,2025-03-02,Google Ads,Competitor,desktop,8,2,2,2,173,72.9,1585.96,answered
+CALL-10138,2025-02-08,Direct,Emergency,mobile,1,0,1,1,105,,737.84,voicemail
+CALL-10139,2025-03-09,Referral,Promo,mobile,3,1,2,1,352,,2756.37,answered
+CALL-10140,2025-03-21,Organic Search,Generic,mobile,3,2,0,0,73,,0.0,answered
+CALL-10141,2025-01-10,Organic Search,Local Service,desktop,3,1,0,0,234,,0.0,answered
+CALL-10142,2025-01-27,Meta Ads,Generic,desktop,6,2,2,1,265,96.17,,missed
+CALL-10143,2025-03-17,Programmatic,Generic,desktop,5,1,0,0,226,35.94,0.0,abandoned
+CALL-10144,2025-02-16,Direct,Promo,mobile,2,1,0,0,278,,0.0,abandoned
+CALL-10145,2025-01-24,Email,Retargeting,mobile,5,1,1,0,270,,524.08,missed
+CALL-10146,2025-01-20,Meta Ads,Retargeting,mobile,3,0,0,0,111,67.31,0.0,missed
+CALL-10147,2025-02-25,Referral,Promo,mobile,1,0,1,1,124,,1263.51,answered
+CALL-10148,2025-01-30,Google Ads,Competitor,mobile,8,1,2,0,251,34.32,2210.4,answered
+CALL-10149,2025-03-10,Meta Ads,Local Service,desktop,5,1,1,0,211,66.53,156.17,missed
+CALL-10150,2025-01-26,Organic Search,Competitor,mobile,1,1,0,0,242,,,missed
+CALL-10151,2025-01-29,Meta Ads,Generic,mobile,9,1,1,1,302,18.11,373.05,voicemail
+CALL-10152,2025-01-08,Email,Promo,desktop,5,1,1,0,262,,315.66,missed
+CALL-10153,2025-01-23,Google Ads,Emergency,mobile,8,3,1,0,187,192.41,773.43,missed
+CALL-10154,2025-01-01,Referral,Brand,desktop,1,0,1,0,343,,790.0,voicemail
+CALL-10155,2025-02-23,Programmatic,Brand,mobile,3,0,1,1,374,42.67,,answered
+CALL-10156,2025-02-02,Meta Ads,Competitor,mobile,2,1,0,0,256,120.57,,answered
+CALL-10157,2025-02-06,Direct,Generic,desktop,5,1,2,1,147,,795.35,answered
+CALL-10158,2025-03-03,Organic Search,Generic,mobile,8,2,4,2,588,,,answered
+CALL-10159,2025-03-20,Direct,Emergency,mobile,2,1,0,0,141,,,answered
+CALL-10160,2025-01-22,Programmatic,Promo,desktop,2,0,0,0,384,167.2,0.0,missed
+CALL-10161,2025-01-21,Google Ads,Emergency,mobile,7,3,2,0,99,22.66,2008.8,abandoned
+CALL-10162,2025-03-25,Meta Ads,Generic,mobile,7,3,0,0,216,50.6,0.0,missed
+CALL-10163,2025-01-31,Email,Emergency,desktop,2,0,1,0,123,,383.76,answered
+CALL-10164,2025-03-22,Programmatic,Generic,mobile,2,1,0,0,243,2.81,0.0,answered
+CALL-10165,2025-03-08,Meta Ads,Emergency,mobile,7,3,0,0,107,20.58,0.0,answered
+CALL-10166,2025-03-24,Programmatic,Retargeting,mobile,1,0,1,0,243,44.7,666.32,answered
+CALL-10167,2025-03-01,Organic Search,Competitor,mobile,8,1,1,0,224,,,answered
+CALL-10168,2025-01-22,Meta Ads,Promo,mobile,3,0,2,1,199,119.67,,missed
+CALL-10169,2025-03-07,Organic Search,Local Service,mobile,1,0,1,1,173,,790.51,missed
+CALL-10170,2025-03-25,Google Ads,Emergency,mobile,8,1,5,1,498,17.1,3358.39,answered
+CALL-10171,2025-02-07,Referral,Local Service,mobile,2,0,1,1,139,,1505.75,voicemail
+CALL-10172,2025-02-12,Programmatic,Brand,desktop,2,0,1,1,78,71.58,828.51,answered
+CALL-10173,2025-01-12,Google Ads,Retargeting,mobile,9,1,5,3,133,83.87,6184.05,answered
+CALL-10174,2025-02-14,Organic Search,Generic,mobile,2,0,0,0,192,,,answered
+CALL-10175,2025-01-31,Programmatic,Generic,desktop,2,0,0,0,105,205.02,,answered
+CALL-10176,2025-03-09,Direct,Brand,desktop,1,0,0,0,121,,0.0,voicemail
+CALL-10177,2025-02-02,Programmatic,Promo,mobile,6,1,1,0,362,63.22,833.43,answered
+CALL-10178,2025-02-12,Referral,Generic,mobile,5,1,2,2,490,,2863.14,answered
+CALL-10179,2025-02-06,Google Ads,Generic,mobile,10,1,7,0,332,145.21,7187.72,answered
+CALL-10180,2025-02-16,Referral,Competitor,mobile,4,0,3,0,413,,4278.21,answered
+CALL-10181,2025-02-17,Google Ads,Local Service,tablet,6,1,3,0,307,82.78,2822.88,answered
+CALL-10182,2025-01-22,Organic Search,Retargeting,mobile,3,0,1,0,15,,606.27,abandoned
+CALL-10183,2025-01-06,Meta Ads,Generic,mobile,6,3,0,0,90,110.58,0.0,missed
+CALL-10184,2025-01-06,Google Ads,Brand,mobile,5,1,1,1,319,228.31,745.46,answered
+CALL-10185,2025-03-31,Direct,Emergency,desktop,4,0,2,0,167,,1510.16,answered
+CALL-10186,2025-03-12,Google Ads,Retargeting,mobile,4,1,2,2,220,113.66,1836.86,answered
+CALL-10187,2025-01-05,Google Ads,Local Service,mobile,4,1,1,0,115,58.22,,answered
+CALL-10188,2025-03-15,Direct,Retargeting,mobile,1,0,0,0,244,,,answered
+CALL-10189,2025-03-31,Email,Generic,mobile,7,2,2,0,271,,351.2,voicemail
+CALL-10190,2025-01-25,Organic Search,Promo,desktop,6,1,3,2,96,,2146.2,missed
+CALL-10191,2025-02-27,Referral,Promo,mobile,1,1,0,0,233,,0.0,answered
+CALL-10192,2025-02-23,Google Ads,Emergency,desktop,8,3,4,1,302,148.19,2604.85,answered
+CALL-10193,2025-03-10,Meta Ads,Competitor,mobile,3,0,1,1,132,14.15,,answered
+CALL-10194,2025-01-11,Organic Search,Emergency,tablet,5,0,3,0,267,,1260.26,answered
+CALL-10195,2025-01-27,Direct,Local Service,mobile,3,0,0,0,429,,0.0,voicemail
+CALL-10196,2025-02-05,Google Ads,Emergency,desktop,3,0,1,1,503,111.3,739.35,answered
+CALL-10197,2025-03-20,Google Ads,Local Service,mobile,4,0,2,0,108,190.5,1967.47,answered
+CALL-10198,2025-01-05,Referral,Retargeting,desktop,2,1,0,0,168,,0.0,missed
+CALL-10199,2025-01-27,Organic Search,Emergency,desktop,3,1,0,0,182,,0.0,answered
+CALL-10200,2025-03-28,Google Ads,Brand,tablet,4,0,1,0,196,126.86,954.66,abandoned
+CALL-10201,2025-02-09,Direct,Generic,desktop,1,0,1,0,335,,,answered
+CALL-10202,2025-02-02,Organic Search,Generic,tablet,7,0,2,1,427,,1104.89,voicemail
+CALL-10203,2025-02-28,Email,Retargeting,desktop,3,0,1,1,230,,355.46,missed
+CALL-10204,2025-03-29,Meta Ads,Retargeting,mobile,5,0,1,0,260,82.4,561.65,answered
+CALL-10205,2025-03-17,Meta Ads,Promo,mobile,4,1,2,2,112,122.85,1495.44,abandoned
+CALL-10206,2025-01-20,Referral,Promo,mobile,2,1,0,0,172,,0.0,answered
+CALL-10207,2025-01-06,Referral,Emergency,mobile,3,1,1,1,109,,1331.96,answered
+CALL-10208,2025-02-01,Organic Search,Brand,mobile,5,3,1,0,189,,866.41,answered
+CALL-10209,2025-01-23,Organic Search,Promo,mobile,5,1,1,1,500,,548.15,answered
+CALL-10210,2025-02-23,Email,Promo,mobile,3,1,0,0,129,,0.0,missed
+CALL-10211,2025-03-20,Direct,Retargeting,mobile,2,0,0,0,229,,0.0,answered
+CALL-10212,2025-01-28,Programmatic,Retargeting,desktop,1,1,0,0,206,56.87,0.0,answered
+CALL-10213,2025-02-12,Email,Competitor,desktop,3,1,2,2,210,,714.49,missed
+CALL-10214,2025-03-24,Programmatic,Generic,mobile,5,1,1,1,192,103.2,635.32,answered
+CALL-10215,2025-03-18,Google Ads,Brand,desktop,6,1,4,2,137,19.96,3767.86,voicemail
+CALL-10216,2025-02-21,Google Ads,Retargeting,desktop,4,0,2,0,344,159.08,1910.49,answered
+CALL-10217,2025-02-26,Email,Retargeting,mobile,3,2,0,0,250,,,answered
+CALL-10218,2025-03-03,Referral,Brand,mobile,2,0,2,0,567,,,abandoned
+CALL-10219,2025-01-08,Email,Local Service,desktop,2,0,0,0,235,,0.0,answered
+CALL-10220,2025-01-01,Meta Ads,Generic,mobile,4,3,0,0,156,102.42,0.0,answered
+CALL-10221,2025-01-20,Referral,Emergency,mobile,2,0,0,0,348,,0.0,voicemail
+CALL-10222,2025-01-02,Google Ads,Brand,mobile,5,0,2,0,72,118.84,1931.1,answered
+CALL-10223,2025-01-10,Meta Ads,Promo,mobile,6,3,1,1,276,109.71,651.19,missed
+CALL-10224,2025-02-26,Google Ads,Brand,mobile,4,1,2,1,255,52.32,2602.81,voicemail
+CALL-10225,2025-02-14,Google Ads,Promo,desktop,4,0,1,0,358,86.95,759.88,voicemail
+CALL-10226,2025-02-12,Programmatic,Emergency,tablet,1,0,0,0,122,74.6,,abandoned
+CALL-10227,2025-01-15,Organic Search,Emergency,mobile,2,0,1,0,312,,601.19,voicemail
+CALL-10228,2025-03-23,Meta Ads,Competitor,mobile,5,1,3,2,227,46.8,1510.1,answered
+CALL-10229,2025-03-04,Direct,Generic,mobile,4,1,0,0,175,,0.0,voicemail
+CALL-10230,2025-01-27,Email,Retargeting,mobile,2,0,1,0,183,,691.76,answered
+CALL-10231,2025-02-28,Referral,Promo,mobile,8,0,3,1,171,,4522.57,missed
+CALL-10232,2025-02-05,Meta Ads,Retargeting,mobile,4,2,1,1,106,65.43,697.01,answered
+CALL-10233,2025-03-24,Programmatic,Competitor,mobile,5,0,3,0,394,56.41,,voicemail
+CALL-10234,2025-03-23,Direct,Emergency,mobile,2,1,0,0,114,,0.0,answered
+CALL-10235,2025-03-09,Organic Search,Generic,desktop,4,2,0,0,111,,0.0,abandoned
+CALL-10236,2025-02-16,Programmatic,Local Service,desktop,6,1,0,0,309,70.21,0.0,answered
+CALL-10237,2025-01-06,Google Ads,Emergency,mobile,3,0,3,0,410,160.9,2651.89,missed
+CALL-10238,2025-02-04,Google Ads,Retargeting,mobile,3,1,1,0,85,104.31,989.06,missed
+CALL-10239,2025-03-08,Referral,Brand,mobile,5,0,1,0,86,,1105.72,missed
+CALL-10240,2025-03-09,Email,Local Service,mobile,1,0,0,0,258,,0.0,answered
+CALL-10241,2025-03-30,Meta Ads,Generic,mobile,8,2,0,0,283,191.48,0.0,answered
+CALL-10242,2025-03-13,Direct,Brand,mobile,5,0,1,0,283,,,answered
+CALL-10243,2025-03-19,Google Ads,Brand,tablet,6,4,1,0,230,32.62,704.89,missed
+CALL-10244,2025-01-07,Direct,Local Service,mobile,4,1,1,0,228,,786.98,missed
+CALL-10245,2025-02-15,Google Ads,Competitor,mobile,5,0,5,0,146,195.83,4327.53,missed
+CALL-10246,2025-01-27,Meta Ads,Promo,desktop,3,0,0,0,365,190.7,0.0,answered
+CALL-10247,2025-01-09,Meta Ads,Brand,desktop,5,2,1,0,121,85.86,521.2,answered
+CALL-10248,2025-03-08,Organic Search,Retargeting,mobile,5,1,3,2,158,,1806.33,abandoned
+CALL-10249,2025-01-15,Direct,Promo,mobile,2,0,0,0,353,,0.0,answered
+CALL-10250,2025-03-31,Meta Ads,Generic,mobile,5,3,0,0,341,184.4,0.0,abandoned
+CALL-10251,2025-02-02,Meta Ads,Emergency,mobile,5,2,1,1,106,217.58,492.28,answered
+CALL-10252,2025-01-11,Direct,Retargeting,mobile,3,1,1,0,115,,450.53,answered
+CALL-10253,2025-03-29,Organic Search,Promo,mobile,4,1,1,1,484,,,voicemail
+CALL-10254,2025-02-21,Organic Search,Generic,mobile,3,0,2,0,302,,1271.14,answered
+CALL-10255,2025-02-28,Email,Local Service,mobile,3,1,1,0,170,,551.27,answered
+CALL-10256,2025-03-30,Organic Search,Brand,desktop,4,0,0,0,225,,,abandoned
+CALL-10257,2025-02-17,Email,Retargeting,mobile,1,0,0,0,360,,0.0,answered
+CALL-10258,2025-02-05,Programmatic,Promo,mobile,1,1,0,0,281,62.16,,answered
+CALL-10259,2025-01-04,Meta Ads,Local Service,mobile,5,2,0,0,392,111.67,0.0,answered
+CALL-10260,2025-01-27,Direct,Generic,mobile,3,2,0,0,134,,0.0,answered
+CALL-10261,2025-02-27,Meta Ads,Generic,mobile,7,0,2,1,150,53.92,1375.02,missed
+CALL-10262,2025-02-09,Programmatic,Retargeting,desktop,3,1,0,0,296,59.15,0.0,answered
+CALL-10263,2025-03-09,Meta Ads,Brand,mobile,2,0,0,0,338,75.75,0.0,answered
+CALL-10264,2025-02-16,Programmatic,Competitor,mobile,2,0,0,0,139,50.55,0.0,answered
+CALL-10265,2025-02-19,Meta Ads,Retargeting,mobile,5,0,1,0,65,216.77,332.95,answered
+CALL-10266,2025-03-25,Google Ads,Retargeting,mobile,7,0,6,2,100,28.41,4360.3,answered
+CALL-10267,2025-03-31,Meta Ads,Brand,mobile,5,2,1,1,121,46.34,,answered
+CALL-10268,2025-03-19,Referral,Local Service,mobile,2,0,1,0,239,,1684.5,voicemail
+CALL-10269,2025-02-20,Organic Search,Emergency,desktop,6,2,1,1,356,,875.96,missed
+CALL-10270,2025-02-19,Google Ads,Competitor,mobile,5,2,3,3,298,47.15,2982.38,answered
+CALL-10271,2025-01-03,Direct,Retargeting,mobile,5,0,3,0,309,,2354.22,missed
+CALL-10272,2025-02-05,Google Ads,Competitor,desktop,4,2,2,1,339,88.41,1790.2,answered
+CALL-10273,2025-02-24,Google Ads,Local Service,desktop,11,0,4,1,243,13.99,3974.05,answered
+CALL-10274,2025-02-28,Organic Search,Brand,desktop,8,1,3,1,363,,2541.49,answered
+CALL-10275,2025-03-29,Google Ads,Retargeting,mobile,8,0,7,5,124,64.85,5553.07,answered
+CALL-10276,2025-01-17,Organic Search,Emergency,mobile,5,0,2,1,192,,1498.66,answered
+CALL-10277,2025-02-28,Email,Generic,desktop,5,0,0,0,83,,0.0,answered
+CALL-10278,2025-03-16,Google Ads,Retargeting,mobile,5,0,4,2,317,98.02,3789.14,answered
+CALL-10279,2025-02-18,Meta Ads,Emergency,mobile,3,0,0,0,135,162.47,0.0,missed
+CALL-10280,2025-01-13,Programmatic,Competitor,mobile,3,0,1,0,375,55.27,862.74,answered
+CALL-10281,2025-02-16,Organic Search,Retargeting,mobile,5,0,1,1,288,,735.24,abandoned
+CALL-10282,2025-03-16,Google Ads,Brand,mobile,6,1,3,2,234,174.11,1985.66,missed
+CALL-10283,2025-03-20,Email,Retargeting,desktop,3,0,0,0,158,,0.0,answered
+CALL-10284,2025-01-02,Referral,Local Service,desktop,2,0,1,0,165,,1218.14,missed
+CALL-10285,2025-01-17,Google Ads,Brand,mobile,5,0,2,2,236,148.62,1755.07,missed
+CALL-10286,2025-02-21,Organic Search,Retargeting,mobile,5,2,2,1,243,,1024.87,answered
+CALL-10287,2025-03-25,Google Ads,Emergency,tablet,6,2,0,0,208,75.46,0.0,answered
+CALL-10288,2025-02-13,Organic Search,Competitor,desktop,6,1,3,0,311,,1788.72,missed
+CALL-10289,2025-01-26,Programmatic,Promo,mobile,4,1,1,0,180,24.46,646.24,answered
+CALL-10290,2025-03-07,Direct,Emergency,desktop,5,1,0,0,210,,0.0,answered
+CALL-10291,2025-03-06,Organic Search,Retargeting,mobile,6,2,1,1,355,,667.99,answered
+CALL-10292,2025-03-18,Direct,Local Service,mobile,4,0,0,0,257,,0.0,answered
+CALL-10293,2025-01-02,Programmatic,Promo,desktop,3,3,0,0,484,150.14,,missed
+CALL-10294,2025-02-19,Google Ads,Generic,tablet,10,2,4,2,180,116.16,2248.43,answered
+CALL-10295,2025-02-22,Email,Emergency,mobile,2,0,1,1,117,,170.63,answered
+CALL-10296,2025-03-17,Organic Search,Local Service,mobile,2,0,0,0,129,,0.0,missed
+CALL-10297,2025-03-07,Meta Ads,Generic,mobile,5,0,1,0,305,38.42,668.97,answered
+CALL-10298,2025-03-10,Meta Ads,Emergency,mobile,4,2,1,0,307,96.12,534.76,answered
+CALL-10299,2025-01-12,Email,Brand,tablet,5,0,0,0,219,,0.0,voicemail
+CALL-10300,2025-02-08,Google Ads,Competitor,desktop,3,1,2,1,120,119.22,1982.07,voicemail
+CALL-10301,2025-01-08,Direct,Emergency,mobile,4,1,2,1,360,,1021.81,answered
+CALL-10302,2025-03-09,Google Ads,Emergency,desktop,7,1,2,0,404,119.41,,answered
+CALL-10303,2025-01-18,Google Ads,Emergency,desktop,6,2,1,0,217,175.71,,answered
+CALL-10304,2025-01-03,Google Ads,Promo,mobile,8,2,5,2,329,168.88,5232.78,missed
+CALL-10305,2025-02-04,Direct,Retargeting,mobile,2,0,0,0,141,,,answered
+CALL-10306,2025-01-09,Google Ads,Competitor,desktop,7,2,2,2,490,124.76,,answered
+CALL-10307,2025-01-11,Meta Ads,Promo,mobile,7,0,0,0,182,66.22,0.0,answered
+CALL-10308,2025-02-07,Google Ads,Retargeting,mobile,11,0,5,4,529,37.27,,missed
+CALL-10309,2025-01-21,Referral,Retargeting,mobile,3,0,2,2,134,,2391.7,missed
+CALL-10310,2025-03-28,Google Ads,Competitor,mobile,2,1,1,1,219,55.31,,answered
+CALL-10311,2025-01-31,Google Ads,Brand,mobile,7,2,1,0,486,75.78,952.1,answered
+CALL-10312,2025-01-15,Google Ads,Retargeting,mobile,12,3,5,2,69,173.91,4567.57,answered
+CALL-10313,2025-01-28,Google Ads,Competitor,mobile,5,1,2,1,441,24.28,1931.33,answered
+CALL-10314,2025-03-30,Organic Search,Competitor,mobile,2,0,0,0,186,,0.0,answered
+CALL-10315,2025-01-17,Organic Search,Brand,desktop,2,0,0,0,122,,0.0,answered
+CALL-10316,2025-03-07,Referral,Promo,mobile,2,0,0,0,174,,0.0,answered
+CALL-10317,2025-03-07,Programmatic,Generic,mobile,3,0,2,2,116,67.93,,answered
+CALL-10318,2025-03-21,Google Ads,Promo,desktop,7,2,2,2,223,208.68,1810.13,answered
+CALL-10319,2025-01-14,Meta Ads,Brand,desktop,8,0,5,3,244,84.79,2637.02,answered
+CALL-10320,2025-01-12,Referral,Competitor,desktop,3,0,2,1,357,,2158.95,answered
+CALL-10321,2025-03-07,Direct,Local Service,tablet,1,0,0,0,107,,0.0,answered
+CALL-10322,2025-03-10,Referral,Promo,mobile,3,0,0,0,166,,,abandoned
+CALL-10323,2025-01-12,Meta Ads,Brand,mobile,3,0,1,1,185,151.49,476.36,answered
+CALL-10324,2025-01-30,Direct,Promo,mobile,3,0,1,1,317,,417.82,answered
+CALL-10325,2025-03-09,Email,Retargeting,mobile,2,0,0,0,92,,0.0,answered
+CALL-10326,2025-03-18,Referral,Generic,mobile,4,0,1,0,91,,1174.68,answered
+CALL-10327,2025-01-05,Organic Search,Brand,desktop,4,0,3,1,254,,1305.2,answered
+CALL-10328,2025-03-13,Referral,Generic,tablet,2,0,0,0,386,,0.0,missed
+CALL-10329,2025-03-18,Meta Ads,Competitor,desktop,8,2,0,0,235,50.59,,answered
+CALL-10330,2025-01-09,Email,Promo,mobile,2,0,1,0,282,,490.79,answered
+CALL-10331,2025-03-03,Direct,Promo,mobile,5,0,1,0,113,,731.72,answered
+CALL-10332,2025-01-13,Organic Search,Generic,mobile,1,0,1,0,396,,406.82,abandoned
+CALL-10333,2025-02-27,Programmatic,Local Service,desktop,2,0,1,1,208,88.72,1000.18,answered
+CALL-10334,2025-03-11,Google Ads,Competitor,mobile,4,0,3,1,195,22.06,2298.18,missed
+CALL-10335,2025-02-10,Google Ads,Retargeting,mobile,9,1,3,2,306,35.48,2623.42,answered
+CALL-10336,2025-01-03,Referral,Promo,mobile,2,0,2,0,201,,2622.19,answered
+CALL-10337,2025-02-18,Email,Competitor,mobile,1,0,0,0,248,,0.0,missed
+CALL-10338,2025-01-28,Organic Search,Competitor,desktop,5,1,2,1,117,,,missed
+CALL-10339,2025-02-18,Meta Ads,Promo,mobile,4,0,0,0,197,66.71,0.0,answered
+CALL-10340,2025-01-08,Organic Search,Retargeting,mobile,5,3,2,2,78,,2005.1,missed
+CALL-10341,2025-03-26,Referral,Generic,mobile,2,0,2,0,138,,2341.83,missed
+CALL-10342,2025-02-13,Google Ads,Promo,mobile,13,2,8,5,162,228.5,,missed
+CALL-10343,2025-03-27,Meta Ads,Emergency,mobile,3,0,0,0,186,85.36,0.0,answered
+CALL-10344,2025-02-11,Meta Ads,Generic,mobile,7,3,0,0,126,74.06,0.0,answered
+CALL-10345,2025-01-16,Referral,Retargeting,mobile,4,0,1,1,293,,1136.09,answered
+CALL-10346,2025-01-16,Referral,Brand,mobile,3,0,0,0,222,,0.0,answered
+CALL-10347,2025-03-30,Organic Search,Local Service,mobile,3,0,0,0,212,,0.0,abandoned
+CALL-10348,2025-01-08,Google Ads,Retargeting,mobile,4,0,2,1,151,119.12,1793.81,answered
+CALL-10349,2025-01-17,Referral,Brand,mobile,3,0,3,0,225,,,answered
+CALL-10350,2025-02-06,Programmatic,Brand,mobile,6,2,4,2,112,45.82,1861.28,missed
+CALL-10351,2025-03-26,Direct,Promo,desktop,3,0,1,1,188,,773.14,voicemail
+CALL-10352,2025-03-13,Organic Search,Emergency,mobile,1,0,0,0,535,,0.0,voicemail
+CALL-10353,2025-02-05,Google Ads,Competitor,mobile,5,0,0,0,420,112.38,0.0,answered
+CALL-10354,2025-02-06,Email,Brand,mobile,2,0,1,0,120,,273.85,answered
+CALL-10355,2025-02-11,Google Ads,Emergency,mobile,4,0,2,1,339,43.77,1950.21,abandoned
+CALL-10356,2025-03-27,Google Ads,Emergency,mobile,4,1,1,1,191,32.1,,answered
+CALL-10357,2025-01-11,Organic Search,Competitor,mobile,3,0,0,0,235,,0.0,answered
+CALL-10358,2025-02-06,Direct,Emergency,desktop,2,0,1,0,189,,721.58,answered
+CALL-10359,2025-02-27,Google Ads,Promo,mobile,5,0,3,1,302,52.44,2739.35,answered

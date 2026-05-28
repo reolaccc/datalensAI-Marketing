@@ -1,0 +1,421 @@
+crm_record_id,lead_id,created_date,lead_source,customer_journey_stage,owner_team,region,lead_count,qualified_lead_flag,opportunity_created,closed_won_count,callback_required,contact_attempts,estimated_pipeline_value_aud,realized_revenue_aud,days_to_contact,days_in_stage,priority_tier
+CRM-2026-1000,L-45772,2026-03-22,Email Nurture,Qualified,South Team,VIC,6,1,0,0,0,3,3332.04,,0,3,Strategic
+CRM-2026-1001,L-81087,2026-04-01,Website Form,New Lead,Enterprise Team,VIC,3,0,0,0,0,1,2911.61,,2,4,High
+CRM-2026-1002,L-15512,2026-02-13,Website Form,Proposal,North Team,WA,2,1,1,0,1,8,1903.89,,2,16,Medium
+CRM-2026-1003,L-31524,2026-02-03,Partner,Qualified,SMB Team,SA,1,1,1,0,0,1,5338.02,,2,18,Medium
+CRM-2026-1004,L-12707,2026-02-15,Partner,Proposal,Enterprise Team,VIC,8,1,1,0,1,6,532.43,,4,18,Medium
+CRM-2026-1005,L-19868,2026-03-17,Referral,New Lead,Enterprise Team,SA,2,0,0,0,0,4,4378.04,,3,14,High
+CRM-2026-1006,L-34437,2026-03-14,Email Nurture,Negotiation,SMB Team,SA,5,1,1,0,1,6,1190.87,,2,23,High
+CRM-2026-1007,L-94206,2026-02-01,Outbound,New Lead,Enterprise Team,NSW,2,0,0,0,0,8,5346.36,323.47,4,9,Medium
+CRM-2026-1008,L-46320,2026-02-23,Website Form,New Lead,North Team,SA,5,1,1,0,0,4,3347.06,805.18,5,13,High
+CRM-2026-1009,L-17605,2026-02-09,Event,Contacted,North Team,WA,1,0,0,0,0,2,5274.52,492.47,0,20,Medium
+CRM-2026-1010,L-11018,2026-03-31,Referral,New Lead,North Team,VIC,2,0,0,0,0,2,7122.38,,1,16,Strategic
+CRM-2026-1011,L-10919,2026-01-25,Event,Contacted,SMB Team,WA,4,0,1,0,1,5,1187.16,,3,21,Medium
+CRM-2026-1012,L-54236,2026-01-03,Outbound,Contacted,South Team,WA,3,0,0,0,0,2,6980.76,,0,26,Medium
+CRM-2026-1013,L-78085,2026-04-03,Referral,New Lead,SMB Team,SA,3,0,0,0,0,4,5709.93,,1,14,High
+CRM-2026-1014,L-97051,2026-02-17,Website Form,Proposal,North Team,NSW,3,1,1,0,0,4,690.17,92.08,0,10,Medium
+CRM-2026-1015,L-28271,2026-03-21,Website Form,Contacted,SMB Team,QLD,4,0,0,0,1,5,,,3,10,Low
+CRM-2026-1016,L-43484,2026-01-26,Email Nurture,Qualified,Enterprise Team,SA,4,1,1,0,0,4,2962.06,,0,8,Medium
+CRM-2026-1017,L-60189,2026-03-19,Event,Negotiation,SMB Team,WA,3,1,1,0,0,4,3991.75,,1,11,High
+CRM-2026-1018,L-47950,2026-01-30,Referral,Contacted,South Team,SA,3,0,0,0,0,2,8265.89,,3,15,Medium
+CRM-2026-1019,L-90362,2026-02-10,Referral,Contacted,Enterprise Team,VIC,5,1,0,0,1,6,8408.07,,4,3,Medium
+CRM-2026-1020,L-64762,2026-03-14,Website Form,New Lead,South Team,NSW,2,0,0,0,1,7,,,2,9,High
+CRM-2026-1021,L-87659,2026-04-06,Outbound,Qualified,South Team,WA,5,1,1,0,0,3,2652.3,,3,12,Medium
+CRM-2026-1022,L-87970,2026-02-01,Website Form,Qualified,South Team,SA,2,1,0,0,1,6,1741.62,,1,8,Medium
+CRM-2026-1023,L-26331,2026-02-06,Outbound,Negotiation,South Team,WA,2,1,1,0,0,1,3490.53,,1,9,Medium
+CRM-2026-1024,L-24235,2026-01-26,Referral,Proposal,Enterprise Team,NSW,4,1,1,0,1,4,3778.41,,1,14,Strategic
+CRM-2026-1025,L-85675,2026-03-02,Website Form,Proposal,South Team,QLD,7,1,1,0,0,2,1902.23,,3,29,Strategic
+CRM-2026-1026,L-40742,2026-04-04,event,New Lead,SMB Team,QLD,4,1,0,0,0,1,2092.73,197.98,0,10,High
+CRM-2026-1027,L-14459,2026-02-07,Website Form,Contacted,North Team,WA,6,1,0,0,1,6,4846.57,1141.36,2,11,Medium
+CRM-2026-1028,L-94874,2026-01-25,Website Form,Proposal,South Team,SA,2,1,1,0,1,6,2892.4,,4,14,Medium
+CRM-2026-1029,L-68439,2026-04-17,Event,Closed Won,North Team,SA,4,1,1,1,1,5,3132.6,2892.52,3,14,High
+CRM-2026-1030,L-59320,2026-01-18,Referral,Closed Lost,SMB Team,VIC,5,0,1,0,1,4,7519.4,681.63,3,8,Medium
+CRM-2026-1031,L-27826,2026-01-14,Referral,qualified,Enterprise Team,VIC,2,1,0,0,0,5,2969.26,,3,1,Medium
+CRM-2026-1032,L-41760,2026-01-12,Event,Contacted,North Team,NSW,4,0,1,0,0,4,,,2,10,Low
+CRM-2026-1033,L-26412,2026-04-09,Referral,Contacted,Enterprise Team,QLD,2,0,0,0,0,4,,,2,5,Medium
+CRM-2026-1034,L-63063,2026-02-10,Partner,Qualified,SMB Team,VIC,5,1,1,0,1,5,6206.82,,4,13,High
+CRM-2026-1035,L-79635,2026-01-06,Outbound,Contacted,South Team,NSW,4,0,0,0,0,2,4771.19,,4,9,Strategic
+CRM-2026-1036,L-19496,2026-04-19,Email Nurture,Qualified,North Team,VIC,2,1,0,0,1,7,2116.62,,3,10,High
+CRM-2026-1037,L-34907,2026-02-26,Partner,Qualified,North Team,NSW,3,1,0,0,0,6,4494.78,,2,10,Medium
+CRM-2026-1038,L-25965,2026-02-15,Website Form,Contacted,North Team,WA,4,0,0,0,1,6,1241.15,276.02,4,10,Medium
+CRM-2026-1039,L-57606,2026-02-20,Email Nurture,Qualified,Enterprise Team,QLD,9,1,0,0,0,2,2031.09,,2,8,High
+CRM-2026-1040,L-63939,2026-04-20,Referral,proposal,North Team,VIC,3,1,1,0,1,4,4892.61,435.54,2,1,High
+CRM-2026-1041,L-57681,2026-03-05,Referral,New Lead,North Team,SA,5,0,0,0,0,2,2522.26,,4,12,High
+CRM-2026-1042,L-56665,2026-02-13,Email Nurture,Qualified,South Team,SA,3,1,0,0,1,5,1500.43,,2,6,Strategic
+CRM-2026-1043,L-75672,2026-02-28,website form,New Lead,North Team,QLD,1,0,0,0,0,2,2766.24,,3,7,Medium
+CRM-2026-1044,L-36245,2026-03-24,Outbound,New Lead,SMB Team,NSW,3,1,1,0,1,8,3558.57,,3,5,Medium
+CRM-2026-1045,L-61889,2026-02-08,Website Form,New Lead,North Team,SA,4,1,0,0,0,7,,,3,16,Low
+CRM-2026-1046,L-83972,2026-04-20,Event,New Lead,South Team,VIC,3,0,0,0,1,5,3461.35,,4,20,Medium
+CRM-2026-1047,L-56832,2026-03-05,Partner,New Lead,Enterprise Team,VIC,3,0,0,0,1,5,8021.08,,2,10,Medium
+CRM-2026-1048,L-31602,2026-03-24,Partner,Negotiation,South Team,SA,5,1,1,0,1,6,3594.91,,2,5,Medium
+CRM-2026-1049,L-20181,2026-01-17,Website Form,New Lead,North Team,VIC,6,0,0,0,0,2,2340.35,,3,13,Low
+CRM-2026-1050,L-46436,2026-04-21,Email Nurture,New Lead,North Team,SA,3,0,0,0,0,3,2605.0,,2,19,High
+CRM-2026-1051,L-20087,2026-04-10,Outbound,New Lead,Enterprise Team,QLD,7,1,0,0,1,4,4564.69,,2,17,High
+CRM-2026-1052,L-19205,2026-01-23,Website Form,Qualified,South Team,WA,6,1,1,0,0,4,2555.64,,2,16,Medium
+CRM-2026-1053,L-29312,2026-02-10,Partner,Proposal,North Team,SA,4,1,1,0,0,5,3543.14,,5,17,Low
+CRM-2026-1054,L-73788,2026-04-21,Email Nurture,new_lead,SMB Team,QLD,5,0,0,0,1,6,2077.66,130.26,0,19,Low
+CRM-2026-1055,L-94065,2026-01-14,Partner,Closed Won,Enterprise Team,SA,3,1,1,1,0,2,1067.91,1215.34,0,19,Low
+CRM-2026-1056,L-51078,2026-02-23,Email Nurture,Contacted,North Team,QLD,2,1,1,0,1,9,1856.82,,0,11,Medium
+CRM-2026-1057,L-79540,2026-02-03,Referral,New Lead,Enterprise Team,VIC,6,0,1,0,0,4,6672.98,,2,24,Strategic
+CRM-2026-1058,L-13471,2026-02-20,Outbound,New Lead,SMB Team,WA,4,0,0,0,0,2,3814.78,,2,16,Medium
+CRM-2026-1059,L-72258,2026-02-13,Partner,New Lead,South Team,VIC,3,0,1,0,0,1,6413.51,,6,5,Medium
+CRM-2026-1060,L-66381,2026-04-03,Event,New Lead,South Team,SA,6,0,0,0,0,6,2674.25,,5,5,Medium
+CRM-2026-1061,L-96313,2026-03-13,Outbound,Qualified,South Team,NSW,1,1,1,0,0,2,2982.91,,2,24,High
+CRM-2026-1062,L-14986,2026-02-17,Referral,Qualified,South Team,NSW,5,1,0,0,0,2,8436.94,,1,12,Medium
+CRM-2026-1063,L-25409,2026-02-15,Partner,Proposal,North Team,WA,5,1,1,0,1,6,5530.54,,0,5,Medium
+CRM-2026-1064,L-29475,2026-01-20,Event,Proposal,North Team,NSW,3,1,1,0,1,5,4181.67,,0,13,Low
+CRM-2026-1065,L-57356,2026-02-13,Outbound,Contacted,South Team,QLD,4,0,0,0,0,1,5006.72,924.75,0,26,High
+CRM-2026-1066,L-53648,2026-03-07,Outbound,Qualified,South Team,WA,2,1,0,0,1,6,1595.43,,3,23,High
+CRM-2026-1067,L-24041,2026-04-18,Email Nurture,Proposal,Enterprise Team,SA,6,1,1,0,1,5,42.03,,3,1,High
+CRM-2026-1068,L-78013,2026-04-17,Website Form,Contacted,South Team,QLD,4,0,0,0,0,2,2420.73,,3,8,High
+CRM-2026-1069,L-26255,2026-02-22,Website Form,Proposal,South Team,WA,3,1,1,0,1,7,2917.38,,2,27,Medium
+CRM-2026-1070,L-38880,2026-03-12,Partner,Qualified,North Team,QLD,3,1,0,0,1,6,7527.89,,2,11,Medium
+CRM-2026-1071,L-93799,2026-04-22,Partner,Closed Lost,South Team,SA,7,0,0,0,1,6,7818.66,786.34,0,18,Low
+CRM-2026-1072,L-49305,2026-03-01,Outbound,Qualified,SMB Team,SA,4,1,0,0,0,1,2698.32,,0,21,Medium
+CRM-2026-1073,L-79619,2026-02-18,Referral,New Lead,SMB Team,WA,1,0,0,0,0,4,5543.94,1384.57,2,22,High
+CRM-2026-1074,L-46820,2026-03-25,Outbound,Closed Lost,South Team,NSW,3,0,0,0,1,6,3393.43,256.38,2,15,Strategic
+CRM-2026-1075,L-20104,2026-01-18,Website Form,Qualified,South Team,QLD,3,1,0,0,0,3,3424.47,,0,6,Medium
+CRM-2026-1076,L-85935,2026-01-26,Referral,Contacted,South Team,VIC,4,0,0,0,1,7,4433.17,,0,21,Strategic
+CRM-2026-1077,L-31326,2026-02-26,Referral,Qualified,Enterprise Team,QLD,3,1,0,0,1,4,4442.71,349.21,1,13,High
+CRM-2026-1078,L-61059,2026-04-22,Event,Qualified,SMB Team,QLD,3,1,0,0,1,6,2581.95,561.4,2,16,High
+CRM-2026-1079,L-18454,2026-03-27,Email Nurture,New Lead,South Team,WA,3,0,0,0,1,4,2626.64,,0,6,Medium
+CRM-2026-1080,L-14022,2026-01-31,Referral,New Lead,South Team,WA,4,0,0,0,0,3,9958.31,,4,9,High
+CRM-2026-1081,L-56358,2026-03-23,Website Form,Proposal,Enterprise Team,VIC,2,1,1,0,0,3,3541.34,,2,15,Low
+CRM-2026-1082,L-43079,2026-03-06,Referral,Qualified,Enterprise Team,VIC,3,1,1,0,1,8,4324.61,,3,3,Medium
+CRM-2026-1083,L-91058,2026-03-15,Website Form,contacted,SMB Team,NSW,3,0,1,0,1,8,2310.05,,0,9,Low
+CRM-2026-1084,L-71552,2026-03-31,Partner,Closed Won,Enterprise Team,NSW,7,1,1,1,1,6,3637.49,2741.23,0,19,High
+CRM-2026-1085,L-24790,2026-04-20,Website Form,Closed Won,South Team,QLD,3,1,1,1,0,4,3262.31,2649.17,4,7,Strategic
+CRM-2026-1086,L-82184,2026-01-31,Referral,Negotiation,South Team,QLD,6,1,1,0,0,4,8860.3,,5,12,Medium
+CRM-2026-1087,L-40026,2026-02-15,Partner,Contacted,South Team,VIC,6,0,0,0,0,2,2050.95,,4,14,Medium
+CRM-2026-1088,L-59147,2026-04-12,Outbound,New Lead,South Team,WA,1,0,0,0,1,7,2012.48,,3,13,Medium
+CRM-2026-1089,L-46424,2026-01-04,Referral,Contacted,SMB Team,VIC,4,0,0,0,0,2,6668.36,,4,11,High
+CRM-2026-1090,L-69787,2026-01-08,Website Form,Negotiation,SMB Team,WA,4,1,1,0,0,4,2067.06,,1,17,Medium
+CRM-2026-1091,L-19004,2026-01-17,Event,Qualified,South Team,SA,6,1,1,0,0,1,2612.48,499.73,1,21,Strategic
+CRM-2026-1092,L-44751,2026-03-09,Website Form,Qualified,Enterprise Team,WA,5,1,0,0,1,7,2970.89,,0,8,Strategic
+CRM-2026-1093,L-70934,2026-02-02,Referral,Closed Lost,SMB Team,QLD,4,0,1,0,0,4,2983.68,,2,13,Medium
+CRM-2026-1094,L-54431,2026-03-13,Website Form,Proposal,North Team,VIC,5,1,1,0,0,5,1891.86,,6,3,Strategic
+CRM-2026-1095,L-88797,2026-01-19,Website Form,Closed Lost,SMB Team,QLD,3,0,0,0,0,2,4431.11,,0,25,High
+CRM-2026-1096,L-45695,2026-02-12,Website Form,Qualified,SMB Team,WA,3,1,0,0,1,5,601.28,,0,28,Medium
+CRM-2026-1097,L-45301,2026-02-25,Outbound,New Lead,South Team,VIC,5,0,0,0,1,5,3367.15,,2,14,High
+CRM-2026-1098,L-22264,2026-04-12,Website Form,New Lead,SMB Team,VIC,3,0,0,0,1,4,,440.26,1,21,Low
+CRM-2026-1099,L-37830,2026-01-15,Partner,Contacted,Enterprise Team,NSW,1,0,0,0,1,8,6289.52,,2,14,Medium
+CRM-2026-1100,L-51357,2026-01-22,Referral,Qualified,North Team,NSW,1,1,0,0,0,4,,,5,5,Low
+CRM-2026-1101,L-49999,2026-04-10,Partner,Contacted,SMB Team,NSW,6,1,0,0,0,6,9282.1,,3,1,Strategic
+CRM-2026-1102,L-69516,2026-02-25,Website Form,Contacted,South Team,QLD,4,0,0,0,0,3,2805.28,,3,16,Medium
+CRM-2026-1103,L-29697,2026-04-02,Referral,New Lead,SMB Team,SA,1,0,1,0,0,2,,,3,13,Low
+CRM-2026-1104,L-36928,2026-04-13,Event,Contacted,Enterprise Team,VIC,5,0,0,0,0,3,5169.0,1204.35,0,19,Medium
+CRM-2026-1105,L-87342,2026-01-04,Email Nurture,Qualified,North Team,NSW,3,1,0,0,1,4,2639.46,389.03,3,10,Medium
+CRM-2026-1106,L-11182,2026-04-06,Event,Negotiation,SMB Team,QLD,5,1,1,0,1,8,5114.3,1147.89,0,7,Medium
+CRM-2026-1107,L-11954,2026-04-09,Website Form,Closed Lost,South Team,NSW,8,1,0,0,0,2,1934.04,,2,18,High
+CRM-2026-1108,L-46638,2026-04-07,Outbound,New Lead,Enterprise Team,QLD,3,0,0,0,0,5,5186.3,867.9,2,12,Low
+CRM-2026-1109,L-99584,2026-03-18,Referral,Contacted,SMB Team,VIC,7,0,0,0,0,3,6399.87,,2,3,High
+CRM-2026-1110,L-46716,2026-03-07,Website Form,Qualified,North Team,NSW,3,1,0,0,0,1,,,2,7,High
+CRM-2026-1111,L-24022,2026-03-14,Website Form,Proposal,SMB Team,SA,3,1,1,0,1,7,3008.53,,0,15,Medium
+CRM-2026-1112,L-36820,2026-04-06,Website Form,New Lead,North Team,VIC,3,0,1,0,0,3,1795.4,371.01,6,6,Medium
+CRM-2026-1113,L-80880,2026-03-03,Email Nurture,Closed Won,Enterprise Team,NSW,4,1,1,1,0,4,1801.41,1648.57,2,14,High
+CRM-2026-1114,L-52662,2026-04-21,Outbound,Contacted,South Team,NSW,5,0,0,0,1,4,,,2,14,Strategic
+CRM-2026-1115,L-79014,2026-03-24,Referral,Closed Won,SMB Team,QLD,3,1,1,1,1,5,2997.58,2728.54,4,17,Medium
+CRM-2026-1116,L-27757,2026-01-19,Email Nurture,New Lead,South Team,SA,2,0,1,0,0,3,1252.33,183.6,3,7,Medium
+CRM-2026-1117,L-91988,2026-01-19,Website Form,Proposal,Enterprise Team,VIC,5,1,1,0,1,4,4132.01,,3,10,Medium
+CRM-2026-1118,L-38152,2026-01-11,Website Form,Proposal,SMB Team,QLD,5,1,1,0,1,5,3246.12,801.82,1,6,High
+CRM-2026-1119,L-86191,2026-04-02,Referral,Negotiation,North Team,VIC,6,1,1,0,1,4,8484.87,,2,14,Low
+CRM-2026-1120,L-31906,2026-02-21,Website Form,Proposal,North Team,SA,5,1,1,0,0,4,,,0,4,Low
+CRM-2026-1121,L-93303,2026-01-27,Outbound,contacted,North Team,VIC,6,0,1,0,1,6,2538.91,179.98,0,11,Medium
+CRM-2026-1122,L-66852,2026-01-18,Partner,Contacted,South Team,WA,5,0,1,0,1,7,2126.01,,1,1,Medium
+CRM-2026-1123,L-52672,2026-01-20,Website Form,New Lead,Enterprise Team,NSW,2,0,0,0,0,3,2298.82,339.54,3,14,High
+CRM-2026-1124,L-19223,2026-04-18,Website Form,Proposal,North Team,NSW,6,1,1,0,0,3,2053.97,408.0,1,21,Low
+CRM-2026-1125,L-71471,2026-02-09,Event,New Lead,North Team,VIC,2,1,1,0,0,1,2122.01,413.14,0,12,Low
+CRM-2026-1126,L-21610,2026-01-18,Referral,Qualified,South Team,VIC,1,1,1,0,1,5,3201.78,,2,18,High
+CRM-2026-1127,L-16349,2026-01-19,Partner,Proposal,South Team,WA,5,1,1,0,0,3,4114.67,891.04,4,5,Strategic
+CRM-2026-1128,L-66101,2026-02-18,event,Negotiation,South Team,WA,5,1,1,0,1,4,2663.12,,0,8,High
+CRM-2026-1129,L-56513,2026-01-20,Website Form,Closed Won,North Team,QLD,4,1,1,1,1,7,2279.38,2029.94,3,28,High
+CRM-2026-1130,L-48220,2026-03-28,Email Nurture,closed_lost,North Team,SA,4,0,1,0,0,4,,,2,14,Low
+CRM-2026-1131,L-82245,2026-01-06,Event,Contacted,SMB Team,VIC,5,0,0,0,0,3,2311.35,,0,5,Medium
+CRM-2026-1132,L-21841,2026-02-13,Email Nurture,New Lead,South Team,NSW,3,0,0,0,0,4,1177.46,70.07,1,17,Low
+CRM-2026-1133,L-31370,2026-01-30,Website Form,Negotiation,Enterprise Team,VIC,3,1,1,0,0,6,2267.76,,3,9,Medium
+CRM-2026-1134,L-81929,2026-01-03,Email Nurture,Contacted,SMB Team,QLD,6,0,1,0,1,5,1277.1,,4,17,High
+CRM-2026-1135,L-97727,2026-03-13,Website Form,Proposal,Enterprise Team,SA,3,1,1,0,0,5,3051.72,,3,5,High
+CRM-2026-1136,L-24436,2026-03-23,Email Nurture,Contacted,North Team,QLD,3,0,0,0,0,4,1979.03,472.63,0,4,High
+CRM-2026-1137,L-16846,2026-03-10,Email Nurture,Contacted,SMB Team,VIC,5,1,0,0,0,3,2326.4,,4,13,Medium
+CRM-2026-1138,L-88847,2026-04-01,Partner,New Lead,North Team,NSW,3,1,0,0,0,3,3087.74,,4,10,Low
+CRM-2026-1139,L-97781,2026-04-14,Event,Contacted,South Team,SA,4,0,1,0,0,2,2682.5,,2,12,Medium
+CRM-2026-1140,L-61908,2026-03-31,Email Nurture,Contacted,South Team,WA,3,1,0,0,1,6,1542.08,,2,14,Medium
+CRM-2026-1141,L-65142,2026-04-07,Event,Closed Lost,SMB Team,QLD,2,0,0,0,0,4,2941.86,,3,2,High
+CRM-2026-1142,L-52770,2026-01-24,Partner,Contacted,South Team,NSW,3,1,0,0,1,5,6932.65,,4,12,Medium
+CRM-2026-1143,L-25130,2026-04-10,Email Nurture,Proposal,SMB Team,VIC,7,1,1,0,0,6,,,2,8,Medium
+CRM-2026-1144,L-97051,2026-02-25,Referral,Contacted,Enterprise Team,WA,5,0,0,0,0,2,5023.53,,0,3,High
+CRM-2026-1145,L-47110,2026-01-28,Partner,Proposal,South Team,WA,5,1,1,0,0,4,9312.26,,0,8,Medium
+CRM-2026-1146,L-41300,2026-01-07,Partner,Contacted,SMB Team,NSW,1,1,1,0,0,2,10111.34,,1,19,Strategic
+CRM-2026-1147,L-54903,2026-01-31,Website Form,New Lead,North Team,QLD,1,0,0,0,0,4,2884.68,,0,11,High
+CRM-2026-1148,L-20739,2026-01-21,Event,New Lead,SMB Team,VIC,3,1,0,0,0,2,2853.22,,3,6,High
+CRM-2026-1149,L-42319,2026-01-03,Event,Closed Won,North Team,VIC,6,1,1,1,0,4,1689.48,1371.95,6,5,Low
+CRM-2026-1150,L-75140,2026-02-08,Website Form,New Lead,Enterprise Team,SA,2,0,0,0,1,8,3550.77,,2,4,Medium
+CRM-2026-1151,L-59176,2026-04-20,Email Nurture,New Lead,Enterprise Team,WA,4,0,0,0,0,4,1473.05,359.58,3,10,Low
+CRM-2026-1152,L-98704,2026-04-12,Referral,Proposal,SMB Team,WA,3,1,1,0,0,3,3276.38,,0,11,Low
+CRM-2026-1153,L-52456,2026-02-20,Partner,Negotiation,Enterprise Team,NSW,3,1,1,0,1,6,2796.02,,2,15,High
+CRM-2026-1154,L-36528,2026-03-09,Partner,Closed Won,Enterprise Team,QLD,3,1,1,1,0,1,4409.97,3957.36,2,19,High
+CRM-2026-1155,L-14455,2026-01-07,Outbound,Negotiation,South Team,NSW,6,1,1,0,0,3,3634.35,,3,6,Low
+CRM-2026-1156,L-68194,2026-03-02,Email Nurture,New Lead,South Team,SA,3,0,1,0,1,7,2524.34,,3,11,High
+CRM-2026-1157,L-68851,2026-03-09,Email Nurture,Closed Won,North Team,SA,5,1,1,1,1,4,1357.0,1102.01,6,6,Low
+CRM-2026-1158,L-35413,2026-01-30,Website Form,Qualified,North Team,VIC,2,1,0,0,0,2,2312.11,,6,22,High
+CRM-2026-1159,L-71644,2026-03-10,Email Nurture,Proposal,North Team,QLD,5,1,1,0,0,3,,,0,12,Medium
+CRM-2026-1160,L-94975,2026-03-19,Partner,Qualified,Enterprise Team,NSW,2,1,1,0,0,4,8186.19,1152.52,3,6,Medium
+CRM-2026-1161,L-96617,2026-03-23,Outbound,Proposal,SMB Team,WA,5,1,1,0,0,2,4580.43,,1,4,High
+CRM-2026-1162,L-67676,2026-02-17,Email Nurture,Negotiation,Enterprise Team,WA,8,1,1,0,0,3,1711.03,,2,8,Low
+CRM-2026-1163,L-85631,2026-04-01,Event,New Lead,North Team,WA,8,0,0,0,1,6,0,,1,9,High
+CRM-2026-1164,L-50635,2026-02-20,Partner,Qualified,South Team,QLD,2,1,1,0,1,6,5608.46,,3,7,Medium
+CRM-2026-1165,L-32259,2026-04-21,Referral,Proposal,SMB Team,SA,7,1,1,0,0,3,6449.79,,2,13,Medium
+CRM-2026-1166,L-73083,2026-02-20,Outbound,new_lead,North Team,NSW,1,0,0,0,0,1,3432.24,,2,6,Low
+CRM-2026-1167,L-47784,2026-01-09,Referral,Closed Won,Enterprise Team,NSW,6,1,1,1,0,2,170.88,196.36,1,8,Low
+CRM-2026-1168,L-22252,2026-04-05,Event,Proposal,South Team,VIC,5,1,1,0,0,3,4833.81,,5,10,Medium
+CRM-2026-1169,L-13451,2026-02-13,Partner,proposal,SMB Team,SA,5,1,1,0,1,4,6889.62,,2,18,High
+CRM-2026-1170,L-37437,2026-04-09,Outbound,Contacted,Enterprise Team,WA,5,0,0,0,0,3,3748.5,,3,10,Medium
+CRM-2026-1171,L-26117,2026-01-05,Website Form,Qualified,North Team,QLD,2,1,0,0,0,1,2015.89,,3,12,Medium
+CRM-2026-1172,L-81325,2026-01-13,Partner,Contacted,South Team,NSW,4,0,1,0,1,6,4555.2,,6,9,High
+CRM-2026-1173,L-70571,2026-03-20,Event,Contacted,North Team,VIC,8,0,0,0,0,1,379.65,87.77,4,6,Low
+CRM-2026-1174,L-50680,2026-02-12,Referral,Contacted,Enterprise Team,VIC,3,1,0,0,0,3,5118.5,629.87,2,16,High
+CRM-2026-1175,L-32742,2026-02-17,Email Nurture,Contacted,South Team,VIC,5,0,0,0,1,10,1074.88,,1,10,Medium
+CRM-2026-1176,L-72040,2026-03-03,Partner,Qualified,Enterprise Team,VIC,5,1,0,0,1,8,2135.34,,3,15,High
+CRM-2026-1177,L-36312,2026-02-08,Website Form,New Lead,Enterprise Team,SA,6,0,1,0,0,3,1453.88,271.5,2,13,High
+CRM-2026-1178,L-51648,2026-01-08,Outbound,New Lead,North Team,NSW,3,0,0,0,0,3,3342.28,323.72,1,19,Low
+CRM-2026-1179,L-29472,2026-04-09,Referral,Proposal,South Team,NSW,2,1,1,0,1,6,5859.52,,2,5,Medium
+CRM-2026-1180,L-83831,2026-04-22,Referral,Closed Won,North Team,NSW,2,1,1,1,1,7,6777.29,5964.29,2,17,High
+CRM-2026-1181,L-63388,2026-01-10,Outbound,New Lead,Enterprise Team,WA,5,0,0,0,0,6,2586.62,599.47,1,6,Strategic
+CRM-2026-1182,L-58595,2026-01-06,Website Form,Closed Won,South Team,NSW,5,1,1,1,0,3,1178.36,1265.55,0,13,High
+CRM-2026-1183,L-80820,2026-01-23,Outbound,Qualified,SMB Team,SA,5,1,0,0,0,2,4540.03,,2,8,Medium
+CRM-2026-1184,L-64457,2026-03-07,Outbound,Qualified,Enterprise Team,QLD,6,1,0,0,0,2,4519.34,,1,16,Low
+CRM-2026-1185,L-41260,2026-03-10,Website Form,Closed Won,Enterprise Team,SA,5,1,1,1,0,4,1999.1,2279.31,0,13,Medium
+CRM-2026-1186,L-90506,2026-02-09,Partner,Closed Won,Enterprise Team,QLD,5,1,1,1,1,10,7668.1,8108.5,0,19,High
+CRM-2026-1187,L-34398,2026-04-14,Website Form,Proposal,SMB Team,VIC,4,1,1,0,0,7,2002.74,,1,5,High
+CRM-2026-1188,L-19409,2026-02-25,Outbound,Contacted,SMB Team,SA,5,1,0,0,1,6,2552.88,,3,4,Strategic
+CRM-2026-1189,L-90231,2026-04-03,Outbound,Negotiation,SMB Team,QLD,4,1,1,0,1,5,572.9,,0,2,Medium
+CRM-2026-1190,L-26157,2026-03-16,Referral,Closed Won,North Team,WA,5,1,1,1,0,2,1103.9,1208.49,3,4,High
+CRM-2026-1191,L-92630,2026-01-08,Partner,Proposal,South Team,VIC,2,1,1,0,0,5,4834.72,411.0,3,12,Medium
+CRM-2026-1192,L-37890,2026-03-23,Website Form,Proposal,SMB Team,VIC,1,1,1,0,0,2,2041.2,248.65,5,6,Medium
+CRM-2026-1193,L-61548,2026-01-31,Website Form,Proposal,North Team,QLD,4,1,1,0,0,6,317.51,,0,1,High
+CRM-2026-1194,L-22096,2026-03-18,Referral,Qualified,South Team,WA,7,1,1,0,1,5,2359.63,397.46,2,3,High
+CRM-2026-1195,L-82302,2026-01-13,Referral,Proposal,South Team,NSW,5,1,1,0,0,2,8775.7,1653.75,1,5,High
+CRM-2026-1196,L-32915,2026-03-09,Email Nurture,New Lead,SMB Team,NSW,2,0,0,0,0,5,2191.07,164.63,1,14,High
+CRM-2026-1197,L-19630,2026-04-08,Website Form,Negotiation,South Team,SA,3,1,1,0,1,5,2599.19,,0,7,High
+CRM-2026-1198,L-96152,2026-02-01,Outbound,Proposal,SMB Team,NSW,3,1,1,0,0,2,2584.87,461.39,4,11,Low
+CRM-2026-1199,L-48900,2026-01-20,Referral,Proposal,Enterprise Team,VIC,3,1,1,0,0,1,4558.54,,1,22,Strategic
+CRM-2026-1200,L-28773,2026-01-19,Referral,Closed Lost,Enterprise Team,VIC,9,0,0,0,0,3,2996.83,,3,6,Medium
+CRM-2026-1201,L-76360,2026-02-12,Outbound,Closed Lost,South Team,WA,6,0,0,0,0,2,2517.99,,2,3,High
+CRM-2026-1202,L-38710,2026-01-07,Website Form,Qualified,North Team,WA,5,1,0,0,0,3,1623.38,,0,12,Low
+CRM-2026-1203,L-23831,2026-03-23,Partner,Proposal,SMB Team,QLD,4,1,1,0,0,3,9912.77,,1,11,Medium
+CRM-2026-1204,L-25458,2026-03-07,Website Form,New Lead,SMB Team,SA,6,0,0,0,0,3,1243.08,,2,7,Medium
+CRM-2026-1205,L-36621,2026-03-22,Partner,New Lead,North Team,VIC,3,0,0,0,0,1,4539.13,,4,6,Low
+CRM-2026-1206,L-33887,2026-01-14,Website Form,Closed Lost,North Team,QLD,3,0,0,0,1,7,2014.8,320.94,2,11,Low
+CRM-2026-1207,L-70835,2026-03-21,Website Form,Qualified,SMB Team,SA,2,1,0,0,0,3,2619.65,603.48,3,11,Medium
+CRM-2026-1208,L-74389,2026-02-07,Email Nurture,New Lead,SMB Team,WA,3,0,0,0,0,2,1464.58,,1,12,Strategic
+CRM-2026-1209,L-86208,2026-02-15,Website Form,New Lead,North Team,NSW,3,1,1,0,0,3,1479.71,98.73,3,18,Low
+CRM-2026-1210,L-24087,2026-02-17,Website Form,Closed Lost,North Team,VIC,1,1,0,0,0,2,3666.61,,2,9,High
+CRM-2026-1211,L-78175,2026-03-25,Outbound,Negotiation,North Team,VIC,2,1,1,0,0,1,1620.08,,2,9,High
+CRM-2026-1212,L-66209,2026-03-29,Outbound,Qualified,Enterprise Team,NSW,5,1,0,0,0,2,3968.74,,1,15,Low
+CRM-2026-1213,L-89055,2026-03-06,Website Form,Contacted,North Team,SA,2,1,0,0,1,6,3714.93,,0,11,High
+CRM-2026-1214,L-18654,2026-01-26,Event,Contacted,North Team,QLD,3,0,0,0,0,2,2836.82,,1,1,High
+CRM-2026-1215,L-78165,2026-02-19,Website Form,New Lead,SMB Team,SA,2,0,0,0,0,4,1449.48,,4,4,Medium
+CRM-2026-1216,L-96728,2026-01-11,Outbound,Qualified,North Team,SA,3,1,0,0,0,4,0,,2,7,Strategic
+CRM-2026-1217,L-25443,2026-04-02,Website Form,Proposal,South Team,NSW,5,1,1,0,1,5,1487.92,107.34,4,10,High
+CRM-2026-1218,L-12771,2026-01-21,Event,New Lead,North Team,SA,4,1,0,0,1,10,1191.59,,3,17,Low
+CRM-2026-1219,L-89145,2026-03-02,Website Form,Closed Won,North Team,NSW,3,1,1,1,0,7,1140.55,913.57,2,12,Medium
+CRM-2026-1220,L-25723,2026-01-11,Event,New Lead,South Team,VIC,4,0,0,0,0,5,2280.95,,1,12,High
+CRM-2026-1221,L-19473,2026-04-16,Event,Proposal,North Team,WA,5,1,1,0,0,2,2062.18,,2,14,Medium
+CRM-2026-1222,L-89081,2026-04-07,Website Form,Negotiation,Enterprise Team,NSW,6,1,1,0,1,6,1283.38,,0,8,Medium
+CRM-2026-1223,L-98093,2026-01-27,Email Nurture,Closed Won,South Team,WA,1,1,1,1,1,10,1746.34,1410.44,2,7,High
+CRM-2026-1224,L-75334,2026-04-11,email nurture,Closed Lost,South Team,QLD,5,1,0,0,1,7,,,2,18,Medium
+CRM-2026-1225,L-88988,2026-01-09,Partner,Qualified,North Team,QLD,5,1,1,0,0,3,3914.69,,4,14,Strategic
+CRM-2026-1226,L-33153,2026-04-11,Website Form,Negotiation,Enterprise Team,NSW,2,1,1,0,0,2,2145.29,374.41,3,13,Medium
+CRM-2026-1227,L-75927,2026-03-23,Event,Negotiation,South Team,WA,2,1,1,0,0,5,4916.78,,4,10,Medium
+CRM-2026-1228,L-30055,2026-03-18,Email Nurture,Qualified,North Team,WA,7,1,0,0,0,2,2235.94,,2,9,Medium
+CRM-2026-1229,L-96110,2026-02-11,Referral,Proposal,SMB Team,SA,4,1,1,0,0,2,5443.69,615.09,2,11,Low
+CRM-2026-1230,L-18108,2026-01-17,Partner,Negotiation,Enterprise Team,NSW,2,1,1,0,1,4,4918.17,830.5,5,12,Medium
+CRM-2026-1231,L-25848,2026-02-10,Referral,Contacted,North Team,WA,4,1,1,0,0,2,7123.47,,3,15,Medium
+CRM-2026-1232,L-77920,2026-01-25,Website Form,Qualified,North Team,NSW,4,1,0,0,0,2,3370.53,,4,18,Low
+CRM-2026-1233,L-12408,2026-03-08,Partner,Closed Won,South Team,NSW,4,1,1,1,0,3,6129.36,6527.92,1,10,Strategic
+CRM-2026-1234,L-95676,2026-04-18,Website Form,Proposal,Enterprise Team,VIC,2,1,1,0,0,1,1832.0,296.82,2,8,Medium
+CRM-2026-1235,L-98717,2026-01-12,Outbound,Contacted,North Team,SA,1,0,0,0,0,2,1728.0,280.97,5,10,Low
+CRM-2026-1236,L-50026,2026-01-16,Referral,Contacted,Enterprise Team,WA,4,0,1,0,1,6,2467.86,,1,15,Medium
+CRM-2026-1237,L-39380,2026-04-02,Referral,Negotiation,South Team,NSW,5,1,1,0,1,7,7596.98,,0,18,Medium
+CRM-2026-1238,L-31799,2026-03-22,Website Form,Closed Lost,South Team,VIC,5,0,0,0,0,4,2625.02,,0,8,Medium
+CRM-2026-1239,L-20661,2026-04-12,Partner,New Lead,South Team,NSW,6,0,1,0,1,5,6838.94,627.49,1,21,Low
+CRM-2026-1240,L-25691,2026-01-03,Website Form,Proposal,Enterprise Team,SA,5,1,1,0,0,1,2113.42,,3,23,Medium
+CRM-2026-1241,L-34138,2026-01-11,Email Nurture,Contacted,North Team,QLD,8,0,0,0,1,4,3156.93,,3,6,Medium
+CRM-2026-1242,L-27451,2026-03-01,Referral,Contacted,Enterprise Team,NSW,3,0,0,0,1,4,6550.14,619.66,1,13,Low
+CRM-2026-1243,L-67765,2026-01-13,event,Proposal,SMB Team,WA,4,1,1,0,1,6,2015.35,,0,11,Medium
+CRM-2026-1244,L-72617,2026-03-28,Referral,Contacted,SMB Team,VIC,7,0,0,0,0,1,4947.97,,0,5,High
+CRM-2026-1245,L-95034,2026-03-26,Website Form,New Lead,North Team,WA,3,0,1,0,1,6,2563.27,,0,15,Low
+CRM-2026-1246,L-67519,2026-02-15,Outbound,Qualified,North Team,QLD,5,1,1,0,1,8,6090.57,747.24,0,20,Medium
+CRM-2026-1247,L-25667,2026-01-15,Partner,Closed Won,SMB Team,NSW,6,1,1,1,1,5,4919.11,3804.06,5,5,Medium
+CRM-2026-1248,L-24093,2026-03-19,Outbound,New Lead,South Team,VIC,6,0,0,0,1,9,3464.48,,3,20,Strategic
+CRM-2026-1249,L-72483,2026-02-07,Referral,Contacted,SMB Team,WA,7,0,0,0,0,2,5805.01,,4,5,High
+CRM-2026-1250,L-86866,2026-02-07,Partner,Closed Won,South Team,SA,3,1,1,1,1,7,7202.59,7297.35,0,11,Low
+CRM-2026-1251,L-16552,2026-01-20,partner,New Lead,Enterprise Team,WA,4,0,0,0,0,4,3104.23,,2,19,Low
+CRM-2026-1252,L-17501,2026-01-18,Website Form,Contacted,North Team,WA,2,0,1,0,1,4,1859.33,,1,8,High
+CRM-2026-1253,L-92104,2026-04-17,Outbound,Closed Lost,Enterprise Team,QLD,9,1,0,0,0,2,6607.01,,2,15,Medium
+CRM-2026-1254,L-44339,2026-02-19,Event,New Lead,South Team,SA,5,0,1,0,1,6,4418.37,,2,14,Low
+CRM-2026-1255,L-72760,2026-03-20,referral,Closed Lost,North Team,SA,5,0,0,0,0,3,1128.37,,3,7,High
+CRM-2026-1256,L-92828,2026-02-11,Partner,Qualified,Enterprise Team,SA,4,1,0,0,1,5,6996.97,,0,18,High
+CRM-2026-1257,L-19502,2026-03-04,Outbound,Negotiation,SMB Team,NSW,3,1,1,0,0,5,2835.78,469.23,4,8,Medium
+CRM-2026-1258,L-72598,2026-04-04,Website Form,Negotiation,South Team,QLD,2,1,1,0,0,2,863.44,,2,3,Medium
+CRM-2026-1259,L-57129,2026-01-20,Partner,Proposal,SMB Team,VIC,5,1,1,0,0,4,7308.93,1026.59,3,1,Medium
+CRM-2026-1260,L-47075,2026-02-02,Referral,Negotiation,North Team,QLD,2,1,1,0,0,5,6122.11,,2,13,Medium
+CRM-2026-1261,L-15009,2026-02-21,Partner,Proposal,North Team,VIC,6,1,1,0,1,7,4314.3,,3,17,High
+CRM-2026-1262,L-39010,2026-02-02,partner,Contacted,Enterprise Team,NSW,6,0,0,0,1,11,4482.95,,2,4,High
+CRM-2026-1263,L-40207,2026-04-09,Partner,Closed Lost,Enterprise Team,NSW,4,0,0,0,0,2,9431.03,,0,21,Medium
+CRM-2026-1264,L-88149,2026-02-21,Email Nurture,Qualified,South Team,NSW,5,1,0,0,1,7,1021.39,,5,27,Low
+CRM-2026-1265,L-18366,2026-04-06,Email Nurture,Qualified,SMB Team,WA,4,1,0,0,1,6,2043.88,,4,17,High
+CRM-2026-1266,L-40828,2026-01-16,Event,New Lead,North Team,NSW,8,0,0,0,1,6,3659.07,869.56,1,12,High
+CRM-2026-1267,L-27282,2026-01-31,Email Nurture,Closed Lost,Enterprise Team,NSW,4,0,0,0,0,4,1507.29,279.9,0,5,High
+CRM-2026-1268,L-99148,2026-03-09,outbound,Contacted,South Team,SA,4,0,0,0,0,4,4125.58,,0,10,Low
+CRM-2026-1269,L-49526,2026-01-09,Email Nurture,New Lead,North Team,WA,4,0,0,0,1,7,2502.21,410.16,4,9,Medium
+CRM-2026-1270,L-36462,2026-01-12,event,Contacted,Enterprise Team,QLD,4,0,0,0,0,1,2645.97,,2,9,High
+CRM-2026-1271,L-26945,2026-03-02,Outbound,New Lead,South Team,QLD,3,0,0,0,0,2,2129.51,402.56,5,9,High
+CRM-2026-1272,L-50671,2026-03-13,Website Form,Qualified,South Team,WA,2,1,1,0,0,5,583.82,,1,11,Medium
+CRM-2026-1273,L-80764,2026-03-17,Website Form,Qualified,South Team,NSW,5,1,0,0,1,8,3346.93,,1,6,Low
+CRM-2026-1274,L-26125,2026-03-16,Website Form,New Lead,SMB Team,QLD,5,0,0,0,0,1,1231.7,,5,23,Medium
+CRM-2026-1275,L-66824,2026-02-25,Outbound,Qualified,South Team,SA,2,1,0,0,0,2,1706.53,92.7,4,13,Medium
+CRM-2026-1276,L-16288,2026-02-17,Website Form,Contacted,North Team,QLD,3,0,0,0,1,5,329.42,,3,16,Medium
+CRM-2026-1277,L-35437,2026-03-05,Website Form,Contacted,Enterprise Team,VIC,4,0,0,0,0,2,2647.67,,4,12,Low
+CRM-2026-1278,L-91157,2026-01-15,Website Form,Qualified,SMB Team,QLD,3,1,0,0,0,3,4365.01,,1,24,Low
+CRM-2026-1279,L-48597,2026-02-15,Email Nurture,Contacted,North Team,SA,6,0,1,0,1,5,1266.33,,1,5,Medium
+CRM-2026-1280,L-81942,2026-01-24,Referral,Closed Won,SMB Team,QLD,3,1,1,1,0,2,7671.93,7010.0,2,14,Medium
+CRM-2026-1281,L-70728,2026-03-08,Referral,Proposal,Enterprise Team,VIC,6,1,1,0,1,8,5033.69,608.35,3,6,Strategic
+CRM-2026-1282,L-47654,2026-04-21,Email Nurture,Closed Won,SMB Team,VIC,4,1,1,1,0,3,1032.02,1161.85,0,19,Strategic
+CRM-2026-1283,L-83088,2026-03-23,Email Nurture,contacted,North Team,WA,3,0,0,0,1,4,1203.95,,3,5,High
+CRM-2026-1284,L-18997,2026-01-28,Outbound,Qualified,North Team,SA,2,1,0,0,0,2,4356.59,,0,15,High
+CRM-2026-1285,L-62790,2026-03-04,Website Form,Proposal,North Team,SA,3,1,1,0,0,4,2617.72,,0,6,High
+CRM-2026-1286,L-99898,2026-01-29,Referral,Closed Won,SMB Team,VIC,3,1,1,1,1,9,7361.76,7191.84,0,10,Strategic
+CRM-2026-1287,L-62862,2026-04-07,Event,Qualified,South Team,NSW,2,1,0,0,0,3,4178.54,840.27,0,6,Medium
+CRM-2026-1288,L-62814,2026-03-09,Outbound,Negotiation,SMB Team,NSW,3,1,1,0,1,4,6389.26,,0,14,Medium
+CRM-2026-1289,L-41729,2026-01-14,Email Nurture,Closed Won,South Team,VIC,4,1,1,1,1,6,1356.24,1351.67,0,5,Medium
+CRM-2026-1290,L-13040,2026-02-13,referral,New Lead,North Team,QLD,5,0,0,0,0,2,4260.55,,3,4,Low
+CRM-2026-1291,L-87402,2026-03-07,Referral,proposal,South Team,NSW,4,1,1,0,0,4,6425.82,,2,22,Low
+CRM-2026-1292,L-80935,2026-02-20,Website Form,Qualified,North Team,QLD,5,1,0,0,0,3,,,3,13,Medium
+CRM-2026-1293,L-82203,2026-04-12,Email Nurture,Contacted,South Team,QLD,5,0,0,0,0,5,703.14,,4,7,Low
+CRM-2026-1294,L-55495,2026-03-24,Partner,Proposal,North Team,VIC,3,1,1,0,0,3,3907.9,,1,22,High
+CRM-2026-1295,L-99556,2026-01-04,Email Nurture,New Lead,Enterprise Team,QLD,4,0,1,0,0,3,1107.16,,2,10,High
+CRM-2026-1296,L-69867,2026-03-01,Referral,Closed Won,Enterprise Team,SA,5,1,1,1,0,5,4936.5,4943.1,4,3,High
+CRM-2026-1297,L-54552,2026-02-06,Event,Contacted,SMB Team,NSW,3,1,0,0,0,3,3710.77,541.09,2,8,Medium
+CRM-2026-1298,L-22862,2026-03-11,Partner,Closed Won,North Team,VIC,7,1,1,1,0,4,3383.28,3856.12,3,13,Medium
+CRM-2026-1299,L-71602,2026-02-28,Referral,Closed Lost,SMB Team,NSW,3,0,1,0,0,1,0,,1,7,Medium
+CRM-2026-1300,L-57330,2026-04-09,Website Form,Contacted,Enterprise Team,WA,4,0,1,0,0,2,261.76,45.75,0,14,High
+CRM-2026-1301,L-81546,2026-03-24,Event,Proposal,North Team,WA,3,1,1,0,0,5,4980.33,,0,7,Medium
+CRM-2026-1302,L-84720,2026-03-27,Referral,Closed Won,North Team,WA,6,1,1,1,1,6,6662.11,7386.71,4,6,Low
+CRM-2026-1303,L-23101,2026-03-25,Partner,Negotiation,North Team,VIC,4,1,1,0,0,3,5955.37,,2,4,High
+CRM-2026-1304,L-33053,2026-01-16,Referral,Proposal,Enterprise Team,SA,6,1,1,0,0,4,5504.42,1169.82,1,10,High
+CRM-2026-1305,L-33366,2026-01-25,email nurture,Closed Lost,North Team,SA,4,0,0,0,1,9,269.67,,0,10,Medium
+CRM-2026-1306,L-20314,2026-01-05,Partner,New Lead,Enterprise Team,NSW,6,0,0,0,0,3,3836.17,,2,14,Medium
+CRM-2026-1307,L-36536,2026-04-09,Partner,Qualified,South Team,QLD,4,1,1,0,1,6,3270.66,,6,8,Low
+CRM-2026-1308,L-65441,2026-02-26,Event,Qualified,SMB Team,WA,6,1,0,0,0,2,4840.15,1161.44,0,5,Medium
+CRM-2026-1309,L-60636,2026-03-05,Referral,New Lead,Enterprise Team,NSW,5,1,0,0,0,3,1191.37,255.68,1,5,Strategic
+CRM-2026-1310,L-86979,2026-01-12,website form,New Lead,North Team,SA,8,0,0,0,1,5,3119.67,,4,6,Medium
+CRM-2026-1311,L-77003,2026-01-05,Website Form,Contacted,Enterprise Team,SA,1,0,0,0,0,3,1955.86,394.06,2,6,Strategic
+CRM-2026-1312,L-85088,2026-02-14,Email Nurture,Qualified,SMB Team,VIC,5,1,0,0,0,2,3437.34,327.21,0,15,High
+CRM-2026-1313,L-75547,2026-02-28,Email Nurture,Contacted,South Team,WA,1,0,0,0,1,6,447.13,,1,24,Low
+CRM-2026-1314,L-60902,2026-01-26,Referral,New Lead,Enterprise Team,NSW,4,1,1,0,0,5,5561.94,,4,11,Medium
+CRM-2026-1315,L-38368,2026-03-09,Outbound,Closed Lost,South Team,SA,4,1,1,0,0,3,1672.74,,2,8,Medium
+CRM-2026-1316,L-58562,2026-01-21,Website Form,Contacted,South Team,QLD,6,1,0,0,1,4,3452.75,,4,6,Strategic
+CRM-2026-1317,L-97420,2026-02-15,Referral,Closed Lost,South Team,NSW,3,0,0,0,1,8,6283.29,,3,4,Medium
+CRM-2026-1318,L-17544,2026-02-17,Website Form,Qualified,Enterprise Team,VIC,1,1,0,0,0,3,822.15,,2,12,High
+CRM-2026-1319,L-78781,2026-02-17,Referral,New Lead,Enterprise Team,SA,4,0,0,0,1,6,4456.77,,1,6,High
+CRM-2026-1320,L-53922,2026-04-05,Website Form,Qualified,Enterprise Team,QLD,5,1,0,0,0,3,2035.99,,2,17,Low
+CRM-2026-1321,L-65123,2026-01-08,Outbound,Contacted,SMB Team,VIC,3,0,0,0,1,4,3706.78,191.72,3,19,Medium
+CRM-2026-1322,L-48917,2026-02-06,Email Nurture,Closed Lost,Enterprise Team,SA,4,0,0,0,0,3,1980.53,,3,5,High
+CRM-2026-1323,L-56861,2026-01-18,Email Nurture,New Lead,South Team,QLD,3,0,0,0,1,4,2048.69,,1,20,Medium
+CRM-2026-1324,L-24150,2026-03-08,Email Nurture,New Lead,Enterprise Team,QLD,3,0,1,0,0,4,1664.67,,0,5,Strategic
+CRM-2026-1325,L-56958,2026-01-15,Outbound,Closed Lost,SMB Team,WA,1,1,1,0,1,7,4108.2,690.78,0,16,Medium
+CRM-2026-1326,L-33582,2026-02-20,Email Nurture,Closed Won,South Team,NSW,5,1,1,1,0,4,909.11,984.76,2,1,Medium
+CRM-2026-1327,L-27555,2026-03-18,Referral,Contacted,North Team,QLD,2,0,0,0,0,2,7686.87,,2,1,Medium
+CRM-2026-1328,L-60471,2026-03-29,Website Form,Qualified,SMB Team,NSW,3,1,0,0,0,6,958.12,144.56,0,10,High
+CRM-2026-1329,L-53824,2026-02-21,Website Form,New Lead,North Team,NSW,2,0,0,0,0,2,2352.43,,3,16,Medium
+CRM-2026-1330,L-93291,2026-03-17,Outbound,New Lead,North Team,VIC,3,1,0,0,0,2,1484.01,296.67,0,7,Medium
+CRM-2026-1331,L-65514,2026-03-09,Outbound,Negotiation,SMB Team,VIC,3,1,1,0,0,7,3765.69,,4,6,Low
+CRM-2026-1332,L-98751,2026-02-26,Website Form,Qualified,Enterprise Team,SA,4,1,1,0,1,5,2137.35,,3,9,Medium
+CRM-2026-1333,L-84420,2026-02-12,Partner,Contacted,South Team,VIC,2,0,0,0,0,2,6553.11,,4,34,High
+CRM-2026-1334,L-18799,2026-02-14,Event,Negotiation,North Team,NSW,3,1,1,0,0,2,4209.35,,4,9,Medium
+CRM-2026-1335,L-78483,2026-02-08,Website Form,Contacted,SMB Team,QLD,5,0,0,0,0,2,826.51,42.62,1,11,Strategic
+CRM-2026-1336,L-57149,2026-04-08,Website Form,New Lead,South Team,SA,4,0,0,0,0,2,1904.97,,4,1,Low
+CRM-2026-1337,L-74359,2026-01-17,Email Nurture,New Lead,North Team,QLD,3,0,0,0,0,2,1239.8,,1,7,High
+CRM-2026-1338,L-89772,2026-01-22,Outbound,Proposal,South Team,NSW,2,1,1,0,0,2,1292.98,,3,18,Medium
+CRM-2026-1339,L-77050,2026-04-06,Outbound,Contacted,SMB Team,NSW,2,0,1,0,0,5,6476.79,1458.25,2,11,Medium
+CRM-2026-1340,L-79773,2026-04-18,Outbound,Qualified,North Team,NSW,6,1,0,0,0,2,5518.76,,2,12,Medium
+CRM-2026-1341,L-13253,2026-03-06,Website Form,Proposal,South Team,QLD,4,1,1,0,0,2,3128.97,,4,13,Medium
+CRM-2026-1342,L-94073,2026-02-15,Website Form,Proposal,SMB Team,NSW,3,1,1,0,0,3,2024.53,,0,4,Medium
+CRM-2026-1343,L-77863,2026-04-02,partner,Qualified,SMB Team,SA,4,1,0,0,0,3,3083.89,,1,11,High
+CRM-2026-1344,L-72776,2026-04-09,Email Nurture,Contacted,South Team,VIC,5,1,0,0,0,4,835.8,155.8,1,7,Medium
+CRM-2026-1345,L-53976,2026-04-13,Referral,Contacted,SMB Team,SA,7,0,0,0,0,4,3331.19,,4,9,High
+CRM-2026-1346,L-59151,2026-02-21,Partner,Qualified,South Team,QLD,1,1,0,0,1,5,3844.7,,2,6,Low
+CRM-2026-1347,L-82162,2026-04-17,Email Nurture,Contacted,Enterprise Team,VIC,3,0,1,0,0,5,1676.13,,2,11,High
+CRM-2026-1348,L-32270,2026-02-06,Partner,New Lead,North Team,WA,4,0,0,0,0,1,4684.74,,0,5,Low
+CRM-2026-1349,L-86156,2026-02-12,Outbound,Qualified,North Team,NSW,2,1,0,0,0,3,1442.55,,3,10,High
+CRM-2026-1350,L-96403,2026-03-31,Event,Qualified,Enterprise Team,WA,5,1,1,0,0,1,2015.9,,0,19,Medium
+CRM-2026-1351,L-66328,2026-04-14,Website Form,New Lead,North Team,SA,3,0,0,0,1,6,2943.07,,0,5,Strategic
+CRM-2026-1352,L-69354,2026-04-18,Referral,New Lead,SMB Team,WA,5,0,0,0,0,4,4981.71,876.39,4,4,Medium
+CRM-2026-1353,L-40907,2026-01-27,Email Nurture,Qualified,North Team,WA,5,1,1,0,1,8,1223.77,,4,12,High
+CRM-2026-1354,L-14205,2026-01-05,Email Nurture,New Lead,SMB Team,QLD,5,0,1,0,0,5,347.22,,3,9,Medium
+CRM-2026-1355,L-86902,2026-03-15,Email Nurture,New Lead,SMB Team,QLD,3,0,0,0,0,4,2570.38,,5,2,Strategic
+CRM-2026-1356,L-29129,2026-04-11,Website Form,Contacted,South Team,SA,2,0,1,0,0,2,3485.21,,1,5,Low
+CRM-2026-1357,L-66275,2026-02-09,Partner,qualified,South Team,SA,3,1,0,0,0,7,3808.06,551.4,5,3,High
+CRM-2026-1358,L-93821,2026-04-08,Event,Proposal,SMB Team,NSW,5,1,1,0,0,2,3774.88,774.68,2,4,Medium
+CRM-2026-1359,L-65837,2026-03-14,Email Nurture,Contacted,North Team,QLD,4,0,0,0,0,5,,,1,10,High
+CRM-2026-1360,L-30648,2026-04-08,Website Form,Closed Lost,South Team,VIC,3,0,0,0,1,7,3901.33,,4,7,Medium
+CRM-2026-1361,L-45696,2026-03-30,Website Form,New Lead,South Team,WA,2,0,0,0,0,4,2846.86,565.05,0,21,Low
+CRM-2026-1362,L-59360,2026-01-11,Website Form,New Lead,SMB Team,SA,5,0,0,0,0,3,3257.0,,0,18,Medium
+CRM-2026-1363,L-88825,2026-01-28,Outbound,Proposal,South Team,VIC,5,1,1,0,0,5,1965.03,,0,7,Medium
+CRM-2026-1364,L-22838,2026-03-21,Website Form,contacted,Enterprise Team,NSW,4,1,0,0,0,2,,145.04,3,3,High
+CRM-2026-1365,L-65671,2026-03-20,Outbound,Proposal,Enterprise Team,WA,3,1,1,0,1,6,6239.44,,6,7,Low
+CRM-2026-1366,L-91686,2026-02-05,Partner,Contacted,SMB Team,SA,3,0,0,0,1,4,7018.37,,3,14,Medium
+CRM-2026-1367,L-85327,2026-02-25,Event,New Lead,Enterprise Team,NSW,5,0,0,0,0,3,4700.32,,4,12,High
+CRM-2026-1368,L-23700,2026-01-25,Referral,Closed Lost,North Team,NSW,5,0,0,0,0,4,704.62,,4,11,Medium
+CRM-2026-1369,L-39212,2026-04-02,Website Form,Contacted,SMB Team,NSW,3,0,0,0,1,7,1072.7,,0,10,Medium
+CRM-2026-1370,L-49211,2026-03-30,Outbound,Proposal,SMB Team,NSW,4,1,1,0,0,3,5272.94,,3,5,Low
+CRM-2026-1371,L-80948,2026-04-13,Partner,Closed Won,Enterprise Team,NSW,5,1,1,1,0,2,5234.85,4056.82,5,5,Medium
+CRM-2026-1372,L-11274,2026-01-11,Referral,Qualified,SMB Team,SA,6,1,0,0,1,8,4554.76,,2,9,Low
+CRM-2026-1373,L-19458,2026-01-18,Outbound,Proposal,SMB Team,WA,4,1,1,0,0,5,5686.07,,1,16,High
+CRM-2026-1374,L-53314,2026-02-23,Website Form,Proposal,SMB Team,WA,6,1,1,0,1,8,1554.89,,0,13,High
+CRM-2026-1375,L-96913,2026-04-20,Website Form,Contacted,South Team,SA,5,0,0,0,1,5,3479.2,,1,5,Medium
+CRM-2026-1376,L-14743,2026-02-20,Website Form,New Lead,South Team,QLD,6,0,0,0,0,3,2839.71,,4,1,Strategic
+CRM-2026-1377,L-62008,2026-04-06,Outbound,Proposal,SMB Team,QLD,5,1,1,0,0,3,1570.84,,3,18,High
+CRM-2026-1378,L-16601,2026-02-06,Email Nurture,Contacted,South Team,WA,4,0,1,0,1,5,1704.87,,4,12,Strategic
+CRM-2026-1379,L-85459,2026-01-04,Email Nurture,Proposal,SMB Team,NSW,4,1,1,0,0,3,900.81,224.5,0,14,High
+CRM-2026-1380,L-70484,2026-04-05,Email Nurture,Qualified,North Team,SA,6,1,1,0,0,3,3261.57,,0,8,Medium
+CRM-2026-1381,L-31147,2026-01-12,Referral,Contacted,Enterprise Team,QLD,2,0,0,0,1,5,4938.17,,1,10,High
+CRM-2026-1382,L-40566,2026-02-04,Partner,Closed Won,North Team,QLD,2,1,1,1,0,3,7477.53,6406.41,1,14,Low
+CRM-2026-1383,L-95594,2026-01-21,Email Nurture,New Lead,SMB Team,NSW,2,0,0,0,0,3,,185.95,1,1,High
+CRM-2026-1384,L-99378,2026-03-13,Referral,Qualified,SMB Team,NSW,5,1,0,0,0,2,5948.99,1054.53,1,7,Medium
+CRM-2026-1385,L-14356,2026-02-07,Website Form,Contacted,North Team,SA,1,0,0,0,0,2,1735.35,,0,4,Medium
+CRM-2026-1386,L-17918,2026-03-19,Email Nurture,Proposal,South Team,WA,3,1,1,0,0,1,2900.65,,1,4,Medium
+CRM-2026-1387,L-24096,2026-01-18,Partner,Closed Lost,SMB Team,WA,2,1,1,0,0,3,10179.85,,0,15,Strategic
+CRM-2026-1388,L-71380,2026-02-15,Partner,Negotiation,South Team,VIC,1,1,1,0,0,4,3822.66,,2,15,High
+CRM-2026-1389,L-67788,2026-03-04,Email Nurture,Negotiation,Enterprise Team,WA,6,1,1,0,1,6,,,2,2,Medium
+CRM-2026-1390,L-25323,2026-03-30,Partner,Closed Won,North Team,VIC,2,1,1,1,1,5,10248.37,7725.04,0,15,Low
+CRM-2026-1391,L-62375,2026-01-21,Outbound,contacted,Enterprise Team,QLD,5,0,0,0,1,4,4620.3,,4,7,Low
+CRM-2026-1392,L-54447,2026-03-18,Referral,Contacted,North Team,SA,5,0,0,0,1,5,,982.74,2,7,Medium
+CRM-2026-1393,L-79645,2026-04-08,Outbound,Negotiation,North Team,VIC,3,1,1,0,1,6,2927.77,,1,8,Strategic
+CRM-2026-1394,L-47707,2026-02-27,Email Nurture,New Lead,Enterprise Team,VIC,5,0,0,0,1,8,1894.49,,6,8,High
+CRM-2026-1395,L-60182,2026-04-16,Website Form,Qualified,South Team,VIC,5,1,0,0,0,1,1244.75,136.57,3,28,Medium
+CRM-2026-1396,L-11990,2026-01-12,Website Form,Proposal,SMB Team,VIC,2,1,1,0,1,5,3092.15,,0,20,Medium
+CRM-2026-1397,L-13881,2026-04-05,Email Nurture,Proposal,Enterprise Team,WA,2,1,1,0,0,4,1865.29,375.11,2,21,Low
+CRM-2026-1398,L-12455,2026-01-27,Email Nurture,Proposal,North Team,WA,4,1,1,0,0,1,2976.6,,1,1,Low
+CRM-2026-1399,L-67864,2026-01-26,Event,New Lead,North Team,VIC,9,0,0,0,1,6,4320.43,,0,11,High
+CRM-2026-1400,L-21272,2026-02-21,Website Form,Closed Won,North Team,VIC,7,1,1,1,0,5,890.35,1015.92,0,5,Medium
+CRM-2026-1401,L-87238,2026-03-01,Outbound,Qualified,SMB Team,NSW,4,1,0,0,0,2,2157.76,,3,10,High
+CRM-2026-1402,L-33318,2026-02-10,Partner,Contacted,Enterprise Team,VIC,4,0,0,0,0,4,6028.13,,1,6,Medium
+CRM-2026-1403,L-99089,2026-03-12,Outbound,Contacted,SMB Team,NSW,4,1,0,0,0,2,4997.17,,2,11,Low
+CRM-2026-1404,L-91160,2026-02-06,Referral,Closed Lost,North Team,SA,5,0,1,0,0,3,5137.86,,2,16,High
+CRM-2026-1405,L-61055,2026-03-10,Event,Qualified,South Team,VIC,3,1,0,0,1,6,2432.29,,4,19,Strategic
+CRM-2026-1406,L-35237,2026-03-12,Partner,New Lead,SMB Team,QLD,2,1,0,0,1,9,2595.62,,1,15,Medium
+CRM-2026-1407,L-79809,2026-01-27,Website Form,Qualified,South Team,NSW,5,1,0,0,0,3,3110.42,,0,3,Medium
+CRM-2026-1408,L-85770,2026-03-16,Website Form,Closed Lost,SMB Team,NSW,3,0,1,0,0,1,1707.83,,2,18,Strategic
+CRM-2026-1409,L-62746,2026-02-01,Outbound,Contacted,South Team,VIC,5,0,1,0,0,1,5875.28,,1,2,Medium
+CRM-2026-1410,L-16001,2026-03-14,Outbound,Negotiation,South Team,VIC,2,1,1,0,0,2,3740.49,,4,24,Medium
+CRM-2026-1411,L-60485,2026-04-02,Website Form,New Lead,North Team,SA,4,0,1,0,0,2,1379.89,186.82,2,11,Medium
+CRM-2026-1412,L-48947,2026-04-04,Outbound,Closed Lost,SMB Team,QLD,2,0,0,0,0,2,3345.12,195.54,1,8,Medium
+CRM-2026-1413,L-91923,2026-01-27,Event,proposal,SMB Team,VIC,4,1,1,0,0,2,,129.31,3,8,Medium
+CRM-2026-1414,L-50095,2026-03-18,Website Form,Closed Lost,South Team,NSW,4,0,0,0,0,1,2787.06,,3,3,High
+CRM-2026-1415,L-62577,2026-01-28,Email Nurture,Proposal,North Team,QLD,3,1,1,0,1,5,2010.24,,6,24,High
+CRM-2026-1416,L-43849,2026-03-25,Website Form,New Lead,South Team,VIC,8,0,0,0,1,6,2469.4,,4,10,Medium
+CRM-2026-1417,L-88299,2026-04-16,Referral,Closed Lost,North Team,QLD,4,0,0,0,1,5,1868.16,,2,10,Medium
+CRM-2026-1418,L-30791,2026-02-24,Partner,New Lead,South Team,WA,7,0,0,0,1,6,3124.57,509.99,2,28,Medium
+CRM-2026-1419,L-63999,2026-03-30,Referral,Proposal,Enterprise Team,VIC,2,1,1,0,0,3,6683.46,,1,9,Medium

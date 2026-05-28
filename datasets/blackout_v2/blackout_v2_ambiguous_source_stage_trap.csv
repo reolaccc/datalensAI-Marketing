@@ -1,0 +1,301 @@
+record_date,source,unit_name,activity_count,response_completed,follow_up_needed,value_estimate,status_stage,owner_group,channel_note
+2026-04-01,Phone Desk,Beta Branch,35,1,0,,new,Team C,phone is intake method
+2026-04-02,Walk-in,Delta Site,61,0,0,524.9,pending,Team C,campaign is internal label
+2026-04-03,Phone Desk,Beta Branch,27,1,0,,reviewed,Team A,campaign is internal label
+2026-04-04,Portal,Gamma Desk,45,0,0,,new,Team A,campaign is internal label
+2026-04-05,Walk-in,Beta Branch,59,1,1,,closed,Team A,
+2026-04-06,Campaign named internal,Alpha Clinic,16,1,0,93.61,complete,Team A,
+2026-04-07,Portal,Alpha Clinic,34,1,0,729.2,complete,Team B,campaign is internal label
+2026-04-08,Portal,Delta Site,81,1,0,,complete,Team B,
+2026-04-09,Referral,Delta Site,9,0,1,264.43,pending,Team B,
+2026-04-10,Campaign named internal,Alpha Clinic,5,1,0,194.99,new,Team A,
+2026-04-11,Walk-in,Delta Site,87,1,1,410.95,new,Team A,campaign is internal label
+2026-04-12,Phone Desk,Alpha Clinic,9,0,0,749.8,pending,Team C,campaign is internal label
+2026-04-13,Campaign named internal,Gamma Desk,77,1,0,632.57,reviewed,Team A,campaign is internal label
+2026-04-14,Referral,Gamma Desk,43,0,1,72.16,reviewed,Team B,phone is intake method
+2026-04-15,Campaign named internal,Alpha Clinic,87,1,0,127.39,pending,Team A,campaign is internal label
+2026-04-16,Referral,Gamma Desk,22,0,0,430.49,new,Team A,campaign is internal label
+2026-04-17,Phone Desk,Gamma Desk,64,1,0,560.18,reviewed,Team A,not call tracking
+2026-04-18,Referral,Gamma Desk,11,0,0,255.05,reviewed,Team B,campaign is internal label
+2026-04-19,Walk-in,Delta Site,51,1,1,96.1,reviewed,Team B,phone is intake method
+2026-04-20,Phone Desk,Beta Branch,63,1,1,624.77,pending,Team B,
+2026-04-21,Referral,Alpha Clinic,68,0,0,603.93,reviewed,Team A,campaign is internal label
+2026-04-22,Walk-in,Alpha Clinic,89,0,1,,closed,Team C,phone is intake method
+2026-04-23,Portal,Gamma Desk,81,0,0,500.74,reviewed,Team C,
+2026-04-24,Walk-in,Gamma Desk,81,1,0,373.09,closed,Team A,phone is intake method
+2026-04-25,Referral,Alpha Clinic,85,0,0,661.56,closed,Team C,not call tracking
+2026-04-26,Phone Desk,Delta Site,15,1,0,,new,Team C,campaign is internal label
+2026-04-27,Portal,Delta Site,37,1,0,694.14,complete,Team C,not call tracking
+2026-04-28,Campaign named internal,Beta Branch,53,0,0,765.88,new,Team A,
+2026-04-29,Referral,Alpha Clinic,50,1,1,139.37,closed,Team A,campaign is internal label
+2026-04-30,Referral,Alpha Clinic,74,1,0,523.4,pending,Team B,campaign is internal label
+2026-05-01,Referral,Delta Site,40,1,0,453.61,reviewed,Team B,not call tracking
+2026-05-02,Referral,Beta Branch,66,1,0,,closed,Team C,not call tracking
+2026-05-03,Referral,Delta Site,64,1,0,598.86,new,Team C,campaign is internal label
+2026-05-04,Campaign named internal,Alpha Clinic,66,0,1,,new,Team A,phone is intake method
+2026-05-05,Walk-in,Alpha Clinic,73,1,0,438.38,new,Team B,
+2026-05-06,Phone Desk,Delta Site,33,1,0,174.55,reviewed,Team B,not call tracking
+2026-05-07,Campaign named internal,Delta Site,5,0,1,,reviewed,Team B,phone is intake method
+2026-05-08,Campaign named internal,Delta Site,80,1,0,588.39,pending,Team B,phone is intake method
+2026-05-09,Walk-in,Delta Site,69,0,0,278.1,closed,Team C,not call tracking
+2026-05-10,Referral,Gamma Desk,61,1,1,283.58,new,Team A,not call tracking
+2026-05-11,Portal,Gamma Desk,71,1,1,,pending,Team A,campaign is internal label
+2026-05-12,Walk-in,Alpha Clinic,18,1,1,189.47,complete,Team B,campaign is internal label
+2026-05-13,Walk-in,Gamma Desk,64,1,0,77.99,new,Team C,campaign is internal label
+2026-05-14,Phone Desk,Beta Branch,90,1,0,718.46,complete,Team A,phone is intake method
+2026-05-15,Walk-in,Delta Site,3,1,0,189.55,closed,Team B,phone is intake method
+2026-05-16,Referral,Gamma Desk,46,1,1,488.03,reviewed,Team C,phone is intake method
+2026-05-17,Campaign named internal,Beta Branch,82,1,0,769.16,reviewed,Team B,campaign is internal label
+2026-05-18,Phone Desk,Alpha Clinic,61,0,0,,closed,Team B,phone is intake method
+2026-05-19,Referral,Alpha Clinic,29,1,0,491.92,complete,Team C,not call tracking
+2026-05-20,Referral,Alpha Clinic,77,1,1,450.82,reviewed,Team A,
+2026-05-21,Portal,Beta Branch,32,1,0,,closed,Team B,not call tracking
+2026-05-22,Portal,Beta Branch,3,1,1,372.37,reviewed,Team B,campaign is internal label
+2026-05-23,Walk-in,Alpha Clinic,82,1,0,666.45,pending,Team A,
+2026-05-24,Referral,Alpha Clinic,26,1,0,681.19,pending,Team C,phone is intake method
+2026-05-25,Referral,Delta Site,64,1,0,114.69,closed,Team B,campaign is internal label
+2026-05-26,Phone Desk,Beta Branch,81,1,0,510.41,closed,Team B,
+2026-05-27,Portal,Alpha Clinic,47,1,0,729.41,closed,Team A,
+2026-05-28,Portal,Delta Site,22,1,0,93.42,complete,Team A,phone is intake method
+2026-05-29,Walk-in,Gamma Desk,10,0,0,695.91,complete,Team C,not call tracking
+2026-05-30,Portal,Beta Branch,10,1,0,,pending,Team C,phone is intake method
+2026-04-01,Campaign named internal,Gamma Desk,57,1,1,53.4,pending,Team B,phone is intake method
+2026-04-02,Walk-in,Beta Branch,76,1,1,,reviewed,Team A,not call tracking
+2026-04-03,Portal,Beta Branch,22,1,0,,pending,Team B,not call tracking
+2026-04-04,Portal,Beta Branch,14,1,0,213.7,new,Team A,
+2026-04-05,Campaign named internal,Delta Site,10,1,0,,closed,Team C,
+2026-04-06,Referral,Delta Site,68,1,1,279.2,reviewed,Team C,phone is intake method
+2026-04-07,Phone Desk,Alpha Clinic,11,0,0,677.7,new,Team C,phone is intake method
+2026-04-08,Walk-in,Beta Branch,24,0,0,443.49,new,Team C,
+2026-04-09,Walk-in,Alpha Clinic,90,1,0,548.73,reviewed,Team C,campaign is internal label
+2026-04-10,Campaign named internal,Delta Site,22,0,0,121.86,reviewed,Team A,phone is intake method
+2026-04-11,Campaign named internal,Delta Site,89,1,0,,complete,Team A,campaign is internal label
+2026-04-12,Portal,Delta Site,48,1,0,274.76,new,Team A,not call tracking
+2026-04-13,Referral,Alpha Clinic,74,1,0,263.86,new,Team C,not call tracking
+2026-04-14,Portal,Beta Branch,53,1,0,,closed,Team C,phone is intake method
+2026-04-15,Phone Desk,Alpha Clinic,13,1,0,102.26,new,Team A,not call tracking
+2026-04-16,Portal,Beta Branch,33,1,1,238.83,pending,Team B,phone is intake method
+2026-04-17,Campaign named internal,Alpha Clinic,51,0,1,339.99,new,Team B,campaign is internal label
+2026-04-18,Walk-in,Delta Site,16,0,1,375.1,closed,Team B,phone is intake method
+2026-04-19,Referral,Gamma Desk,12,1,0,645.45,reviewed,Team C,campaign is internal label
+2026-04-20,Phone Desk,Gamma Desk,39,0,0,452.01,complete,Team B,phone is intake method
+2026-04-21,Campaign named internal,Beta Branch,48,0,0,,new,Team C,
+2026-04-22,Referral,Alpha Clinic,43,1,0,766.3,pending,Team C,phone is intake method
+2026-04-23,Walk-in,Alpha Clinic,51,1,1,433.73,reviewed,Team C,phone is intake method
+2026-04-24,Phone Desk,Gamma Desk,13,1,0,661.36,reviewed,Team C,
+2026-04-25,Phone Desk,Delta Site,27,1,1,143.7,new,Team A,
+2026-04-26,Referral,Delta Site,72,0,0,73.27,reviewed,Team B,phone is intake method
+2026-04-27,Campaign named internal,Beta Branch,43,0,0,490.87,pending,Team C,campaign is internal label
+2026-04-28,Campaign named internal,Beta Branch,6,1,1,460.59,closed,Team C,
+2026-04-29,Phone Desk,Delta Site,40,0,0,363.69,reviewed,Team B,
+2026-04-30,Campaign named internal,Gamma Desk,52,1,0,501.62,pending,Team C,campaign is internal label
+2026-05-01,Phone Desk,Delta Site,35,1,1,240.01,reviewed,Team A,
+2026-05-02,Referral,Alpha Clinic,42,1,0,677.35,reviewed,Team B,not call tracking
+2026-05-03,Campaign named internal,Delta Site,83,1,0,309.39,new,Team C,phone is intake method
+2026-05-04,Phone Desk,Alpha Clinic,75,1,0,585.33,reviewed,Team A,phone is intake method
+2026-05-05,Walk-in,Beta Branch,72,0,0,620.04,reviewed,Team A,phone is intake method
+2026-05-06,Walk-in,Gamma Desk,58,0,1,,closed,Team A,not call tracking
+2026-05-07,Phone Desk,Delta Site,68,1,1,254.51,new,Team A,not call tracking
+2026-05-08,Portal,Alpha Clinic,51,1,0,263.57,reviewed,Team C,campaign is internal label
+2026-05-09,Campaign named internal,Delta Site,21,1,0,,complete,Team C,
+2026-05-10,Walk-in,Alpha Clinic,39,1,0,578.58,new,Team C,phone is intake method
+2026-05-11,Referral,Beta Branch,50,1,1,721.62,new,Team B,campaign is internal label
+2026-05-12,Walk-in,Delta Site,47,1,0,404.2,closed,Team B,
+2026-05-13,Portal,Alpha Clinic,55,0,0,401.39,pending,Team C,phone is intake method
+2026-05-14,Phone Desk,Gamma Desk,76,1,0,438.18,reviewed,Team A,phone is intake method
+2026-05-15,Phone Desk,Alpha Clinic,12,1,0,298.65,closed,Team B,phone is intake method
+2026-05-16,Referral,Gamma Desk,3,1,0,,pending,Team B,
+2026-05-17,Referral,Beta Branch,31,1,0,,closed,Team A,phone is intake method
+2026-05-18,Campaign named internal,Gamma Desk,80,1,0,711.72,closed,Team B,phone is intake method
+2026-05-19,Phone Desk,Beta Branch,41,0,0,593.38,reviewed,Team C,campaign is internal label
+2026-05-20,Walk-in,Delta Site,90,1,1,316.71,reviewed,Team A,campaign is internal label
+2026-05-21,Campaign named internal,Beta Branch,52,1,0,285.82,pending,Team C,phone is intake method
+2026-05-22,Walk-in,Gamma Desk,17,0,0,,complete,Team B,campaign is internal label
+2026-05-23,Phone Desk,Beta Branch,8,1,1,,reviewed,Team A,campaign is internal label
+2026-05-24,Campaign named internal,Alpha Clinic,56,1,0,,pending,Team A,phone is intake method
+2026-05-25,Campaign named internal,Delta Site,2,0,0,788.08,complete,Team C,
+2026-05-26,Portal,Delta Site,5,1,0,738.41,reviewed,Team C,not call tracking
+2026-05-27,Campaign named internal,Delta Site,47,1,0,77.8,new,Team B,phone is intake method
+2026-05-28,Phone Desk,Gamma Desk,86,1,1,338.21,new,Team C,
+2026-05-29,Campaign named internal,Alpha Clinic,89,1,0,684.96,new,Team C,not call tracking
+2026-05-30,Phone Desk,Gamma Desk,17,0,0,,pending,Team C,phone is intake method
+2026-04-01,Portal,Alpha Clinic,15,1,1,,pending,Team C,phone is intake method
+2026-04-02,Campaign named internal,Gamma Desk,77,0,1,293.64,reviewed,Team B,campaign is internal label
+2026-04-03,Walk-in,Gamma Desk,80,1,0,518.44,pending,Team C,phone is intake method
+2026-04-04,Portal,Beta Branch,36,0,1,539.55,complete,Team C,
+2026-04-05,Walk-in,Alpha Clinic,74,1,0,,reviewed,Team B,
+2026-04-06,Referral,Alpha Clinic,39,1,0,313.16,reviewed,Team C,
+2026-04-07,Portal,Gamma Desk,17,1,1,406.47,new,Team A,
+2026-04-08,Walk-in,Beta Branch,88,1,0,552.25,reviewed,Team A,not call tracking
+2026-04-09,Portal,Beta Branch,45,1,0,410.23,new,Team A,not call tracking
+2026-04-10,Portal,Alpha Clinic,29,1,0,217.24,new,Team C,phone is intake method
+2026-04-11,Walk-in,Delta Site,29,0,0,407.91,complete,Team B,
+2026-04-12,Phone Desk,Alpha Clinic,44,0,0,385.21,closed,Team A,campaign is internal label
+2026-04-13,Referral,Gamma Desk,83,0,1,346.26,closed,Team B,not call tracking
+2026-04-14,Walk-in,Gamma Desk,25,0,0,743.1,pending,Team B,
+2026-04-15,Phone Desk,Delta Site,53,0,0,734.56,closed,Team A,not call tracking
+2026-04-16,Portal,Gamma Desk,9,1,0,661.61,new,Team C,phone is intake method
+2026-04-17,Referral,Delta Site,63,1,0,603.98,pending,Team B,phone is intake method
+2026-04-18,Campaign named internal,Gamma Desk,48,0,0,723.03,pending,Team C,not call tracking
+2026-04-19,Phone Desk,Delta Site,52,1,0,232.83,new,Team A,not call tracking
+2026-04-20,Portal,Delta Site,70,0,0,665.86,new,Team C,not call tracking
+2026-04-21,Walk-in,Gamma Desk,13,0,1,146.53,closed,Team C,not call tracking
+2026-04-22,Portal,Gamma Desk,76,1,1,425.69,reviewed,Team B,not call tracking
+2026-04-23,Referral,Alpha Clinic,35,1,0,365.12,new,Team A,campaign is internal label
+2026-04-24,Referral,Alpha Clinic,9,1,0,707.02,closed,Team A,campaign is internal label
+2026-04-25,Portal,Gamma Desk,38,1,1,135.14,closed,Team B,
+2026-04-26,Phone Desk,Alpha Clinic,11,1,0,95.87,complete,Team C,phone is intake method
+2026-04-27,Portal,Gamma Desk,50,0,0,691.05,closed,Team C,campaign is internal label
+2026-04-28,Campaign named internal,Delta Site,8,1,1,,complete,Team B,not call tracking
+2026-04-29,Walk-in,Beta Branch,25,0,0,,new,Team C,not call tracking
+2026-04-30,Phone Desk,Gamma Desk,67,1,0,394.55,pending,Team B,campaign is internal label
+2026-05-01,Walk-in,Gamma Desk,20,0,0,458.12,pending,Team A,not call tracking
+2026-05-02,Portal,Delta Site,28,1,0,,new,Team C,phone is intake method
+2026-05-03,Portal,Delta Site,5,1,0,487.07,new,Team A,
+2026-05-04,Campaign named internal,Beta Branch,66,1,1,440.32,closed,Team B,
+2026-05-05,Phone Desk,Alpha Clinic,69,1,0,,closed,Team C,phone is intake method
+2026-05-06,Phone Desk,Delta Site,17,1,0,446.75,complete,Team A,phone is intake method
+2026-05-07,Portal,Alpha Clinic,51,1,0,,closed,Team B,campaign is internal label
+2026-05-08,Phone Desk,Delta Site,27,1,1,265.06,reviewed,Team A,campaign is internal label
+2026-05-09,Campaign named internal,Beta Branch,46,0,0,583.91,complete,Team A,not call tracking
+2026-05-10,Portal,Alpha Clinic,28,1,1,250.72,new,Team A,phone is intake method
+2026-05-11,Phone Desk,Gamma Desk,4,1,1,184.2,new,Team A,
+2026-05-12,Walk-in,Delta Site,32,0,1,,closed,Team C,phone is intake method
+2026-05-13,Phone Desk,Alpha Clinic,70,0,1,187.23,closed,Team B,phone is intake method
+2026-05-14,Portal,Alpha Clinic,2,1,1,191.28,complete,Team C,not call tracking
+2026-05-15,Campaign named internal,Alpha Clinic,34,1,0,699.64,closed,Team B,
+2026-05-16,Campaign named internal,Gamma Desk,86,1,0,633.12,reviewed,Team A,not call tracking
+2026-05-17,Portal,Alpha Clinic,56,1,0,576.39,closed,Team C,campaign is internal label
+2026-05-18,Walk-in,Alpha Clinic,65,1,0,470.93,closed,Team C,phone is intake method
+2026-05-19,Portal,Delta Site,74,0,0,454.16,complete,Team A,campaign is internal label
+2026-05-20,Referral,Alpha Clinic,87,1,0,,reviewed,Team C,
+2026-05-21,Campaign named internal,Alpha Clinic,24,1,0,660.85,new,Team A,not call tracking
+2026-05-22,Walk-in,Delta Site,6,1,0,375.05,complete,Team A,phone is intake method
+2026-05-23,Referral,Beta Branch,21,1,1,431.39,closed,Team B,
+2026-05-24,Phone Desk,Gamma Desk,19,0,0,305.31,closed,Team A,campaign is internal label
+2026-05-25,Campaign named internal,Delta Site,66,1,1,456.72,closed,Team A,phone is intake method
+2026-05-26,Referral,Beta Branch,44,1,0,623.92,pending,Team B,campaign is internal label
+2026-05-27,Walk-in,Alpha Clinic,17,1,0,300.72,new,Team C,
+2026-05-28,Portal,Delta Site,37,0,0,359.43,reviewed,Team A,campaign is internal label
+2026-05-29,Portal,Delta Site,51,1,0,447.9,pending,Team C,
+2026-05-30,Portal,Alpha Clinic,11,0,0,641.72,complete,Team B,
+2026-04-01,Phone Desk,Delta Site,14,0,0,532.91,pending,Team B,phone is intake method
+2026-04-02,Walk-in,Beta Branch,84,0,1,,closed,Team C,not call tracking
+2026-04-03,Portal,Delta Site,46,1,0,88.83,reviewed,Team A,campaign is internal label
+2026-04-04,Phone Desk,Gamma Desk,22,0,0,659.88,reviewed,Team C,phone is intake method
+2026-04-05,Phone Desk,Gamma Desk,37,0,0,,pending,Team B,not call tracking
+2026-04-06,Campaign named internal,Beta Branch,35,1,0,680.85,closed,Team A,phone is intake method
+2026-04-07,Referral,Delta Site,15,1,0,709.76,reviewed,Team C,phone is intake method
+2026-04-08,Portal,Alpha Clinic,6,1,0,211.31,new,Team A,not call tracking
+2026-04-09,Walk-in,Alpha Clinic,11,0,0,248.15,reviewed,Team A,phone is intake method
+2026-04-10,Phone Desk,Beta Branch,10,1,0,712.6,new,Team A,
+2026-04-11,Portal,Gamma Desk,36,1,0,721.53,closed,Team B,campaign is internal label
+2026-04-12,Walk-in,Delta Site,77,0,1,332.38,pending,Team A,not call tracking
+2026-04-13,Campaign named internal,Beta Branch,37,1,1,260.19,reviewed,Team C,
+2026-04-14,Walk-in,Alpha Clinic,35,0,0,113.76,closed,Team C,phone is intake method
+2026-04-15,Referral,Alpha Clinic,22,1,1,758.31,reviewed,Team B,
+2026-04-16,Campaign named internal,Beta Branch,19,1,0,,new,Team C,phone is intake method
+2026-04-17,Phone Desk,Alpha Clinic,23,1,1,329.57,reviewed,Team B,phone is intake method
+2026-04-18,Campaign named internal,Alpha Clinic,24,1,0,692.85,closed,Team C,campaign is internal label
+2026-04-19,Phone Desk,Delta Site,61,1,0,204.82,new,Team A,campaign is internal label
+2026-04-20,Portal,Alpha Clinic,3,1,1,,new,Team C,
+2026-04-21,Phone Desk,Alpha Clinic,72,0,0,637.86,complete,Team A,campaign is internal label
+2026-04-22,Walk-in,Beta Branch,61,0,0,,pending,Team B,campaign is internal label
+2026-04-23,Referral,Delta Site,46,0,0,183.37,closed,Team C,phone is intake method
+2026-04-24,Portal,Gamma Desk,17,1,0,633.34,closed,Team C,campaign is internal label
+2026-04-25,Campaign named internal,Alpha Clinic,26,1,0,637.14,closed,Team A,campaign is internal label
+2026-04-26,Portal,Alpha Clinic,83,1,0,575.32,closed,Team A,phone is intake method
+2026-04-27,Campaign named internal,Beta Branch,77,0,0,487.46,closed,Team A,not call tracking
+2026-04-28,Referral,Beta Branch,51,1,1,572.86,pending,Team C,phone is intake method
+2026-04-29,Phone Desk,Alpha Clinic,27,1,0,141.52,complete,Team C,
+2026-04-30,Walk-in,Beta Branch,10,1,0,,complete,Team B,
+2026-05-01,Referral,Alpha Clinic,19,1,0,791.49,closed,Team B,
+2026-05-02,Phone Desk,Beta Branch,70,1,1,797.41,pending,Team C,not call tracking
+2026-05-03,Walk-in,Alpha Clinic,9,1,0,,complete,Team A,
+2026-05-04,Referral,Delta Site,77,1,0,512.02,new,Team C,phone is intake method
+2026-05-05,Referral,Alpha Clinic,70,0,0,,reviewed,Team C,
+2026-05-06,Phone Desk,Gamma Desk,52,0,1,444.04,closed,Team A,
+2026-05-07,Phone Desk,Delta Site,15,0,0,730.63,reviewed,Team C,
+2026-05-08,Phone Desk,Gamma Desk,47,1,0,,complete,Team B,campaign is internal label
+2026-05-09,Walk-in,Gamma Desk,29,0,0,729.27,new,Team B,
+2026-05-10,Phone Desk,Beta Branch,16,1,1,261.65,reviewed,Team C,not call tracking
+2026-05-11,Campaign named internal,Alpha Clinic,88,0,1,447.34,new,Team B,campaign is internal label
+2026-05-12,Campaign named internal,Alpha Clinic,12,1,0,750.23,complete,Team C,not call tracking
+2026-05-13,Campaign named internal,Alpha Clinic,4,0,1,377.18,pending,Team B,
+2026-05-14,Phone Desk,Delta Site,13,1,0,613.34,complete,Team C,campaign is internal label
+2026-05-15,Campaign named internal,Alpha Clinic,76,1,1,140.44,reviewed,Team A,phone is intake method
+2026-05-16,Campaign named internal,Delta Site,15,1,0,375.44,new,Team C,campaign is internal label
+2026-05-17,Phone Desk,Beta Branch,31,0,0,695.61,reviewed,Team B,phone is intake method
+2026-05-18,Portal,Beta Branch,78,0,0,472.69,reviewed,Team A,campaign is internal label
+2026-05-19,Campaign named internal,Beta Branch,50,1,1,510.21,new,Team B,
+2026-05-20,Walk-in,Beta Branch,41,1,0,124.19,reviewed,Team B,not call tracking
+2026-05-21,Campaign named internal,Gamma Desk,80,0,1,,complete,Team C,not call tracking
+2026-05-22,Campaign named internal,Alpha Clinic,69,1,1,,pending,Team B,phone is intake method
+2026-05-23,Walk-in,Beta Branch,81,0,1,,closed,Team B,campaign is internal label
+2026-05-24,Walk-in,Alpha Clinic,24,1,1,631.99,complete,Team C,not call tracking
+2026-05-25,Phone Desk,Gamma Desk,75,1,0,577.62,pending,Team C,campaign is internal label
+2026-05-26,Campaign named internal,Delta Site,85,0,1,717.99,closed,Team B,campaign is internal label
+2026-05-27,Referral,Delta Site,17,1,0,81.54,complete,Team B,not call tracking
+2026-05-28,Walk-in,Delta Site,15,1,0,714.47,closed,Team B,not call tracking
+2026-05-29,Walk-in,Alpha Clinic,12,1,0,315.79,closed,Team A,phone is intake method
+2026-05-30,Campaign named internal,Beta Branch,26,1,0,255.36,closed,Team C,
+2026-04-01,Portal,Alpha Clinic,52,1,0,,new,Team C,
+2026-04-02,Phone Desk,Gamma Desk,11,1,1,305.64,complete,Team B,not call tracking
+2026-04-03,Phone Desk,Gamma Desk,80,0,0,191.74,pending,Team A,
+2026-04-04,Campaign named internal,Beta Branch,5,0,0,347.45,new,Team C,phone is intake method
+2026-04-05,Referral,Beta Branch,12,1,0,206.28,new,Team C,
+2026-04-06,Phone Desk,Delta Site,35,1,1,,reviewed,Team C,
+2026-04-07,Campaign named internal,Gamma Desk,60,1,0,594.38,complete,Team C,campaign is internal label
+2026-04-08,Phone Desk,Alpha Clinic,83,1,0,445.32,closed,Team B,
+2026-04-09,Phone Desk,Beta Branch,56,1,1,258.11,complete,Team A,campaign is internal label
+2026-04-10,Walk-in,Beta Branch,39,1,0,236.47,reviewed,Team C,campaign is internal label
+2026-04-11,Phone Desk,Gamma Desk,79,1,1,792.63,reviewed,Team A,campaign is internal label
+2026-04-12,Phone Desk,Delta Site,73,1,0,,reviewed,Team A,not call tracking
+2026-04-13,Phone Desk,Gamma Desk,41,1,0,,complete,Team C,
+2026-04-14,Phone Desk,Delta Site,50,1,1,64.74,new,Team B,campaign is internal label
+2026-04-15,Campaign named internal,Gamma Desk,32,1,0,615.39,pending,Team C,campaign is internal label
+2026-04-16,Referral,Beta Branch,42,1,0,726.8,new,Team A,phone is intake method
+2026-04-17,Walk-in,Gamma Desk,68,1,0,73.96,pending,Team A,phone is intake method
+2026-04-18,Walk-in,Alpha Clinic,57,1,0,220.28,closed,Team A,not call tracking
+2026-04-19,Walk-in,Beta Branch,6,1,1,253.42,complete,Team C,
+2026-04-20,Referral,Gamma Desk,63,1,1,661.92,reviewed,Team C,phone is intake method
+2026-04-21,Portal,Beta Branch,33,1,0,344.31,new,Team B,not call tracking
+2026-04-22,Referral,Delta Site,69,0,0,,reviewed,Team C,not call tracking
+2026-04-23,Campaign named internal,Gamma Desk,89,0,0,174.95,pending,Team B,
+2026-04-24,Campaign named internal,Alpha Clinic,86,0,0,521.94,closed,Team A,phone is intake method
+2026-04-25,Phone Desk,Gamma Desk,30,0,0,279.79,pending,Team B,phone is intake method
+2026-04-26,Portal,Gamma Desk,47,1,1,494.51,pending,Team C,not call tracking
+2026-04-27,Walk-in,Alpha Clinic,2,0,1,747.9,reviewed,Team C,campaign is internal label
+2026-04-28,Campaign named internal,Gamma Desk,53,1,0,748.73,reviewed,Team A,campaign is internal label
+2026-04-29,Phone Desk,Beta Branch,30,1,1,157.71,closed,Team A,
+2026-04-30,Referral,Beta Branch,34,0,0,599.23,complete,Team B,phone is intake method
+2026-05-01,Referral,Alpha Clinic,84,1,0,646.61,closed,Team B,campaign is internal label
+2026-05-02,Campaign named internal,Beta Branch,73,1,1,379.53,closed,Team A,not call tracking
+2026-05-03,Portal,Beta Branch,33,1,0,707.0,closed,Team C,not call tracking
+2026-05-04,Walk-in,Beta Branch,53,1,0,641.91,pending,Team C,campaign is internal label
+2026-05-05,Phone Desk,Alpha Clinic,74,1,0,722.58,closed,Team A,campaign is internal label
+2026-05-06,Campaign named internal,Beta Branch,86,1,1,580.16,new,Team A,
+2026-05-07,Walk-in,Alpha Clinic,38,1,1,435.9,closed,Team A,campaign is internal label
+2026-05-08,Walk-in,Delta Site,46,1,0,297.74,pending,Team B,phone is intake method
+2026-05-09,Walk-in,Gamma Desk,85,1,1,729.55,complete,Team A,not call tracking
+2026-05-10,Referral,Alpha Clinic,45,1,0,,pending,Team A,campaign is internal label
+2026-05-11,Portal,Gamma Desk,15,0,0,392.58,pending,Team C,phone is intake method
+2026-05-12,Referral,Alpha Clinic,79,1,1,605.72,closed,Team C,campaign is internal label
+2026-05-13,Referral,Beta Branch,30,1,1,223.31,new,Team C,not call tracking
+2026-05-14,Campaign named internal,Alpha Clinic,71,1,1,710.43,closed,Team C,campaign is internal label
+2026-05-15,Referral,Beta Branch,57,0,1,466.9,new,Team C,
+2026-05-16,Portal,Alpha Clinic,90,1,0,169.06,complete,Team B,not call tracking
+2026-05-17,Walk-in,Gamma Desk,2,0,0,701.58,pending,Team B,campaign is internal label
+2026-05-18,Phone Desk,Alpha Clinic,25,0,0,56.6,pending,Team B,
+2026-05-19,Referral,Gamma Desk,20,1,1,461.74,reviewed,Team B,phone is intake method
+2026-05-20,Walk-in,Beta Branch,71,1,1,452.79,complete,Team B,campaign is internal label
+2026-05-21,Phone Desk,Gamma Desk,29,1,0,763.01,new,Team A,not call tracking
+2026-05-22,Portal,Delta Site,88,0,0,571.67,new,Team A,not call tracking
+2026-05-23,Portal,Delta Site,39,0,0,625.53,complete,Team B,phone is intake method
+2026-05-24,Referral,Gamma Desk,60,0,1,591.96,closed,Team B,
+2026-05-25,Phone Desk,Alpha Clinic,32,1,0,734.62,reviewed,Team C,not call tracking
+2026-05-26,Campaign named internal,Delta Site,49,0,1,176.15,new,Team B,phone is intake method
+2026-05-27,Walk-in,Delta Site,50,1,1,746.26,complete,Team A,not call tracking
+2026-05-28,Portal,Gamma Desk,25,1,0,,closed,Team C,phone is intake method
+2026-05-29,Portal,Gamma Desk,84,1,0,,pending,Team B,
+2026-05-30,Portal,Beta Branch,88,1,0,,new,Team A,

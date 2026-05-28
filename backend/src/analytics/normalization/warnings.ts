@@ -4,6 +4,8 @@ import { normalizeSampleValue } from "./valueNormalization.js";
 import { detectOutcomeHints } from "./domainHints.js";
 import type { CleanedDatasetProfile, CleaningWarning, CleanedColumnProfile, ColumnNameMapping } from "./types.js";
 
+type SummaryDomain = "call_tracking" | "operations" | "crm" | "retail" | "energy" | "generic";
+
 function hasMetadata(columns: CleanedColumnProfile[], key: "normalizedMoneyValueCount" | "normalizedPercentageValueCount" | "dateLikeValueCount") {
   return columns.some((column) => column.valueMetadata[key] > 0);
 }
@@ -146,10 +148,128 @@ function pluralizeUnit(count: number, singular: string, plural = `${singular}s`)
   return count === 1 ? singular : plural;
 }
 
-function humanizeFieldLabel(value: string) {
-  return value
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (character) => character.toUpperCase());
+function normalizeLabel(value?: string | null) {
+  return (value ?? "").toLowerCase().replace(/_/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function hasColumn(columns: CleanedColumnProfile[], patterns: RegExp[]) {
+  return columns.some((column) => patterns.some((pattern) => pattern.test(column.canonicalName)));
+}
+
+function matchingColumns(columns: CleanedColumnProfile[], patterns: RegExp[]) {
+  return columns
+    .map((column) => column.canonicalName)
+    .filter((columnName) => patterns.some((pattern) => pattern.test(columnName)));
+}
+
+function uniqueLabels(labels: string[]) {
+  return [...new Set(labels.filter(Boolean))];
+}
+
+function summaryFieldLabel(value: string) {
+  return normalizeLabel(value)
+    .replace(/\bcustomer journey stage\b/g, "journey stage")
+    .replace(/\bjourney label\b/g, "journey field")
+    .replace(/\bcustomer journey\b/g, "customer journey")
+    .replace(/\bsales stage\b/g, "journey stage")
+    .replace(/\blifecycle stage\b/g, "journey stage")
+    .replace(/\bowner team\b/g, "owner team")
+    .replace(/\bowner pod\b/g, "owner team")
+    .replace(/\bagent queue\b/g, "owner team")
+    .replace(/\bcallback required\b/g, "callback")
+    .replace(/\bcontact attempts\b/g, "contact attempts")
+    .replace(/\bclosed won count\b/g, "closed-won outcomes")
+    .replace(/\bdeal won\b/g, "closed-won outcome flag")
+    .replace(/\bopportunity created\b/g, "opportunity-created outcomes")
+    .replace(/\bopportunity opened\b/g, "opportunity-created outcomes")
+    .replace(/\bestimated pipeline value aud\b/g, "estimated pipeline value")
+    .replace(/\bexpected pipeline amount\b/g, "estimated pipeline value")
+    .replace(/\bestimated pipeline value\b/g, "estimated pipeline value")
+    .replace(/\bestimated value\b/g, "estimated value")
+    .replace(/\brealized revenue aud\b/g, "realized revenue")
+    .replace(/\brealized revenue\b/g, "realized revenue")
+    .replace(/\bcall count\b/g, "call volume")
+    .replace(/\btotal calls\b/g, "call volume")
+    .replace(/\bcase count\b/g, "case volume")
+    .replace(/\bresolved count\b/g, "resolved activity")
+    .replace(/\bescalation count\b/g, "escalation activity")
+    .replace(/\breopen count\b/g, "reopen activity")
+    .replace(/\bcsat score\b/g, "CSAT score")
+    .replace(/\btraffic src\b/g, "traffic source")
+    .replace(/\btraffic origin\b/g, "traffic source")
+    .replace(/\butm campaign name\b/g, "campaign label")
+    .replace(/\bmkt medium\b/g, "marketing medium")
+    .replace(/\bmissed calls\b/g, "missed-call outcomes")
+    .replace(/\bqualified calls\b/g, "qualified outcomes")
+    .replace(/\bconverted calls\b/g, "converted outcomes")
+    .replace(/\btalk time sec\b/g, "talk time")
+    .replace(/\btalk seconds\b/g, "talk time")
+    .replace(/\bcall result\b/g, "call outcome")
+    .replace(/\bqualified flag\b/g, "qualified outcome flag")
+    .replace(/\bbooking created\b/g, "booking outcome flag")
+    .replace(/\bsolar kwh\b/g, "solar output")
+    .replace(/\bfacility load kwh\b/g, "load")
+    .replace(/\bload kwh\b/g, "load")
+    .replace(/\bgrid import kwh\b/g, "grid import")
+    .replace(/\bgrid export kwh\b/g, "grid export")
+    .replace(/\bgross margin pct\b/g, "gross margin")
+    .replace(/\bgross sales value\b/g, "sales value")
+    .replace(/\bfulfilment site\b/g, "fulfillment site")
+    .replace(/\bfulfilment cost\b/g, "fulfillment cost")
+    .replace(/\borders fulfilled\b/g, "fulfilled orders")
+    .replace(/\borders requested\b/g, "requested orders")
+    .replace(/\bcase intake\b/g, "case intake")
+    .replace(/\bresolved cases\b/g, "resolved activity")
+    .replace(/\bescalated cases\b/g, "escalation activity")
+    .replace(/\breopened cases\b/g, "reopen activity")
+    .replace(/\bavg handle minutes\b/g, "handle time")
+    .replace(/\bsupport stream\b/g, "support stream")
+    .replace(/\bsegment label\b/g, "segment");
+}
+
+function formatFieldList(fields: string[]) {
+  const unique = uniqueLabels(fields).slice(0, 4);
+  return unique.join(", ");
+}
+
+function inferSummaryDomain(profile: CleanedDatasetProfile) {
+  const columns = profile.columns;
+  const crmStageHit = hasColumn(columns, [/\bcustomer_journey\b/i, /\bcustomer_journey_stage\b/i, /\bjourney_label\b/i, /\bsales_stage\b/i, /\blifecycle_stage\b/i, /\bpipeline\b/i]);
+  const crmFollowUpHit = hasColumn(columns, [/\bcallback_required\b/i, /\bcontact_attempts\b/i, /\bfollow_?up\b/i, /\brecontact\b/i]);
+  const crmOwnerHit = hasColumn(columns, [/\bowner_team\b/i, /\bowner_pod\b/i, /\bagent_queue\b/i, /\baccount_owner\b/i, /\bsales_owner\b/i]);
+  const crmOutcomeHit = hasColumn(columns, [/\bclosed_won\b/i, /\bclosed_won_count\b/i, /\bdeal_won\b/i, /\bopportunity_created\b/i, /\bopportunity_opened\b/i]);
+  const crmValueHit = hasColumn(columns, [/\bestimated_pipeline_value\b/i, /\bestimated_value\b/i, /\bexpected_pipeline_amount\b/i, /\brealized_revenue\b/i, /\brevenue\b/i]);
+  const crmIdHit = hasColumn(columns, [/\bcrm_record_id\b/i, /\blead_id\b/i, /\blead_reference\b/i, /\bcustomer_id\b/i, /\bopportunity_id\b/i]);
+  const crmClusters = [crmStageHit, crmFollowUpHit, crmOwnerHit, crmOutcomeHit, crmValueHit, crmIdHit].filter(Boolean).length;
+  const explicitCallTrackingHit = hasColumn(columns, [/\bcaller_number/i, /\btracking_number/i, /\btracking_line/i, /\bcall_start/i, /\bcall_started/i, /\btotal_calls\b/i, /\bcall_count\b/i, /\bwait_time/i, /\bduration_sec/i, /\btalk_seconds/i, /\bmissed_call_flag/i, /\bcall_outcome/i, /\bcall_result/i, /\bqualified_flag/i, /\bbooking_created/i]);
+  const marketingTrackingHit = hasColumn(columns, [/\btraffic_src\b/i, /\btraffic_origin\b/i, /\butm_campaign\b/i, /\bmkt_medium\b/i, /\bcampaign\b/i, /\badgroup\b/i, /\bad_spend\b/i, /\bad_cost\b/i, /\broas\b/i]);
+
+  if (hasColumn(columns, [/\bsolar_kwh\b/i, /\bload_kwh\b/i, /\bfacility_load_kwh\b/i, /\bgrid_import_kwh\b/i, /\bgrid_export_kwh\b/i, /\bbattery\b/i])) {
+    return "energy" as const;
+  }
+  if (hasColumn(columns, [/\bwarehouse\b/i, /\bsku_group\b/i, /\bfulfilment_site\b/i, /\bstock\b/i, /\bstockout\b/i, /\bbackorder\b/i, /\bfulfillment\b/i, /\bfulfilment\b/i, /\bgross_margin\b/i, /\bmargin_band\b/i, /\binventory\b/i])) {
+    return "retail" as const;
+  }
+  if (
+    !explicitCallTrackingHit &&
+    !marketingTrackingHit &&
+    (
+      (crmStageHit && (crmFollowUpHit || crmOwnerHit || crmOutcomeHit)) ||
+      (crmFollowUpHit && crmOutcomeHit && crmValueHit) ||
+      (crmClusters >= 3 && crmStageHit)
+    )
+  ) {
+    return "crm" as const;
+  }
+  const operationsStructureHit = hasColumn(columns, [/\bservice_line\b/i, /\bqueue_name\b/i, /\bsupport_stream\b/i]);
+  const operationsPressureHit = hasColumn(columns, [/\bcase_intake\b/i, /\bresolved_cases\b/i, /\bescalated_cases\b/i, /\breopened_cases\b/i, /\bavg_handle_minutes\b/i, /\bsla_met\b/i, /\btalk_time\b/i, /\bmissed_reason\b/i, /\bcallback_required\b/i, /\bops_cost\b/i]);
+  if (operationsStructureHit || (operationsPressureHit && !marketingTrackingHit && !crmStageHit)) {
+    return "operations" as const;
+  }
+  if (explicitCallTrackingHit || (marketingTrackingHit && hasColumn(columns, [/\bcall_uid\b/i, /\bcall_result\b/i, /\bqualified_flag\b/i, /\bbooking_created\b/i])) || hasColumn(columns, [/\bcall_uid\b/i, /\benquiry_ref\b/i, /\blead_quality_flag\b/i, /\bjob_won_flag\b/i])) {
+    return "call_tracking" as const;
+  }
+  return "generic" as const;
 }
 
 function formatDateRange(start: Date, end: Date) {
@@ -175,7 +295,7 @@ function findOutcomeColumns(columns: CleanedColumnProfile[]) {
     .filter(
       (column) =>
         column.outcomeHints.length > 0 ||
-        /\b(disposition|outcome|status|qualified_calls|missed_calls|converted_calls|answered_calls)\b/.test(
+        /\b(disposition|outcome|status|qualified_calls|qualified_flag|missed_calls|converted_calls|converted_event|answered_calls|booking_created|opportunity_opened|opportunity_created|deal_won|closed_won|resolved_cases|escalated_cases|sla_met|completion_flag)\b/.test(
           column.canonicalName
         )
     )
@@ -187,14 +307,14 @@ function findQualifiedOutcomeColumns(columns: CleanedColumnProfile[]) {
     .filter(
       (column) =>
         column.outcomeHints.includes("qualified") ||
-        /\b(qualified_calls|qualified_call_count|qualified_leads|disposition|outcome|status)\b/.test(column.canonicalName)
+        /\b(qualified_calls|qualified_flag|qualified_event|qualified_call_count|qualified_leads|disposition|outcome|status)\b/.test(column.canonicalName)
     )
     .map((column) => column.canonicalName);
 }
 
 function findCallCountColumns(columns: CleanedColumnProfile[]) {
   return columns
-    .filter((column) => /\b(total_calls|call_count|calls|call_volume|inbound_calls)\b/.test(column.canonicalName))
+    .filter((column) => /\b(total_calls|call_count|calls|call_volume|inbound_calls|event_count)\b/.test(column.canonicalName))
     .map((column) => column.canonicalName);
 }
 
@@ -203,7 +323,7 @@ function findDateColumns(columns: CleanedColumnProfile[]) {
     .filter(
       (column) =>
         column.physicalType === "datetime" ||
-        /\b(date|datetime|timestamp|time)\b/.test(column.canonicalName)
+        /\b(date|datetime|timestamp|time|created_on|observed_on|work_date|stock_day|period_date|reading_date|event_ref)\b/.test(column.canonicalName)
     )
     .map((column) => column.canonicalName);
 }
@@ -219,6 +339,43 @@ function buildDateRangeNote(rows: DatasetRow[], dateColumns: string[]) {
   }
 
   return formatDateRange(dates[0], dates[dates.length - 1]);
+}
+
+function buildRecordCountNote(
+  domain: SummaryDomain,
+  rows: DatasetRow[],
+  columns: CleanedColumnProfile[],
+  totalRows: number
+) {
+  const serviceLineColumn = findBestDimensionColumn(columns, [/\bservice_line\b/i]);
+  const journeyColumn = findBestDimensionColumn(columns, [/\bcustomer_journey\b/i, /\bcustomer_journey_stage\b/i, /\bjourney_label\b/i, /\bsales_stage\b/i, /\blifecycle_stage\b/i]);
+  const siteColumn = findBestDimensionColumn(columns, [/\bsite\b/i, /\bsite_name\b/i]);
+  const warehouseColumn = findBestDimensionColumn(columns, [/\bwarehouse\b/i, /\bfulfilment_site\b/i, /\bfulfillment_site\b/i]);
+  const sourceColumn = findBestDimensionColumn(columns, [/\btraffic_src\b/i, /\btraffic_origin\b/i, /\bchannel\b/i, /\bsource\b/i, /\bmedium\b/i]);
+  const supportColumn = findBestDimensionColumn(columns, [/\bservice_line\b/i, /\bsupport_stream\b/i, /\bqueue_name\b/i]);
+  const genericGroupingColumn = findBestDimensionColumn(columns, [/\bsegment\b/i, /\bsegment_label\b/i, /\bgroup_name\b/i, /\bcategory\b/i, /\bregion\b/i]);
+
+  if (domain === "crm" && journeyColumn) {
+    return `${totalRows.toLocaleString()} rows loaded; CRM grouping coverage includes ${countUniqueValues(rows, journeyColumn).toLocaleString()} ${pluralizeUnit(countUniqueValues(rows, journeyColumn), "journey")}.`;
+  }
+  if (domain === "operations" && (serviceLineColumn || supportColumn)) {
+    const column = serviceLineColumn ?? supportColumn!;
+    return `${totalRows.toLocaleString()} rows loaded; support grouping coverage includes ${countUniqueValues(rows, column).toLocaleString()} ${pluralizeUnit(countUniqueValues(rows, column), "service group")}.`;
+  }
+  if (domain === "energy" && siteColumn) {
+    return `${totalRows.toLocaleString()} rows loaded; site coverage includes ${countUniqueValues(rows, siteColumn).toLocaleString()} ${pluralizeUnit(countUniqueValues(rows, siteColumn), "site")}.`;
+  }
+  if (domain === "retail" && warehouseColumn) {
+    return `${totalRows.toLocaleString()} rows loaded; fulfillment location coverage includes ${countUniqueValues(rows, warehouseColumn).toLocaleString()} ${pluralizeUnit(countUniqueValues(rows, warehouseColumn), "location")}.`;
+  }
+  if (domain === "call_tracking" && sourceColumn) {
+    return `${totalRows.toLocaleString()} rows loaded; source coverage includes ${countUniqueValues(rows, sourceColumn).toLocaleString()} ${pluralizeUnit(countUniqueValues(rows, sourceColumn), "traffic source")}.`;
+  }
+  if (genericGroupingColumn) {
+    return `${totalRows.toLocaleString()} rows loaded; grouping coverage includes ${countUniqueValues(rows, genericGroupingColumn).toLocaleString()} ${pluralizeUnit(countUniqueValues(rows, genericGroupingColumn), "group")}.`;
+  }
+
+  return `${totalRows.toLocaleString()} rows loaded for structural review.`;
 }
 
 function isQualifiedValue(value: PrimitiveValue) {
@@ -355,46 +512,6 @@ function countRowsWithHighCallVolumeLowQualified(
   return rowMetrics.filter((entry) => entry.calls >= highCallThreshold && entry.qualifiedRate <= lowQualifiedThreshold).length;
 }
 
-function buildCoverageNotes(
-  rows: DatasetRow[],
-  totalRows: number,
-  denominatorLabel: "campaigns" | "records",
-  columns: {
-    spend: string[];
-    revenue: string[];
-    outcomes: string[];
-  }
-) {
-  const coverage = [
-    columns.spend.length > 0
-      ? { label: "Spend", covered: countCoveredRows(rows, columns.spend, "numeric") }
-      : null,
-    columns.revenue.length > 0
-      ? { label: "Revenue", covered: countCoveredRows(rows, columns.revenue, "numeric") }
-      : null,
-    columns.outcomes.length > 0
-      ? { label: "Outcomes", covered: countCoveredRows(rows, columns.outcomes) }
-      : null
-  ].filter((entry): entry is { label: string; covered: number } => entry !== null);
-
-  const partial = coverage
-    .filter((entry) => entry.covered < totalRows)
-    .map((entry) =>
-      entry.label === "Outcomes"
-        ? `Outcomes: ${entry.covered}/${totalRows} ${denominatorLabel} available.`
-        : `${entry.label} coverage: ${entry.covered}/${totalRows} ${denominatorLabel}.`
-    );
-  const complete = coverage
-    .filter((entry) => entry.covered === totalRows)
-    .map((entry) =>
-      entry.label === "Outcomes"
-        ? `Outcomes: ${entry.covered}/${totalRows} ${denominatorLabel} available.`
-        : `${entry.label} coverage: ${entry.covered}/${totalRows} ${denominatorLabel}.`
-    );
-
-  return { partial, complete };
-}
-
 function buildAnomalyNotes(rows: DatasetRow[], columns: {
   spend: string[];
   revenue: string[];
@@ -438,39 +555,6 @@ function buildAnomalyNotes(rows: DatasetRow[], columns: {
   return notes.slice(0, 2);
 }
 
-function buildStructureNote(
-  profile: CleanedDatasetProfile,
-  rows: DatasetRow[],
-  totalRows: number,
-  campaignColumn: string | null,
-  channelColumn: string | null
-) {
-  const campaignCount = campaignColumn ? countUniqueValues(rows, campaignColumn) : 0;
-  const channelCount = channelColumn ? countUniqueValues(rows, channelColumn) : 0;
-
-  if (profile.structureHint.grain === "row_level_call_log") {
-    if (campaignCount > 0) {
-      return `${totalRows.toLocaleString()} calls across ${campaignCount.toLocaleString()} ${pluralizeUnit(campaignCount, "campaign")}.`;
-    }
-    if (channelCount > 0) {
-      return `${totalRows.toLocaleString()} calls across ${channelCount.toLocaleString()} ${pluralizeUnit(channelCount, "channel")}.`;
-    }
-    return `${totalRows.toLocaleString()} ${pluralizeUnit(totalRows, "call")}.`;
-  }
-
-  if (campaignCount > 0 && channelCount > 0) {
-    return `${campaignCount.toLocaleString()} ${pluralizeUnit(campaignCount, "campaign")} across ${channelCount.toLocaleString()} ${pluralizeUnit(channelCount, "channel")}.`;
-  }
-  if (campaignCount > 0) {
-    return `${campaignCount.toLocaleString()} ${pluralizeUnit(campaignCount, "campaign")}.`;
-  }
-  if (channelCount > 0) {
-    return `${channelCount.toLocaleString()} ${pluralizeUnit(channelCount, "channel")}.`;
-  }
-
-  return null;
-}
-
 function findExplicitCallCountColumn(profile: CleanedDatasetProfile) {
   const preferredNames = ["total_calls", "call_count", "calls", "call_volume", "inbound_calls"];
 
@@ -488,55 +572,238 @@ function findExplicitCallCountColumn(profile: CleanedDatasetProfile) {
   );
 }
 
+function buildDomainStructureNote(domain: SummaryDomain, profile: CleanedDatasetProfile) {
+  const columns = profile.columns;
+
+  if (domain === "crm") {
+    const fields = formatFieldList([
+      ...matchingColumns(columns, [/\bcustomer_journey\b/i, /\bcustomer_journey_stage\b/i, /\bjourney_label\b/i, /\bsales_stage\b/i, /\blifecycle_stage\b/i]).map(summaryFieldLabel),
+      ...matchingColumns(columns, [/\bowner_team\b/i, /\bowner_pod\b/i, /\bagent_queue\b/i]).map(summaryFieldLabel),
+      ...matchingColumns(columns, [/\bcallback_required\b/i, /\bcontact_attempts\b/i]).map(summaryFieldLabel),
+      ...matchingColumns(columns, [/\bclosed_won\b/i, /\bclosed_won_count\b/i, /\bdeal_won\b/i, /\bopportunity_created\b/i, /\bopportunity_opened\b/i]).map(summaryFieldLabel)
+    ]);
+
+    return fields ? `Available CRM fields: ${fields}.` : null;
+  }
+
+  if (domain === "call_tracking") {
+    const callCountField = findExplicitCallCountColumn(profile);
+    const callCountNote = callCountField ? `Call volume can be read from ${summaryFieldLabel(callCountField)}.` : null;
+    const fields = formatFieldList([
+      ...matchingColumns(columns, [/\btraffic_src\b/i, /\btraffic_origin\b/i, /\bmkt_medium\b/i, /\bcampaign\b/i, /\butm_campaign\b/i]).map(summaryFieldLabel),
+      ...matchingColumns(columns, [/\bmissed_call_flag\b/i, /\bqualified_calls?\b/i, /\bqualified_flag\b/i, /\bconverted_calls?\b/i, /\bbooking_created\b/i, /\bcall_outcome\b/i, /\bcall_result\b/i, /\btracking_line\b/i]).map(summaryFieldLabel)
+    ]);
+
+    return callCountNote ?? (fields ? `Available call-tracking fields: ${fields}.` : null);
+  }
+
+  if (domain === "operations") {
+    const fields = formatFieldList([
+      ...matchingColumns(columns, [/\bservice_line\b/i, /\bsupport_stream\b/i, /\bqueue_name\b/i]).map(summaryFieldLabel),
+      ...matchingColumns(columns, [/\bcallback_required\b/i, /\bmissed_reason\b/i, /\bcall_answered\b/i]).map(summaryFieldLabel),
+      ...matchingColumns(columns, [/\btalk_time\b/i, /\bwait_time\b/i]).map(summaryFieldLabel),
+      ...matchingColumns(columns, [/\bcase_intake\b/i, /\bresolved_count\b/i, /\bresolved_cases\b/i, /\bescalation_count\b/i, /\bescalated_cases\b/i, /\breopen_count\b/i, /\breopened_cases\b/i, /\bcsat_score\b/i, /\bsla_met\b/i]).map(summaryFieldLabel)
+    ]);
+
+    return fields ? `Available support operations fields: ${fields}.` : null;
+  }
+
+  if (domain === "retail") {
+    const fields = formatFieldList([
+      ...matchingColumns(columns, [/\bwarehouse\b/i, /\bfulfilment_site\b/i, /\bfulfillment_site\b/i, /\bcategory\b/i, /\bsku_group\b/i]).map(summaryFieldLabel),
+      ...matchingColumns(columns, [/\bfulfilled_orders\b/i, /\borders_fulfilled\b/i, /\borders_requested\b/i, /\bfulfillment_cost\b/i, /\bfulfilment_cost\b/i]).map(summaryFieldLabel),
+      ...matchingColumns(columns, [/\bgross_margin\b/i, /\bmargin_band\b/i, /\bstockout\b/i, /\bbackorder\b/i]).map(summaryFieldLabel)
+    ]);
+
+    return fields ? `Available retail operations fields: ${fields}.` : null;
+  }
+
+  if (domain === "energy") {
+    const fields = formatFieldList([
+      ...matchingColumns(columns, [/\bsite\b/i, /\bsite_name\b/i]).map(summaryFieldLabel),
+      ...matchingColumns(columns, [/\bsolar_kwh\b/i, /\bload_kwh\b/i, /\bfacility_load_kwh\b/i]).map(summaryFieldLabel),
+      ...matchingColumns(columns, [/\bgrid_import_kwh\b/i, /\bgrid_export_kwh\b/i]).map(summaryFieldLabel)
+    ]);
+
+    return fields ? `Available energy fields: ${fields}.` : null;
+  }
+
+  const fields = formatFieldList([
+    ...matchingColumns(columns, [/\bsegment\b/i, /\bsegment_label\b/i, /\bgroup_name\b/i, /\bteam\b/i, /\bcategory\b/i, /\bsource\b/i, /\bstatus_stage\b/i]).map(summaryFieldLabel),
+    ...matchingColumns(columns, [/\bactivity_count\b/i, /\bactivity_units\b/i, /\bobserved_value\b/i, /\bvalue_estimate\b/i, /\bestimated_value\b/i, /\brevenue\b/i, /\bcase_count\b/i, /\bquality_score\b/i, /\bquality_index\b/i, /\bdelay_days\b/i]).map(summaryFieldLabel)
+  ]);
+
+  return fields ? `Available generic fields: ${fields}; business meaning is not assumed.` : null;
+}
+
+function buildDomainValueOrOutcomeNote(
+  domain: SummaryDomain,
+  profile: CleanedDatasetProfile,
+  rows: DatasetRow[],
+  spendColumns: string[],
+  revenueColumns: string[],
+  outcomeColumns: string[]
+) {
+  const columns = profile.columns;
+  const totalRows = rows.length;
+  const spendCoverage = spendColumns.length > 0 ? countCoveredRows(rows, spendColumns, "numeric") : 0;
+  const revenueCoverage = revenueColumns.length > 0 ? countCoveredRows(rows, revenueColumns, "numeric") : 0;
+  const outcomeCoverage = outcomeColumns.length > 0 ? countCoveredRows(rows, outcomeColumns) : 0;
+
+  if (domain === "crm") {
+    const hasEstimatedValue = hasColumn(columns, [/\bestimated_pipeline_value\b/i, /\bestimated_value\b/i]);
+    const hasRealizedRevenue = hasColumn(columns, [/\brealized_revenue\b/i, /\brevenue\b/i]);
+    if (hasEstimatedValue && hasRealizedRevenue) {
+      return "Value interpretation is partially grounded because estimated and realized value are available but should not be treated as the same metric.";
+    }
+    const outcomeFields = formatFieldList(
+      matchingColumns(columns, [/\bclosed_won\b/i, /\bclosed_won_count\b/i, /\bdeal_won\b/i, /\bopportunity_created\b/i, /\bopportunity_opened\b/i]).map(summaryFieldLabel)
+    );
+    if (outcomeFields) {
+      return `Outcome fields are available: ${outcomeFields}.`;
+    }
+    if (hasEstimatedValue) {
+      return "Estimated value is available, but realized outcomes should be checked separately before financial interpretation.";
+    }
+    return null;
+  }
+
+  if (domain === "call_tracking") {
+    const outcomeFields = formatFieldList(
+      matchingColumns(columns, [/\bmissed_call_flag\b/i, /\bqualified_calls?\b/i, /\bqualified_flag\b/i, /\bconverted_calls?\b/i, /\bbooking_created\b/i, /\bcall_outcome\b/i, /\bcall_result\b/i]).map(summaryFieldLabel)
+    );
+    if (spendColumns.length > 0 || revenueColumns.length > 0) {
+      const coverageBase = spendColumns.length > 0 && spendCoverage < totalRows
+        ? `Spend coverage: ${spendCoverage}/${totalRows} records`
+        : revenueColumns.length > 0 && revenueCoverage < totalRows
+        ? `Revenue coverage: ${revenueCoverage}/${totalRows} records`
+        : "Spend and revenue fields are available";
+      return `${coverageBase}; efficiency comparisons should depend on spend and revenue coverage.`;
+    }
+    return outcomeFields ? `Outcome fields are available: ${outcomeFields}.` : null;
+  }
+
+  if (domain === "operations") {
+    const outcomeFields = formatFieldList(
+      matchingColumns(columns, [/\bcallback_required\b/i, /\bmissed_reason\b/i, /\bcall_answered\b/i, /\bcase_intake\b/i, /\bresolved_count\b/i, /\bresolved_cases\b/i, /\bescalation_count\b/i, /\bescalated_cases\b/i, /\breopen_count\b/i, /\breopened_cases\b/i, /\bcsat_score\b/i, /\bsla_met\b/i]).map(summaryFieldLabel)
+    );
+    return outcomeFields ? `Operational outcome fields are available: ${outcomeFields}.` : null;
+  }
+
+  if (domain === "retail") {
+    const retailFields = formatFieldList(
+      matchingColumns(columns, [/\bfulfilled_orders\b/i, /\borders_fulfilled\b/i, /\borders_requested\b/i, /\bfulfillment_cost\b/i, /\bfulfilment_cost\b/i, /\bgross_margin\b/i, /\bmargin_band\b/i, /\bstockout\b/i, /\bbackorder\b/i]).map(summaryFieldLabel)
+    );
+    return retailFields ? `Inventory and fulfillment fields are available: ${retailFields}.` : null;
+  }
+
+  if (domain === "energy") {
+    return hasColumn(columns, [/\bsite\b/i, /\bsite_name\b/i]) ? "Site-level comparisons are available; interpretation should separate solar, load, and grid measures." : null;
+  }
+
+  if (outcomeColumns.length > 0 && outcomeCoverage > 0) {
+    return `Outcome-style fields are available in ${outcomeCoverage}/${totalRows} records, but domain meaning remains partial.`;
+  }
+  if (revenueColumns.length > 0 && revenueCoverage > 0) {
+    return `Value-like fields are available in ${revenueCoverage}/${totalRows} records, but they should not be promoted to revenue without stronger grounding.`;
+  }
+  if (domain === "generic") {
+    const genericMeasures = formatFieldList(
+      matchingColumns(columns, [/\bactivity_count\b/i, /\bactivity_units\b/i, /\bobserved_value\b/i, /\bvalue_estimate\b/i, /\bquality_score\b/i, /\bquality_index\b/i, /\bcompletion_flag\b/i, /\bdelay_days\b/i]).map(summaryFieldLabel)
+    );
+    if (genericMeasures) {
+      return `Neutral measures are available: ${genericMeasures}.`;
+    }
+  }
+
+  return null;
+}
+
+function buildQualityOrCoverageNote(
+  domain: SummaryDomain,
+  profile: CleanedDatasetProfile,
+  rows: DatasetRow[],
+  spendColumns: string[],
+  revenueColumns: string[],
+  outcomeColumns: string[]
+) {
+  const totalRows = rows.length;
+  const spendCoverage = spendColumns.length > 0 ? countCoveredRows(rows, spendColumns, "numeric") : 0;
+  const revenueCoverage = revenueColumns.length > 0 ? countCoveredRows(rows, revenueColumns, "numeric") : 0;
+  const outcomeCoverage = outcomeColumns.length > 0 ? countCoveredRows(rows, outcomeColumns) : 0;
+
+  if (profile.reliability.rowsWithMissingSpend > 0 && spendColumns.length > 0) {
+    return `Spend-based analysis is partially reliable because ${spendCoverage}/${totalRows} records contain spend values.`;
+  }
+  if (revenueColumns.length > 0 && revenueCoverage > 0 && revenueCoverage < totalRows) {
+    return `Financial interpretation is partially grounded because ${revenueCoverage}/${totalRows} records contain value fields.`;
+  }
+  if (outcomeColumns.length > 0 && outcomeCoverage > 0 && outcomeCoverage < totalRows) {
+    return `Outcome interpretation is partially grounded because ${outcomeCoverage}/${totalRows} records contain outcome values.`;
+  }
+  if (domain === "generic" && (revenueColumns.length > 0 || outcomeColumns.length > 0)) {
+    return "Domain grounding is partial; comparisons should stay close to visible fields and avoid business-specific interpretation.";
+  }
+  if (domain === "generic") {
+    return "Domain grounding is partial; value comparisons should stay neutral and avoid financial interpretation.";
+  }
+
+  return null;
+}
+
+function buildColumnCoverageNote(profile: CleanedDatasetProfile) {
+  const numericCount = profile.columns.filter((column) => column.physicalType === "numeric").length;
+  const categoricalCount = profile.columns.filter((column) => column.physicalType === "categorical").length;
+  const datetimeCount = profile.columns.filter((column) => column.physicalType === "datetime").length;
+  const parts = [
+    numericCount > 0 ? `${numericCount} numeric ${pluralizeUnit(numericCount, "field")}` : "",
+    categoricalCount > 0 ? `${categoricalCount} categorical ${pluralizeUnit(categoricalCount, "field")}` : "",
+    datetimeCount > 0 ? `${datetimeCount} date ${pluralizeUnit(datetimeCount, "field")}` : ""
+  ].filter(Boolean);
+
+  return parts.length > 0 ? `Column coverage: ${parts.join(", ")}.` : null;
+}
+
+function buildGranularityNote(profile: CleanedDatasetProfile) {
+  if (profile.structureHint.grain === "aggregated_call_summary") {
+    return "Rows appear aggregated, so rate and ratio comparisons should use explicit denominator fields.";
+  }
+  if (profile.structureHint.grain === "row_level_call_log") {
+    return "Rows appear event-level, so counts can usually be read as record-level activity.";
+  }
+  return null;
+}
+
+function polishSummaryNote(note: string) {
+  return note
+    .replace(/\bRevenue-related analysis\b/i, "Financial interpretation")
+    .replace(/\bdriver\b/i, "field");
+}
+
 export function buildDataSummaryNotes(profile: CleanedDatasetProfile, rows: DatasetRow[]) {
   const notes: string[] = [];
   const canonicalRows = buildCanonicalRows(rows, profile.columnMappings);
-  const campaignColumn = findBestDimensionColumn(profile.columns, [/\bcampaign\b/i]);
-  const channelColumn = findBestDimensionColumn(profile.columns, [/\bchannel\b/i, /\bsource_medium\b/i, /\bsource\b/i, /\bmedium\b/i]);
+  const domain = inferSummaryDomain(profile);
   const totalRows = canonicalRows.length;
-  const spendColumns = findColumns(profile.columns, /\b(spend|cost|ad_spend|media_cost|budget)\b/);
-  const revenueColumns = findColumns(profile.columns, /\b(revenue|sale_value|sales_value|sales|income|gmv|conversion_value)\b/);
+  const spendColumns = findColumns(profile.columns, /\b(spend|spend_amount|cost|ad_cost|ad_spend|media_cost|budget|fulfillment_cost|fulfilment_cost)/);
+  const revenueColumns = findColumns(profile.columns, /\b(revenue|return_amount|sale_value|sales_value|gross_sales_value|sales|income|gmv|conversion_value|booked_job_value|quote_value|value_estimate|observed_value|estimated_value|expected_pipeline_amount|estimated_pipeline_value|realized_revenue)/);
   const outcomeColumns = findOutcomeColumns(profile.columns);
-  const qualifiedColumns = findQualifiedOutcomeColumns(profile.columns);
-  const callCountColumns = findCallCountColumns(profile.columns);
-  const denominatorLabel = profile.structureHint.grain === "aggregated_call_summary" ? "campaigns" : "records";
 
-  const structureNote = buildStructureNote(profile, canonicalRows, totalRows, campaignColumn, channelColumn);
-  if (structureNote) {
-    notes.push(structureNote);
+  const candidates = [
+    buildRecordCountNote(domain, canonicalRows, profile.columns, totalRows),
+    buildDateRangeNote(canonicalRows, findDateColumns(profile.columns)),
+    buildColumnCoverageNote(profile),
+    buildGranularityNote(profile),
+    buildQualityOrCoverageNote(domain, profile, canonicalRows, spendColumns, revenueColumns, outcomeColumns),
+    buildDomainStructureNote(domain, profile),
+    buildDomainValueOrOutcomeNote(domain, profile, canonicalRows, spendColumns, revenueColumns, outcomeColumns)
+  ].filter((note): note is string => Boolean(note));
+
+  for (const note of candidates) {
+    if (!notes.includes(note)) {
+      notes.push(note);
+    }
   }
 
-  const typedCoverageNotes = buildCoverageNotes(canonicalRows, totalRows, denominatorLabel, {
-    spend: spendColumns,
-    revenue: revenueColumns,
-    outcomes: outcomeColumns
-  });
-  notes.push(...typedCoverageNotes.partial);
-
-  if (profile.structureHint.grain === "aggregated_call_summary" && notes.length < 5) {
-    const callCountField = findExplicitCallCountColumn(profile);
-    notes.push(
-      callCountField
-        ? `${humanizeFieldLabel(callCountField)} field found; call volume uses that field.`
-        : "Call-count field found; call volume uses that field."
-    );
-  }
-
-  notes.push(
-    ...buildAnomalyNotes(canonicalRows, {
-      spend: spendColumns,
-      revenue: revenueColumns,
-      outcomes: outcomeColumns,
-      qualified: qualifiedColumns,
-      calls: callCountColumns
-    }, profile.structureHint.grain).slice(0, Math.max(0, 5 - notes.length))
-  );
-  notes.push(...typedCoverageNotes.complete);
-
-  const dateRangeNote = buildDateRangeNote(canonicalRows, findDateColumns(profile.columns));
-  if (dateRangeNote && notes.length < 5) {
-    notes.push(dateRangeNote);
-  }
-
-  return notes.slice(0, 5);
+  return notes.slice(0, 5).map(polishSummaryNote);
 }

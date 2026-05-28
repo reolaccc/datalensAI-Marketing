@@ -1,0 +1,461 @@
+lead_reference,created_on,journey_label,owner_pod,lead_origin,campaign_note,contact_attempts,callback_required,opportunity_opened,deal_won,expected_pipeline_amount,last_touch_channel,region
+CRM2-2400,2026-02-01,New Enquiry,Inside Sales,Website form,spring nurture,4,0,0,0,33583.03,phone,WA
+CRM2-2401,2026-02-02,Closed Lost,Enterprise Desk,Partner list,spring nurture,4,1,0,0,,phone,VIC
+CRM2-2402,2026-02-03,Contacted,Enterprise Desk,Webinar,renewal outreach,7,0,0,0,12284.49,meeting,QLD
+CRM2-2403,2026-02-04,Contacted,Partner Desk,Walk-in,spring nurture,1,0,0,0,7912.46,meeting,VIC
+CRM2-2404,2026-02-05,Dormant,Enterprise Desk,Walk-in,spring nurture,2,0,0,0,,email,NSW
+CRM2-2405,2026-02-06,Quote Sent,Partner Desk,Partner list,,4,0,1,0,10331.33,email,VIC
+CRM2-2406,2026-02-07,New Enquiry,Enterprise Desk,Existing customer,renewal outreach,4,1,1,0,1893.63,meeting,NSW
+CRM2-2407,2026-02-08,Closed Won,Enterprise Desk,Existing customer,renewal outreach,5,0,1,1,,form,NSW
+CRM2-2408,2026-02-09,Contacted,Partner Desk,Referral,partner follow-up,2,0,1,0,,meeting,WA
+CRM2-2409,2026-02-10,Dormant,Partner Desk,Walk-in,spring nurture,6,0,1,0,,email,VIC
+CRM2-2410,2026-02-11,Negotiation,South Team,Partner list,,0,0,1,0,9294.87,phone,VIC
+CRM2-2411,2026-02-12,Negotiation,South Team,Website form,renewal outreach,4,1,1,0,19955.1,form,VIC
+CRM2-2412,2026-02-13,Nurture,South Team,Walk-in,not a marketing campaign,0,0,0,0,42397.74,phone,NSW
+CRM2-2413,2026-02-14,Dormant,Enterprise Desk,Existing customer,not a marketing campaign,0,0,0,0,,form,WA
+CRM2-2414,2026-02-15,Contacted,Enterprise Desk,Webinar,renewal outreach,1,0,1,0,37304.09,phone,NSW
+CRM2-2415,2026-02-16,Quote Sent,Enterprise Desk,Website form,not a marketing campaign,7,0,1,0,19774.54,email,NSW
+CRM2-2416,2026-02-17,Contacted,South Team,Webinar,spring nurture,6,1,0,0,10819.31,phone,NSW
+CRM2-2417,2026-02-18,Closed Lost,North Team,Partner list,partner follow-up,3,0,0,0,,meeting,NSW
+CRM2-2418,2026-02-19,Quote Sent,Enterprise Desk,Partner list,partner follow-up,5,0,1,0,16508.3,meeting,WA
+CRM2-2419,2026-02-20,Contacted,South Team,Existing customer,not a marketing campaign,5,0,0,0,3887.93,phone,VIC
+CRM2-2420,2026-02-21,New Enquiry,Inside Sales,Existing customer,spring nurture,4,0,0,0,2798.95,email,QLD
+CRM2-2421,2026-02-22,Inspection Booked,Partner Desk,Website form,,4,0,0,0,,phone,VIC
+CRM2-2422,2026-02-23,Inspection Booked,Enterprise Desk,Existing customer,partner follow-up,3,0,0,0,18133.41,phone,WA
+CRM2-2423,2026-02-24,Quote Sent,Enterprise Desk,Webinar,partner follow-up,5,0,1,0,38644.54,meeting,WA
+CRM2-2424,2026-02-25,Dormant,Partner Desk,Existing customer,renewal outreach,3,0,0,0,,phone,NSW
+CRM2-2425,2026-02-26,New Enquiry,South Team,Walk-in,spring nurture,0,0,0,0,40571.23,form,NSW
+CRM2-2426,2026-02-27,Closed Lost,Inside Sales,Referral,partner follow-up,0,1,0,0,,meeting,NSW
+CRM2-2427,2026-02-28,Quote Sent,Enterprise Desk,Partner list,,0,1,1,0,34470.59,form,NSW
+CRM2-2428,2026-03-01,Nurture,Enterprise Desk,Website form,spring nurture,7,1,0,0,,form,QLD
+CRM2-2429,2026-03-02,New Enquiry,Inside Sales,Walk-in,not a marketing campaign,2,0,0,0,36895.1,email,QLD
+CRM2-2430,2026-03-03,Negotiation,Partner Desk,Partner list,renewal outreach,1,1,1,0,,form,WA
+CRM2-2431,2026-03-04,Contacted,Partner Desk,Webinar,spring nurture,7,0,0,0,,form,NSW
+CRM2-2432,2026-03-05,New Enquiry,South Team,Partner list,not a marketing campaign,2,0,0,0,25563.3,form,QLD
+CRM2-2433,2026-03-06,Inspection Booked,Enterprise Desk,Existing customer,not a marketing campaign,3,0,0,0,40456.83,email,QLD
+CRM2-2434,2026-03-07,Inspection Booked,Inside Sales,Referral,,6,0,0,0,39626.14,meeting,QLD
+CRM2-2435,2026-03-08,Inspection Booked,Enterprise Desk,Webinar,spring nurture,2,0,0,0,2022.29,meeting,QLD
+CRM2-2436,2026-03-09,New Enquiry,North Team,Partner list,spring nurture,5,0,0,0,14200.2,phone,WA
+CRM2-2437,2026-03-10,Contacted,South Team,Walk-in,partner follow-up,3,0,1,0,31550.12,phone,VIC
+CRM2-2438,2026-03-11,New Enquiry,Inside Sales,Website form,not a marketing campaign,1,0,0,0,30084.51,email,QLD
+CRM2-2439,2026-03-12,New Enquiry,North Team,Website form,not a marketing campaign,0,0,1,0,42472.72,form,WA
+CRM2-2440,2026-03-13,Quote Sent,Enterprise Desk,Webinar,spring nurture,2,0,1,0,12590.22,meeting,NSW
+CRM2-2441,2026-03-14,Closed Lost,Inside Sales,Existing customer,renewal outreach,0,0,0,0,,meeting,VIC
+CRM2-2442,2026-03-15,Nurture,Enterprise Desk,Walk-in,partner follow-up,6,0,0,0,19414.99,form,VIC
+CRM2-2443,2026-03-16,Nurture,North Team,Referral,partner follow-up,4,0,0,0,3103.48,phone,WA
+CRM2-2444,2026-03-17,Quote Sent,North Team,Walk-in,,7,1,1,0,39651.06,form,QLD
+CRM2-2445,2026-03-18,Nurture,North Team,Existing customer,,2,1,0,0,37678.93,meeting,WA
+CRM2-2446,2026-03-19,Quote Sent,Inside Sales,Partner list,not a marketing campaign,3,0,1,0,38968.7,phone,NSW
+CRM2-2447,2026-03-20,Closed Won,Inside Sales,Referral,not a marketing campaign,1,1,1,1,9472.85,phone,WA
+CRM2-2448,2026-03-21,Contacted,Partner Desk,Website form,spring nurture,4,0,0,0,15964.73,email,NSW
+CRM2-2449,2026-03-22,New Enquiry,Inside Sales,Website form,renewal outreach,7,0,0,0,29305.11,form,NSW
+CRM2-2450,2026-03-23,Inspection Booked,Partner Desk,Existing customer,renewal outreach,2,0,0,0,44487.85,meeting,VIC
+CRM2-2451,2026-03-24,Closed Lost,Partner Desk,Webinar,spring nurture,2,1,0,0,,email,NSW
+CRM2-2452,2026-03-25,New Enquiry,South Team,Webinar,renewal outreach,2,1,0,0,13180.18,email,WA
+CRM2-2453,2026-03-26,New Enquiry,Inside Sales,Walk-in,spring nurture,7,0,0,0,,email,QLD
+CRM2-2454,2026-03-27,Closed Lost,Inside Sales,Existing customer,not a marketing campaign,2,0,0,0,,email,QLD
+CRM2-2455,2026-03-28,Inspection Booked,Enterprise Desk,Existing customer,spring nurture,2,0,0,0,,form,WA
+CRM2-2456,2026-03-29,New Enquiry,Partner Desk,Website form,renewal outreach,4,0,0,0,37851.88,form,NSW
+CRM2-2457,2026-03-30,Closed Lost,Inside Sales,Walk-in,partner follow-up,5,0,0,0,,email,NSW
+CRM2-2458,2026-03-31,Negotiation,North Team,Partner list,spring nurture,7,0,1,0,43831.79,phone,NSW
+CRM2-2459,2026-04-01,Contacted,Inside Sales,Referral,spring nurture,6,0,0,0,23560.26,form,WA
+CRM2-2460,2026-04-02,Inspection Booked,North Team,Referral,renewal outreach,6,1,0,0,29480.34,email,NSW
+CRM2-2461,2026-04-03,Inspection Booked,Enterprise Desk,Existing customer,spring nurture,3,0,0,0,3164.46,phone,QLD
+CRM2-2462,2026-04-04,Quote Sent,Inside Sales,Website form,partner follow-up,1,1,1,0,33123.89,meeting,WA
+CRM2-2463,2026-04-05,Nurture,Partner Desk,Partner list,,7,0,0,0,15809.98,form,VIC
+CRM2-2464,2026-04-06,Contacted,Inside Sales,Webinar,not a marketing campaign,4,1,1,0,10852.53,phone,NSW
+CRM2-2465,2026-04-07,Inspection Booked,Inside Sales,Partner list,renewal outreach,3,0,0,0,,phone,VIC
+CRM2-2466,2026-04-08,Contacted,Partner Desk,Partner list,spring nurture,7,0,0,0,35013.66,phone,WA
+CRM2-2467,2026-04-09,Contacted,Enterprise Desk,Webinar,partner follow-up,5,0,0,0,20460.48,email,QLD
+CRM2-2468,2026-04-10,Dormant,Inside Sales,Referral,renewal outreach,3,1,0,0,,form,NSW
+CRM2-2469,2026-04-11,New Enquiry,Inside Sales,Website form,partner follow-up,2,1,0,0,33089.47,email,VIC
+CRM2-2470,2026-04-12,Quote Sent,North Team,Partner list,,3,1,1,0,21900.95,email,QLD
+CRM2-2471,2026-04-13,New Enquiry,North Team,Walk-in,partner follow-up,7,1,0,0,43487.59,phone,VIC
+CRM2-2472,2026-04-14,New Enquiry,South Team,Existing customer,renewal outreach,5,0,1,0,35697.9,email,QLD
+CRM2-2473,2026-04-15,Contacted,South Team,Existing customer,,3,0,0,0,21853.61,phone,NSW
+CRM2-2474,2026-04-16,New Enquiry,South Team,Partner list,partner follow-up,2,0,0,0,,meeting,NSW
+CRM2-2475,2026-04-17,Contacted,Inside Sales,Existing customer,partner follow-up,3,0,0,0,19035.64,meeting,VIC
+CRM2-2476,2026-04-18,Inspection Booked,Enterprise Desk,Partner list,renewal outreach,1,0,1,0,42571.08,form,WA
+CRM2-2477,2026-04-19,Quote Sent,Enterprise Desk,Partner list,,0,0,1,0,35055.4,form,QLD
+CRM2-2478,2026-04-20,New Enquiry,Enterprise Desk,Website form,renewal outreach,6,0,0,0,10009.49,email,VIC
+CRM2-2479,2026-04-21,Nurture,Inside Sales,Webinar,spring nurture,4,0,1,0,34940.19,phone,VIC
+CRM2-2480,2026-04-22,Inspection Booked,Inside Sales,Webinar,spring nurture,6,0,0,0,30675.82,form,NSW
+CRM2-2481,2026-04-23,New Enquiry,North Team,Partner list,renewal outreach,4,0,0,0,9958.03,phone,WA
+CRM2-2482,2026-04-24,Nurture,Inside Sales,Existing customer,,6,0,1,0,36814.88,meeting,NSW
+CRM2-2483,2026-04-25,Inspection Booked,Partner Desk,Walk-in,renewal outreach,5,0,0,0,17858.57,phone,WA
+CRM2-2484,2026-04-26,Closed Lost,Inside Sales,Webinar,renewal outreach,1,0,0,0,,phone,VIC
+CRM2-2485,2026-04-27,New Enquiry,Inside Sales,Website form,partner follow-up,7,0,0,0,8140.98,meeting,QLD
+CRM2-2486,2026-04-28,Negotiation,Partner Desk,Referral,not a marketing campaign,6,0,1,0,33973.99,meeting,QLD
+CRM2-2487,2026-04-29,Inspection Booked,South Team,Referral,partner follow-up,6,0,0,0,2778.76,meeting,WA
+CRM2-2488,2026-04-30,Inspection Booked,Inside Sales,Website form,,1,1,0,0,22611.77,meeting,NSW
+CRM2-2489,2026-05-01,New Enquiry,Enterprise Desk,Webinar,renewal outreach,1,0,0,0,6365.61,form,QLD
+CRM2-2490,2026-05-02,New Enquiry,Inside Sales,Webinar,spring nurture,0,1,0,0,,form,QLD
+CRM2-2491,2026-05-03,Contacted,South Team,Walk-in,renewal outreach,0,0,0,0,27330.54,email,VIC
+CRM2-2492,2026-05-04,New Enquiry,Enterprise Desk,Partner list,renewal outreach,1,1,0,0,38411.33,email,VIC
+CRM2-2493,2026-05-05,New Enquiry,South Team,Partner list,spring nurture,4,0,1,0,37738.48,form,VIC
+CRM2-2494,2026-05-06,Nurture,Enterprise Desk,Referral,not a marketing campaign,0,0,0,0,7135.96,phone,QLD
+CRM2-2495,2026-05-07,Nurture,Enterprise Desk,Partner list,renewal outreach,7,0,0,0,17773.47,phone,WA
+CRM2-2496,2026-02-01,Negotiation,Enterprise Desk,Website form,not a marketing campaign,6,1,1,0,39809.08,meeting,NSW
+CRM2-2497,2026-02-02,Closed Lost,Inside Sales,Website form,spring nurture,3,1,0,0,,form,WA
+CRM2-2498,2026-02-03,New Enquiry,Partner Desk,Webinar,not a marketing campaign,0,0,0,0,33093.34,meeting,NSW
+CRM2-2499,2026-02-04,Dormant,South Team,Website form,renewal outreach,5,0,0,0,,meeting,VIC
+CRM2-2500,2026-02-05,New Enquiry,Enterprise Desk,Walk-in,renewal outreach,4,0,0,0,23537.59,meeting,NSW
+CRM2-2501,2026-02-06,Inspection Booked,Inside Sales,Webinar,partner follow-up,5,0,0,0,5223.42,meeting,WA
+CRM2-2502,2026-02-07,Contacted,Inside Sales,Webinar,not a marketing campaign,3,0,0,0,32917.34,meeting,VIC
+CRM2-2503,2026-02-08,Dormant,North Team,Walk-in,not a marketing campaign,0,0,0,0,,form,QLD
+CRM2-2504,2026-02-09,Inspection Booked,South Team,Webinar,,3,0,0,0,39795.29,form,NSW
+CRM2-2505,2026-02-10,Nurture,Enterprise Desk,Existing customer,,5,0,0,0,39326.75,email,NSW
+CRM2-2506,2026-02-11,Nurture,South Team,Partner list,,6,0,1,0,34423.75,form,WA
+CRM2-2507,2026-02-12,Contacted,Enterprise Desk,Walk-in,spring nurture,3,0,0,0,9375.88,phone,WA
+CRM2-2508,2026-02-13,New Enquiry,Inside Sales,Webinar,partner follow-up,1,0,0,0,33473.19,email,VIC
+CRM2-2509,2026-02-14,Closed Won,Inside Sales,Referral,partner follow-up,0,0,1,1,5575.52,form,NSW
+CRM2-2510,2026-02-15,New Enquiry,Inside Sales,Webinar,renewal outreach,6,0,0,0,44728.66,email,QLD
+CRM2-2511,2026-02-16,Nurture,South Team,Partner list,not a marketing campaign,5,1,0,0,28068.45,form,QLD
+CRM2-2512,2026-02-17,New Enquiry,South Team,Webinar,not a marketing campaign,1,0,0,0,5820.28,phone,VIC
+CRM2-2513,2026-02-18,New Enquiry,Partner Desk,Referral,partner follow-up,5,1,0,0,31416.44,phone,WA
+CRM2-2514,2026-02-19,Inspection Booked,North Team,Referral,spring nurture,6,0,0,0,5065.7,form,VIC
+CRM2-2515,2026-02-20,Quote Sent,South Team,Existing customer,not a marketing campaign,2,0,1,0,13075.09,form,VIC
+CRM2-2516,2026-02-21,Nurture,Enterprise Desk,Referral,not a marketing campaign,0,1,1,0,2839.35,email,WA
+CRM2-2517,2026-02-22,Contacted,South Team,Existing customer,,3,0,0,0,27907.03,meeting,VIC
+CRM2-2518,2026-02-23,New Enquiry,Enterprise Desk,Referral,renewal outreach,1,0,0,0,5179.34,email,QLD
+CRM2-2519,2026-02-24,New Enquiry,North Team,Referral,not a marketing campaign,1,0,0,0,41537.44,meeting,QLD
+CRM2-2520,2026-02-25,Contacted,Enterprise Desk,Website form,,2,0,0,0,37566.59,phone,NSW
+CRM2-2521,2026-02-26,New Enquiry,South Team,Existing customer,,0,1,0,0,15232.57,phone,NSW
+CRM2-2522,2026-02-27,Negotiation,North Team,Referral,renewal outreach,1,0,1,0,26975.92,meeting,QLD
+CRM2-2523,2026-02-28,Contacted,Enterprise Desk,Referral,not a marketing campaign,1,0,0,0,29534.52,email,WA
+CRM2-2524,2026-03-01,Contacted,Enterprise Desk,Webinar,,6,0,0,0,6005.16,form,VIC
+CRM2-2525,2026-03-02,Contacted,North Team,Walk-in,renewal outreach,6,1,0,0,10813.37,email,VIC
+CRM2-2526,2026-03-03,Nurture,North Team,Walk-in,partner follow-up,3,0,0,0,,form,WA
+CRM2-2527,2026-03-04,New Enquiry,Partner Desk,Walk-in,spring nurture,7,0,0,0,20098.04,phone,VIC
+CRM2-2528,2026-03-05,Negotiation,Partner Desk,Partner list,,7,1,1,0,34640.26,phone,QLD
+CRM2-2529,2026-03-06,Inspection Booked,South Team,Website form,partner follow-up,2,0,0,0,2726.81,phone,WA
+CRM2-2530,2026-03-07,Contacted,Partner Desk,Website form,renewal outreach,4,1,0,0,3286.3,meeting,WA
+CRM2-2531,2026-03-08,Quote Sent,North Team,Walk-in,not a marketing campaign,6,0,1,0,42194.19,meeting,VIC
+CRM2-2532,2026-03-09,Contacted,North Team,Referral,spring nurture,0,0,0,0,42265.37,phone,WA
+CRM2-2533,2026-03-10,New Enquiry,Enterprise Desk,Referral,not a marketing campaign,7,1,0,0,26976.28,phone,VIC
+CRM2-2534,2026-03-11,Nurture,Partner Desk,Webinar,spring nurture,2,0,0,0,37106.51,email,NSW
+CRM2-2535,2026-03-12,Nurture,Partner Desk,Existing customer,,5,0,0,0,26372.33,meeting,NSW
+CRM2-2536,2026-03-13,Contacted,North Team,Referral,spring nurture,6,0,0,0,31087.4,meeting,WA
+CRM2-2537,2026-03-14,New Enquiry,Inside Sales,Webinar,renewal outreach,7,1,0,0,29569.09,phone,WA
+CRM2-2538,2026-03-15,Nurture,Partner Desk,Existing customer,partner follow-up,2,0,0,0,34636.33,form,QLD
+CRM2-2539,2026-03-16,Contacted,Enterprise Desk,Existing customer,not a marketing campaign,7,0,0,0,41824.14,meeting,VIC
+CRM2-2540,2026-03-17,Quote Sent,Inside Sales,Walk-in,,2,0,1,0,10827.89,meeting,VIC
+CRM2-2541,2026-03-18,Closed Won,Enterprise Desk,Partner list,spring nurture,1,0,1,1,27864.49,email,WA
+CRM2-2542,2026-03-19,Inspection Booked,Partner Desk,Existing customer,partner follow-up,1,0,1,0,,phone,WA
+CRM2-2543,2026-03-20,Closed Lost,South Team,Existing customer,not a marketing campaign,6,0,0,0,,form,VIC
+CRM2-2544,2026-03-21,Nurture,South Team,Referral,not a marketing campaign,2,0,0,0,22996.66,phone,NSW
+CRM2-2545,2026-03-22,Nurture,Enterprise Desk,Partner list,not a marketing campaign,5,1,0,0,19599.43,meeting,QLD
+CRM2-2546,2026-03-23,Nurture,North Team,Referral,renewal outreach,4,1,0,0,,form,VIC
+CRM2-2547,2026-03-24,Inspection Booked,Inside Sales,Walk-in,,2,0,0,0,39733.01,meeting,VIC
+CRM2-2548,2026-03-25,New Enquiry,South Team,Walk-in,,0,1,0,0,9183.26,email,WA
+CRM2-2549,2026-03-26,New Enquiry,Enterprise Desk,Existing customer,,3,0,0,0,16429.9,email,QLD
+CRM2-2550,2026-03-27,New Enquiry,Inside Sales,Walk-in,not a marketing campaign,0,0,0,0,,form,NSW
+CRM2-2551,2026-03-28,Quote Sent,North Team,Partner list,spring nurture,7,0,1,0,16434.94,form,NSW
+CRM2-2552,2026-03-29,New Enquiry,Partner Desk,Existing customer,renewal outreach,2,0,0,0,,meeting,VIC
+CRM2-2553,2026-03-30,Quote Sent,Enterprise Desk,Website form,,4,1,1,0,40821.21,email,QLD
+CRM2-2554,2026-03-31,Dormant,Enterprise Desk,Referral,,3,0,0,0,,email,VIC
+CRM2-2555,2026-04-01,New Enquiry,South Team,Partner list,partner follow-up,2,0,0,0,26207.72,form,VIC
+CRM2-2556,2026-04-02,Quote Sent,North Team,Existing customer,spring nurture,0,0,1,0,,meeting,QLD
+CRM2-2557,2026-04-03,Contacted,North Team,Existing customer,,1,1,0,0,24795.82,meeting,NSW
+CRM2-2558,2026-04-04,Nurture,Partner Desk,Walk-in,renewal outreach,1,0,0,0,18879.02,meeting,WA
+CRM2-2559,2026-04-05,New Enquiry,Enterprise Desk,Website form,spring nurture,1,0,0,0,36157.87,meeting,WA
+CRM2-2560,2026-04-06,Contacted,Enterprise Desk,Webinar,renewal outreach,2,0,1,0,34430.54,form,WA
+CRM2-2561,2026-04-07,Nurture,Enterprise Desk,Webinar,,5,0,0,0,8961.8,phone,QLD
+CRM2-2562,2026-04-08,Nurture,South Team,Walk-in,not a marketing campaign,6,0,1,0,6050.1,meeting,WA
+CRM2-2563,2026-04-09,Inspection Booked,Enterprise Desk,Walk-in,not a marketing campaign,1,1,0,0,27473.35,phone,VIC
+CRM2-2564,2026-04-10,New Enquiry,Partner Desk,Referral,spring nurture,6,0,1,0,23028.98,meeting,VIC
+CRM2-2565,2026-04-11,Contacted,North Team,Walk-in,,6,0,0,0,34324.62,form,VIC
+CRM2-2566,2026-04-12,New Enquiry,South Team,Website form,,5,0,0,0,12739.14,meeting,QLD
+CRM2-2567,2026-04-13,Inspection Booked,South Team,Webinar,not a marketing campaign,7,0,0,0,41680.37,phone,VIC
+CRM2-2568,2026-04-14,Contacted,Inside Sales,Referral,,2,1,0,0,5731.36,form,WA
+CRM2-2569,2026-04-15,Contacted,Enterprise Desk,Existing customer,,5,0,0,0,4579.3,phone,NSW
+CRM2-2570,2026-04-16,Negotiation,Inside Sales,Referral,partner follow-up,7,0,1,0,6460.9,meeting,QLD
+CRM2-2571,2026-04-17,Nurture,North Team,Partner list,not a marketing campaign,5,0,0,0,21792.04,meeting,NSW
+CRM2-2572,2026-04-18,Nurture,Inside Sales,Walk-in,partner follow-up,0,0,0,0,16106.15,meeting,VIC
+CRM2-2573,2026-04-19,Nurture,Enterprise Desk,Existing customer,partner follow-up,4,0,1,0,25689.76,email,WA
+CRM2-2574,2026-04-20,Contacted,Enterprise Desk,Referral,renewal outreach,2,0,0,0,,meeting,NSW
+CRM2-2575,2026-04-21,Contacted,Inside Sales,Referral,renewal outreach,2,0,0,0,22699.77,email,WA
+CRM2-2576,2026-04-22,Closed Lost,Inside Sales,Existing customer,spring nurture,6,0,0,0,,phone,NSW
+CRM2-2577,2026-04-23,Contacted,Enterprise Desk,Webinar,renewal outreach,3,0,0,0,30493.43,email,WA
+CRM2-2578,2026-04-24,New Enquiry,South Team,Website form,partner follow-up,6,1,0,0,41823.04,phone,WA
+CRM2-2579,2026-04-25,New Enquiry,North Team,Referral,,3,0,0,0,6319.53,phone,NSW
+CRM2-2580,2026-04-26,Negotiation,North Team,Referral,,5,0,1,0,26446.36,form,VIC
+CRM2-2581,2026-04-27,Contacted,Enterprise Desk,Partner list,partner follow-up,7,0,0,0,38689.76,email,QLD
+CRM2-2582,2026-04-28,Closed Lost,South Team,Referral,partner follow-up,3,0,0,0,,email,VIC
+CRM2-2583,2026-04-29,Quote Sent,Inside Sales,Walk-in,renewal outreach,0,1,1,0,16388.86,form,WA
+CRM2-2584,2026-04-30,Contacted,South Team,Referral,renewal outreach,1,1,0,0,18501.74,meeting,WA
+CRM2-2585,2026-05-01,New Enquiry,Enterprise Desk,Partner list,spring nurture,4,0,0,0,31232.55,phone,WA
+CRM2-2586,2026-05-02,Contacted,South Team,Referral,spring nurture,2,0,0,0,23349.54,phone,WA
+CRM2-2587,2026-05-03,Closed Lost,Inside Sales,Webinar,not a marketing campaign,6,0,1,0,,phone,NSW
+CRM2-2588,2026-05-04,Closed Won,South Team,Existing customer,not a marketing campaign,4,0,1,1,3840.98,phone,VIC
+CRM2-2589,2026-05-05,Contacted,Enterprise Desk,Website form,,1,0,0,0,2574.52,email,WA
+CRM2-2590,2026-05-06,Nurture,North Team,Webinar,not a marketing campaign,2,1,0,0,,meeting,NSW
+CRM2-2591,2026-05-07,Quote Sent,Enterprise Desk,Webinar,spring nurture,3,0,1,0,13878.39,email,VIC
+CRM2-2592,2026-02-01,Contacted,Partner Desk,Existing customer,renewal outreach,7,0,0,0,31041.1,meeting,QLD
+CRM2-2593,2026-02-02,New Enquiry,North Team,Existing customer,,0,0,0,0,39742.12,form,VIC
+CRM2-2594,2026-02-03,Contacted,Enterprise Desk,Partner list,partner follow-up,5,0,1,0,30867.56,phone,WA
+CRM2-2595,2026-02-04,Contacted,Partner Desk,Website form,partner follow-up,4,0,0,0,20166.98,phone,NSW
+CRM2-2596,2026-02-05,Nurture,Partner Desk,Website form,spring nurture,7,1,0,0,8370.5,meeting,WA
+CRM2-2597,2026-02-06,Contacted,Inside Sales,Walk-in,renewal outreach,4,0,0,0,31575.53,email,WA
+CRM2-2598,2026-02-07,Nurture,Enterprise Desk,Walk-in,,2,0,0,0,40214.04,form,VIC
+CRM2-2599,2026-02-08,New Enquiry,Enterprise Desk,Website form,,5,0,0,0,20152.7,phone,VIC
+CRM2-2600,2026-02-09,Inspection Booked,North Team,Partner list,not a marketing campaign,2,0,0,0,6478.0,phone,WA
+CRM2-2601,2026-02-10,Nurture,Inside Sales,Webinar,,2,0,0,0,42891.8,phone,VIC
+CRM2-2602,2026-02-11,Inspection Booked,South Team,Webinar,renewal outreach,1,0,0,0,7402.49,meeting,VIC
+CRM2-2603,2026-02-12,New Enquiry,Inside Sales,Referral,spring nurture,3,0,0,0,11402.5,phone,NSW
+CRM2-2604,2026-02-13,Inspection Booked,North Team,Referral,,6,0,0,0,28267.04,form,QLD
+CRM2-2605,2026-02-14,Dormant,North Team,Referral,partner follow-up,3,0,0,0,,email,NSW
+CRM2-2606,2026-02-15,New Enquiry,Inside Sales,Referral,partner follow-up,6,1,0,0,36321.06,email,QLD
+CRM2-2607,2026-02-16,Closed Won,Inside Sales,Partner list,renewal outreach,6,1,1,1,,email,QLD
+CRM2-2608,2026-02-17,Nurture,South Team,Existing customer,partner follow-up,1,0,1,0,35053.05,phone,VIC
+CRM2-2609,2026-02-18,Closed Won,Partner Desk,Partner list,not a marketing campaign,7,0,1,1,,form,QLD
+CRM2-2610,2026-02-19,Nurture,Inside Sales,Referral,spring nurture,6,0,0,0,14494.8,phone,VIC
+CRM2-2611,2026-02-20,Negotiation,Partner Desk,Partner list,not a marketing campaign,7,0,1,0,11172.34,meeting,VIC
+CRM2-2612,2026-02-21,Quote Sent,Enterprise Desk,Website form,not a marketing campaign,2,1,1,0,6038.91,form,WA
+CRM2-2613,2026-02-22,Nurture,North Team,Partner list,not a marketing campaign,5,0,0,0,7850.3,email,NSW
+CRM2-2614,2026-02-23,Closed Lost,South Team,Existing customer,,7,0,0,0,,meeting,NSW
+CRM2-2615,2026-02-24,New Enquiry,Inside Sales,Referral,not a marketing campaign,2,1,1,0,30630.26,form,QLD
+CRM2-2616,2026-02-25,Nurture,Enterprise Desk,Website form,renewal outreach,0,0,0,0,10038.53,email,QLD
+CRM2-2617,2026-02-26,Quote Sent,Enterprise Desk,Partner list,partner follow-up,7,0,1,0,12659.37,phone,VIC
+CRM2-2618,2026-02-27,Quote Sent,Enterprise Desk,Webinar,not a marketing campaign,4,0,1,0,25047.35,email,VIC
+CRM2-2619,2026-02-28,Contacted,North Team,Walk-in,,1,0,0,0,42477.53,phone,QLD
+CRM2-2620,2026-03-01,Inspection Booked,Partner Desk,Existing customer,,6,1,0,0,36927.46,form,QLD
+CRM2-2621,2026-03-02,Quote Sent,Partner Desk,Partner list,not a marketing campaign,0,0,1,0,33570.32,email,NSW
+CRM2-2622,2026-03-03,Closed Won,Inside Sales,Referral,spring nurture,1,0,1,1,43818.41,phone,NSW
+CRM2-2623,2026-03-04,Quote Sent,South Team,Website form,renewal outreach,0,0,1,0,27297.49,meeting,NSW
+CRM2-2624,2026-03-05,Quote Sent,South Team,Referral,spring nurture,0,0,1,0,5573.62,form,QLD
+CRM2-2625,2026-03-06,Nurture,Partner Desk,Webinar,spring nurture,2,0,0,0,22567.77,form,WA
+CRM2-2626,2026-03-07,Negotiation,Partner Desk,Website form,partner follow-up,2,0,1,0,14120.56,meeting,WA
+CRM2-2627,2026-03-08,New Enquiry,Enterprise Desk,Website form,partner follow-up,2,0,0,0,35459.83,form,WA
+CRM2-2628,2026-03-09,Quote Sent,Partner Desk,Existing customer,not a marketing campaign,5,0,1,0,35305.56,email,VIC
+CRM2-2629,2026-03-10,Nurture,Inside Sales,Partner list,not a marketing campaign,5,0,0,0,33077.18,form,QLD
+CRM2-2630,2026-03-11,Closed Lost,Inside Sales,Partner list,spring nurture,7,1,0,0,,form,VIC
+CRM2-2631,2026-03-12,Nurture,Enterprise Desk,Webinar,partner follow-up,7,0,0,0,34644.33,meeting,WA
+CRM2-2632,2026-03-13,Contacted,Enterprise Desk,Webinar,renewal outreach,2,0,0,0,17526.17,form,QLD
+CRM2-2633,2026-03-14,New Enquiry,South Team,Referral,renewal outreach,7,1,0,0,8100.04,email,VIC
+CRM2-2634,2026-03-15,Contacted,North Team,Website form,spring nurture,2,0,0,0,21044.25,email,QLD
+CRM2-2635,2026-03-16,Inspection Booked,Inside Sales,Referral,not a marketing campaign,2,0,0,0,15138.45,meeting,QLD
+CRM2-2636,2026-03-17,New Enquiry,South Team,Walk-in,spring nurture,4,0,0,0,13612.98,phone,VIC
+CRM2-2637,2026-03-18,Contacted,Inside Sales,Website form,not a marketing campaign,3,0,0,0,14364.05,email,VIC
+CRM2-2638,2026-03-19,Inspection Booked,Partner Desk,Partner list,renewal outreach,3,0,0,0,38612.13,email,VIC
+CRM2-2639,2026-03-20,Negotiation,Inside Sales,Website form,not a marketing campaign,5,0,1,0,10289.75,form,NSW
+CRM2-2640,2026-03-21,Quote Sent,North Team,Website form,renewal outreach,3,0,1,0,22511.18,form,QLD
+CRM2-2641,2026-03-22,New Enquiry,Enterprise Desk,Existing customer,partner follow-up,2,0,0,0,7105.27,meeting,VIC
+CRM2-2642,2026-03-23,Inspection Booked,Partner Desk,Referral,,5,1,0,0,39977.04,phone,NSW
+CRM2-2643,2026-03-24,Negotiation,Partner Desk,Partner list,not a marketing campaign,3,1,1,0,26943.17,form,NSW
+CRM2-2644,2026-03-25,Contacted,North Team,Webinar,renewal outreach,1,1,0,0,36426.98,meeting,QLD
+CRM2-2645,2026-03-26,Quote Sent,Enterprise Desk,Existing customer,partner follow-up,5,1,1,0,11556.21,form,NSW
+CRM2-2646,2026-03-27,New Enquiry,South Team,Webinar,spring nurture,5,0,0,0,9646.19,meeting,QLD
+CRM2-2647,2026-03-28,Contacted,North Team,Referral,not a marketing campaign,5,0,0,0,17627.92,phone,QLD
+CRM2-2648,2026-03-29,New Enquiry,North Team,Webinar,,3,0,0,0,3012.3,meeting,QLD
+CRM2-2649,2026-03-30,Quote Sent,South Team,Partner list,not a marketing campaign,0,0,1,0,15260.9,phone,NSW
+CRM2-2650,2026-03-31,New Enquiry,South Team,Existing customer,partner follow-up,2,0,1,0,13926.5,email,VIC
+CRM2-2651,2026-04-01,Closed Won,North Team,Partner list,not a marketing campaign,7,0,1,1,17270.71,email,VIC
+CRM2-2652,2026-04-02,Closed Won,Partner Desk,Referral,partner follow-up,1,0,1,1,23690.68,phone,VIC
+CRM2-2653,2026-04-03,Negotiation,North Team,Website form,,4,0,1,0,36145.89,form,NSW
+CRM2-2654,2026-04-04,Contacted,Enterprise Desk,Website form,,5,0,0,0,30522.9,email,QLD
+CRM2-2655,2026-04-05,Closed Lost,Enterprise Desk,Referral,spring nurture,4,0,0,0,,email,VIC
+CRM2-2656,2026-04-06,Quote Sent,South Team,Existing customer,renewal outreach,7,0,1,0,37261.01,email,NSW
+CRM2-2657,2026-04-07,New Enquiry,Inside Sales,Website form,,3,0,0,0,35945.16,email,VIC
+CRM2-2658,2026-04-08,Contacted,Partner Desk,Webinar,renewal outreach,7,1,0,0,24049.61,meeting,WA
+CRM2-2659,2026-04-09,Contacted,Enterprise Desk,Webinar,not a marketing campaign,3,0,0,0,5134.43,phone,QLD
+CRM2-2660,2026-04-10,New Enquiry,Enterprise Desk,Existing customer,not a marketing campaign,0,1,0,0,6674.08,phone,WA
+CRM2-2661,2026-04-11,New Enquiry,North Team,Walk-in,spring nurture,2,1,0,0,16938.3,email,NSW
+CRM2-2662,2026-04-12,New Enquiry,South Team,Website form,renewal outreach,6,0,0,0,16572.91,form,QLD
+CRM2-2663,2026-04-13,Nurture,Enterprise Desk,Walk-in,,0,0,1,0,16912.18,phone,NSW
+CRM2-2664,2026-04-14,Negotiation,Inside Sales,Existing customer,spring nurture,5,0,1,0,19323.26,phone,WA
+CRM2-2665,2026-04-15,Quote Sent,Enterprise Desk,Website form,not a marketing campaign,7,0,1,0,22957.44,phone,NSW
+CRM2-2666,2026-04-16,Inspection Booked,Enterprise Desk,Webinar,spring nurture,5,0,0,0,25614.75,meeting,VIC
+CRM2-2667,2026-04-17,Negotiation,Inside Sales,Website form,renewal outreach,5,0,1,0,23946.74,meeting,QLD
+CRM2-2668,2026-04-18,Contacted,South Team,Partner list,not a marketing campaign,1,0,0,0,33945.92,meeting,NSW
+CRM2-2669,2026-04-19,Negotiation,Partner Desk,Referral,renewal outreach,1,0,1,0,7769.07,meeting,NSW
+CRM2-2670,2026-04-20,Closed Won,Inside Sales,Website form,renewal outreach,0,0,1,1,37500.8,form,NSW
+CRM2-2671,2026-04-21,Contacted,Inside Sales,Walk-in,partner follow-up,7,0,0,0,38059.31,email,WA
+CRM2-2672,2026-04-22,Nurture,Inside Sales,Walk-in,not a marketing campaign,7,0,0,0,16680.9,phone,VIC
+CRM2-2673,2026-04-23,Negotiation,Partner Desk,Referral,renewal outreach,3,0,1,0,12379.87,email,QLD
+CRM2-2674,2026-04-24,Inspection Booked,North Team,Existing customer,,0,0,0,0,26664.68,email,WA
+CRM2-2675,2026-04-25,New Enquiry,Inside Sales,Partner list,not a marketing campaign,7,0,0,0,27319.35,phone,NSW
+CRM2-2676,2026-04-26,Closed Lost,North Team,Website form,partner follow-up,6,0,0,0,,form,NSW
+CRM2-2677,2026-04-27,Contacted,North Team,Walk-in,renewal outreach,3,1,0,0,14463.62,email,WA
+CRM2-2678,2026-04-28,Negotiation,Enterprise Desk,Website form,spring nurture,1,1,1,0,20449.42,meeting,QLD
+CRM2-2679,2026-04-29,Nurture,Inside Sales,Website form,not a marketing campaign,2,0,0,0,42366.12,meeting,WA
+CRM2-2680,2026-04-30,Nurture,North Team,Webinar,spring nurture,2,0,0,0,4352.85,meeting,QLD
+CRM2-2681,2026-05-01,Closed Won,North Team,Existing customer,,5,0,1,1,21244.88,meeting,QLD
+CRM2-2682,2026-05-02,Closed Lost,Enterprise Desk,Website form,not a marketing campaign,6,1,0,0,,meeting,VIC
+CRM2-2683,2026-05-03,Contacted,South Team,Walk-in,renewal outreach,6,0,0,0,44332.18,form,NSW
+CRM2-2684,2026-05-04,Inspection Booked,Inside Sales,Existing customer,partner follow-up,0,0,0,0,11343.89,form,WA
+CRM2-2685,2026-05-05,Contacted,Enterprise Desk,Walk-in,not a marketing campaign,2,0,0,0,4822.27,meeting,WA
+CRM2-2686,2026-05-06,New Enquiry,Partner Desk,Referral,spring nurture,3,0,0,0,,email,VIC
+CRM2-2687,2026-05-07,Quote Sent,South Team,Referral,partner follow-up,2,0,1,0,37503.02,phone,QLD
+CRM2-2688,2026-02-01,Dormant,Inside Sales,Existing customer,renewal outreach,5,0,0,0,,phone,VIC
+CRM2-2689,2026-02-02,Closed Lost,Enterprise Desk,Webinar,,4,0,0,0,,phone,WA
+CRM2-2690,2026-02-03,Contacted,North Team,Website form,renewal outreach,6,0,0,0,19441.83,form,QLD
+CRM2-2691,2026-02-04,New Enquiry,Enterprise Desk,Referral,not a marketing campaign,6,1,0,0,39737.63,phone,NSW
+CRM2-2692,2026-02-05,Contacted,Partner Desk,Webinar,partner follow-up,5,1,0,0,23721.17,meeting,WA
+CRM2-2693,2026-02-06,Negotiation,Enterprise Desk,Walk-in,renewal outreach,2,0,1,0,37623.7,phone,WA
+CRM2-2694,2026-02-07,New Enquiry,South Team,Partner list,renewal outreach,2,0,0,0,2423.35,phone,NSW
+CRM2-2695,2026-02-08,Dormant,Enterprise Desk,Webinar,renewal outreach,0,0,0,0,,form,WA
+CRM2-2696,2026-02-09,Contacted,North Team,Website form,,5,0,0,0,37381.3,email,WA
+CRM2-2697,2026-02-10,Contacted,North Team,Webinar,,0,0,0,0,42783.47,phone,VIC
+CRM2-2698,2026-02-11,New Enquiry,North Team,Existing customer,partner follow-up,3,1,0,0,33547.43,email,VIC
+CRM2-2699,2026-02-12,Inspection Booked,Enterprise Desk,Existing customer,,4,0,1,0,,email,NSW
+CRM2-2700,2026-02-13,Closed Won,Partner Desk,Walk-in,renewal outreach,1,0,1,1,13208.26,form,VIC
+CRM2-2701,2026-02-14,Quote Sent,South Team,Walk-in,partner follow-up,7,0,1,0,,form,WA
+CRM2-2702,2026-02-15,Quote Sent,Partner Desk,Partner list,,1,0,1,0,10859.1,meeting,VIC
+CRM2-2703,2026-02-16,Contacted,Enterprise Desk,Partner list,not a marketing campaign,5,0,0,0,8606.54,phone,VIC
+CRM2-2704,2026-02-17,Closed Won,Enterprise Desk,Webinar,renewal outreach,5,0,1,1,15113.28,meeting,QLD
+CRM2-2705,2026-02-18,Negotiation,South Team,Partner list,partner follow-up,5,0,1,0,34127.05,phone,VIC
+CRM2-2706,2026-02-19,Quote Sent,Enterprise Desk,Webinar,partner follow-up,1,0,1,0,14382.09,email,QLD
+CRM2-2707,2026-02-20,New Enquiry,North Team,Webinar,not a marketing campaign,6,1,0,0,15845.25,email,NSW
+CRM2-2708,2026-02-21,New Enquiry,Enterprise Desk,Partner list,partner follow-up,7,0,0,0,42247.17,email,NSW
+CRM2-2709,2026-02-22,Closed Lost,South Team,Website form,spring nurture,6,0,0,0,,form,QLD
+CRM2-2710,2026-02-23,Nurture,Partner Desk,Partner list,not a marketing campaign,2,0,1,0,13277.24,email,QLD
+CRM2-2711,2026-02-24,Nurture,Inside Sales,Walk-in,renewal outreach,4,0,0,0,37787.4,email,WA
+CRM2-2712,2026-02-25,Closed Won,Inside Sales,Website form,partner follow-up,0,0,1,1,15790.34,email,QLD
+CRM2-2713,2026-02-26,Nurture,South Team,Walk-in,renewal outreach,2,0,0,0,11654.71,meeting,QLD
+CRM2-2714,2026-02-27,New Enquiry,North Team,Partner list,not a marketing campaign,7,1,0,0,2600.01,form,WA
+CRM2-2715,2026-02-28,Nurture,Enterprise Desk,Existing customer,spring nurture,1,0,0,0,7509.1,phone,NSW
+CRM2-2716,2026-03-01,Nurture,Enterprise Desk,Existing customer,not a marketing campaign,1,0,0,0,11210.7,email,NSW
+CRM2-2717,2026-03-02,Closed Lost,South Team,Webinar,partner follow-up,6,0,0,0,,form,QLD
+CRM2-2718,2026-03-03,Contacted,Enterprise Desk,Partner list,partner follow-up,3,0,0,0,2745.57,phone,VIC
+CRM2-2719,2026-03-04,Quote Sent,North Team,Website form,not a marketing campaign,0,1,1,0,31992.59,email,QLD
+CRM2-2720,2026-03-05,Nurture,Enterprise Desk,Existing customer,not a marketing campaign,2,0,1,0,41738.15,email,WA
+CRM2-2721,2026-03-06,Nurture,Partner Desk,Partner list,partner follow-up,0,0,1,0,,form,VIC
+CRM2-2722,2026-03-07,New Enquiry,Enterprise Desk,Website form,renewal outreach,4,0,0,0,31882.76,form,VIC
+CRM2-2723,2026-03-08,New Enquiry,South Team,Webinar,spring nurture,0,0,0,0,41681.59,phone,QLD
+CRM2-2724,2026-03-09,Contacted,Partner Desk,Walk-in,partner follow-up,1,0,0,0,15323.27,email,NSW
+CRM2-2725,2026-03-10,Contacted,Enterprise Desk,Webinar,partner follow-up,3,0,0,0,26347.61,email,VIC
+CRM2-2726,2026-03-11,Nurture,Enterprise Desk,Partner list,renewal outreach,4,1,1,0,29486.48,form,VIC
+CRM2-2727,2026-03-12,Nurture,South Team,Referral,renewal outreach,1,0,0,0,43907.96,meeting,WA
+CRM2-2728,2026-03-13,New Enquiry,Inside Sales,Existing customer,not a marketing campaign,7,0,1,0,7693.75,email,NSW
+CRM2-2729,2026-03-14,Negotiation,Inside Sales,Website form,renewal outreach,0,1,1,0,19863.27,meeting,VIC
+CRM2-2730,2026-03-15,Quote Sent,Partner Desk,Existing customer,spring nurture,3,0,1,0,9293.67,email,VIC
+CRM2-2731,2026-03-16,Nurture,South Team,Walk-in,spring nurture,7,0,0,0,10686.2,phone,WA
+CRM2-2732,2026-03-17,Quote Sent,South Team,Referral,not a marketing campaign,4,0,1,0,17538.01,form,NSW
+CRM2-2733,2026-03-18,New Enquiry,Inside Sales,Referral,spring nurture,0,0,0,0,8109.84,form,QLD
+CRM2-2734,2026-03-19,Inspection Booked,Inside Sales,Webinar,,4,0,0,0,44780.24,meeting,NSW
+CRM2-2735,2026-03-20,New Enquiry,Enterprise Desk,Referral,spring nurture,7,0,0,0,44139.06,email,NSW
+CRM2-2736,2026-03-21,Nurture,South Team,Webinar,spring nurture,0,0,0,0,15781.3,meeting,QLD
+CRM2-2737,2026-03-22,Quote Sent,Partner Desk,Website form,spring nurture,2,1,1,0,29875.49,meeting,QLD
+CRM2-2738,2026-03-23,New Enquiry,Partner Desk,Referral,partner follow-up,1,0,0,0,31036.31,form,VIC
+CRM2-2739,2026-03-24,Quote Sent,Inside Sales,Walk-in,renewal outreach,6,0,1,0,36965.73,form,QLD
+CRM2-2740,2026-03-25,New Enquiry,Partner Desk,Website form,,7,0,0,0,1584.72,form,QLD
+CRM2-2741,2026-03-26,Contacted,Partner Desk,Webinar,spring nurture,2,0,0,0,17832.35,email,WA
+CRM2-2742,2026-03-27,Contacted,Inside Sales,Partner list,renewal outreach,7,0,0,0,36748.47,email,QLD
+CRM2-2743,2026-03-28,Negotiation,Enterprise Desk,Partner list,renewal outreach,7,0,1,0,41694.57,form,QLD
+CRM2-2744,2026-03-29,Quote Sent,South Team,Existing customer,renewal outreach,6,0,1,0,31876.03,form,QLD
+CRM2-2745,2026-03-30,New Enquiry,North Team,Website form,spring nurture,1,0,0,0,,phone,VIC
+CRM2-2746,2026-03-31,Contacted,Inside Sales,Website form,not a marketing campaign,4,0,0,0,35298.6,form,NSW
+CRM2-2747,2026-04-01,New Enquiry,Inside Sales,Partner list,not a marketing campaign,6,1,1,0,26969.03,meeting,VIC
+CRM2-2748,2026-04-02,New Enquiry,Partner Desk,Partner list,partner follow-up,3,0,0,0,,email,VIC
+CRM2-2749,2026-04-03,Nurture,Partner Desk,Website form,,6,1,0,0,15977.83,email,QLD
+CRM2-2750,2026-04-04,Nurture,Enterprise Desk,Website form,,6,0,1,0,21960.37,phone,NSW
+CRM2-2751,2026-04-05,Contacted,South Team,Webinar,spring nurture,3,0,0,0,21062.2,meeting,WA
+CRM2-2752,2026-04-06,New Enquiry,South Team,Existing customer,spring nurture,0,0,1,0,9487.27,email,WA
+CRM2-2753,2026-04-07,Nurture,South Team,Website form,,2,1,0,0,2108.27,meeting,VIC
+CRM2-2754,2026-04-08,Negotiation,Inside Sales,Referral,,2,0,1,0,17229.82,meeting,VIC
+CRM2-2755,2026-04-09,New Enquiry,South Team,Partner list,spring nurture,7,0,0,0,13018.03,email,VIC
+CRM2-2756,2026-04-10,Nurture,Enterprise Desk,Referral,spring nurture,7,0,0,0,7522.64,phone,NSW
+CRM2-2757,2026-04-11,Contacted,Enterprise Desk,Partner list,,2,0,0,0,18480.93,meeting,NSW
+CRM2-2758,2026-04-12,New Enquiry,Partner Desk,Existing customer,spring nurture,3,0,0,0,27462.71,email,VIC
+CRM2-2759,2026-04-13,Inspection Booked,Enterprise Desk,Website form,partner follow-up,0,0,0,0,15719.33,email,VIC
+CRM2-2760,2026-04-14,Negotiation,Enterprise Desk,Existing customer,not a marketing campaign,1,0,1,0,25629.78,form,WA
+CRM2-2761,2026-04-15,Inspection Booked,Partner Desk,Partner list,,2,0,0,0,7672.91,meeting,WA
+CRM2-2762,2026-04-16,New Enquiry,South Team,Existing customer,not a marketing campaign,3,1,0,0,20205.79,meeting,WA
+CRM2-2763,2026-04-17,Contacted,South Team,Referral,not a marketing campaign,6,0,1,0,10501.49,email,NSW
+CRM2-2764,2026-04-18,Negotiation,South Team,Website form,not a marketing campaign,6,1,1,0,31415.63,phone,NSW
+CRM2-2765,2026-04-19,Inspection Booked,South Team,Referral,renewal outreach,0,0,0,0,9977.19,form,QLD
+CRM2-2766,2026-04-20,Nurture,Partner Desk,Referral,renewal outreach,1,0,0,0,9639.18,phone,WA
+CRM2-2767,2026-04-21,Contacted,Partner Desk,Walk-in,spring nurture,0,0,0,0,24607.24,meeting,VIC
+CRM2-2768,2026-04-22,Quote Sent,North Team,Existing customer,,1,0,1,0,15857.33,phone,QLD
+CRM2-2769,2026-04-23,Closed Lost,Partner Desk,Website form,renewal outreach,7,1,0,0,,phone,QLD
+CRM2-2770,2026-04-24,Inspection Booked,North Team,Walk-in,spring nurture,4,1,1,0,44326.02,form,VIC
+CRM2-2771,2026-04-25,Dormant,North Team,Existing customer,,7,1,0,0,,form,NSW
+CRM2-2772,2026-04-26,New Enquiry,Inside Sales,Website form,renewal outreach,4,1,0,0,13533.07,form,WA
+CRM2-2773,2026-04-27,New Enquiry,Enterprise Desk,Existing customer,renewal outreach,7,1,0,0,12275.77,form,NSW
+CRM2-2774,2026-04-28,Inspection Booked,North Team,Partner list,,5,0,0,0,38355.88,phone,NSW
+CRM2-2775,2026-04-29,New Enquiry,North Team,Existing customer,,3,0,0,0,,form,QLD
+CRM2-2776,2026-04-30,Inspection Booked,Inside Sales,Website form,spring nurture,7,0,0,0,30354.5,email,WA
+CRM2-2777,2026-05-01,New Enquiry,North Team,Partner list,,3,1,0,0,5953.07,meeting,QLD
+CRM2-2778,2026-05-02,New Enquiry,Enterprise Desk,Referral,spring nurture,1,1,0,0,34041.76,email,QLD
+CRM2-2779,2026-05-03,New Enquiry,South Team,Referral,,1,0,0,0,19937.85,meeting,VIC
+CRM2-2780,2026-05-04,Nurture,North Team,Referral,,6,0,1,0,10251.59,form,WA
+CRM2-2781,2026-05-05,Inspection Booked,South Team,Referral,spring nurture,4,0,0,0,,meeting,NSW
+CRM2-2782,2026-05-06,Negotiation,South Team,Webinar,renewal outreach,0,0,1,0,40273.68,phone,VIC
+CRM2-2783,2026-05-07,Quote Sent,Partner Desk,Walk-in,renewal outreach,7,1,1,0,6448.02,form,VIC
+CRM2-2784,2026-02-01,Quote Sent,Inside Sales,Existing customer,not a marketing campaign,7,0,1,0,,email,WA
+CRM2-2785,2026-02-02,New Enquiry,South Team,Walk-in,spring nurture,1,0,0,0,42201.42,phone,QLD
+CRM2-2786,2026-02-03,Nurture,South Team,Existing customer,,7,0,1,0,19732.75,meeting,VIC
+CRM2-2787,2026-02-04,Contacted,Inside Sales,Walk-in,renewal outreach,4,0,0,0,35986.33,form,QLD
+CRM2-2788,2026-02-05,New Enquiry,South Team,Walk-in,renewal outreach,4,0,0,0,30039.35,form,WA
+CRM2-2789,2026-02-06,Nurture,Inside Sales,Website form,not a marketing campaign,1,0,0,0,32570.5,email,QLD
+CRM2-2790,2026-02-07,Quote Sent,North Team,Partner list,,6,0,1,0,9066.0,email,QLD
+CRM2-2791,2026-02-08,New Enquiry,South Team,Walk-in,renewal outreach,1,1,0,0,3626.7,email,QLD
+CRM2-2792,2026-02-09,Closed Won,Enterprise Desk,Walk-in,not a marketing campaign,1,0,1,1,29508.78,email,VIC
+CRM2-2793,2026-02-10,Dormant,Enterprise Desk,Partner list,spring nurture,7,0,0,0,,form,VIC
+CRM2-2794,2026-02-11,Closed Lost,Enterprise Desk,Walk-in,renewal outreach,7,0,1,0,,phone,NSW
+CRM2-2795,2026-02-12,Contacted,Partner Desk,Website form,,0,1,0,0,1319.81,email,NSW
+CRM2-2796,2026-02-13,Quote Sent,Inside Sales,Referral,renewal outreach,4,1,1,0,14876.79,phone,VIC
+CRM2-2797,2026-02-14,Quote Sent,South Team,Existing customer,spring nurture,2,0,1,0,22716.7,meeting,QLD
+CRM2-2798,2026-02-15,Nurture,Inside Sales,Website form,not a marketing campaign,4,0,0,0,8950.99,phone,NSW
+CRM2-2799,2026-02-16,Nurture,Enterprise Desk,Partner list,spring nurture,1,1,0,0,9906.87,form,NSW
+CRM2-2800,2026-02-17,Nurture,Inside Sales,Existing customer,,3,0,0,0,5065.92,form,QLD
+CRM2-2801,2026-02-18,Inspection Booked,South Team,Existing customer,spring nurture,2,0,0,0,13325.01,email,WA
+CRM2-2802,2026-02-19,Closed Lost,South Team,Partner list,renewal outreach,1,0,1,0,,phone,VIC
+CRM2-2803,2026-02-20,New Enquiry,Partner Desk,Existing customer,,4,1,0,0,39251.39,meeting,NSW
+CRM2-2804,2026-02-21,Inspection Booked,Partner Desk,Referral,,4,0,0,0,41131.14,form,NSW
+CRM2-2805,2026-02-22,Nurture,Partner Desk,Referral,spring nurture,6,0,0,0,43545.31,email,QLD
+CRM2-2806,2026-02-23,Contacted,Enterprise Desk,Existing customer,renewal outreach,0,0,1,0,42638.74,form,QLD
+CRM2-2807,2026-02-24,Contacted,Inside Sales,Walk-in,spring nurture,5,0,0,0,,email,VIC
+CRM2-2808,2026-02-25,Quote Sent,Inside Sales,Partner list,spring nurture,4,1,1,0,42038.09,email,VIC
+CRM2-2809,2026-02-26,Closed Lost,North Team,Webinar,renewal outreach,0,0,0,0,,form,VIC
+CRM2-2810,2026-02-27,Inspection Booked,Enterprise Desk,Website form,not a marketing campaign,2,0,0,0,34515.08,email,QLD
+CRM2-2811,2026-02-28,Quote Sent,South Team,Website form,not a marketing campaign,5,0,1,0,11841.42,form,NSW
+CRM2-2812,2026-03-01,New Enquiry,Inside Sales,Website form,,6,0,0,0,26248.18,email,VIC
+CRM2-2813,2026-03-02,Contacted,Enterprise Desk,Partner list,partner follow-up,5,0,0,0,33510.34,phone,VIC
+CRM2-2814,2026-03-03,Negotiation,South Team,Webinar,not a marketing campaign,7,0,1,0,,phone,NSW
+CRM2-2815,2026-03-04,Negotiation,South Team,Website form,spring nurture,3,1,1,0,22937.97,meeting,VIC
+CRM2-2816,2026-03-05,Nurture,Enterprise Desk,Existing customer,not a marketing campaign,5,1,0,0,39152.38,form,QLD
+CRM2-2817,2026-03-06,Nurture,Enterprise Desk,Walk-in,,2,0,1,0,31175.86,form,QLD
+CRM2-2818,2026-03-07,Negotiation,South Team,Existing customer,,3,0,1,0,23060.16,form,WA
+CRM2-2819,2026-03-08,Contacted,North Team,Webinar,,4,0,0,0,,email,NSW
+CRM2-2820,2026-03-09,New Enquiry,North Team,Partner list,renewal outreach,6,1,0,0,2335.65,phone,NSW
+CRM2-2821,2026-03-10,Negotiation,Partner Desk,Website form,not a marketing campaign,6,0,1,0,,meeting,QLD
+CRM2-2822,2026-03-11,Closed Won,North Team,Partner list,spring nurture,7,0,1,1,38389.85,email,NSW
+CRM2-2823,2026-03-12,Contacted,Inside Sales,Website form,not a marketing campaign,2,0,0,0,38517.3,meeting,QLD
+CRM2-2824,2026-03-13,Contacted,Partner Desk,Walk-in,partner follow-up,5,1,0,0,19160.63,meeting,VIC
+CRM2-2825,2026-03-14,Contacted,Partner Desk,Webinar,not a marketing campaign,2,1,0,0,10439.94,form,WA
+CRM2-2826,2026-03-15,Inspection Booked,South Team,Partner list,,2,1,0,0,,email,VIC
+CRM2-2827,2026-03-16,Closed Lost,South Team,Walk-in,,5,0,0,0,,meeting,WA
+CRM2-2828,2026-03-17,Nurture,Partner Desk,Webinar,,7,1,0,0,9682.16,email,QLD
+CRM2-2829,2026-03-18,New Enquiry,South Team,Website form,,2,0,1,0,2604.98,phone,WA
+CRM2-2830,2026-03-19,Negotiation,North Team,Website form,not a marketing campaign,6,0,1,0,,email,NSW
+CRM2-2831,2026-03-20,Closed Won,Inside Sales,Walk-in,renewal outreach,0,0,1,1,24274.7,meeting,NSW
+CRM2-2832,2026-03-21,New Enquiry,Inside Sales,Website form,not a marketing campaign,0,0,0,0,12466.35,meeting,VIC
+CRM2-2833,2026-03-22,Nurture,South Team,Walk-in,partner follow-up,6,0,0,0,23979.18,meeting,WA
+CRM2-2834,2026-03-23,New Enquiry,Enterprise Desk,Existing customer,not a marketing campaign,2,0,0,0,9755.17,form,QLD
+CRM2-2835,2026-03-24,Nurture,Partner Desk,Existing customer,,4,0,0,0,6949.4,meeting,QLD
+CRM2-2836,2026-03-25,Closed Lost,North Team,Partner list,,3,0,0,0,,form,QLD
+CRM2-2837,2026-03-26,Nurture,Enterprise Desk,Partner list,,1,0,0,0,15711.83,meeting,VIC
+CRM2-2838,2026-03-27,Quote Sent,Enterprise Desk,Referral,spring nurture,6,1,1,0,42301.58,form,WA
+CRM2-2839,2026-03-28,New Enquiry,Enterprise Desk,Referral,renewal outreach,1,0,0,0,22736.62,phone,VIC
+CRM2-2840,2026-03-29,Inspection Booked,South Team,Existing customer,not a marketing campaign,2,1,0,0,1706.6,form,QLD
+CRM2-2841,2026-03-30,Inspection Booked,Enterprise Desk,Website form,spring nurture,0,0,0,0,17801.95,phone,VIC
+CRM2-2842,2026-03-31,Contacted,Inside Sales,Walk-in,renewal outreach,1,0,0,0,15699.09,meeting,VIC
+CRM2-2843,2026-04-01,Nurture,Inside Sales,Walk-in,partner follow-up,1,0,0,0,11494.54,form,NSW
+CRM2-2844,2026-04-02,Contacted,South Team,Webinar,not a marketing campaign,6,1,0,0,2217.52,email,QLD
+CRM2-2845,2026-04-03,Nurture,South Team,Website form,partner follow-up,0,0,0,0,42708.47,phone,WA
+CRM2-2846,2026-04-04,Nurture,Partner Desk,Partner list,,6,0,0,0,35885.74,meeting,WA
+CRM2-2847,2026-04-05,New Enquiry,Inside Sales,Partner list,not a marketing campaign,1,1,0,0,32738.44,email,VIC
+CRM2-2848,2026-04-06,Closed Lost,Inside Sales,Webinar,renewal outreach,7,0,0,0,,form,QLD
+CRM2-2849,2026-04-07,Nurture,South Team,Existing customer,partner follow-up,6,0,0,0,8258.52,form,NSW
+CRM2-2850,2026-04-08,Quote Sent,South Team,Webinar,renewal outreach,7,0,1,0,8410.09,form,VIC
+CRM2-2851,2026-04-09,Quote Sent,South Team,Partner list,spring nurture,6,0,1,0,2932.83,email,NSW
+CRM2-2852,2026-04-10,Contacted,South Team,Referral,renewal outreach,1,0,0,0,42617.28,form,QLD
+CRM2-2853,2026-04-11,Closed Won,Inside Sales,Walk-in,renewal outreach,5,0,1,1,2056.8,phone,WA
+CRM2-2854,2026-04-12,Closed Won,North Team,Existing customer,partner follow-up,2,0,1,1,21371.4,phone,NSW
+CRM2-2855,2026-04-13,Contacted,North Team,Existing customer,not a marketing campaign,1,0,0,0,23166.16,email,NSW
+CRM2-2856,2026-04-14,Negotiation,Partner Desk,Walk-in,,2,0,1,0,,form,VIC
+CRM2-2857,2026-04-15,Closed Won,Partner Desk,Partner list,spring nurture,7,0,1,1,,form,NSW
+CRM2-2858,2026-04-16,Inspection Booked,Enterprise Desk,Existing customer,spring nurture,3,0,0,0,8430.84,form,WA
+CRM2-2859,2026-04-17,Inspection Booked,Partner Desk,Partner list,spring nurture,6,1,0,0,12473.61,form,NSW

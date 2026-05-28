@@ -1,6 +1,7 @@
 import type { ChartConfig } from "../analytics/types.js";
 import type { AnalyticsFacts, AskAnswerNarrative, ExecutiveInsightNarrative, QuestionNarrativeInput } from "./types.js";
 import type { LlmMessage, LlmTextGenerationRequest } from "./types.js";
+import type { ExecutiveInsightFacts } from "./executiveInsightFacts.js";
 
 function buildSystemPrompt(scope: string) {
   return [
@@ -29,11 +30,27 @@ function baseJsonInstruction(outputSchema: Record<string, unknown>) {
   );
 }
 
-export function buildExecutiveInsightPrompt(facts: AnalyticsFacts): LlmTextGenerationRequest {
+function buildExecutiveInsightSystemPrompt(facts: ExecutiveInsightFacts) {
+  return [
+    `You are a ${facts.analystFrame}.`,
+    "Write for business stakeholders, not for developers.",
+    "Use only the provided ExecutiveInsightFacts.",
+    "Do not invent numbers, labels, metrics, dimensions, relationships, or strategies.",
+    "Do not recalculate metrics or infer unsupported values.",
+    "Do not mention a metric unless it appears in the input signals.",
+    "If evidence is insufficient, omit the bullet rather than filling space.",
+    "Each bullet must connect computed evidence to a business implication.",
+    "Do not discuss row counts, column counts, EDA, profiling, or generic metadata unless it directly affects decision confidence.",
+    "Do not output Suggested Questions.",
+    `Dataset domain: ${facts.domain}.`
+  ].join(" ");
+}
+
+export function buildExecutiveInsightPrompt(facts: ExecutiveInsightFacts): LlmTextGenerationRequest {
   const messages: LlmMessage[] = [
     {
       role: "system",
-      content: buildSystemPrompt("executive insight generation")
+      content: buildExecutiveInsightSystemPrompt(facts)
     },
     {
       role: "user",
@@ -41,28 +58,22 @@ export function buildExecutiveInsightPrompt(facts: AnalyticsFacts): LlmTextGener
         {
           facts,
           desiredStyle: {
-            bullets: "3-6 short bullets",
-            tone: "senior data analyst and marketing staff",
+            bullets: "2-5 short bullets",
+            tone: facts.analystFrame,
             expectations: [
-              "focus first on commercial implications and decision guidance",
-              "mention specific metrics and dimensions",
-              "prioritize concentration, efficiency tradeoffs, rank gaps, and budget implications",
-              "compare performance where possible",
-              "mention trend direction if available",
-              "use the provided chart context and recommended actions when helpful",
-              "include a cautious recommendation",
-              "make sure each bullet covers a distinct business theme and do not repeat the same viewpoint across bullets",
-              "do not mention EDA or data quality issues"
+              "use only the supplied signals",
+              "mention the grounded metric or dimension",
+              "keep domain language appropriate",
+              "include reliability caveats only when they affect decisions",
+              "do not include filler, chart-title restatements, or generic optimization advice"
             ]
           },
           outputSchema: {
             bullets: ["string"],
-            suggestedQuestions: ["string"],
             warning: "string"
           },
           responseContract: baseJsonInstruction({
             bullets: ["string"],
-            suggestedQuestions: ["string"],
             warning: "string"
           })
         },

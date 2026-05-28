@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
 import {
   filterRecommendedChartsAgainstDashboard,
   shouldSuppressQuestionChartSuggestion
@@ -32,9 +31,6 @@ interface AnalysisState {
   questionAnswer: QuestionAnswer | null;
   questionHistory: QuestionAnswer[];
   pinnedInsights: PinnedInsight[];
-  workspaceSnapshots: WorkspaceSnapshot[];
-  recentWorkspaceSnapshotIds: string[];
-  activeWorkspaceSnapshotId: string | null;
   analyzeFile: (file: File) => Promise<void>;
   askQuestion: (question: string, context?: QuestionContextInput) => Promise<void>;
   setDraftQuestion: (question: string) => void;
@@ -42,21 +38,57 @@ interface AnalysisState {
   pinCurrentAnswer: () => void;
   removePinnedInsight: (id: string) => void;
   clearCurrentAnalysis: () => void;
-  saveCurrentWorkspaceSnapshot: () => string | null;
-  openWorkspaceSnapshot: (id: string) => void;
-  removeWorkspaceSnapshot: (id: string) => void;
   shareCurrentWorkspace: () => Promise<string | null>;
   importSharedWorkspaceSnapshot: (snapshot: WorkspaceSnapshot) => void;
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
-const STORAGE_KEY = "analytics-copilot.workspace-state";
 const DEFAULT_DRAFT_QUESTION = "";
-const noopStorage = {
-  getItem: () => null,
-  setItem: () => undefined,
-  removeItem: () => undefined
-};
+const UPLOAD_TIMEOUT_MS = 120_000;
+
+async function parseErrorBody(response: Response) {
+  const contentType = response.headers.get("content-type") ?? "";
+  if (contentType.includes("application/json")) {
+    return ((await response.json().catch(() => ({}))) as { message?: string }).message;
+  }
+  return (await response.text().catch(() => "")).trim();
+}
+
+function uploadErrorMessage(error: unknown) {
+  if (error instanceof DOMException && error.name === "AbortError") {
+    return "Analysis timed out. Please retry, or use a smaller CSV if the backend is still busy.";
+  }
+
+  if (error instanceof TypeError) {
+    return "Analysis server is unavailable. Please confirm the backend is running on localhost:4000.";
+  }
+
+  return error instanceof Error ? error.message : "Upload failed for an unknown reason.";
+}
+
+function responseErrorMessage(status: number, bodyMessage?: string) {
+  if (bodyMessage) {
+    return bodyMessage;
+  }
+
+  if (status === 413) {
+    return "The file is too large for local analysis. Please try a smaller CSV or XLSX file.";
+  }
+
+  if (status === 415) {
+    return "Unsupported file type. Please upload a CSV, XLSX, or XLS file.";
+  }
+
+  if (status >= 500) {
+    return "Analysis server is unavailable. Please confirm the backend is running on localhost:4000.";
+  }
+
+  return "The file uploaded, but analysis could not complete. Please check the file format and try again.";
+}
+
+function isSupportedUpload(file: File) {
+  return /\.(csv|xlsx|xls)$/i.test(file.name);
+}
 
 function sanitizeQuestionContext(context?: QuestionContextInput) {
   if (!context) {
@@ -109,10 +141,6 @@ function buildWorkspaceSnapshot(
   } satisfies WorkspaceSnapshot;
 }
 
-function touchRecentWorkspaceSnapshotIds(currentIds: string[], snapshotId: string) {
-  return [snapshotId, ...currentIds.filter((id) => id !== snapshotId)].slice(0, 6);
-}
-
 function buildQuestionContextSnapshot(context?: QuestionContextInput) {
   if (!context) {
     return undefined;
@@ -134,9 +162,7 @@ function buildQuestionContextSnapshot(context?: QuestionContextInput) {
     : undefined;
 }
 
-export const useAnalysisStore = create<AnalysisState>()(
-  persist(
-    (set, get) => ({
+export const useAnalysisStore = create<AnalysisState>()((set, get) => ({
       fileName: null,
       lastFile: null,
       draftQuestion: DEFAULT_DRAFT_QUESTION,
@@ -149,10 +175,17 @@ export const useAnalysisStore = create<AnalysisState>()(
       questionAnswer: null,
       questionHistory: [],
       pinnedInsights: [],
-      workspaceSnapshots: [],
-      recentWorkspaceSnapshotIds: [],
-      activeWorkspaceSnapshotId: null,
       analyzeFile: async (file) => {
+        if (!isSupportedUpload(file)) {
+          set({
+            loading: false,
+            error: "Unsupported file type. Please upload a CSV, XLSX, or XLS file.",
+            fileName: file.name,
+            lastFile: null
+          });
+          return;
+        }
+
         set({
           loading: true,
           error: null,
@@ -163,21 +196,23 @@ export const useAnalysisStore = create<AnalysisState>()(
           questionHistory: [],
           activeQuestionRequestId: null,
           pendingQuestion: null,
-          pinnedInsights: [],
-          activeWorkspaceSnapshotId: null
+          pinnedInsights: []
         });
         const formData = new FormData();
         formData.append("file", file);
+        const controller = new AbortController();
+        const timeoutId = window.setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
 
         try {
           const response = await fetch(`${API_BASE_URL}/api/analyze`, {
             method: "POST",
-            body: formData
+            body: formData,
+            signal: controller.signal
           });
 
           if (!response.ok) {
-            const body = (await response.json().catch(() => ({}))) as { message?: string };
-            throw new Error(body.message ?? "Upload failed");
+            const bodyMessage = await parseErrorBody(response);
+            throw new Error(responseErrorMessage(response.status, bodyMessage));
           }
 
           const analysis = (await response.json()) as AnalysisResponse;
@@ -185,8 +220,10 @@ export const useAnalysisStore = create<AnalysisState>()(
         } catch (error) {
           set({
             loading: false,
-            error: error instanceof Error ? error.message : "Unknown upload error"
+            error: uploadErrorMessage(error)
           });
+        } finally {
+          window.clearTimeout(timeoutId);
         }
       },
       askQuestion: async (question, context) => {
@@ -347,71 +384,8 @@ export const useAnalysisStore = create<AnalysisState>()(
           analysis: null,
           questionAnswer: null,
           questionHistory: [],
-          pinnedInsights: [],
-          activeWorkspaceSnapshotId: null
+          pinnedInsights: []
         });
-      },
-      saveCurrentWorkspaceSnapshot: () => {
-        const state = get();
-        if (!state.analysis) {
-          return null;
-        }
-
-        const savedAt = new Date().toISOString();
-        const snapshot: WorkspaceSnapshot = {
-          id: createSnapshotId(),
-          label: createWorkspaceLabel(state.fileName ?? state.analysis.fileName, savedAt),
-          fileName: state.fileName ?? state.analysis.fileName,
-          savedAt,
-          analysis: state.analysis,
-          questionAnswer: state.questionAnswer,
-          questionHistory: state.questionHistory,
-          pinnedInsights: state.pinnedInsights
-        };
-
-        set((current) => ({
-          workspaceSnapshots: [snapshot, ...current.workspaceSnapshots].slice(0, 10),
-          recentWorkspaceSnapshotIds: touchRecentWorkspaceSnapshotIds(
-            current.recentWorkspaceSnapshotIds,
-            snapshot.id
-          ),
-          activeWorkspaceSnapshotId: snapshot.id
-        }));
-
-        return snapshot.id;
-      },
-      openWorkspaceSnapshot: (id) => {
-        const snapshot = get().workspaceSnapshots.find((item) => item.id === id);
-        if (!snapshot) {
-          return;
-        }
-
-        set({
-          fileName: snapshot.fileName,
-          lastFile: null,
-          draftQuestion: snapshot.questionAnswer?.question ?? "",
-          loading: false,
-          asking: false,
-          activeQuestionRequestId: null,
-          pendingQuestion: null,
-          error: null,
-          analysis: snapshot.analysis,
-          questionAnswer: snapshot.questionAnswer,
-          questionHistory: snapshot.questionHistory,
-          pinnedInsights: snapshot.pinnedInsights,
-          recentWorkspaceSnapshotIds: touchRecentWorkspaceSnapshotIds(
-            get().recentWorkspaceSnapshotIds,
-            snapshot.id
-          ),
-          activeWorkspaceSnapshotId: snapshot.id
-        });
-      },
-      removeWorkspaceSnapshot: (id) => {
-        set((state) => ({
-          workspaceSnapshots: state.workspaceSnapshots.filter((snapshot) => snapshot.id !== id),
-          recentWorkspaceSnapshotIds: state.recentWorkspaceSnapshotIds.filter((snapshotId) => snapshotId !== id),
-          activeWorkspaceSnapshotId: state.activeWorkspaceSnapshotId === id ? null : state.activeWorkspaceSnapshotId
-        }));
       },
       shareCurrentWorkspace: async () => {
         const snapshot = buildWorkspaceSnapshot(get());
@@ -436,46 +410,19 @@ export const useAnalysisStore = create<AnalysisState>()(
         return `${window.location.origin}/?share=${result.shareId}`;
       },
       importSharedWorkspaceSnapshot: (snapshot) => {
-        set((state) => {
-          const nextSnapshots = state.workspaceSnapshots.filter((item) => item.id !== snapshot.id);
-          return {
-            workspaceSnapshots: [snapshot, ...nextSnapshots].slice(0, 10),
-            recentWorkspaceSnapshotIds: touchRecentWorkspaceSnapshotIds(
-              state.recentWorkspaceSnapshotIds,
-              snapshot.id
-            ),
-            fileName: snapshot.fileName,
-            lastFile: null,
-            draftQuestion: snapshot.questionAnswer?.question ?? "",
-            loading: false,
-            asking: false,
-            activeQuestionRequestId: null,
-            pendingQuestion: null,
-            error: null,
-            analysis: snapshot.analysis,
-            questionAnswer: snapshot.questionAnswer,
-            questionHistory: snapshot.questionHistory,
-            pinnedInsights: snapshot.pinnedInsights,
-            activeWorkspaceSnapshotId: snapshot.id
-          };
+        set({
+          fileName: snapshot.fileName,
+          lastFile: null,
+          draftQuestion: snapshot.questionAnswer?.question ?? "",
+          loading: false,
+          asking: false,
+          activeQuestionRequestId: null,
+          pendingQuestion: null,
+          error: null,
+          analysis: snapshot.analysis,
+          questionAnswer: snapshot.questionAnswer,
+          questionHistory: snapshot.questionHistory,
+          pinnedInsights: snapshot.pinnedInsights
         });
       }
-    }),
-    {
-      name: STORAGE_KEY,
-      version: 2,
-      storage: createJSONStorage(() => (typeof window === "undefined" ? noopStorage : window.localStorage)),
-      migrate: (persistedState) => {
-        const state = persistedState as Partial<AnalysisState> | undefined;
-        return {
-          workspaceSnapshots: state?.workspaceSnapshots ?? [],
-          recentWorkspaceSnapshotIds: state?.recentWorkspaceSnapshotIds ?? []
-        };
-      },
-      partialize: (state) => ({
-        workspaceSnapshots: state.workspaceSnapshots,
-        recentWorkspaceSnapshotIds: state.recentWorkspaceSnapshotIds
-      })
-    }
-  )
-);
+    }));

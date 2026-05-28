@@ -7,6 +7,11 @@ import type {
   QuestionContextInput
 } from "../analytics/types.js";
 import { parseDateValue, parseNumber } from "../utils/inference.js";
+import {
+  buildExecutiveInsightFacts,
+  executiveSignalToBullet,
+  isExecutiveInsightBulletSupported
+} from "./executiveInsightFacts.js";
 import { createConfiguredLlmProvider } from "./provider.js";
 import type {
   AnalyticsFacts,
@@ -21,9 +26,6 @@ import {
   buildExecutiveInsightPrompt,
   parseJsonResponse
 } from "./prompts.js";
-import {
-  buildSuggestedQuestionsFromFacts
-} from "../analytics/suggestedQuestions.js";
 
 function normalizeName(value: string) {
   return value.toLowerCase().replace(/_/g, " ").trim();
@@ -126,30 +128,14 @@ function isExecutiveInsightText(value: string) {
   return isCommercialInsightText(value) && !isLowValueExecutiveMetadataText(value);
 }
 
-function hasCommercialDecisionContext(facts: AnalyticsFacts) {
-  const domain = facts.semanticContract?.detectedDomain?.domain;
-  return (
-    domain === "call_tracking" ||
-    domain === "marketing_attribution" ||
-    domain === "mixed_call_tracking_attribution" ||
-    facts.kpis.totalRevenue !== undefined ||
-    facts.kpis.totalCost !== undefined ||
-    facts.kpis.overallRoas !== undefined ||
-    facts.rankings.topRevenueEntities.length > 0 ||
-    facts.rankings.topRoasEntities.length > 0
-  );
-}
-
-function hasOperationalDecisionContext(facts: AnalyticsFacts) {
-  return facts.charts.some((chart) => chart.businessArea === "operations" || chart.businessArea === "quality");
-}
-
 type ExecutiveInsightTheme =
   | "revenue"
+  | "relationship"
   | "concentration"
   | "efficiency"
   | "conversion"
   | "trend"
+  | "variance"
   | "budget"
   | "scale"
   | "quality"
@@ -171,8 +157,37 @@ function normalizeInsightText(value: string) {
     .trim();
 }
 
+function classifyInsightSubject(value: string) {
+  const normalized = normalizeInsightText(value);
+  if (/\bqualified rate\b/.test(normalized)) {
+    return "qualified_rate";
+  }
+  if (/\bqualified\b/.test(normalized)) {
+    return "qualified";
+  }
+  if (/\bconverted\b/.test(normalized)) {
+    return "converted";
+  }
+  if (/\bmissed\b/.test(normalized)) {
+    return "missed";
+  }
+  if (/\brevenue|value\b/.test(normalized)) {
+    return "value";
+  }
+  if (/\bcalls?\b/.test(normalized)) {
+    return "calls";
+  }
+  if (/\bstage|lifecycle|journey|pipeline\b/.test(normalized)) {
+    return "pipeline";
+  }
+  return "";
+}
+
 function classifyInsightTheme(value: string): ExecutiveInsightTheme {
   const normalized = normalizeInsightText(value);
+  if (/(relationship|versus|while)/i.test(normalized)) {
+    return "relationship";
+  }
   if (/(data quality|missing|duplicate|outlier|profiling)/i.test(normalized)) {
     return "quality";
   }
@@ -185,8 +200,11 @@ function classifyInsightTheme(value: string): ExecutiveInsightTheme {
   if (/(roas|roi|efficien|cost|spend|cpa|cpc)/i.test(normalized)) {
     return "efficiency";
   }
-  if (/(conversion|cvr|convert)/i.test(normalized)) {
+  if (/(conversion|cvr|convert|qualified)/i.test(normalized)) {
     return "conversion";
+  }
+  if (/(variance|volatil|stability|stable|uneven|spread|strongest|weakest|across)/i.test(normalized)) {
+    return "variance";
   }
   if (/(trend|growth|declin|increas|decreas|momentum|change)/i.test(normalized)) {
     return "trend";
@@ -209,13 +227,44 @@ function classifyInsightTheme(value: string): ExecutiveInsightTheme {
   return "general";
 }
 
+function themeForSignalType(signalType: string): ExecutiveInsightTheme {
+  if (signalType === "relationship") {
+    return "relationship";
+  }
+  if (signalType === "trend") {
+    return "trend";
+  }
+  if (signalType === "concentration" || signalType === "risk") {
+    return "concentration";
+  }
+  if (signalType === "variance") {
+    return "variance";
+  }
+  if (signalType === "efficiency") {
+    return "efficiency";
+  }
+  if (signalType === "reliability") {
+    return "quality";
+  }
+  return "general";
+}
+
 function addDistinctExecutiveInsight(
   bullets: string[],
-  usedThemes: Set<ExecutiveInsightTheme>,
+  usedThemes: Map<ExecutiveInsightTheme, number>,
   candidate: ExecutiveInsightCandidate
 ) {
   const normalized = normalizeInsightText(candidate.text);
-  if (!candidate.text.trim() || usedThemes.has(candidate.theme)) {
+  const themeCount = usedThemes.get(candidate.theme) ?? 0;
+  const maxPerTheme =
+    candidate.theme === "relationship" ||
+    candidate.theme === "conversion" ||
+    candidate.theme === "variance" ||
+    candidate.theme === "concentration"
+      ? 2
+      : 1;
+
+  if (!candidate.text.trim() || themeCount >= maxPerTheme) {
     return;
   }
 
@@ -223,13 +272,39 @@ function addDistinctExecutiveInsight(
     return;
   }
 
-  usedThemes.add(candidate.theme);
+  const detailedScaffoldPattern = /top 3 .* (account for|contribute)/i;
+  const anchorPattern = /^([^,.]+?)\s+(is|contributes|leads|drives|carries|sits)\b/i;
+  const candidateAnchor = candidate.text.match(anchorPattern)?.[1]?.toLowerCase().trim();
+  const candidateHasDetailedScaffold = detailedScaffoldPattern.test(candidate.text);
+
+  if (
+    candidateHasDetailedScaffold &&
+    bullets.some((bullet) => detailedScaffoldPattern.test(bullet))
+  ) {
+    return;
+  }
+
+  if (
+    candidateAnchor &&
+    bullets.some((bullet) => {
+      const bulletAnchor = bullet.match(anchorPattern)?.[1]?.toLowerCase().trim();
+      return (
+        bulletAnchor === candidateAnchor &&
+        classifyInsightTheme(bullet) === candidate.theme &&
+        classifyInsightSubject(bullet) === classifyInsightSubject(candidate.text)
+      );
+    })
+  ) {
+    return;
+  }
+
+  usedThemes.set(candidate.theme, themeCount + 1);
   bullets.push(candidate.text);
 }
 
 function distinctInsightBullets(candidates: ExecutiveInsightCandidate[], limit = 6) {
   const bullets: string[] = [];
-  const usedThemes = new Set<ExecutiveInsightTheme>();
+  const usedThemes = new Map<ExecutiveInsightTheme, number>();
 
   for (const candidate of candidates) {
     if (bullets.length >= limit) {
@@ -239,31 +314,6 @@ function distinctInsightBullets(candidates: ExecutiveInsightCandidate[], limit =
   }
 
   return bullets;
-}
-
-function distinctSuggestedQuestions(questions: string[], limit = 5) {
-  const unique: string[] = [];
-  const seen = new Set<string>();
-
-  for (const question of questions) {
-    const trimmed = question.trim();
-    if (!trimmed) {
-      continue;
-    }
-
-    const key = normalizeInsightText(trimmed);
-    if (seen.has(key)) {
-      continue;
-    }
-
-    seen.add(key);
-    unique.push(trimmed);
-    if (unique.length >= limit) {
-      break;
-    }
-  }
-
-  return unique;
 }
 
 interface ChartSummaryEntry {
@@ -468,17 +518,20 @@ function buildChartObservation(
       const first = summary.orderedEntries[0];
       const last = summary.orderedEntries[summary.orderedEntries.length - 1];
       const peak = summary.rankedEntries[0];
-      const direction =
-        summary.trend?.direction === "down"
-          ? "eased"
-          : summary.trend?.direction === "flat"
-            ? "held steady"
-            : summary.trend?.direction === "mixed"
-              ? "moved unevenly"
-              : "improved";
-      const pieces = [
-        `${metricLabel} ${direction} from ${formatObservationValue(metricLabel, first.value)} on ${first.label} to ${formatObservationValue(metricLabel, last.value)} on ${last.label}`
-      ];
+      const pieces =
+        summary.trend?.direction === "mixed"
+          ? [
+              `${metricLabel} fluctuated across the observed period, starting at ${formatObservationValue(metricLabel, first.value)} on ${first.label} and ending at ${formatObservationValue(metricLabel, last.value)} on ${last.label}`
+            ]
+          : [
+              `${metricLabel} ${
+                summary.trend?.direction === "down"
+                  ? "declined"
+                  : summary.trend?.direction === "flat"
+                    ? "held broadly steady"
+                    : "increased"
+              } from ${formatObservationValue(metricLabel, first.value)} on ${first.label} to ${formatObservationValue(metricLabel, last.value)} on ${last.label}`
+            ];
       if (peak && peak.label !== first.label && peak.label !== last.label) {
         pieces.push(`with a peak at ${formatObservationValue(metricLabel, peak.value)} on ${peak.label}`);
       }
@@ -717,7 +770,9 @@ export function buildAnalyticsFactsFromAnalysis(params: {
   fileName: string;
   profile: DatasetProfile;
   kpis: KpiCandidate[];
+  kpiCards?: AnalyticsFacts["kpiCards"];
   charts: ChartConfig[];
+  dataSummaryNotes?: string[];
 }): AnalyticsFacts {
   const warnings = buildWarnings(params.profile, params.kpis);
   const chartSummaries = new Map(
@@ -1009,9 +1064,11 @@ export function buildAnalyticsFactsFromAnalysis(params: {
       columnCount: params.profile.columnCount,
       missingCells: params.profile.missingCells,
       duplicateRows: params.profile.duplicateRowCount,
-      warnings
+      warnings,
+      dataSummaryNotes: params.dataSummaryNotes
     },
     kpis: buildCoreKpiFacts(params.kpis),
+    kpiCards: params.kpiCards ?? [],
     concentration,
     rankings,
     comparisons,
@@ -1065,100 +1122,19 @@ export function buildAnalyticsFactsFromAnalysis(params: {
 }
 
 function buildFallbackExecutiveInsightNarrative(facts: AnalyticsFacts): ExecutiveInsightNarrative {
-  const top3RevenueEntities = facts.concentration.top3RevenueEntities ?? [];
-  const top3RevenueNames = top3RevenueEntities.map((entry) => entry.name).filter(Boolean);
-  const top3RevenueDimension = top3RevenueEntities[0]?.dimension;
-  const candidates: ExecutiveInsightCandidate[] = [
-    facts.topFindings.topRevenueSegment
-      ? {
-          theme: "revenue",
-          text: `${facts.topFindings.topRevenueSegment.name} generated the strongest revenue result, contributing ${formatPercent(facts.topFindings.topRevenueSegment.share)} of total revenue.`
-        }
-      : undefined,
-    facts.topFindings.bestRoasSegment
-      ? {
-          theme: "efficiency",
-          text: `${facts.topFindings.bestRoasSegment.name} has the best ROAS at ${formatNumber(facts.topFindings.bestRoasSegment.roas)}, so efficiency should be weighed against raw revenue.`
-        }
-      : undefined,
-    facts.comparisons.revenueVsEfficiencyMismatches.length > 0
-      ? {
-        theme: "budget",
-        text: facts.comparisons.revenueVsEfficiencyMismatches[0].note
-      }
-      : facts.concentration.top3RevenueShare !== undefined
-        ? {
-            theme: "concentration",
-            text:
-              top3RevenueNames.length > 0
-                ? `${top3RevenueDimension ? `The top 3 ${top3RevenueDimension} segments` : "The top 3 segments"} (${top3RevenueNames.join(", ")}) contribute ${formatPercent(facts.concentration.top3RevenueShare)} of revenue, which suggests the result is concentrated rather than evenly spread.`
-                : `The top 3 segments contribute ${formatPercent(facts.concentration.top3RevenueShare)} of revenue, which suggests the result is concentrated rather than evenly spread.`
-          }
-        : undefined,
-    facts.kpis.overallRoas !== undefined || facts.kpis.totalRevenue !== undefined || facts.kpis.totalCost !== undefined
-      ? {
-          theme: "budget",
-          text: `Revenue ${facts.kpis.totalRevenue !== undefined ? `totals ${formatNumber(facts.kpis.totalRevenue)}` : "is available"}, while ${facts.kpis.totalCost !== undefined ? `cost totals ${formatNumber(facts.kpis.totalCost)}` : "cost is not fully available"}, so budget decisions should stay tied to efficiency.`
-        }
-      : undefined,
-    facts.qualitySignals.otherWarnings.length > 0
-      ? {
-          theme: "quality",
-          text: `Data quality needs a quick check: ${facts.qualitySignals.otherWarnings.slice(0, 2).join(" ")}`
-        }
-      : undefined,
-    facts.recommendedActions.find(isExecutiveInsightText)
-      ? {
-          theme: "action",
-          text: facts.recommendedActions.find(isExecutiveInsightText) ?? ""
-        }
-      : undefined,
-    facts.trends.recentChange
-      ? {
-          theme: "trend",
-          text: `The ${facts.trends.recentDirection === "down" ? "declining" : facts.trends.recentDirection === "up" ? "improving" : "changing"} ${facts.trends.recentChange.metric} trend across ${facts.trends.recentChange.periodLabel} should be watched before committing budget to the current pattern.`
-        }
-      : undefined,
-    facts.topFindings.bestConversionSegment
-      ? {
-          theme: "conversion",
-          text: `${facts.topFindings.bestConversionSegment.name} converts best at ${formatPercent(facts.topFindings.bestConversionSegment.conversionRate)}, so traffic quality should be benchmarked against that segment.`
-        }
-      : undefined,
-    hasOperationalDecisionContext(facts) && !hasCommercialDecisionContext(facts)
-      ? {
-          theme: "action",
-          text: "Operational workload and exception patterns should be reviewed by service line or team before treating the issue as a marketing performance problem."
-        }
-      : undefined,
-    facts.segments.strongestSegment
-      ? {
-          theme: "strong_segment",
-          text: `${facts.segments.strongestSegment.name} remains the strongest ${facts.segments.strongestSegment.metric} segment, making it the clearest reference point for scale decisions.`
-        }
-      : undefined,
-    facts.segments.weakestSegment
-      ? {
-          theme: "weak_segment",
-          text: `${facts.segments.weakestSegment.name} is the weakest ${facts.segments.weakestSegment.metric} segment, so it deserves review before budget is reallocated.`
-        }
-      : undefined,
-    hasCommercialDecisionContext(facts)
-      ? {
-          theme: "general",
-          text: "The current signal points to a commercial review of revenue concentration, efficiency, and budget allocation rather than a broad exploratory analysis."
-        }
-      : undefined
-  ].filter((candidate): candidate is ExecutiveInsightCandidate => Boolean(candidate?.text));
-
+  const executiveFacts = buildExecutiveInsightFacts(facts);
+  const candidates = executiveFacts.signals.map((signal) => ({
+    text: executiveSignalToBullet(signal),
+    theme: themeForSignalType(signal.type)
+  }));
   const bullets = distinctInsightBullets(
     candidates.filter((candidate) => isExecutiveInsightText(candidate.text)),
-    6
+    5
   );
 
   return {
-    bullets: bullets.slice(0, 6),
-    suggestedQuestions: buildSuggestedQuestionsFromFacts(facts, 5),
+    bullets,
+    suggestedQuestions: [],
     warning: undefined,
     source: "fallback"
   };
@@ -1174,16 +1150,17 @@ function parseExecutiveInsightNarrative(text: string): ExecutiveInsightNarrative
   if (
     !parsed ||
     !Array.isArray(parsed.bullets) ||
-    !parsed.bullets.every((entry) => typeof entry === "string") ||
-    !Array.isArray(parsed.suggestedQuestions) ||
-    !parsed.suggestedQuestions.every((entry) => typeof entry === "string")
+    !parsed.bullets.every((entry) => typeof entry === "string")
   ) {
     return null;
   }
 
   return {
     bullets: parsed.bullets.slice(0, 6),
-    suggestedQuestions: parsed.suggestedQuestions.slice(0, 5),
+    suggestedQuestions:
+      Array.isArray(parsed.suggestedQuestions) && parsed.suggestedQuestions.every((entry) => typeof entry === "string")
+        ? parsed.suggestedQuestions.slice(0, 5)
+        : [],
     warning: typeof parsed.warning === "string" && parsed.warning.trim() ? parsed.warning : undefined,
     source: "llm"
   };
@@ -1397,15 +1374,17 @@ async function runNarrativeRequest<T>(
 }
 
 export async function generateExecutiveInsights(facts: AnalyticsFacts): Promise<ExecutiveInsightNarrative> {
+  const executiveFacts = buildExecutiveInsightFacts(facts);
   const provider = createConfiguredLlmProvider();
   if (provider.name !== "disabled") {
     try {
-      const result = await provider.generateText(buildExecutiveInsightPrompt(facts));
+      const result = await provider.generateText(buildExecutiveInsightPrompt(executiveFacts));
       const parsed = parseExecutiveInsightNarrative(result.text);
       if (parsed) {
         const fallback = buildFallbackExecutiveInsightNarrative(facts);
         const parsedCandidates = parsed.bullets
           .filter(isExecutiveInsightText)
+          .filter((text) => isExecutiveInsightBulletSupported(text, executiveFacts))
           .map((text) => ({
             text,
             theme: classifyInsightTheme(text)
@@ -1414,18 +1393,11 @@ export async function generateExecutiveInsights(facts: AnalyticsFacts): Promise<
           text,
           theme: classifyInsightTheme(text)
         }));
-        const mergedBullets = distinctInsightBullets([...parsedCandidates, ...fallbackCandidates], 6);
-        const mergedSuggestedQuestions = distinctSuggestedQuestions(
-          [
-            ...parsed.suggestedQuestions.filter(isCommercialInsightText),
-            ...buildSuggestedQuestionsFromFacts(facts, 5)
-          ],
-          5
-        );
+        const mergedBullets = distinctInsightBullets([...parsedCandidates, ...fallbackCandidates], 5);
 
         return {
           bullets: mergedBullets,
-          suggestedQuestions: mergedSuggestedQuestions,
+          suggestedQuestions: [],
           warning: undefined,
           source: "llm"
         };

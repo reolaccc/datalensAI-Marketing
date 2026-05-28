@@ -3,6 +3,7 @@ import type {
   DatasetProfile,
   DatasetRow,
   IntentDetectionResult,
+  KpiCard,
   KpiCandidate,
   PrimitiveValue,
   QuestionContextInput,
@@ -58,6 +59,7 @@ export interface AnalyticsFacts {
     missingCells: number;
     duplicateRows: number;
     warnings: string[];
+    dataSummaryNotes?: string[];
   };
   kpis: {
     totalRevenue?: number;
@@ -68,6 +70,7 @@ export interface AnalyticsFacts {
     overallConversionRate?: number;
     additionalMetrics: Array<{ name: string; value: number }>;
   };
+  kpiCards: Array<Pick<KpiCard, "label" | "formattedValue" | "metricType" | "description" | "reliability" | "warnings" | "relatedDimension" | "contextLine" | "formula">>;
   concentration: {
     top1RevenueShare?: number;
     top3RevenueShare?: number;

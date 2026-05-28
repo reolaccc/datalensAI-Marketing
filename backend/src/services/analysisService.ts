@@ -31,6 +31,7 @@ export async function analyzeUploadedDataset(buffer: Buffer, fileName: string): 
   });
   const kpis = detectKpis(parsed.rows, profile);
   const kpiCards = buildKpiCards(parsed.rows, profile);
+  const dataSummaryNotes = buildDataSummaryNotes(cleanedDatasetProfile, parsed.rows);
   const charts = selectRuleBasedCharts({
     question: "",
     rows: parsed.rows,
@@ -43,7 +44,9 @@ export async function analyzeUploadedDataset(buffer: Buffer, fileName: string): 
     fileName: parsed.fileName,
     profile,
     kpis,
-    charts
+    kpiCards,
+    charts,
+    dataSummaryNotes
   });
   const [executiveSummaryNarrative, chartNarratives] = await Promise.all([
     generateExecutiveInsights(facts),
@@ -65,7 +68,7 @@ export async function analyzeUploadedDataset(buffer: Buffer, fileName: string): 
   return {
     analysisId: session.analysisId,
     fileName: parsed.fileName,
-    dataSummaryNotes: buildDataSummaryNotes(cleanedDatasetProfile, parsed.rows),
+    dataSummaryNotes,
     datasetSummary: {
       rowCount: duckDbSnapshot.rowCount,
       columnCount: duckDbSnapshot.columnCount,

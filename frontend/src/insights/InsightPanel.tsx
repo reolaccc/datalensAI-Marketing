@@ -8,7 +8,7 @@ interface Props {
 export function InsightPanel({ analysis }: Props) {
   const { executiveSummary } = analysis;
   const dataSummaryNotes = analysis.dataSummaryNotes ?? [];
-  const insightBullets = buildExecutiveInsightBullets(executiveSummary, 3);
+  const insightBullets = buildExecutiveInsightBullets(executiveSummary, 5);
 
   return (
     <article className="panel insight-panel">

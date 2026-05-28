@@ -1,5 +1,6 @@
 import type { DatasetColumnProfile, DatasetProfile, DatasetRow, PrimitiveValue } from "./types.js";
 import type { CleanedColumnProfile } from "./normalization/types.js";
+import { mapSemanticContractDomainToPack } from "./semantic-governance/index.js";
 import { parseDateValue, parseNumber } from "../utils/inference.js";
 
 type ResolutionKind = "direct" | "alias" | "derived";
@@ -153,6 +154,10 @@ const KPI_DEFINITIONS = [
   { key: "answered_call_rate", label: "Answered Call Rate", requiredRoles: ["answeredCall"] }
 ] as const;
 
+// Governance note:
+// - keep reusable scoring/detection mechanics in this module
+// - treat domain alias families as governed domain-pack inventory
+// - do not merge dataset-specific export fixes here without explicit patch tagging
 const ROLE_SPECS: RoleSpec[] = [
   {
     key: "callId",
@@ -2024,6 +2029,10 @@ export function buildSemanticDatasetContract(profile: DatasetProfile): SemanticD
   }
 
   const detectedDomain = detectDatasetDomain(bestRoleMappings);
+  // This call makes the governance boundary explicit: semantic contract emits a
+  // coarse routing domain, which must still map into a governed pack before
+  // downstream domain-specific reasoning is allowed.
+  mapSemanticContractDomainToPack(detectedDomain.domain);
   const kpiAvailability = buildKpiAvailability(bestRoleMappings, metricResolutions);
 
   return {
