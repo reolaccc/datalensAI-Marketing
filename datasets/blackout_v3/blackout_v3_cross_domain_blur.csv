@@ -1,0 +1,421 @@
+event_date,journey_bucket,channel_hint,source_cluster,touch_score,observed_outcome,value_marker
+2026-02-21,New,Organic,A,35,yes,657.6
+2026-01-15,Follow Up,Email,C,70,no,486.0
+2026-03-13,Proposal,Walk-in,C,83,no,488.7
+2026-03-02,Qualified,Email,D,30,no,368.1
+2026-01-21,Qualified,Partner,C,71,yes,306.5
+2026-03-24,Closed,Partner,B,74,yes,445.2
+2026-03-28,Qualified,Partner,B,96,no,333.2
+2026-03-16,Closed,Partner,C,98,no,237.3
+2026-03-16,New,Organic,C,63,no,546.4
+2026-03-29,Proposal,Walk-in,D,28,yes,552.3
+2026-01-24,Closed,Email,B,60,no,346.9
+2026-01-03,New,Email,B,79,no,479.3
+2026-01-22,Qualified,Partner,A,94,no,570.2
+2026-02-22,Qualified,Partner,D,37,no,474.6
+2026-01-02,New,Phone Desk,A,93,no,306.8
+2026-03-29,Qualified,Walk-in,B,22,no,422.1
+2026-01-30,New,Organic,D,68,no,609.2
+2026-02-07,Closed,Email,C,20,no,479.6
+2026-01-02,Closed,Phone Desk,D,96,yes,514.7
+2026-03-05,New,Phone Desk,C,68,no,491.0
+2026-03-01,Closed,Email,C,91,no,347.3
+2026-01-21,Closed,Organic,D,64,no,375.5
+2026-02-02,Closed,Phone Desk,C,17,no,490.7
+2026-03-17,Follow Up,Phone Desk,A,12,no,548.0
+2026-02-27,Proposal,Walk-in,B,22,yes,582.0
+2026-01-22,Qualified,Organic,C,17,yes,347.0
+2026-03-30,Follow Up,Phone Desk,A,10,yes,502.0
+2026-02-18,Closed,Organic,C,65,no,592.4
+2026-02-28,New,Email,B,22,no,331.6
+2026-02-11,Closed,Partner,A,90,no,628.4
+2026-03-01,Proposal,Phone Desk,B,82,no,646.7
+2026-03-21,Closed,Walk-in,B,50,no,765.0
+2026-01-15,New,Email,A,14,no,477.7
+2026-03-03,Proposal,Organic,A,64,no,478.4
+2026-03-03,Closed,Email,A,47,no,549.2
+2026-02-16,Proposal,Phone Desk,D,29,no,545.7
+2026-03-03,Qualified,Organic,A,76,yes,585.2
+2026-02-20,Qualified,Partner,A,36,no,544.1
+2026-02-24,Closed,Email,A,99,no,437.3
+2026-03-05,Proposal,Phone Desk,A,52,no,596.6
+2026-01-03,New,Walk-in,C,76,no,321.4
+2026-02-20,Closed,Organic,D,7,no,450.7
+2026-01-07,Qualified,Email,B,29,no,637.6
+2026-01-21,Qualified,Email,A,11,no,300.0
+2026-03-14,Closed,Partner,C,33,no,368.7
+2026-02-08,Proposal,Partner,C,6,no,530.6
+2026-01-18,Qualified,Walk-in,C,79,no,497.3
+2026-01-04,Proposal,Walk-in,B,32,yes,345.0
+2026-03-30,Qualified,Phone Desk,A,51,no,400.1
+2026-03-01,Qualified,Phone Desk,D,75,yes,308.3
+2026-01-14,Follow Up,Walk-in,D,58,no,567.7
+2026-01-09,Qualified,Walk-in,C,87,no,419.3
+2026-03-31,New,Organic,B,26,no,665.1
+2026-02-22,Closed,Partner,B,98,no,459.7
+2026-01-02,Closed,Phone Desk,B,46,no,423.6
+2026-03-25,Proposal,Partner,D,98,no,412.0
+2026-03-01,Qualified,Partner,C,29,no,420.7
+2026-03-12,New,Walk-in,A,4,no,463.3
+2026-02-13,Proposal,Organic,D,81,yes,751.5
+2026-01-08,Follow Up,Email,C,99,yes,409.3
+2026-02-16,Proposal,Organic,C,13,no,413.2
+2026-02-04,Proposal,Organic,A,39,yes,457.9
+2026-03-19,Qualified,Partner,A,15,no,580.8
+2026-03-22,Follow Up,Organic,A,29,no,279.5
+2026-02-05,Proposal,Phone Desk,B,29,no,504.6
+2026-02-19,New,Partner,A,75,no,351.9
+2026-01-04,New,Phone Desk,C,32,no,516.4
+2026-01-02,Closed,Email,A,2,no,390.7
+2026-01-06,Follow Up,Partner,C,47,no,173.5
+2026-02-23,Follow Up,Email,D,78,no,494.3
+2026-01-04,Closed,Partner,B,84,no,493.3
+2026-02-23,Proposal,Walk-in,D,22,yes,380.5
+2026-03-04,Follow Up,Organic,D,75,no,373.4
+2026-01-18,New,Walk-in,C,27,no,292.6
+2026-03-31,New,Email,D,67,no,542.8
+2026-02-13,Qualified,Organic,C,81,yes,555.9
+2026-02-03,Follow Up,Partner,A,56,no,344.5
+2026-03-15,Proposal,Organic,A,92,yes,385.2
+2026-03-03,Closed,Phone Desk,C,93,yes,442.4
+2026-01-14,Closed,Organic,A,21,no,722.5
+2026-02-17,Proposal,Phone Desk,B,47,no,515.4
+2026-01-15,Qualified,Organic,D,80,no,336.8
+2026-03-13,Closed,Phone Desk,B,59,no,486.5
+2026-03-19,Follow Up,Email,D,84,no,284.8
+2026-03-28,Qualified,Walk-in,A,6,no,536.2
+2026-03-03,Follow Up,Partner,B,19,yes,651.1
+2026-02-09,New,Organic,A,57,no,651.6
+2026-03-26,Qualified,Walk-in,D,69,no,538.2
+2026-03-21,Closed,Partner,C,3,no,380.0
+2026-03-23,Qualified,Partner,C,1,no,293.9
+2026-02-22,Qualified,Phone Desk,B,58,no,282.0
+2026-01-24,Qualified,Email,A,38,yes,113.3
+2026-01-26,Qualified,Email,A,15,no,533.3
+2026-03-30,Follow Up,Walk-in,B,34,no,437.7
+2026-03-01,New,Email,C,61,yes,559.1
+2026-02-10,Proposal,Organic,D,35,yes,621.4
+2026-01-29,Qualified,Email,B,64,no,462.0
+2026-01-15,Closed,Walk-in,D,25,yes,467.5
+2026-02-14,Qualified,Email,C,24,no,394.3
+2026-03-06,Closed,Organic,A,12,no,408.5
+2026-03-30,Follow Up,Phone Desk,C,18,yes,537.4
+2026-03-12,Closed,Walk-in,B,15,no,429.1
+2026-01-09,Proposal,Phone Desk,A,80,no,411.7
+2026-03-29,New,Phone Desk,B,27,no,447.8
+2026-01-01,Closed,Phone Desk,B,72,yes,556.4
+2026-01-08,Closed,Partner,C,60,yes,366.9
+2026-03-29,New,Partner,B,46,no,442.0
+2026-03-04,Proposal,Phone Desk,C,89,no,479.4
+2026-01-11,Qualified,Walk-in,A,17,no,589.2
+2026-03-22,Closed,Organic,C,93,no,421.3
+2026-01-08,New,Organic,A,53,no,363.9
+2026-02-04,Follow Up,Email,C,8,yes,391.9
+2026-02-04,New,Walk-in,D,79,no,576.4
+2026-02-02,Follow Up,Partner,D,27,no,694.0
+2026-01-05,Proposal,Phone Desk,B,46,no,292.3
+2026-02-10,Qualified,Email,C,50,no,318.6
+2026-01-28,New,Organic,C,71,yes,429.7
+2026-01-07,Closed,Partner,A,3,no,463.3
+2026-03-14,Proposal,Partner,B,93,no,544.4
+2026-03-13,New,Phone Desk,C,64,no,343.1
+2026-01-12,Closed,Organic,B,44,no,322.4
+2026-02-03,New,Walk-in,D,53,no,466.6
+2026-02-02,Follow Up,Partner,C,24,no,419.0
+2026-02-17,New,Phone Desk,C,60,yes,561.2
+2026-01-23,New,Walk-in,B,3,no,508.5
+2026-03-03,New,Organic,C,20,yes,516.6
+2026-03-29,Proposal,Partner,B,46,yes,437.5
+2026-02-06,New,Walk-in,C,15,no,732.7
+2026-02-13,Closed,Walk-in,A,25,no,349.5
+2026-03-27,Follow Up,Walk-in,B,94,no,523.3
+2026-02-04,Follow Up,Partner,C,78,yes,297.6
+2026-03-06,New,Partner,D,71,no,321.2
+2026-02-16,Proposal,Email,C,17,yes,377.1
+2026-03-19,Proposal,Organic,D,84,yes,645.5
+2026-01-03,Closed,Phone Desk,D,9,no,481.7
+2026-01-01,New,Walk-in,A,38,yes,379.1
+2026-01-05,Follow Up,Email,B,48,no,494.9
+2026-03-31,Proposal,Phone Desk,C,60,yes,454.2
+2026-01-14,New,Email,A,63,yes,391.0
+2026-01-27,Proposal,Partner,C,86,yes,282.4
+2026-01-09,Proposal,Walk-in,D,2,no,622.6
+2026-03-20,Follow Up,Phone Desk,B,88,no,475.2
+2026-01-15,Qualified,Phone Desk,C,72,no,710.8
+2026-03-31,Closed,Phone Desk,C,11,no,562.8
+2026-02-11,Closed,Phone Desk,D,64,no,516.2
+2026-03-18,Follow Up,Phone Desk,C,77,yes,397.8
+2026-02-20,Proposal,Email,C,81,no,318.6
+2026-03-04,New,Walk-in,D,72,no,423.9
+2026-02-21,Proposal,Partner,A,21,no,315.1
+2026-01-04,Follow Up,Partner,D,18,no,528.0
+2026-01-23,Closed,Partner,A,94,no,645.9
+2026-01-15,Proposal,Partner,B,64,no,418.7
+2026-02-12,Closed,Email,A,82,yes,563.3
+2026-01-29,New,Organic,A,95,no,367.3
+2026-02-05,Closed,Walk-in,B,38,no,413.7
+2026-01-13,Closed,Phone Desk,A,32,no,352.2
+2026-02-01,Qualified,Organic,D,11,no,194.0
+2026-03-12,Qualified,Partner,A,45,no,445.6
+2026-02-28,Qualified,Organic,B,89,no,465.4
+2026-03-27,Closed,Walk-in,D,33,no,577.9
+2026-01-28,Follow Up,Phone Desk,B,41,no,545.5
+2026-03-07,Closed,Phone Desk,B,8,no,547.1
+2026-02-11,Follow Up,Walk-in,C,11,yes,333.1
+2026-02-14,Follow Up,Walk-in,C,86,no,505.1
+2026-03-03,Qualified,Partner,B,51,yes,639.9
+2026-02-26,Proposal,Phone Desk,B,88,no,495.6
+2026-01-06,New,Organic,B,41,no,669.4
+2026-01-28,Qualified,Email,C,17,yes,692.3
+2026-01-28,Qualified,Email,C,76,no,417.8
+2026-02-13,Proposal,Walk-in,A,46,yes,366.4
+2026-03-25,New,Partner,A,32,yes,358.6
+2026-01-30,Closed,Email,B,79,no,268.1
+2026-03-03,Closed,Phone Desk,D,80,no,387.8
+2026-03-16,Qualified,Walk-in,D,54,no,594.9
+2026-03-30,New,Organic,C,86,no,185.5
+2026-03-03,Qualified,Walk-in,C,92,no,325.5
+2026-01-01,Follow Up,Organic,C,20,no,434.7
+2026-01-27,Qualified,Walk-in,B,33,yes,344.7
+2026-03-03,Qualified,Walk-in,D,74,no,386.7
+2026-03-18,Closed,Walk-in,A,40,no,388.5
+2026-01-03,Closed,Organic,B,32,no,419.1
+2026-03-11,Closed,Organic,A,97,yes,362.5
+2026-03-13,Follow Up,Walk-in,A,2,no,352.7
+2026-01-27,Closed,Email,B,97,no,562.1
+2026-01-09,New,Partner,A,33,no,576.0
+2026-03-03,Proposal,Partner,D,77,yes,284.3
+2026-02-06,New,Partner,A,30,no,118.8
+2026-02-20,New,Organic,D,33,no,577.6
+2026-02-13,Closed,Organic,D,77,no,302.5
+2026-01-24,Proposal,Email,D,26,no,475.5
+2026-03-20,Proposal,Partner,C,22,yes,262.1
+2026-02-28,Proposal,Partner,A,66,no,605.7
+2026-02-01,Follow Up,Walk-in,B,38,yes,755.2
+2026-03-29,Closed,Organic,B,90,no,471.9
+2026-02-21,Proposal,Partner,A,46,no,438.7
+2026-03-03,Follow Up,Email,C,15,yes,411.3
+2026-02-27,Qualified,Email,C,98,no,543.8
+2026-02-21,Qualified,Partner,D,44,yes,518.1
+2026-01-12,Follow Up,Organic,A,49,yes,570.4
+2026-02-08,Follow Up,Email,A,75,no,374.7
+2026-01-02,Closed,Walk-in,B,61,no,490.8
+2026-01-03,Closed,Email,A,67,no,384.9
+2026-02-25,Qualified,Phone Desk,C,6,no,323.1
+2026-03-22,Proposal,Phone Desk,A,9,yes,445.1
+2026-02-28,Qualified,Organic,B,6,yes,339.3
+2026-01-02,Proposal,Partner,D,73,yes,590.8
+2026-01-02,Proposal,Organic,B,95,yes,346.6
+2026-02-23,Closed,Organic,B,32,no,493.6
+2026-03-28,New,Organic,D,41,no,377.6
+2026-01-01,New,Organic,B,76,no,483.2
+2026-01-19,Follow Up,Walk-in,B,8,yes,387.1
+2026-01-02,Closed,Walk-in,A,72,no,299.1
+2026-02-22,Proposal,Email,A,50,no,508.1
+2026-02-13,New,Phone Desk,D,92,yes,421.8
+2026-03-31,Proposal,Organic,A,62,no,484.3
+2026-02-01,New,Email,A,84,no,398.5
+2026-03-11,New,Phone Desk,B,62,yes,290.6
+2026-02-01,New,Partner,C,7,no,580.0
+2026-03-09,Closed,Walk-in,A,75,no,538.4
+2026-02-24,Qualified,Phone Desk,C,84,no,382.0
+2026-03-16,Proposal,Partner,A,80,no,458.4
+2026-02-25,Closed,Phone Desk,A,4,no,575.0
+2026-01-17,Closed,Walk-in,D,6,no,395.2
+2026-02-07,Closed,Walk-in,D,58,no,413.8
+2026-01-24,Closed,Email,D,22,no,479.2
+2026-03-10,Closed,Organic,C,26,no,394.9
+2026-03-11,Follow Up,Phone Desk,B,3,no,552.9
+2026-03-27,Proposal,Phone Desk,A,41,no,429.7
+2026-01-11,Closed,Partner,A,60,yes,355.9
+2026-01-16,Proposal,Walk-in,A,14,yes,523.0
+2026-03-14,Follow Up,Phone Desk,C,75,no,312.9
+2026-02-28,Follow Up,Walk-in,D,82,no,691.8
+2026-03-11,Proposal,Phone Desk,B,12,yes,639.9
+2026-03-21,New,Email,C,87,yes,511.6
+2026-01-03,Qualified,Organic,D,12,yes,501.5
+2026-01-20,New,Phone Desk,C,13,no,495.9
+2026-02-28,New,Walk-in,B,25,no,391.3
+2026-02-05,New,Email,D,45,no,485.7
+2026-01-19,Closed,Phone Desk,C,19,no,339.2
+2026-03-31,Follow Up,Partner,B,55,no,510.5
+2026-03-08,New,Organic,A,45,no,554.1
+2026-01-19,Follow Up,Phone Desk,B,8,no,404.6
+2026-01-20,Proposal,Email,A,93,yes,378.6
+2026-03-12,Qualified,Partner,C,53,no,304.5
+2026-02-21,Proposal,Email,D,55,no,625.0
+2026-02-02,Proposal,Email,D,32,no,388.1
+2026-02-09,Closed,Partner,C,51,no,426.2
+2026-02-08,Qualified,Email,D,44,no,486.0
+2026-03-23,Proposal,Partner,D,82,no,483.9
+2026-01-01,Proposal,Phone Desk,A,70,yes,539.6
+2026-01-11,Qualified,Partner,C,18,no,404.5
+2026-02-26,Qualified,Partner,B,83,no,313.4
+2026-03-30,Proposal,Organic,A,22,yes,292.4
+2026-02-19,Qualified,Partner,C,37,yes,380.5
+2026-01-23,Proposal,Partner,A,96,no,335.8
+2026-01-31,Proposal,Phone Desk,B,56,yes,413.6
+2026-02-11,Closed,Organic,B,59,no,606.9
+2026-01-07,New,Walk-in,C,3,no,404.7
+2026-01-16,Proposal,Phone Desk,B,28,no,404.7
+2026-03-31,Follow Up,Phone Desk,A,74,yes,448.0
+2026-03-01,New,Walk-in,B,35,no,401.3
+2026-01-02,New,Partner,A,61,yes,441.9
+2026-01-01,New,Email,A,93,yes,514.9
+2026-02-17,Closed,Organic,B,54,no,556.2
+2026-01-12,Proposal,Email,C,63,no,570.4
+2026-03-10,Closed,Walk-in,D,79,no,696.8
+2026-02-06,Proposal,Phone Desk,B,97,no,518.3
+2026-02-01,Closed,Phone Desk,A,7,yes,718.1
+2026-01-09,Closed,Organic,A,76,yes,356.8
+2026-01-19,Follow Up,Phone Desk,B,49,no,701.0
+2026-02-17,Closed,Phone Desk,C,94,no,404.4
+2026-03-21,Qualified,Organic,C,85,no,416.2
+2026-01-03,Follow Up,Organic,A,31,yes,435.6
+2026-01-20,Closed,Walk-in,A,58,no,423.8
+2026-01-24,New,Phone Desk,C,61,yes,460.3
+2026-02-23,Qualified,Phone Desk,D,24,yes,380.4
+2026-02-02,Qualified,Walk-in,B,20,no,549.6
+2026-01-24,Qualified,Partner,A,37,yes,383.7
+2026-03-16,Follow Up,Partner,A,4,yes,528.7
+2026-03-13,Closed,Partner,C,92,no,633.3
+2026-02-05,Closed,Walk-in,B,20,no,407.1
+2026-02-07,New,Phone Desk,C,60,no,545.3
+2026-03-25,New,Walk-in,B,24,yes,517.1
+2026-03-30,Qualified,Walk-in,B,50,yes,720.3
+2026-01-25,New,Partner,B,49,yes,389.4
+2026-01-18,Follow Up,Email,A,51,yes,545.4
+2026-03-23,Closed,Phone Desk,D,96,no,254.9
+2026-03-07,Qualified,Partner,C,36,no,390.5
+2026-02-23,New,Email,D,98,no,492.4
+2026-02-04,Follow Up,Email,C,66,no,617.2
+2026-03-21,Follow Up,Organic,B,79,no,302.9
+2026-03-02,New,Phone Desk,A,34,no,544.3
+2026-02-10,Closed,Email,D,36,no,442.4
+2026-02-02,New,Partner,A,6,no,267.4
+2026-03-09,Qualified,Organic,C,39,no,471.8
+2026-02-02,New,Phone Desk,A,42,yes,655.1
+2026-01-14,Follow Up,Walk-in,A,58,no,315.5
+2026-01-21,New,Partner,D,12,no,436.8
+2026-02-17,Closed,Email,B,3,yes,331.6
+2026-01-20,Proposal,Email,A,18,yes,393.8
+2026-01-08,New,Partner,B,40,no,621.9
+2026-01-07,Closed,Email,C,21,no,417.4
+2026-03-08,Closed,Organic,A,15,no,618.2
+2026-01-17,Follow Up,Phone Desk,D,97,no,583.1
+2026-02-02,Closed,Organic,C,99,yes,406.5
+2026-02-17,Closed,Email,C,26,no,389.7
+2026-03-17,Closed,Walk-in,D,8,no,342.5
+2026-02-28,Closed,Phone Desk,A,94,no,338.3
+2026-03-27,Qualified,Phone Desk,A,87,no,492.4
+2026-01-22,Qualified,Partner,C,42,yes,447.6
+2026-01-30,Follow Up,Partner,A,44,yes,375.2
+2026-02-07,New,Walk-in,B,14,yes,264.1
+2026-02-20,Closed,Phone Desk,D,78,no,462.7
+2026-02-23,New,Walk-in,B,2,yes,393.7
+2026-01-08,New,Partner,A,37,no,426.6
+2026-01-27,Follow Up,Partner,C,69,no,486.6
+2026-01-27,Closed,Phone Desk,D,38,yes,149.8
+2026-01-21,Closed,Organic,A,41,yes,266.0
+2026-01-30,Proposal,Email,A,62,yes,725.6
+2026-01-28,New,Partner,C,60,no,389.2
+2026-03-05,New,Partner,C,14,yes,147.9
+2026-03-10,Qualified,Organic,B,89,no,276.0
+2026-03-02,Proposal,Organic,D,84,no,748.1
+2026-02-17,Qualified,Walk-in,D,2,no,365.6
+2026-01-19,Qualified,Walk-in,C,70,no,589.1
+2026-01-04,Qualified,Email,B,17,no,464.5
+2026-02-04,Follow Up,Email,D,89,no,391.8
+2026-03-05,Follow Up,Phone Desk,C,28,yes,543.1
+2026-02-18,Qualified,Walk-in,A,66,yes,163.9
+2026-01-17,Proposal,Partner,D,35,no,277.1
+2026-02-13,New,Walk-in,B,5,no,390.9
+2026-01-30,Proposal,Partner,B,65,no,288.9
+2026-02-15,Closed,Organic,B,40,yes,380.3
+2026-01-06,Follow Up,Walk-in,A,76,yes,552.4
+2026-02-06,New,Organic,D,56,no,465.9
+2026-01-24,New,Email,D,36,yes,609.7
+2026-02-15,Closed,Email,A,45,no,473.4
+2026-02-22,Closed,Phone Desk,D,23,no,569.1
+2026-03-01,Qualified,Walk-in,A,47,no,442.3
+2026-03-04,Follow Up,Organic,A,31,no,379.2
+2026-03-26,Follow Up,Partner,A,11,no,627.7
+2026-02-01,Proposal,Email,B,10,yes,364.9
+2026-03-28,Qualified,Email,D,67,no,491.3
+2026-02-02,Qualified,Partner,A,14,no,542.3
+2026-03-08,Qualified,Organic,D,80,no,551.0
+2026-01-18,Qualified,Organic,B,74,yes,310.1
+2026-01-25,Follow Up,Walk-in,A,93,no,576.2
+2026-02-23,Follow Up,Walk-in,C,10,no,332.5
+2026-02-27,Qualified,Phone Desk,B,76,yes,547.3
+2026-03-08,Proposal,Email,C,94,yes,514.2
+2026-02-15,New,Walk-in,D,1,no,548.2
+2026-01-24,New,Organic,D,5,no,305.4
+2026-02-01,Proposal,Partner,B,20,no,520.6
+2026-02-16,Qualified,Organic,D,8,yes,580.3
+2026-03-27,Follow Up,Email,C,43,yes,473.2
+2026-01-23,New,Organic,A,76,no,351.8
+2026-03-07,Closed,Phone Desk,A,1,no,560.4
+2026-01-27,Closed,Email,A,57,no,463.7
+2026-01-02,Proposal,Partner,B,64,no,249.1
+2026-03-31,Qualified,Phone Desk,D,84,no,342.5
+2026-01-17,New,Email,C,28,no,386.8
+2026-02-02,Qualified,Partner,D,37,no,630.7
+2026-01-09,New,Phone Desk,D,47,no,609.6
+2026-02-12,Proposal,Phone Desk,D,76,no,609.2
+2026-02-17,Proposal,Email,A,37,no,477.9
+2026-02-08,Closed,Walk-in,C,49,no,559.6
+2026-02-11,Qualified,Phone Desk,C,44,yes,313.1
+2026-01-26,Closed,Phone Desk,D,56,no,450.8
+2026-02-19,Qualified,Partner,A,28,yes,504.2
+2026-01-25,Closed,Organic,A,79,no,321.0
+2026-01-24,Follow Up,Email,C,6,no,475.2
+2026-01-13,Follow Up,Email,A,61,no,652.4
+2026-03-01,Follow Up,Walk-in,A,20,yes,517.1
+2026-01-07,Follow Up,Walk-in,A,78,no,560.1
+2026-02-26,New,Email,B,2,no,155.7
+2026-02-05,Follow Up,Walk-in,D,73,yes,637.0
+2026-02-14,Proposal,Partner,C,37,yes,427.7
+2026-01-20,Proposal,Email,C,20,yes,357.8
+2026-03-06,New,Walk-in,B,26,yes,429.0
+2026-01-08,Follow Up,Email,D,29,no,271.8
+2026-01-16,Follow Up,Organic,C,1,no,575.8
+2026-01-14,Follow Up,Phone Desk,A,35,no,409.8
+2026-03-17,Closed,Email,C,70,no,361.4
+2026-03-28,Qualified,Phone Desk,A,59,yes,429.8
+2026-01-15,Closed,Walk-in,B,69,no,584.2
+2026-03-07,Qualified,Phone Desk,A,33,yes,465.8
+2026-02-01,Follow Up,Email,C,51,no,280.8
+2026-03-28,Follow Up,Organic,C,78,no,505.8
+2026-03-04,Closed,Walk-in,C,12,no,338.5
+2026-03-27,Closed,Email,B,20,no,191.3
+2026-02-20,Qualified,Walk-in,B,53,yes,629.5
+2026-01-25,Proposal,Partner,D,88,yes,504.9
+2026-02-27,Qualified,Phone Desk,C,43,yes,440.6
+2026-03-04,Closed,Partner,A,98,no,408.5
+2026-03-03,Closed,Email,B,89,yes,617.6
+2026-01-22,New,Organic,C,50,no,820.5
+2026-02-27,Closed,Walk-in,C,29,no,503.9
+2026-02-27,New,Phone Desk,B,57,no,326.4
+2026-03-27,Proposal,Walk-in,D,39,yes,431.5
+2026-02-18,Qualified,Email,B,95,yes,501.7
+2026-02-21,Qualified,Walk-in,B,56,no,168.1
+2026-02-11,New,Phone Desk,A,43,no,490.1
+2026-03-11,Qualified,Email,A,50,no,502.4
+2026-01-15,Closed,Walk-in,D,23,yes,609.2
+2026-02-23,Follow Up,Organic,C,44,no,596.7
+2026-03-01,New,Email,B,38,no,463.3
+2026-01-08,Qualified,Email,D,84,no,631.8
+2026-02-22,New,Organic,A,23,no,694.3
+2026-03-01,New,Partner,B,45,yes,453.4
+2026-01-05,Follow Up,Phone Desk,C,52,no,500.2
+2026-03-09,Closed,Partner,A,80,no,237.9
+2026-01-06,New,Walk-in,A,50,yes,275.9
+2026-02-16,Qualified,Organic,A,8,no,349.4
+2026-02-24,Proposal,Partner,D,85,no,396.8
+2026-02-09,New,Email,C,1,no,318.5
+2026-02-21,New,Walk-in,B,8,yes,445.7
+2026-01-16,Follow Up,Walk-in,D,29,yes,400.4
+2026-01-13,Closed,Partner,D,96,no,578.5
+2026-01-30,Proposal,Partner,D,5,no,393.0
+2026-01-19,Qualified,Organic,A,86,yes,175.6

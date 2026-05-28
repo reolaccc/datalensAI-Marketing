@@ -87,33 +87,6 @@ function getBarThickness(chart: Props["chart"], dataLength: number) {
   return dataLength > 8 ? 18 : 22;
 }
 
-function formatChartRole(role?: string | null) {
-  if (!role) {
-    return "";
-  }
-
-  switch (role) {
-    case "trend":
-      return "Trend";
-    case "comparison":
-      return "Comparison";
-    case "composition":
-      return "Composition";
-    case "relationship":
-      return "Relationship";
-    case "efficiency":
-      return "Efficiency";
-    case "funnel":
-      return "Funnel";
-    case "distribution":
-      return "Distribution";
-    case "anomaly":
-      return "Anomaly";
-    default:
-      return humanizeLabel(role);
-  }
-}
-
 function buildWhyThisChartText(chart: Props["chart"]) {
   const question = getSemanticDisplayLabel(chart.businessQuestionAnswered ?? "");
   const reason = getSemanticDisplayLabel(chart.whyThisChart ?? chart.reason ?? "");
@@ -210,11 +183,6 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
   const chartValueMetric = isHistogram ? chart.yKey : metricLabel;
   const legendPayload = buildChartLegendPayload(presentationChart);
   const chartTitle = getSemanticDisplayLabel(chart.title) || humanizeLabel(chart.title);
-  const chartRole = formatChartRole(chart.analysisRole ?? null);
-  const shouldShowChartRole = Boolean(
-    chartRole &&
-    chartRole.trim().toLowerCase() !== chartTitle.trim().toLowerCase()
-  );
   const chartInsight = buildChartInsightText(chart);
   const longestCategoryLabel = getLongestCategoryLabel(chartData, categoryKey);
   const hasLongCategoryLabels = longestCategoryLabel >= 14;
@@ -552,7 +520,6 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
         <div className="chart-header-copy">
           <h3>{chartTitle}</h3>
           {!compact && highlighted ? <span className="chart-tag">Relevant to this question</span> : null}
-          {!compact && shouldShowChartRole ? <span className="chart-tag">{chartRole}</span> : null}
         </div>
       </div>
 
