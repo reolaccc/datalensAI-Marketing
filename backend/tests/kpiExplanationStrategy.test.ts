@@ -22,8 +22,58 @@ test("call-tracking KPI explanations keep existing domain-aware copy and values"
 
   assert.equal(cards.find((card) => card.id === "total_calls")?.value, 3);
   assert.equal(cards.find((card) => card.id === "total_calls")?.description, "Total tracked calls across marketing channels.");
-  assert.equal(cards.find((card) => card.id === "qualified_calls")?.description, "Calls identified as qualified sales opportunities.");
-  assert.equal(cards.find((card) => card.id === "cost_per_qualified_call")?.description, "Average spend required to generate a qualified call.");
+  assert.equal(cards.find((card) => card.id === "qualified_calls")?.description, "Tracked calls marked as sales-qualified.");
+  assert.equal(cards.find((card) => card.id === "cost_per_qualified_call")?.description, "Average spend required to generate one qualified call.");
+});
+
+test("call-attribution CPQC explains paid spend scope when unpaid calls are excluded", () => {
+  const rows = [
+    { phone_call_id: "c1", marketing_channel: "Paid Search", media_cost_aud: 120, is_sales_qualified: 1 },
+    { phone_call_id: "c2", marketing_channel: "Paid Search", media_cost_aud: 80, is_sales_qualified: 1 },
+    { phone_call_id: "c3", marketing_channel: "Organic Search", media_cost_aud: 0, is_sales_qualified: 1 },
+    { phone_call_id: "c4", marketing_channel: "Referral", media_cost_aud: 0, is_sales_qualified: 1 }
+  ];
+  const cards = buildKpiCards(rows, profileDataset(rows));
+  const cpqc = cards.find((card) => card.id === "cost_per_qualified_call");
+
+  assert.equal(cpqc?.value, 100);
+  assert.equal(
+    cpqc?.formula,
+    "sum(media_cost_aud on paid, spend-covered calls) / sum(is_sales_qualified on paid, spend-covered calls)"
+  );
+  assert.equal(cpqc?.description, "Average media spend per qualified call where paid spend is available.");
+});
+
+test("call-attribution KPI descriptions use lead wording when lead count is the denominator", () => {
+  const rows = [
+    { source_channel: "Email", lead_count: 300, qualified_leads: 120, closed_won_count: 20, sales_value: 4800 },
+    { source_channel: "Paid Social", lead_count: 200, qualified_leads: 114, closed_won_count: 30, sales_value: 2600 },
+    { source_channel: "Referral", lead_count: 100, qualified_leads: 41, closed_won_count: 5, sales_value: 1700 }
+  ];
+  const profile = profileDataset(rows);
+  const cards = buildKpiCards(rows, profile);
+
+  const totalLeads = cards.find((card) => card.id === "total_calls");
+  const qualifiedLeads = cards.find((card) => card.id === "qualified_calls");
+  const qualifiedRate = cards.find((card) => card.id === "qualified_call_rate");
+  const conversionRate = cards.find((card) => card.id === "conversion_rate");
+
+  assert.equal(totalLeads?.label, "Total Leads");
+  assert.equal(totalLeads?.description, "Total leads captured in the dataset.");
+  assert.equal(qualifiedLeads?.label, "Qualified Leads");
+  assert.equal(qualifiedRate?.description, "Share of leads that met the qualified threshold.");
+
+  const conversionRows = [
+    { source_channel: "Email", lead_count: 300, closed_won_count: 20, sales_value: 4800 },
+    { source_channel: "Paid Social", lead_count: 200, closed_won_count: 30, sales_value: 2600 },
+    { source_channel: "Referral", lead_count: 100, closed_won_count: 5, sales_value: 1700 }
+  ];
+  const conversionCards = buildKpiCards(conversionRows, profileDataset(conversionRows));
+  const leadConversionRate = conversionCards.find((card) => card.id === "conversion_rate");
+
+  assert.equal(leadConversionRate?.value, (55 / 600) * 100);
+  assert.equal(leadConversionRate?.description, "Share of leads that became closed-won conversions.");
+  assert.equal(leadConversionRate?.contextLine, "Top Source Channel: Paid Social");
 });
 
 test("unknown-domain KPI explanations use neutral descriptive copy", () => {

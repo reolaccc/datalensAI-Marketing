@@ -109,6 +109,19 @@ function buildAnswerSections(entry: QuestionAnswer) {
   };
 }
 
+type ConversationTurn =
+  | {
+      id: string;
+      status: "pending";
+      userQuestion: string;
+    }
+  | {
+      id: string;
+      status: "answered";
+      userQuestion: string;
+      entry: QuestionAnswer;
+    };
+
 export function AskDatasetPanel() {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedThreshold, setSelectedThreshold] = useState("");
@@ -118,22 +131,39 @@ export function AskDatasetPanel() {
   const [selectedSegmentA, setSelectedSegmentA] = useState("");
   const [selectedSegmentB, setSelectedSegmentB] = useState("");
   const [askAiEnabled, setAskAiEnabled] = useState(false);
-  const [openInvestigations, setOpenInvestigations] = useState<Record<string, boolean>>({});
   const askQuestion = useAnalysisStore((state) => state.askQuestion);
   const asking = useAnalysisStore((state) => state.asking);
   const error = useAnalysisStore((state) => state.error);
   const draftQuestion = useAnalysisStore((state) => state.draftQuestion);
   const questionAnswer = useAnalysisStore((state) => state.questionAnswer);
   const questionHistory = useAnalysisStore((state) => state.questionHistory);
+  const pendingQuestion = useAnalysisStore((state) => state.pendingQuestion);
   const setDraftQuestion = useAnalysisStore((state) => state.setDraftQuestion);
+  const clearQuestionHistory = useAnalysisStore((state) => state.clearQuestionHistory);
   const analysis = useAnalysisStore((state) => state.analysis);
   const questionSuggestions = analysis ? buildQuestionSuggestions(analysis) : [];
   const answerRegionRef = useRef<HTMLDivElement | null>(null);
-  const investigationEntries = questionHistory.length > 0 ? questionHistory : questionAnswer ? [questionAnswer] : [];
-  const latestInvestigation = investigationEntries[0] ?? null;
-  const hasInvestigation = investigationEntries.length > 0;
+  const completedEntries = questionHistory.length > 0 ? questionHistory : questionAnswer ? [questionAnswer] : [];
+  const conversationTurns: ConversationTurn[] = [
+    pendingQuestion
+      ? {
+          id: `pending-${pendingQuestion.requestId}`,
+          status: "pending",
+          userQuestion: pendingQuestion.question
+        }
+      : null,
+    ...completedEntries.map((entry, index) => ({
+      id: `answered-${index}-${entry.question}-${entry.answer}`,
+      status: "answered" as const,
+      userQuestion: entry.question,
+      entry
+    }))
+  ].filter((turn): turn is ConversationTurn => Boolean(turn));
+  const latestTurn = conversationTurns[0] ?? null;
+  const latestCompletedEntry = completedEntries[0] ?? null;
+  const hasInvestigation = conversationTurns.length > 0;
   const isFinalSubmittedQuestion = Boolean(
-    latestInvestigation && !asking && draftQuestion.trim() === latestInvestigation.question.trim()
+    latestCompletedEntry && !asking && draftQuestion.trim() === latestCompletedEntry.question.trim()
   );
 
   useEffect(() => {
@@ -152,7 +182,7 @@ export function AskDatasetPanel() {
   }, [analysis]);
 
   useEffect(() => {
-    if (!latestInvestigation || asking) {
+    if (!latestTurn || asking) {
       return;
     }
 
@@ -163,20 +193,7 @@ export function AskDatasetPanel() {
     }, 80);
 
     return () => window.clearTimeout(timeoutId);
-  }, [asking, latestInvestigation]);
-
-  useEffect(() => {
-    setOpenInvestigations((current) => {
-      const next: Record<string, boolean> = {};
-
-      for (const [index, entry] of (questionHistory.length > 0 ? questionHistory : questionAnswer ? [questionAnswer] : []).entries()) {
-        const key = `${entry.question}::${cleanText(entry.narrative?.directAnswer || entry.answer)}`;
-        next[key] = current[key] ?? index === 0;
-      }
-
-      return next;
-    });
-  }, [questionHistory, questionAnswer]);
+  }, [asking, latestTurn]);
 
   async function submitQuestion(questionText: string) {
     const trimmedQuestion = questionText.trim();
@@ -193,7 +210,7 @@ export function AskDatasetPanel() {
       selectedSegmentA: selectedSegmentA || undefined,
       selectedSegmentB: selectedSegmentB || undefined,
       useAi: askAiEnabled,
-      conversationHistory: buildRecentConversationContext(questionHistory)
+      conversationHistory: buildRecentConversationContext(completedEntries)
     });
   }
 
@@ -201,7 +218,8 @@ export function AskDatasetPanel() {
     await submitQuestion(draftQuestion);
   }
 
-  function handleSuggestionSelect(question: string) {
+  function handleFollowUpSelect(question: string) {
+    setDraftQuestion(question);
     void submitQuestion(question);
   }
 
@@ -214,67 +232,49 @@ export function AskDatasetPanel() {
     void submitDraftQuestion();
   }
 
-  function renderConversationTurn(entry: QuestionAnswer, index: number) {
+  function renderConversationTurn(turn: ConversationTurn, index: number) {
     const isLatest = index === 0;
-    const sections = buildAnswerSections(entry);
-    const investigationPreview = sections.directAnswer || entry.answer;
-    const investigationKey = `${entry.question}::${investigationPreview}`;
-    const isExpanded = openInvestigations[investigationKey] ?? isLatest;
+    const sections = turn.status === "answered" ? buildAnswerSections(turn.entry) : null;
 
     return (
       <article
         className={`conversation-turn investigation-block ${isLatest ? "conversation-turn-latest" : "conversation-turn-older"}`}
-        key={investigationKey}
+        key={turn.id}
       >
-        <button
-          className="investigation-summary"
-          type="button"
-          aria-expanded={isExpanded}
-          onClick={() => {
-            setOpenInvestigations((current) => ({
-              ...current,
-              [investigationKey]: !isExpanded
-            }));
-          }}
-        >
-          <div className="investigation-summary-copy">
-            <p className="investigation-question">{entry.question}</p>
-            <p className="investigation-preview">{investigationPreview}</p>
+        <div className="investigation-body">
+          <div className="conversation-message conversation-message-user">
+            <span className="conversation-role">USER</span>
+            <p>{turn.userQuestion}</p>
           </div>
-        </button>
 
-        {isExpanded ? (
-          <div className="investigation-body">
-            <div className="conversation-message conversation-message-user">
-              <span className="conversation-role">USER</span>
-              <p>{entry.question}</p>
-            </div>
+          <div className="conversation-message conversation-message-assistant">
+            <span className="conversation-role">DATALENS</span>
+            <div className="ask-answer-stack">
+              {turn.status === "pending" ? (
+                <p className="ask-answer-direct ask-answer-pending">Analyzing this question now.</p>
+              ) : (
+                <p className="ask-answer-direct">{sections?.directAnswer}</p>
+              )}
 
-            <div className="conversation-message conversation-message-assistant">
-              <span className="conversation-role">DATALENS</span>
-              <div className="ask-answer-stack">
-                <p className="ask-answer-direct">{sections.directAnswer}</p>
-
-                {isLatest && sections.continueInvestigation.length > 0 ? (
-                  <div className="continue-investigation-list">
-                    {sections.continueInvestigation.map((item) => (
-                      <button
-                        key={item.question}
-                        className="continue-investigation-item"
-                        title={item.question}
-                        type="button"
-                        onClick={() => handleSuggestionSelect(item.question)}
-                        disabled={asking}
-                      >
-                        {item.label}
-                      </button>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
+              {turn.status === "answered" && isLatest && sections && sections.continueInvestigation.length > 0 ? (
+                <div className="continue-investigation-list">
+                  {sections.continueInvestigation.map((item) => (
+                    <button
+                      key={item.question}
+                      className="continue-investigation-item"
+                      title={item.question}
+                      type="button"
+                      onClick={() => handleFollowUpSelect(item.question)}
+                      disabled={asking}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
             </div>
           </div>
-        ) : null}
+        </div>
       </article>
     );
   }
@@ -299,7 +299,6 @@ export function AskDatasetPanel() {
               onChange={(event) => {
                 if (event.target.value) {
                   setDraftQuestion(event.target.value);
-                  handleSuggestionSelect(event.target.value);
                   event.target.value = "";
                 }
               }}
@@ -337,22 +336,26 @@ export function AskDatasetPanel() {
             </span>
             <span>ASK AI</span>
           </button>
+          <button
+            className="clear-history-button"
+            disabled={!hasInvestigation}
+            onClick={clearQuestionHistory}
+            type="button"
+          >
+            Clear history
+          </button>
         </div>
       </div>
 
-      {!latestInvestigation || asking ? (
+      {!latestTurn && !asking ? (
         <div className={`ask-status ${asking ? "ask-status-active" : ""}`}>
-          {asking ? (
-            <p>Analyzing your question and building the answer now.</p>
-          ) : (
-            <p>Ask a question to generate an answer or table.</p>
-          )}
+          <p>Ask a question to generate an answer or table.</p>
         </div>
       ) : null}
 
       <div className="ask-workspace">
         <div className="ask-workflow-main">
-          {asking && !investigationEntries[0] ? (
+          {asking && !conversationTurns[0] ? (
             <div className="answer-skeleton" aria-label="Loading answer preview">
               <div className="skeleton-line skeleton-line-lg" />
               <div className="skeleton-line" />
@@ -364,9 +367,9 @@ export function AskDatasetPanel() {
             </div>
           ) : null}
 
-          {investigationEntries.length > 0 ? (
+          {conversationTurns.length > 0 ? (
             <div className="conversation-thread" id="analysis-answer-region" ref={answerRegionRef} tabIndex={-1}>
-              {investigationEntries.map((entry, index) => renderConversationTurn(entry, index))}
+              {conversationTurns.map((turn, index) => renderConversationTurn(turn, index))}
             </div>
           ) : null}
         </div>

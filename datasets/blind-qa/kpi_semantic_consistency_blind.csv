@@ -1,0 +1,521 @@
+interaction_id,call_id,lead_id,enquiry_ref,customer_id,interaction_date,created_at,month,source_channel,campaign_name,medium,device_type,region,call_count,lead_count,qualified_calls,qualified_leads,is_sales_qualified,opportunities,closed_won_count,booked_jobs,converted_flag,media_cost_aud,sales_value_aud,job_value_aud,revenue_aud,provided_qualified_rate_pct,provided_conversion_rate_pct,call_status,lead_status,outcome_status
+INT-00001,,LEAD-050000,ENQ-DUP-000,CUST-DUP-00,2026-03-26,2026-03-26T15:39:00,2026-03,paid search,EMERGENCY LEAD CAPTURE,CPC,Mobile,QLD,0,0,0,0,0,0,0,0,0,0,,,,161,126,voicemail,disqualified,booked
+INT-00002,CALL-030001,,ENQ-07000,CUST-01008,2026-02-21,2026-02-21T14:37:00,2026-02,Direct,Phone Number Recall,direct,Desktop,NSW,4,4,1,2,1,0,0,0,0,,,,,50,0,voicemail,qualified,booked
+INT-00003,CALL-030002,,ENQ-07001,CUST-01002,2026-02-04,2026-02-04T15:41:00,2026-02,Display,Programmatic Retargeting,display,Tablet,SA,4,1,0,0,1,0,0,0,0,,,,,0,0,missed,qualified,won
+INT-00004,,LEAD-050003,ENQ-07001,CUST-01012,2026-01-03,2026-01-03T17:57:00,2026-01,Direct,Returning Visitors,direct,Desktop,TAS,0,1,0,0,0,0,0,0,0,,,,,0,0,answered,closed_lost,won
+INT-00005,CALL-030004,,ENQ-07002,CUST-01004,2026-02-08,2026-02-08T08:55:00,2026-02,Paid Search,High Intent Search,cpc,Desktop,QLD,2,4,0,1,1,1,0,0,0,,978.84,,,25,0,missed,opportunity,won
+INT-00006,CALL-030005,LEAD-050005,ENQ-07002,CUST-01010,2026-01-30,2026-01-30T17:33:00,2026-01,Direct,Phone Number Recall,direct,Desktop,VIC,2,1,0,0,0,0,0,1,1,,,1415.54,,0,0,abandoned,new,booked
+INT-00007,CALL-030006,LEAD-050006,ENQ-07003,CUST-01013,2026-01-08,2026-01-08T12:50:00,2026-01,Direct,Direct / Unknown,direct,Mobile,NSW,4,2,2,0,1,0,0,1,1,,,908.14,,0,0,voicemail,new,booked
+INT-00008,,LEAD-050007,ENQ-07003,CUST-01009,2026-01-29,2026-01-29T10:27:00,2026-01,Referral,Affiliate Warm Leads,referral,Tablet,VIC,3,3,0,2,1,0,0,0,0,,,,,66.67,0,missed,qualified,lost
+INT-00009,CALL-030008,LEAD-050009,ENQ-07004,CUST-01017,2026-02-09,2026-02-09T17:47:00,2026-02,Paid Search,High Intent Search,cpc,Desktop,SA,1,0,0,0,1,0,0,0,0,,,,,,,abandoned,opportunity,won
+INT-00010,CALL-030009,,ENQ-07004,CUST-01014,2026-02-23,2026-02-23T13:09:00,2026-02,Email,Nurture Reactivation,email,Desktop,NSW,2,5,1,1,1,0,0,0,0,,,,,20,0,missed,qualified,no_answer
+INT-00011,CALL-030010,LEAD-050011,ENQ-07005,CUST-01003,2026-02-07,2026-02-07T10:17:00,2026-02,Organic Search,Content Hub,organic,Tablet,WA,1,6,0,4,1,2,1,1,1,,4097.59,5077.84,801.91,66.67,,abandoned,closed_won,booked
+INT-00012,CALL-030011,LEAD-050012,ENQ-07005,CUST-DUP-01,2026-03-20,2026-03-20T10:20:00,2026-03,Organic Search,Organic Maps,organic,Tablet,VIC,0,5,0,2,1,0,0,0,0,,,,,40,0,answered,qualified,won
+INT-00013,CALL-030012,LEAD-050013,ENQ-07006,CUST-01008,2026-01-09,2026-01-09T10:27:00,2026-01,Referral,Affiliate Warm Leads,referral,Mobile,NSW,0,4,0,0,0,0,0,0,0,,,,,0,0,abandoned,new,no_answer
+INT-00014,,,ENQ-07006,CUST-01021,2026-03-21,2026-03-21T15:41:00,2026-03,Organic Search,Organic Maps,organic,Mobile,TAS,1,3,0,1,1,0,0,0,0,,,,,33.33,0,abandoned,qualified,lost
+INT-00015,,LEAD-050015,ENQ-07007,CUST-01017,2026-02-11,2026-02-11T15:14:00,2026-02,Organic Search,Content Hub,organic,Mobile,QLD,3,5,0,1,1,0,0,0,0,,,,,20,,missed,qualified,pending
+INT-00016,,LEAD-050016,ENQ-07007,CUST-01015,2026-01-03,2026-01-03T15:01:00,2026-01,Referral,Partner Network,referral,Desktop,SA,1,4,0,1,1,1,0,0,0,,1699.41,,,25,0,voicemail,opportunity,won
+INT-00017,CALL-030016,,ENQ-07008,CUST-01015,2025-12-23,2025-12-23T09:18:00,2025-12,Paid Social,Retargeting Social,cpc,Desktop,TAS,3,2,0,1,1,0,0,0,0,,,,,50,0,missed,qualified,won
+INT-00018,CALL-030017,LEAD-050019,ENQ-DUP-001,CUST-01011,2026-02-26,2026-02-26T10:20:00,2026-02,Paid Social,Lookalike Call Trial,cpc,Mobile,NSW,1,6,0,2,1,0,0,0,0,425.67,,,,33.33,0,missed,qualified,lost
+INT-00019,CALL-030018,LEAD-050020,ENQ-07009,CUST-01022,2026-03-11,2026-03-11T16:11:00,2026-03,Referral,Partner Network,referral,Tablet,NSW,1,5,0,3,1,1,0,0,0,,1469.53,,,60,0,abandoned,opportunity,pending
+INT-00020,CALL-030019,,ENQ-07009,CUST-01008,2026-03-04,2026-03-04T15:17:00,2026-03,Paid Search,Emergency Lead Capture,cpc,Desktop,VIC,3,4,1,0,1,0,0,0,0,400.78,,,,0,0,abandoned,new,no_answer
+INT-00021,CALL-030020,LEAD-050022,ENQ-07010,CUST-01008,2025-12-19,2025-12-19T17:27:00,2025-12,Email,Newsletter Promo,email,Tablet,WA,0,4,0,2,1,1,0,0,0,,2085.99,,,50,0,abandoned,opportunity,lost
+INT-00022,,LEAD-050023,ENQ-07010,CUST-01013,2026-02-04,2026-02-04T09:11:00,2026-02,Paid Search,Emergency Lead Capture,cpc,Tablet,VIC,2,4,1,2,1,0,0,0,0,410.06,,,,50,0,answered,qualified,won
+INT-00023,CALL-030022,LEAD-050024,ENQ-07011,CUST-DUP-02,2026-03-19,2026-03-19T15:11:00,2026-03,Paid Social,Retargeting Social,cpc,Mobile,TAS,1,1,0,0,1,0,0,0,0,92.8,,,,0,0,abandoned,disqualified,booked
+INT-00024,,,ENQ-07011,CUST-01013,2026-02-23,2026-02-23T14:57:00,2026-02,Paid Search,Brand Protect AU,cpc,Desktop,QLD,3,4,0,1,1,0,0,1,1,444.71,,2461.22,,25,0,answered,qualified,booked
+INT-00025,,LEAD-050027,ENQ-07012,CUST-01017,2025-12-29,2025-12-29T11:35:00,2025-12,Referral,Partner Network,referral,Tablet,VIC,1,2,0,1,1,0,0,0,0,,,,,50,0,voicemail,qualified,booked
+INT-00026,,LEAD-050028,ENQ-07012,CUST-01017,2026-03-05,2026-03-05T09:59:00,2026-03,Display,Display Awareness,display,Desktop,VIC,6,4,2,1,1,1,0,1,1,821.8,785.89,991.06,,25,0,voicemail,opportunity,booked
+INT-00027,CALL-030026,,ENQ-07013,CUST-01012,2026-01-12,2026-01-12T11:10:00,2026-01,Email,Nurture Reactivation,email,Tablet,TAS,0,3,0,1,1,0,0,0,0,,,,,33.33,0,answered,qualified,no_answer
+INT-00028,CALL-030027,LEAD-050030,ENQ-07013,CUST-01010,2026-03-19,2026-03-19T08:54:00,2026-03,Paid Social,Meta Lead Gen NSW,cpc,Desktop,NSW,5,5,2,1,1,1,0,0,0,857.83,757.46,,,20,0,missed,opportunity,lost
+INT-00029,CALL-030028,LEAD-050031,ENQ-07014,CUST-01012,2026-01-21,2026-01-21T09:14:00,2026-01,Paid Social,Meta Lead Gen NSW,cpc,Mobile,QLD,2,3,0,1,1,0,0,1,1,319.36,,769.05,,33.33,0,answered,qualified,booked
+INT-00030,CALL-030029,LEAD-050032,ENQ-07014,CUST-01015,2026-03-03,2026-03-03T16:03:00,2026-03,Direct,DIRECT / UNKNOWN,direct,Tablet,TAS,2,2,0,1,1,1,0,0,0,,,,,50,,answered,opportunity,won
+INT-00031,CALL-030030,,ENQ-07015,CUST-01025,2026-03-16,2026-03-16T10:29:00,2026-03,Organic Search,SEO Local Pages,organic,Desktop,SA,2,5,0,1,1,0,0,0,0,,,,,20,0,voicemail,qualified,pending
+INT-00032,CALL-030031,LEAD-050035,ENQ-07015,CUST-01020,2026-03-26,2026-03-26T16:45:00,2026-03,email,Quote Follow Up,email,Desktop,WA,0,2,0,0,0,0,0,0,0,,,,,0,0,abandoned,closed_lost,booked
+INT-00033,CALL-030032,LEAD-050036,ENQ-07016,CUST-01022,2025-12-31,2025-12-31T10:52:00,2025-12,Paid Search,High Intent Search,cpc,Tablet,SA,5,1,1,0,1,0,0,0,0,413.63,,,,0,0,abandoned,qualified,pending
+INT-00034,CALL-030033,,ENQ-07016,CUST-DUP-03,2026-03-25,2026-03-25T13:27:00,2026-03,Paid Social,Lookalike Call Trial,cpc,Desktop,SA,6,4,3,1,1,0,0,0,0,917.19,,,,25,0,abandoned,qualified,no_answer
+INT-00035,,LEAD-050038,ENQ-DUP-002,CUST-01011,2026-01-23,2026-01-23T12:40:00,2026-01,Paid Social,Lookalike Call Trial,cpc,Desktop,NSW,4,2,1,1,1,0,0,1,1,472.97,,516.93,,,0,answered,qualified,booked
+INT-00036,CALL-030035,LEAD-050039,ENQ-07017,CUST-01015,2026-02-22,2026-02-22T13:46:00,2026-02,Email,Newsletter Promo,email,Desktop,QLD,2,4,0,2,1,2,0,0,0,,3724.5,,,50,0,answered,opportunity,pending
+INT-00037,CALL-030036,LEAD-050040,ENQ-07018,CUST-01025,2026-01-24,2026-01-24T11:03:00,2026-01,Organic Search,SEO Local Pages,organic,Desktop,VIC,2,0,0,0,0,0,0,0,0,,,,,,,answered,opportunity,won
+INT-00038,CALL-030037,LEAD-050041,ENQ-07018,CUST-01013,2026-03-02,2026-03-02T12:51:00,2026-03,Email,Newsletter Promo,EMAIL,Desktop,SA,0,0,0,0,0,0,0,0,0,,,,,,,missed,qualified,no_answer
+INT-00039,CALL-030038,,ENQ-07019,CUST-01018,2026-01-15,2026-01-15T12:40:00,2026-01,Email,Quote Follow Up,email,Mobile,NSW,3,4,1,2,1,2,1,1,1,,,3709.86,1632,50,,abandoned,closed_won,booked
+INT-00040,CALL-030039,,ENQ-07019,CUST-01014,2025-12-15,2025-12-15T12:49:00,2025-12,Referral,Affiliate Warm Leads,referral,Desktop,WA,1,2,0,1,1,0,0,0,0,,,,,,0,answered,qualified,lost
+INT-00041,CALL-030040,LEAD-050045,ENQ-07020,CUST-01019,2026-03-11,2026-03-11T13:36:00,2026-03,Referral,Broker Referral,referral,Desktop,SA,0,2,0,1,1,0,0,0,0,,,,,,0,missed,qualified,no_answer
+INT-00042,CALL-030041,,ENQ-07020,CUST-01024,2026-01-27,2026-01-27T11:14:00,2026-01,Referral,Partner Network,referral,Mobile,SA,1,4,0,2,1,1,0,0,0,,1844.15,,,50,,answered,opportunity,booked
+INT-00043,,LEAD-050047,ENQ-07021,CUST-01019,2026-01-12,2026-01-12T14:00:00,2026-01,Paid Social,Meta Lead Gen NSW,cpc,Mobile,NSW,4,5,2,2,1,1,0,0,0,584.75,398.21,,,40,0,missed,opportunity,pending
+INT-00044,CALL-030043,LEAD-050048,ENQ-07021,CUST-01022,2026-03-09,2026-03-09T13:18:00,2026-03,Display,Display Awareness,display,Mobile,TAS,4,3,0,1,1,0,0,0,0,599.05,,,,33.33,0,missed,qualified,lost
+INT-00045,CALL-030044,,ENQ-07022,CUST-DUP-04,2025-12-25,2025-12-25T17:23:00,2025-12,Email,Newsletter Promo,email,Tablet,SA,1,0,0,0,0,0,0,0,0,,,,,,,abandoned,opportunity,booked
+INT-00046,CALL-030045,LEAD-050050,ENQ-07022,CUST-01016,2026-02-04,2026-02-04T16:36:00,2026-02,Paid Search,High Intent Search,cpc,Tablet,VIC,4,4,1,2,1,1,0,0,0,458.75,1711.07,,,50,0,voicemail,opportunity,no_answer
+INT-00047,CALL-030046,LEAD-050051,ENQ-07023,CUST-01020,2026-01-16,2026-01-16T14:15:00,2026-01,Paid Social,Meta Lead Gen NSW,cpc,Desktop,WA,3,3,1,2,1,0,0,0,0,488.51,,,,66.67,0,abandoned,qualified,pending
+INT-00048,,LEAD-050053,ENQ-07023,CUST-01028,2025-12-30,2025-12-30T11:13:00,2025-12,Paid Search,High Intent Search,cpc,Mobile,WA,0,1,0,0,1,1,0,0,0,19.93,688.24,,,,0,voicemail,opportunity,no_answer
+INT-00049,,LEAD-050054,ENQ-07024,CUST-01020,2026-03-28,2026-03-28T08:33:00,2026-03,Paid Search,Brand Protect AU,cpc,Desktop,TAS,5,2,2,1,1,0,0,0,0,,,,,50,0,voicemail,qualified,lost
+INT-00050,,LEAD-050055,ENQ-07024,CUST-01016,2026-03-15,2026-03-15T13:34:00,2026-03,Paid Search,High Intent Search,cpc,Mobile,NSW,2,5,1,1,1,0,0,0,0,493.66,,,,20,0,missed,qualified,won
+INT-00051,CALL-030050,LEAD-050056,ENQ-07025,CUST-01022,2026-02-14,2026-02-14T14:53:00,2026-02,Paid Search,Emergency Lead Capture,cpc,Desktop,WA,1,1,0,0,0,0,0,0,0,107.92,,,,0,0,voicemail,closed_won,no_answer
+INT-00052,,LEAD-050057,ENQ-DUP-003,CUST-01029,2025-12-27,2025-12-27T08:48:00,2025-12,Organic Search,Content Hub,organic,Tablet,SA,0,4,0,1,1,0,0,0,0,,,,,25,0,abandoned,qualified,booked
+INT-00053,CALL-030052,LEAD-050058,ENQ-07026,CUST-01028,2026-03-16,2026-03-16T08:37:00,2026-03,Referral,Broker Referral,referral,Tablet,NSW,0,0,0,0,0,0,0,0,0,,,,,,,abandoned,opportunity,booked
+INT-00054,,LEAD-050059,ENQ-07026,CUST-01028,2025-12-30,2025-12-30T15:38:00,2025-12,Paid Search,Emergency Lead Capture,cpc,Tablet,VIC,5,4,3,1,1,1,0,0,0,514.3,457.07,,,,0,missed,opportunity,lost
+INT-00055,CALL-030054,LEAD-050061,ENQ-07027,CUST-01034,2026-01-29,2026-01-29T10:19:00,2026-01,Referral,Broker Referral,referral,Mobile,TAS,2,6,0,2,1,1,0,0,0,,1294.86,,,33.33,0,missed,opportunity,pending
+INT-00056,CALL-030055,LEAD-050062,ENQ-07027,CUST-DUP-05,2026-03-08,2026-03-08T10:44:00,2026-03,Paid Search,High Intent Search,cpc,Tablet,NSW,4,5,1,2,1,0,0,0,0,687.54,,,,40,0,missed,qualified,pending
+INT-00057,CALL-030056,LEAD-050063,ENQ-07028,CUST-01020,2025-12-30,2025-12-30T14:45:00,2025-12,Organic Search,Content Hub,organic,Tablet,TAS,1,6,0,4,1,1,0,0,0,,399.29,,,,0,abandoned,opportunity,won
+INT-00058,CALL-030057,,ENQ-07028,CUST-01034,2026-01-06,2026-01-06T13:56:00,2026-01,Paid Search,High Intent Search,cpc,Mobile,SA,3,2,0,1,1,1,0,1,1,373.37,820.33,2121.55,,50,0,answered,opportunity,booked
+INT-00059,CALL-030058,,ENQ-07029,CUST-01035,2026-01-09,2026-01-09T17:49:00,2026-01,Organic Search,ORGANIC MAPS,organic,Desktop,TAS,1,3,0,2,1,0,0,0,0,,,,,66.67,0,abandoned,qualified,lost
+INT-00060,CALL-030059,LEAD-050066,ENQ-07029,CUST-01025,2026-02-02,2026-02-02T10:55:00,2026-02,Paid Search,Emergency Lead Capture,cpc,Desktop,SA,5,0,1,0,1,0,0,0,0,646.2,,,,,,missed,opportunity,won
+INT-00061,CALL-030060,LEAD-050067,ENQ-07030,CUST-01023,2026-01-04,2026-01-04T14:43:00,2026-01,Direct,Direct / Unknown,direct,Mobile,TAS,3,3,0,2,1,0,0,0,0,,,,,66.67,0,abandoned,qualified,no_answer
+INT-00062,,LEAD-050068,ENQ-07030,CUST-01025,2026-03-11,2026-03-11T08:35:00,2026-03,Email,Quote Follow Up,email,Mobile,NSW,2,6,1,2,1,0,0,0,0,,,,,33.33,0,missed,qualified,lost
+INT-00063,,,ENQ-07031,CUST-01032,2026-03-06,2026-03-06T17:23:00,2026-03,direct,Returning Visitors,direct,Desktop,WA,4,2,2,0,1,0,0,0,0,19.7,,,,0,0,missed,disqualified,lost
+INT-00064,,LEAD-050071,ENQ-07031,CUST-01028,2026-03-12,2026-03-12T11:49:00,2026-03,Paid Search,High Intent Search,cpc,Desktop,VIC,3,5,0,1,1,0,0,0,0,615.14,,,,,0,voicemail,qualified,won
+INT-00065,CALL-030064,LEAD-050072,ENQ-07032,CUST-01031,2026-02-08,2026-02-08T15:10:00,2026-02,Organic Search,SEO Local Pages,organic,Tablet,VIC,2,7,0,2,1,0,0,0,0,,,,,28.57,0,abandoned,qualified,booked
+INT-00066,CALL-030065,,ENQ-07032,CUST-01030,2026-01-01,2026-01-01T08:39:00,2026-01,Organic Search,SEO Local Pages,organic,Desktop,QLD,3,3,1,1,1,0,0,0,0,,,,,33.33,0,answered,qualified,no_answer
+INT-00067,CALL-030066,LEAD-050074,ENQ-07033,CUST-DUP-06,2026-01-07,2026-01-07T11:37:00,2026-01,Referral,Broker Referral,referral,Tablet,VIC,2,2,0,0,0,0,0,1,1,,,1072.03,,0,0,voicemail,opportunity,booked
+INT-00068,CALL-030067,,ENQ-07033,CUST-01034,2025-12-30,2025-12-30T09:31:00,2025-12,Display,Display Awareness,display,Mobile,SA,4,5,2,2,1,1,0,0,0,484.01,2052.47,,,40,0,voicemail,opportunity,lost
+INT-00069,CALL-030068,LEAD-050076,ENQ-DUP-004,CUST-01038,2026-01-13,2026-01-13T09:42:00,2026-01,Display,Programmatic Retargeting,display,Mobile,SA,1,5,0,1,1,0,0,0,0,193.12,,,,20,0,missed,qualified,won
+INT-00070,CALL-030069,,ENQ-07034,CUST-01038,2026-03-04,2026-03-04T15:17:00,2026-03,Direct,Returning Visitors,direct,Mobile,QLD,1,0,0,0,0,0,0,0,0,,,,,,,abandoned,opportunity,won
+INT-00071,,LEAD-050079,ENQ-07035,CUST-01034,2026-03-30,2026-03-30T15:41:00,2026-03,Email,Nurture Reactivation,email,Desktop,WA,2,6,0,3,1,1,0,0,0,,1011.05,,,50,0,answered,opportunity,pending
+INT-00072,,LEAD-050080,ENQ-07035,CUST-01035,2026-01-15,2026-01-15T12:48:00,2026-01,Paid Social,Lookalike Call Trial,cpc,Mobile,QLD,1,4,0,1,1,0,0,0,0,297.33,,,,25,0,answered,qualified,no_answer
+INT-00073,,,ENQ-07036,CUST-01039,2026-03-10,2026-03-10T12:48:00,2026-03,Organic Search,Organic Maps,organic,Desktop,NSW,0,3,0,2,1,1,0,0,0,,1604.49,,,66.67,0,abandoned,opportunity,booked
+INT-00074,,,ENQ-07036,CUST-01031,2026-03-01,2026-03-01T08:24:00,2026-03,Email,Newsletter Promo,email,Mobile,QLD,2,6,0,2,1,0,0,0,0,,,,,33.33,0,abandoned,qualified,pending
+INT-00075,,,ENQ-07037,CUST-01028,2026-03-22,2026-03-22T08:02:00,2026-03,Referral,Partner Network,REFERRAL,Mobile,QLD,2,6,1,4,1,2,1,1,1,,2189.07,3141.24,2014.6,66.67,16.67,voicemail,closed_won,booked
+INT-00076,CALL-030075,LEAD-050084,ENQ-07037,CUST-01036,2026-03-10,2026-03-10T16:39:00,2026-03,Organic Search,SEO Local Pages,organic,Tablet,TAS,1,0,0,0,0,0,0,0,0,,,,,,,abandoned,qualified,lost
+INT-00077,CALL-030076,LEAD-050085,ENQ-07038,CUST-01029,2026-03-14,2026-03-14T12:53:00,2026-03,Email,Nurture Reactivation,email,Mobile,QLD,1,3,0,1,1,0,0,0,0,,,,,33.33,0,answered,qualified,won
+INT-00078,CALL-030077,,ENQ-07038,CUST-DUP-07,2025-12-21,2025-12-21T15:59:00,2025-12,Paid Social,Retargeting Social,cpc,Tablet,NSW,4,2,0,1,1,0,0,0,0,426.17,,,,50,0,answered,qualified,lost
+INT-00079,CALL-030078,LEAD-050088,ENQ-07039,CUST-01043,2026-01-26,2026-01-26T13:31:00,2026-01,Direct,Phone Number Recall,direct,Mobile,QLD,1,1,0,0,1,0,0,0,0,,,,,0,0,missed,closed_won,booked
+INT-00080,,,ENQ-07039,CUST-01026,2025-12-20,2025-12-20T09:31:00,2025-12,Paid Search,High Intent Search,cpc,Tablet,NSW,6,5,4,2,1,1,0,0,0,827.54,,,,40,0,voicemail,opportunity,no_answer
+INT-00081,,,ENQ-07040,CUST-01030,2026-01-18,2026-01-18T08:18:00,2026-01,Email,Quote Follow Up,email,Desktop,NSW,1,4,0,1,1,0,0,1,1,,,2216.25,,25,0,missed,qualified,booked
+INT-00082,CALL-030081,LEAD-050091,ENQ-07040,CUST-01044,2026-03-05,2026-03-05T17:27:00,2026-03,Paid Search,Emergency Lead Capture,cpc,Desktop,WA,3,3,1,0,1,0,0,0,0,236.74,,,,0,0,missed,qualified,pending
+INT-00083,CALL-030082,,ENQ-07041,CUST-01037,2026-01-01,2026-01-01T17:23:00,2026-01,Paid Search,Brand Protect AU,cpc,Tablet,WA,2,0,1,0,1,0,0,0,0,188.97,,,,,,answered,new,no_answer
+INT-00084,CALL-030083,LEAD-050093,ENQ-07041,CUST-01039,2026-03-18,2026-03-18T12:20:00,2026-03,Referral,Affiliate Warm Leads,referral,Tablet,WA,2,3,4,0,1,0,0,1,1,,,1944.26,,0,0,abandoned,new,booked
+INT-00085,CALL-030084,LEAD-050094,ENQ-07042,CUST-01035,2026-02-02,2026-02-02T15:02:00,2026-02,Referral,Affiliate Warm Leads,referral,Mobile,QLD,0,2,0,1,1,0,0,0,0,,,,,50,0,answered,qualified,lost
+INT-00086,,LEAD-050096,ENQ-DUP-005,CUST-01037,2026-02-20,2026-02-20T15:44:00,2026-02,Display,YouTube Display,display,Tablet,SA,4,2,2,1,1,0,0,0,0,400.13,,,,50,0,answered,qualified,won
+INT-00087,CALL-030086,LEAD-050097,ENQ-07043,CUST-01032,2026-01-23,2026-01-23T17:56:00,2026-01,Paid Search,Brand Protect AU,cpc,Desktop,SA,3,3,0,0,0,0,0,1,1,432.4,,1228.78,,0,,abandoned,closed_won,booked
+INT-00088,,LEAD-050098,ENQ-07043,CUST-01036,2026-01-22,2026-01-22T17:10:00,2026-01,Paid Social,LOOKALIKE CALL TRIAL,cpc,Desktop,TAS,3,1,1,0,1,1,0,0,0,260.02,1111.28,,,0,0,missed,opportunity,won
+INT-00089,CALL-030088,,ENQ-07044,CUST-DUP-08,2026-01-30,2026-01-30T16:57:00,2026-01,Referral,Affiliate Warm Leads,referral,Tablet,VIC,3,3,0,0,0,0,0,1,1,,,1178.56,,0,0,answered,disqualified,booked
+INT-00090,CALL-030089,LEAD-050100,ENQ-07044,CUST-01041,2026-02-24,2026-02-24T09:38:00,2026-02,Paid Social,Lookalike Call Trial,cpc,Desktop,TAS,4,2,2,0,1,0,0,0,0,,,,,0,0,abandoned,closed_won,lost
+INT-00091,CALL-030090,LEAD-050101,ENQ-07045,CUST-01034,2026-02-03,2026-02-03T14:57:00,2026-02,Organic Search,Organic Maps,organic,Tablet,QLD,2,5,1,3,1,1,0,1,1,,1613,2529.68,,60,0,voicemail,opportunity,booked
+INT-00092,CALL-030091,LEAD-050102,ENQ-07045,CUST-01044,2026-01-06,2026-01-06T14:16:00,2026-01,Paid Social,Meta Lead Gen NSW,cpc,Tablet,VIC,5,6,2,4,1,2,0,0,0,647.87,807.81,,,66.67,0,answered,opportunity,won
+INT-00093,CALL-030092,,ENQ-07046,CUST-01035,2026-03-03,2026-03-03T16:58:00,2026-03,Display,Display Awareness,display,Desktop,TAS,3,3,1,1,1,0,0,0,0,477.31,,,,33.33,0,abandoned,qualified,lost
+INT-00094,CALL-030093,LEAD-050105,ENQ-07046,CUST-01040,2026-01-28,2026-01-28T08:10:00,2026-01,organic search,Content Hub,organic,Mobile,WA,3,1,0,0,0,1,0,0,0,,378.68,,,0,0,missed,opportunity,won
+INT-00095,CALL-030094,LEAD-050106,ENQ-07047,CUST-01046,2026-02-03,2026-02-03T08:05:00,2026-02,Paid Search,High Intent Search,cpc,Tablet,WA,0,5,0,2,1,1,0,0,0,161.6,1712.92,,,40,0,abandoned,opportunity,lost
+INT-00096,,,ENQ-07047,CUST-01031,2026-03-19,2026-03-19T11:48:00,2026-03,Email,Newsletter Promo,email,Desktop,VIC,2,3,1,1,1,0,0,0,0,,,,,,0,voicemail,qualified,pending
+INT-00097,,LEAD-050108,ENQ-07048,CUST-01044,2026-02-22,2026-02-22T14:05:00,2026-02,Paid Search,Brand Protect AU,cpc,Desktop,VIC,4,5,1,1,1,0,0,1,1,433.03,,1119.08,,20,0,abandoned,qualified,booked
+INT-00098,CALL-030097,LEAD-050109,ENQ-07048,CUST-01041,2025-12-17,2025-12-17T11:12:00,2025-12,Referral,Broker Referral,referral,Tablet,VIC,2,4,0,5,1,3,1,1,1,,,1956.56,1480.65,125,,voicemail,closed_won,booked
+INT-00099,CALL-030098,LEAD-050110,ENQ-07049,CUST-01044,2026-01-11,2026-01-11T17:50:00,2026-01,Paid Search,Emergency Lead Capture,cpc,Desktop,QLD,3,3,1,0,1,0,0,0,0,521.94,,,,0,0,missed,new,won
+INT-00100,,,ENQ-07049,CUST-DUP-00,2026-03-28,2026-03-28T16:48:00,2026-03,Referral,Affiliate Warm Leads,referral,Desktop,VIC,2,4,0,1,1,0,0,0,0,,,,,,0,missed,qualified,no_answer
+INT-00101,CALL-030100,,ENQ-07050,CUST-01045,2025-12-20,2025-12-20T08:18:00,2025-12,Paid Search,Brand Protect AU,cpc,Mobile,QLD,3,3,1,2,1,1,0,0,0,469.63,2045.75,,,,0,missed,opportunity,lost
+INT-00102,,LEAD-050114,ENQ-07050,CUST-01042,2026-01-10,2026-01-10T10:09:00,2026-01,Paid Search,Emergency Lead Capture,cpc,Desktop,SA,2,2,1,0,1,0,0,0,0,191.21,,,,132,0,voicemail,new,booked
+INT-00103,,,ENQ-DUP-006,CUST-01036,2025-12-24,2025-12-24T16:05:00,2025-12,Organic Search,SEO Local Pages,organic,Mobile,TAS,0,2,0,0,0,1,0,0,0,,1020.24,,,0,0,missed,opportunity,no_answer
+INT-00104,CALL-030103,,ENQ-07051,CUST-01044,2025-12-22,2025-12-22T14:09:00,2025-12,Organic Search,Content Hub,organic,Mobile,QLD,3,2,1,1,1,0,0,0,0,,,,,50,0,answered,qualified,booked
+INT-00105,CALL-030104,,ENQ-07052,CUST-01042,2025-12-19,2025-12-19T15:47:00,2025-12,Paid Search,High Intent Search,cpc,Desktop,VIC,5,4,2,1,1,0,0,0,0,616.95,,,,25,0,abandoned,qualified,lost
+INT-00106,CALL-030105,,ENQ-07052,CUST-01039,2026-02-20,2026-02-20T12:38:00,2026-02,Organic Search,SEO Local Pages,organic,Desktop,SA,3,5,0,3,1,1,0,0,0,,,,,60,0,answered,opportunity,won
+INT-00107,CALL-030106,,ENQ-07053,CUST-01049,2025-12-21,2025-12-21T09:30:00,2025-12,Email,Nurture Reactivation,email,Desktop,SA,2,4,1,1,1,0,0,0,0,,,,,25,,abandoned,qualified,won
+INT-00108,,LEAD-050120,ENQ-07053,CUST-01052,2026-02-11,2026-02-11T12:55:00,2026-02,Paid Search,High Intent Search,cpc,Mobile,TAS,3,3,0,1,1,0,0,0,0,348.98,,,,33.33,0,answered,qualified,lost
+INT-00109,,LEAD-050122,ENQ-07054,CUST-01046,2026-02-13,2026-02-13T09:04:00,2026-02,Paid Social,Lookalike Call Trial,cpc,Tablet,TAS,3,4,1,2,1,1,0,0,0,555.18,665.08,,,50,0,answered,opportunity,booked
+INT-00110,CALL-030109,LEAD-050123,ENQ-07054,CUST-01050,2026-02-22,2026-02-22T10:04:00,2026-02,Organic Search,SEO Local Pages,organic,Desktop,TAS,1,3,0,1,1,0,0,1,1,,,2195.51,,33.33,,missed,qualified,booked
+INT-00111,,LEAD-050124,ENQ-07055,CUST-DUP-01,2026-02-17,2026-02-17T14:21:00,2026-02,Paid Social,Retargeting Social,cpc,Tablet,VIC,2,6,0,3,1,1,0,0,0,550.64,1864.31,,,50,0,missed,opportunity,won
+INT-00112,CALL-030111,LEAD-050125,ENQ-07055,CUST-01041,2026-01-11,2026-01-11T14:41:00,2026-01,Organic Search,Organic Maps,ORGANIC,Tablet,VIC,2,4,0,1,1,0,0,0,0,,,,,25,0,answered,qualified,booked
+INT-00113,CALL-030112,LEAD-050126,ENQ-07056,CUST-01052,2026-01-29,2026-01-29T16:22:00,2026-01,Paid Search,Emergency Lead Capture,cpc,Desktop,SA,4,2,1,0,1,0,0,0,0,263.39,,,,0,0,missed,closed_won,no_answer
+INT-00114,CALL-030113,,ENQ-07056,CUST-01054,2026-02-18,2026-02-18T13:19:00,2026-02,Paid Search,Emergency Lead Capture,cpc,Mobile,NSW,3,4,1,2,1,1,0,0,0,582.26,1380.59,,,50,119,missed,opportunity,booked
+INT-00115,,LEAD-050128,ENQ-07057,CUST-01049,2025-12-22,2025-12-22T16:51:00,2025-12,Paid Search,High Intent Search,cpc,Mobile,WA,0,2,0,0,0,0,0,0,0,97.58,,,,0,0,abandoned,closed_lost,booked
+INT-00116,CALL-030115,LEAD-050129,ENQ-07057,CUST-01038,2026-02-20,2026-02-20T09:04:00,2026-02,Email,Nurture Reactivation,email,Desktop,QLD,1,3,0,0,0,0,0,0,0,,,,,0,0,answered,qualified,pending
+INT-00117,CALL-030116,LEAD-050131,ENQ-07058,CUST-01052,2026-02-09,2026-02-09T10:58:00,2026-02,Paid Search,EMERGENCY LEAD CAPTURE,cpc,Tablet,TAS,1,1,0,0,1,0,0,0,0,135.2,,,,0,0,missed,new,no_answer
+INT-00118,CALL-030117,,ENQ-07058,CUST-01046,2026-03-02,2026-03-02T14:28:00,2026-03,Email,Nurture Reactivation,email,Desktop,TAS,2,7,0,3,1,1,0,0,0,,866.8,,,,0,abandoned,opportunity,pending
+INT-00119,,LEAD-050133,ENQ-07059,CUST-01056,2026-03-26,2026-03-26T14:08:00,2026-03,Organic Search,Organic Maps,organic,Tablet,QLD,0,0,0,0,0,0,0,0,0,,,,,,,answered,closed_won,pending
+INT-00120,,LEAD-050134,ENQ-DUP-007,CUST-01039,2026-01-20,2026-01-20T12:34:00,2026-01,Paid Social,Meta Lead Gen NSW,cpc,Tablet,WA,2,5,1,2,1,1,0,0,0,,380.23,,,40,0,abandoned,opportunity,pending
+INT-00121,,LEAD-050135,ENQ-07060,CUST-01051,2026-01-03,2026-01-03T15:04:00,2026-01,Paid Social,Meta Lead Gen NSW,cpc,Mobile,TAS,2,1,0,0,1,0,0,1,1,309.39,,1125.07,,0,0,voicemail,disqualified,booked
+INT-00122,,,ENQ-07060,CUST-DUP-02,2026-03-19,2026-03-19T11:52:00,2026-03,Display,Display Awareness,display,Tablet,TAS,0,4,0,0,0,0,0,0,0,114.68,,,,0,0,missed,closed_won,pending
+INT-00123,,LEAD-050137,ENQ-07061,CUST-01042,2026-03-13,2026-03-13T12:43:00,2026-03,Display,YouTube Display,display,Mobile,VIC,2,2,0,1,1,0,0,0,0,318.45,,,,50,0,voicemail,qualified,no_answer
+INT-00124,CALL-030123,LEAD-050138,ENQ-07061,CUST-01042,2025-12-27,2025-12-27T10:30:00,2025-12,Paid Search,Emergency Lead Capture,cpc,Mobile,WA,6,1,3,0,1,0,0,0,0,578.35,,,,0,0,abandoned,closed_lost,booked
+INT-00125,,LEAD-050140,ENQ-07062,CUST-01044,2026-01-09,2026-01-09T16:32:00,2026-01,display,Programmatic Retargeting,display,Desktop,TAS,1,3,0,2,1,0,0,0,0,213.95,,,,66.67,0,answered,qualified,no_answer
+INT-00126,,LEAD-050141,ENQ-07062,CUST-01053,2026-02-26,2026-02-26T12:24:00,2026-02,Paid Social,Retargeting Social,cpc,Desktop,QLD,4,2,1,0,1,1,0,0,0,465.77,1086.76,,,0,0,voicemail,opportunity,won
+INT-00127,,,ENQ-07063,CUST-01046,2025-12-16,2025-12-16T13:35:00,2025-12,Paid Social,Lookalike Call Trial,cpc,Mobile,TAS,3,5,1,1,1,0,0,0,0,480.8,,,,,0,answered,qualified,won
+INT-00128,CALL-030127,LEAD-050143,ENQ-07063,CUST-01059,2026-02-06,2026-02-06T14:13:00,2026-02,Paid Search,High Intent Search,cpc,Desktop,QLD,3,5,0,3,1,1,0,1,1,398.44,1155.84,938.05,,60,0,abandoned,opportunity,booked
+INT-00129,CALL-030128,LEAD-050144,ENQ-07064,CUST-01051,2026-03-18,2026-03-18T08:46:00,2026-03,Paid Search,Emergency Lead Capture,cpc,Mobile,NSW,3,3,1,2,1,1,0,0,0,402.88,,,,66.67,0,voicemail,opportunity,no_answer
+INT-00130,,LEAD-050145,ENQ-07064,CUST-01048,2026-03-10,2026-03-10T10:44:00,2026-03,Referral,Broker Referral,referral,Tablet,SA,0,3,0,1,1,0,0,0,0,,,,,33.33,0,abandoned,qualified,pending
+INT-00131,CALL-030130,,ENQ-07065,CUST-01045,2026-01-16,2026-01-16T13:55:00,2026-01,Paid Search,Brand Protect AU,cpc,Mobile,NSW,2,2,1,0,1,0,0,0,0,196.76,,,,0,0,abandoned,closed_won,pending
+INT-00132,,LEAD-050148,ENQ-07065,CUST-01046,2026-03-02,2026-03-02T11:22:00,2026-03,Paid Search,Emergency Lead Capture,cpc,Desktop,WA,4,3,1,1,1,0,0,1,1,360.02,,2431.51,,33.33,0,voicemail,qualified,booked
+INT-00133,CALL-030132,LEAD-050149,ENQ-07066,CUST-DUP-03,2026-03-30,2026-03-30T09:57:00,2026-03,Referral,Partner Network,referral,Desktop,SA,3,2,0,0,0,0,0,0,0,,,,,0,0,answered,closed_won,no_answer
+INT-00134,CALL-030133,,ENQ-07066,CUST-01058,2026-02-06,2026-02-06T17:08:00,2026-02,Paid Search,Brand Protect AU,cpc,Mobile,NSW,4,4,2,2,1,0,0,0,0,393.04,,,,50,,voicemail,qualified,won
+INT-00135,CALL-030134,LEAD-050151,ENQ-07067,CUST-01050,2025-12-28,2025-12-28T09:08:00,2025-12,Paid Search,High Intent Search,cpc,Desktop,TAS,1,2,0,1,1,0,0,0,0,185.18,,,,50,,missed,qualified,lost
+INT-00136,CALL-030135,LEAD-050152,ENQ-07067,CUST-01056,2026-01-24,2026-01-24T10:34:00,2026-01,Direct,Returning Visitors,direct,Tablet,TAS,2,4,0,2,1,1,0,0,0,,,,,50,0,missed,opportunity,booked
+INT-00137,CALL-030136,LEAD-050153,ENQ-DUP-008,CUST-01058,2026-03-21,2026-03-21T16:37:00,2026-03,Paid Social,Meta Lead Gen NSW,cpc,Tablet,SA,2,0,0,0,0,0,0,0,0,152.16,,,,,,voicemail,closed_lost,pending
+INT-00138,CALL-030137,LEAD-050154,ENQ-07068,CUST-01048,2026-02-22,2026-02-22T17:33:00,2026-02,Paid Social,Meta Lead Gen NSW,cpc,Mobile,QLD,1,2,0,1,1,0,0,1,1,154.54,,2275.98,,50,0,answered,qualified,booked
+INT-00139,,LEAD-050155,ENQ-07069,CUST-01049,2026-02-27,2026-02-27T14:52:00,2026-02,Paid Social,Lookalike Call Trial,cpc,Mobile,QLD,5,1,3,0,1,0,0,0,0,704.92,,,,0,0,voicemail,closed_won,pending
+INT-00140,CALL-030139,LEAD-050157,ENQ-07069,CUST-01054,2026-02-14,2026-02-14T14:47:00,2026-02,Organic Search,SEO Local Pages,organic,Tablet,NSW,2,2,0,0,0,0,0,0,0,,,,,0,0,answered,opportunity,booked
+INT-00141,CALL-030140,LEAD-050158,ENQ-07070,CUST-01057,2025-12-20,2025-12-20T15:12:00,2025-12,Paid Social,Retargeting Social,cpc,Tablet,NSW,5,5,3,3,1,1,0,0,0,456.67,2033.05,,,,0,abandoned,opportunity,booked
+INT-00142,CALL-030141,LEAD-050159,ENQ-07070,CUST-01054,2026-04-01,2026-04-01T15:20:00,2026-04,Paid Social,Retargeting Social,cpc,Desktop,VIC,0,5,0,3,1,1,0,0,0,158.51,368.57,,,60,0,answered,opportunity,won
+INT-00143,CALL-030142,LEAD-050160,ENQ-07071,CUST-01048,2026-03-15,2026-03-15T11:47:00,2026-03,Paid Search,High Intent Search,cpc,Tablet,VIC,3,3,1,1,1,0,0,0,0,431.66,,,,33.33,0,answered,qualified,won
+INT-00144,CALL-030143,LEAD-050161,ENQ-07071,CUST-DUP-04,2026-02-26,2026-02-26T08:20:00,2026-02,Paid Search,Emergency Lead Capture,cpc,Tablet,TAS,3,6,1,3,1,1,0,1,1,315.03,1339.93,2211.63,,50,0,voicemail,opportunity,booked
+INT-00145,,LEAD-050162,ENQ-07072,CUST-01052,2026-02-11,2026-02-11T15:00:00,2026-02,Organic Search,SEO Local Pages,organic,Desktop,SA,0,6,0,2,1,1,0,0,0,,428.42,,,,0,voicemail,opportunity,booked
+INT-00146,CALL-030145,,ENQ-07072,CUST-01055,2026-03-22,2026-03-22T17:31:00,2026-03,Organic Search,ORGANIC MAPS,organic,Desktop,VIC,3,4,0,2,1,2,1,1,1,,965.61,2936.88,2772.05,50,25,voicemail,closed_won,booked
+INT-00147,,LEAD-050164,ENQ-07073,CUST-01051,2026-01-19,2026-01-19T13:55:00,2026-01,Paid Social,Retargeting Social,cpc,Mobile,QLD,2,2,0,0,0,1,0,0,0,233.03,1435.02,,,0,0,answered,opportunity,won
+INT-00148,CALL-030147,LEAD-050166,ENQ-07073,CUST-01059,2025-12-16,2025-12-16T11:48:00,2025-12,Organic Search,SEO Local Pages,organic,Desktop,SA,1,0,0,0,0,0,0,0,0,,,,,,,missed,opportunity,pending
+INT-00149,CALL-030148,LEAD-050167,ENQ-07074,CUST-01064,2025-12-26,2025-12-26T08:50:00,2025-12,Paid Search,High Intent Search,CPC,Desktop,SA,2,5,1,2,1,0,0,0,0,454.59,,,,40,0,abandoned,qualified,pending
+INT-00150,,,ENQ-07074,CUST-01058,2026-02-16,2026-02-16T17:39:00,2026-02,Referral,Partner Network,referral,Tablet,VIC,2,1,0,0,0,0,0,0,0,,,,,0,,abandoned,new,no_answer
+INT-00151,,,ENQ-07075,CUST-01058,2026-01-14,2026-01-14T10:35:00,2026-01,Paid Search,Emergency Lead Capture,cpc,Tablet,QLD,4,2,2,0,1,0,0,0,0,439.62,,,,0,0,voicemail,qualified,no_answer
+INT-00152,CALL-030151,,ENQ-07075,CUST-01059,2026-03-27,2026-03-27T11:41:00,2026-03,Direct,Phone Number Recall,direct,Mobile,VIC,1,1,0,0,0,0,0,0,0,,,,,0,0,abandoned,closed_won,no_answer
+INT-00153,CALL-030152,LEAD-050171,ENQ-07076,CUST-01052,2026-01-28,2026-01-28T11:29:00,2026-01,Display,YouTube Display,display,Desktop,SA,4,1,0,0,1,0,0,0,0,477.54,,,,,0,abandoned,closed_lost,lost
+INT-00154,,,ENQ-DUP-009,CUST-01063,2026-01-22,2026-01-22T12:44:00,2026-01,Direct,Phone Number Recall,direct,Tablet,SA,3,4,1,1,1,0,0,1,1,,,1643.08,,25,0,answered,qualified,booked
+INT-00155,CALL-030154,LEAD-050174,ENQ-07077,CUST-DUP-05,2026-02-19,2026-02-19T17:42:00,2026-02,Display,Display Awareness,display,Mobile,QLD,6,2,2,0,1,0,0,0,0,422.27,,,,0,0,missed,opportunity,booked
+INT-00156,CALL-030155,LEAD-050175,ENQ-07077,CUST-01053,2026-04-01,2026-04-01T16:00:00,2026-04,display,Display Awareness,display,Mobile,SA,2,5,0,2,1,0,0,0,0,409.63,,,,40,0,abandoned,qualified,pending
+INT-00157,CALL-030156,LEAD-050176,ENQ-07078,CUST-01052,2026-01-10,2026-01-10T13:51:00,2026-01,Paid Social,Retargeting Social,cpc,Tablet,NSW,2,5,0,3,1,2,1,1,1,482.63,1557.79,2328.86,1385.05,60,20,voicemail,closed_won,booked
+INT-00158,CALL-030157,LEAD-050177,ENQ-07078,CUST-01058,2026-01-15,2026-01-15T10:57:00,2026-01,Paid Social,Meta Lead Gen NSW,cpc,Mobile,SA,5,1,1,0,1,0,0,1,1,732.35,,974.68,,0,0,voicemail,closed_lost,booked
+INT-00159,CALL-030158,LEAD-050178,ENQ-07079,CUST-01061,2026-02-07,2026-02-07T13:32:00,2026-02,Email,Quote Follow Up,email,Mobile,NSW,0,7,0,4,1,2,0,0,0,,840.51,,,57.14,0,abandoned,opportunity,pending
+INT-00160,CALL-030159,,ENQ-07079,CUST-01069,2026-02-20,2026-02-20T13:16:00,2026-02,Email,Newsletter Promo,email,Tablet,NSW,1,5,0,3,1,2,0,0,0,,1791.72,,,60,0,abandoned,opportunity,pending
+INT-00161,,LEAD-050180,ENQ-07080,CUST-01066,2026-02-13,2026-02-13T16:27:00,2026-02,Paid Search,Brand Protect AU,cpc,Mobile,NSW,1,5,0,1,1,0,0,0,0,246.98,,,,20,0,voicemail,qualified,pending
+INT-00162,CALL-030161,,ENQ-07080,CUST-01068,2026-02-03,2026-02-03T15:14:00,2026-02,Paid Search,High Intent Search,cpc,Mobile,TAS,3,5,1,2,1,1,0,0,0,681.1,600.9,,,40,0,voicemail,opportunity,booked
+INT-00163,CALL-030162,LEAD-050183,ENQ-07081,CUST-01060,2026-02-25,2026-02-25T14:46:00,2026-02,Paid Social,Lookalike Call Trial,cpc,Tablet,QLD,3,1,2,0,1,0,0,0,0,363.7,,,,,0,voicemail,new,booked
+INT-00164,CALL-030163,LEAD-050184,ENQ-07081,CUST-01056,2026-01-15,2026-01-15T09:17:00,2026-01,Paid Search,Brand Protect AU,cpc,Mobile,QLD,3,0,1,0,1,0,0,0,0,225.74,,,,,,abandoned,new,no_answer
+INT-00165,CALL-030164,LEAD-050185,ENQ-07082,CUST-01061,2026-03-27,2026-03-27T14:37:00,2026-03,Organic Search,SEO Local Pages,organic,Mobile,SA,2,6,1,2,1,0,0,0,0,,,,,33.33,0,missed,qualified,pending
+INT-00166,CALL-030165,LEAD-050186,ENQ-07082,CUST-DUP-06,2026-02-02,2026-02-02T08:47:00,2026-02,Organic Search,Content Hub,organic,Mobile,NSW,0,4,0,2,1,2,0,0,0,,3758.81,,,50,0,missed,opportunity,lost
+INT-00167,CALL-030166,LEAD-050187,ENQ-07083,CUST-01067,2026-02-13,2026-02-13T09:27:00,2026-02,Referral,Broker Referral,referral,Mobile,TAS,3,4,4,2,1,1,0,0,0,,626.45,,,50,0,abandoned,opportunity,no_answer
+INT-00168,CALL-030167,LEAD-050188,ENQ-07083,CUST-01070,2026-03-27,2026-03-27T09:40:00,2026-03,Direct,Direct / Unknown,direct,Desktop,TAS,2,0,0,0,0,0,0,0,0,,,,,,,abandoned,opportunity,lost
+INT-00169,CALL-030168,LEAD-050189,ENQ-07084,CUST-01068,2026-03-06,2026-03-06T11:02:00,2026-03,Referral,Affiliate Warm Leads,referral,Desktop,QLD,3,4,1,2,1,1,0,1,1,,1013.05,1443.1,,50,0,answered,opportunity,booked
+INT-00170,CALL-030169,,ENQ-07084,CUST-01070,2026-01-18,2026-01-18T14:57:00,2026-01,Paid Search,High Intent Search,cpc,Desktop,VIC,5,3,3,0,1,0,0,0,0,705.38,,,,0,0,missed,closed_won,booked
+INT-00171,,LEAD-050192,ENQ-DUP-010,CUST-01062,2026-02-26,2026-02-26T10:55:00,2026-02,Direct,Direct / Unknown,direct,Desktop,NSW,1,3,0,1,1,0,0,1,1,,,1624.86,,33.33,0,missed,qualified,booked
+INT-00172,CALL-030171,LEAD-050193,ENQ-07085,CUST-01062,2026-01-31,2026-01-31T11:50:00,2026-01,Email,Nurture Reactivation,email,Tablet,QLD,3,6,0,3,1,2,1,2,1,,2869.67,4050.36,,50,16.67,abandoned,closed_won,booked
+INT-00173,CALL-030172,LEAD-050194,ENQ-07086,CUST-01061,2026-02-21,2026-02-21T14:52:00,2026-02,Referral,Affiliate Warm Leads,referral,Mobile,WA,3,6,1,2,1,1,0,0,0,,1332.39,,,33.33,0,answered,opportunity,booked
+INT-00174,CALL-030173,LEAD-050195,ENQ-07086,CUST-01071,2026-01-15,2026-01-15T08:09:00,2026-01,Paid Search,High Intent Search,cpc,Mobile,TAS,3,4,0,1,1,0,0,0,0,274.6,,,,25,0,abandoned,qualified,won
+INT-00175,CALL-030174,LEAD-050196,ENQ-07087,CUST-01059,2026-03-27,2026-03-27T10:13:00,2026-03,Paid Social,LOOKALIKE CALL TRIAL,cpc,Tablet,WA,2,4,1,2,1,1,0,0,0,429.5,1053.42,,,50,0,voicemail,opportunity,won
+INT-00176,CALL-030175,LEAD-050197,ENQ-07087,CUST-01061,2025-12-19,2025-12-19T13:17:00,2025-12,Paid Search,High Intent Search,cpc,Mobile,TAS,5,5,2,1,1,0,0,1,1,483.06,,2528.99,,,0,answered,qualified,booked
+INT-00177,,LEAD-050198,ENQ-07088,CUST-DUP-07,2026-03-05,2026-03-05T12:22:00,2026-03,Referral,Affiliate Warm Leads,referral,Mobile,VIC,1,3,0,1,1,0,0,0,0,,,,,33.33,0,voicemail,qualified,booked
+INT-00178,,LEAD-050200,ENQ-07088,CUST-01073,2026-01-18,2026-01-18T09:15:00,2026-01,Direct,Returning Visitors,direct,Mobile,VIC,2,0,0,0,0,0,0,0,0,,,,,,,missed,disqualified,pending
+INT-00179,,LEAD-050201,ENQ-07089,CUST-01059,2026-01-11,2026-01-11T13:46:00,2026-01,Paid Search,Emergency Lead Capture,cpc,Tablet,TAS,1,4,0,2,1,0,0,0,0,214.96,,,,50,0,voicemail,qualified,lost
+INT-00180,,LEAD-050202,ENQ-07089,CUST-01074,2026-03-03,2026-03-03T11:10:00,2026-03,Paid Social,Lookalike Call Trial,cpc,Tablet,NSW,2,3,0,1,1,0,0,0,0,435.9,,,,33.33,0,answered,qualified,no_answer
+INT-00181,CALL-030180,LEAD-050203,ENQ-07090,CUST-01062,2026-02-03,2026-02-03T12:34:00,2026-02,Direct,Returning Visitors,direct,Desktop,SA,2,4,1,1,1,0,0,0,0,,,,,25,0,voicemail,qualified,won
+INT-00182,CALL-030181,,ENQ-07090,CUST-01069,2026-02-14,2026-02-14T08:41:00,2026-02,Paid Social,Meta Lead Gen NSW,cpc,Tablet,QLD,5,2,3,0,1,0,0,0,0,707.19,,,,0,0,abandoned,new,booked
+INT-00183,CALL-030182,LEAD-050205,ENQ-07091,CUST-01067,2026-02-03,2026-02-03T13:23:00,2026-02,Paid Social,Retargeting Social,cpc,Tablet,TAS,5,3,2,1,1,0,0,0,0,611.51,,,,33.33,0,answered,qualified,booked
+INT-00184,CALL-030183,,ENQ-07091,CUST-01066,2026-02-27,2026-02-27T10:47:00,2026-02,Email,Newsletter Promo,email,Tablet,VIC,3,4,1,2,1,1,0,0,0,,1655.11,,,50,0,answered,opportunity,booked
+INT-00185,CALL-030184,,ENQ-07092,CUST-01062,2026-03-08,2026-03-08T11:20:00,2026-03,Paid Search,High Intent Search,cpc,Desktop,NSW,0,3,0,1,1,0,0,0,0,143.85,,,,33.33,0,missed,qualified,no_answer
+INT-00186,,LEAD-050209,ENQ-07092,CUST-01076,2026-01-23,2026-01-23T13:08:00,2026-01,Paid Search,High Intent Search,CPC,Tablet,NSW,5,1,2,0,1,1,0,0,0,632.74,1674.24,,,0,0,answered,opportunity,no_answer
+INT-00187,,,ENQ-07093,CUST-01071,2026-01-23,2026-01-23T10:14:00,2026-01,paid social,Retargeting Social,cpc,Desktop,NSW,3,3,1,0,1,0,0,1,1,352.91,,2446.11,,0,0,voicemail,qualified,booked
+INT-00188,CALL-030187,LEAD-050211,ENQ-DUP-011,CUST-DUP-08,2026-01-19,2026-01-19T13:28:00,2026-01,Organic Search,SEO Local Pages,organic,Tablet,TAS,1,4,0,0,1,0,0,0,0,,,,,0,0,missed,qualified,booked
+INT-00189,,,ENQ-07094,CUST-01069,2026-03-09,2026-03-09T16:33:00,2026-03,Organic Search,Content Hub,organic,Tablet,WA,0,4,0,1,1,0,0,0,0,,,,,25,0,voicemail,qualified,no_answer
+INT-00190,,LEAD-050213,ENQ-07094,CUST-01075,2026-01-18,2026-01-18T12:00:00,2026-01,Paid Social,Lookalike Call Trial,cpc,Tablet,SA,6,3,2,1,1,0,0,0,0,444.89,,,,,0,voicemail,qualified,lost
+INT-00191,CALL-030190,LEAD-050214,ENQ-07095,CUST-01066,2026-03-15,2026-03-15T15:53:00,2026-03,Paid Social,Meta Lead Gen NSW,cpc,Desktop,SA,4,2,1,1,1,0,0,0,0,302.52,,,,50,0,missed,qualified,booked
+INT-00192,CALL-030191,LEAD-050215,ENQ-07095,CUST-01064,2026-03-20,2026-03-20T09:06:00,2026-03,Organic Search,Content Hub,organic,Mobile,NSW,3,3,0,1,1,0,0,0,0,,,,,33.33,0,voicemail,qualified,no_answer
+INT-00193,CALL-030192,,ENQ-07096,CUST-01081,2026-01-22,2026-01-22T13:03:00,2026-01,Paid Search,Brand Protect AU,cpc,Tablet,VIC,6,2,3,0,1,0,0,0,0,668.18,,,,0,0,answered,disqualified,won
+INT-00194,,LEAD-050218,ENQ-07096,CUST-01072,2026-01-11,2026-01-11T16:08:00,2026-01,Display,YouTube Display,display,Tablet,TAS,4,3,2,2,1,1,0,0,0,388.56,763.95,,,66.67,0,missed,opportunity,won
+INT-00195,CALL-030194,LEAD-050219,ENQ-07097,CUST-01066,2026-02-14,2026-02-14T11:31:00,2026-02,Display,YouTube Display,display,Desktop,SA,5,0,3,0,1,0,0,0,0,684.48,,,,,,answered,closed_won,no_answer
+INT-00196,CALL-030195,LEAD-050220,ENQ-07097,CUST-01079,2026-01-14,2026-01-14T14:23:00,2026-01,Paid Search,Emergency Lead Capture,cpc,Tablet,SA,2,3,0,1,1,0,0,0,0,315.62,,,,33.33,0,answered,qualified,booked
+INT-00197,CALL-030196,,ENQ-07098,CUST-01069,2026-02-25,2026-02-25T12:54:00,2026-02,Email,Quote Follow Up,email,Mobile,SA,3,7,1,2,1,1,0,0,0,,,,,28.57,0,missed,opportunity,lost
+INT-00198,CALL-030197,LEAD-050222,ENQ-07098,CUST-01069,2025-12-15,2025-12-15T16:38:00,2025-12,Referral,Affiliate Warm Leads,referral,Mobile,QLD,0,1,0,0,0,0,0,0,0,,,,,0,0,missed,disqualified,lost
+INT-00199,CALL-030198,LEAD-050223,ENQ-07099,CUST-DUP-00,2026-01-07,2026-01-07T12:35:00,2026-01,Referral,Broker Referral,referral,Tablet,SA,1,3,0,1,1,0,0,0,0,,,,,33.33,0,missed,qualified,won
+INT-00200,,LEAD-050224,ENQ-07099,CUST-01080,2025-12-30,2025-12-30T17:12:00,2025-12,Organic Search,Content Hub,organic,Tablet,VIC,3,2,0,1,1,0,0,1,1,,,1038.42,,50,0,answered,qualified,booked
+INT-00201,CALL-030200,LEAD-050225,ENQ-07100,CUST-01081,2026-02-20,2026-02-20T14:55:00,2026-02,Paid Social,Retargeting Social,cpc,Desktop,TAS,1,4,0,2,1,0,0,0,0,336.06,,,,50,0,voicemail,qualified,lost
+INT-00202,CALL-030201,LEAD-050227,ENQ-07100,CUST-01070,2026-04-01,2026-04-01T13:43:00,2026-04,Referral,Broker Referral,referral,Desktop,QLD,1,3,0,1,1,0,0,1,1,,,1684.79,,33.33,0,voicemail,qualified,booked
+INT-00203,,LEAD-050228,ENQ-07101,CUST-01084,2025-12-16,2025-12-16T08:51:00,2025-12,Referral,Partner Network,referral,Desktop,VIC,1,2,0,0,1,0,0,0,0,,,,,148,0,abandoned,closed_won,pending
+INT-00204,CALL-030203,LEAD-050229,ENQ-07101,CUST-01078,2026-01-25,2026-01-25T17:21:00,2026-01,Email,QUOTE FOLLOW UP,email,Mobile,QLD,0,4,0,2,1,1,0,0,0,,2096.07,,,,0,abandoned,opportunity,lost
+INT-00205,CALL-030204,LEAD-050230,ENQ-DUP-012,CUST-01085,2026-01-05,2026-01-05T09:38:00,2026-01,Paid Search,Brand Protect AU,cpc,Tablet,QLD,1,4,0,1,1,0,0,0,0,232.75,,,,25,0,answered,qualified,pending
+INT-00206,CALL-030205,,ENQ-07102,CUST-01072,2026-02-25,2026-02-25T16:12:00,2026-02,Paid Search,Emergency Lead Capture,cpc,Desktop,TAS,2,4,0,2,1,1,0,0,0,,865.63,,,50,0,abandoned,opportunity,booked
+INT-00207,CALL-030206,LEAD-050232,ENQ-07103,CUST-01084,2026-02-10,2026-02-10T17:36:00,2026-02,Organic Search,Organic Maps,organic,Mobile,SA,2,0,0,0,0,0,0,0,0,,,,,,,voicemail,closed_lost,won
+INT-00208,CALL-030207,LEAD-050233,ENQ-07103,CUST-01084,2026-03-18,2026-03-18T16:13:00,2026-03,Direct,Direct / Unknown,direct,Tablet,TAS,1,4,0,1,1,0,0,0,0,,,,,25,0,voicemail,qualified,lost
+INT-00209,CALL-030208,LEAD-050235,ENQ-07104,CUST-01085,2026-03-01,2026-03-01T08:35:00,2026-03,Paid Search,Emergency Lead Capture,cpc,Desktop,VIC,3,1,1,0,1,0,0,0,0,283.27,,,,0,0,voicemail,qualified,pending
+INT-00210,CALL-030209,LEAD-050236,ENQ-07104,CUST-DUP-01,2026-03-11,2026-03-11T10:32:00,2026-03,Direct,Returning Visitors,direct,Desktop,WA,1,4,0,2,1,0,0,0,0,,,,,50,0,voicemail,qualified,booked
+INT-00211,CALL-030210,LEAD-050237,ENQ-07105,CUST-01077,2026-02-01,2026-02-01T17:10:00,2026-02,Paid Search,High Intent Search,cpc,Mobile,VIC,3,6,0,3,1,1,0,0,0,359.69,804.23,,,50,0,missed,opportunity,booked
+INT-00212,,LEAD-050238,ENQ-07105,CUST-01074,2026-01-19,2026-01-19T09:25:00,2026-01,Email,Nurture Reactivation,email,Tablet,NSW,3,3,1,0,1,0,0,0,0,,,,,0,0,abandoned,closed_lost,no_answer
+INT-00213,,LEAD-050239,ENQ-07106,CUST-01075,2026-01-29,2026-01-29T16:22:00,2026-01,Display,Programmatic Retargeting,display,Desktop,QLD,4,6,2,4,1,1,0,0,0,383.11,1727.01,,,66.67,0,answered,opportunity,lost
+INT-00214,CALL-030213,LEAD-050240,ENQ-07106,CUST-01079,2026-03-26,2026-03-26T12:01:00,2026-03,Paid Social,Retargeting Social,cpc,Mobile,QLD,3,6,1,3,1,1,0,0,0,640.95,1961.89,,,50,,answered,opportunity,lost
+INT-00215,CALL-030214,LEAD-050241,ENQ-07107,CUST-01084,2026-02-27,2026-02-27T16:02:00,2026-02,Email,Newsletter Promo,email,Desktop,SA,3,4,1,2,1,1,0,0,0,,460.83,,,50,,answered,opportunity,won
+INT-00216,CALL-030215,LEAD-050242,ENQ-07107,CUST-01078,2025-12-17,2025-12-17T14:07:00,2025-12,Referral,Partner Network,referral,Desktop,TAS,0,4,0,2,1,0,0,0,0,,,,,50,0,abandoned,qualified,pending
+INT-00217,CALL-030216,LEAD-050244,ENQ-07108,CUST-01089,2025-12-22,2025-12-22T15:36:00,2025-12,Paid Search,Emergency Lead Capture,cpc,Desktop,WA,1,1,0,0,0,0,0,0,0,99.1,,,,0,0,abandoned,closed_won,pending
+INT-00218,,LEAD-050245,ENQ-07108,CUST-01086,2026-03-10,2026-03-10T13:21:00,2026-03,organic search,Content Hub,organic,Mobile,TAS,2,2,1,0,1,1,0,0,0,,400.96,,,0,0,abandoned,opportunity,pending
+INT-00219,CALL-030218,,ENQ-07109,CUST-01076,2025-12-19,2025-12-19T08:01:00,2025-12,Referral,Partner Network,referral,Desktop,TAS,3,4,0,2,1,1,0,1,1,,1160.82,2310.55,,50,0,missed,opportunity,booked
+INT-00220,CALL-030219,,ENQ-07109,CUST-01074,2026-03-20,2026-03-20T16:45:00,2026-03,Display,Programmatic Retargeting,display,Desktop,WA,0,3,0,2,1,0,0,0,0,74.94,,,,66.67,0,abandoned,qualified,booked
+INT-00221,,,ENQ-07110,CUST-DUP-02,2026-01-25,2026-01-25T10:14:00,2026-01,Paid Search,High Intent Search,cpc,Mobile,QLD,4,2,1,0,1,0,0,0,0,456.42,,,,0,0,voicemail,closed_won,lost
+INT-00222,,LEAD-050249,ENQ-DUP-013,CUST-01087,2025-12-30,2025-12-30T10:32:00,2025-12,Paid Social,Retargeting Social,cpc,Mobile,QLD,3,5,0,2,1,1,0,0,0,397.57,405.15,,,40,0,voicemail,opportunity,booked
+INT-00223,CALL-030222,LEAD-050250,ENQ-07111,CUST-01077,2025-12-24,2025-12-24T09:40:00,2025-12,Organic Search,SEO Local Pages,ORGANIC,Desktop,SA,1,4,0,2,1,1,0,0,0,,677.01,,,50,0,answered,opportunity,no_answer
+INT-00224,CALL-030223,,ENQ-07111,CUST-01091,2025-12-23,2025-12-23T12:38:00,2025-12,Email,Newsletter Promo,email,Mobile,WA,1,4,0,2,1,1,0,0,0,,1357.06,,,,0,missed,opportunity,pending
+INT-00225,CALL-030224,LEAD-050253,ENQ-07112,CUST-01083,2026-02-03,2026-02-03T08:53:00,2026-02,Paid Search,Emergency Lead Capture,cpc,Tablet,WA,2,3,0,0,0,0,0,0,0,191.7,,,,0,0,missed,new,pending
+INT-00226,,,ENQ-07112,CUST-01086,2026-01-28,2026-01-28T13:45:00,2026-01,Referral,Broker Referral,referral,Tablet,TAS,3,3,1,2,1,1,0,0,0,,2094.87,,,66.67,0,abandoned,opportunity,pending
+INT-00227,CALL-030226,LEAD-050255,ENQ-07113,CUST-01087,2025-12-20,2025-12-20T08:50:00,2025-12,Paid Search,High Intent Search,cpc,Tablet,WA,4,4,1,1,1,0,0,0,0,307.02,,,,25,112,abandoned,qualified,pending
+INT-00228,CALL-030227,LEAD-050256,ENQ-07113,CUST-01092,2026-01-31,2026-01-31T15:16:00,2026-01,Paid Search,Brand Protect AU,cpc,Tablet,SA,4,5,2,3,1,1,0,1,1,627.31,,690.48,,60,,abandoned,opportunity,booked
+INT-00229,CALL-030228,LEAD-050257,ENQ-07114,CUST-01090,2026-02-12,2026-02-12T14:09:00,2026-02,Paid Social,Lookalike Call Trial,cpc,Desktop,WA,4,3,2,0,1,1,0,0,0,574.02,1903.44,,,0,0,missed,opportunity,won
+INT-00230,CALL-030229,LEAD-050258,ENQ-07114,CUST-01088,2026-01-02,2026-01-02T17:16:00,2026-01,Referral,Affiliate Warm Leads,referral,Tablet,VIC,2,1,0,0,0,0,0,0,0,,,,,0,0,abandoned,qualified,no_answer
+INT-00231,,LEAD-050259,ENQ-07115,CUST-01090,2026-02-15,2026-02-15T12:43:00,2026-02,Paid Social,Lookalike Call Trial,cpc,Desktop,TAS,0,4,0,1,1,0,0,0,0,129.49,,,,25,0,missed,qualified,no_answer
+INT-00232,CALL-030231,,ENQ-07115,CUST-DUP-03,2026-03-14,2026-03-14T16:47:00,2026-03,Paid Social,Lookalike Call Trial,cpc,Tablet,VIC,4,1,2,0,1,1,0,0,0,406.24,1597.55,,,0,,missed,opportunity,pending
+INT-00233,CALL-030232,,ENQ-07116,CUST-01093,2026-01-24,2026-01-24T16:32:00,2026-01,Direct,DIRECT / UNKNOWN,direct,Desktop,TAS,4,1,2,0,1,0,0,0,0,,,,,,0,answered,disqualified,won
+INT-00234,CALL-030233,LEAD-050263,ENQ-07116,CUST-01082,2025-12-31,2025-12-31T11:11:00,2025-12,Direct,Returning Visitors,direct,Mobile,TAS,1,1,0,0,0,0,0,0,0,,,,,0,0,answered,new,won
+INT-00235,CALL-030234,LEAD-050264,ENQ-07117,CUST-01092,2026-03-09,2026-03-09T12:19:00,2026-03,Paid Social,Lookalike Call Trial,cpc,Desktop,NSW,2,0,0,0,1,0,0,0,0,173.89,,,,,,voicemail,new,no_answer
+INT-00236,,LEAD-050265,ENQ-07117,CUST-01078,2026-03-04,2026-03-04T08:00:00,2026-03,Paid Social,Meta Lead Gen NSW,cpc,Tablet,QLD,0,5,0,3,1,2,0,0,0,169.38,2211.16,,,60,0,voicemail,opportunity,booked
+INT-00237,CALL-030236,,ENQ-07118,CUST-01094,2025-12-31,2025-12-31T11:08:00,2025-12,Paid Social,Retargeting Social,cpc,Tablet,WA,3,0,1,0,1,0,0,1,1,199.42,,614.95,,,,voicemail,opportunity,booked
+INT-00238,CALL-030237,,ENQ-07118,CUST-01079,2026-01-19,2026-01-19T12:59:00,2026-01,Organic Search,SEO Local Pages,organic,Mobile,VIC,3,0,1,0,1,0,0,1,1,,,2641.37,,,,missed,closed_lost,booked
+INT-00239,CALL-030238,,ENQ-DUP-014,CUST-01084,2026-03-15,2026-03-15T12:07:00,2026-03,Paid Social,Lookalike Call Trial,cpc,Desktop,WA,6,2,2,1,1,0,0,0,0,330.97,,,,50,0,missed,qualified,booked
+INT-00240,CALL-030239,,ENQ-07119,CUST-01085,2026-01-04,2026-01-04T12:31:00,2026-01,Email,Nurture Reactivation,email,Desktop,WA,1,5,0,2,1,0,0,1,1,,,2151.39,,40,0,voicemail,qualified,booked
+INT-00241,,LEAD-050271,ENQ-07120,CUST-01087,2025-12-20,2025-12-20T08:23:00,2025-12,Paid Social,Retargeting Social,cpc,Tablet,WA,0,4,0,2,1,1,0,0,0,121.81,1091.28,,,50,0,abandoned,opportunity,won
+INT-00242,CALL-030241,,ENQ-07120,CUST-01091,2026-01-23,2026-01-23T16:24:00,2026-01,Organic Search,Organic Maps,organic,Mobile,SA,0,4,0,2,1,1,0,0,0,,874.78,,,50,0,voicemail,opportunity,no_answer
+INT-00243,,LEAD-050273,ENQ-07121,CUST-DUP-04,2026-01-12,2026-01-12T15:35:00,2026-01,Paid Search,Brand Protect AU,cpc,Mobile,QLD,1,1,0,0,0,0,0,0,0,152.83,,,,0,0,voicemail,qualified,booked
+INT-00244,,,ENQ-07121,CUST-01096,2025-12-22,2025-12-22T12:08:00,2025-12,Organic Search,Content Hub,organic,Tablet,QLD,3,3,1,1,1,0,0,1,1,,,930.78,,33.33,0,abandoned,qualified,booked
+INT-00245,CALL-030244,LEAD-050275,ENQ-07122,CUST-01088,2026-01-25,2026-01-25T10:40:00,2026-01,Paid Search,Brand Protect AU,cpc,Tablet,WA,2,1,0,0,0,0,0,0,0,311.75,,,,0,0,abandoned,closed_won,no_answer
+INT-00246,,LEAD-050276,ENQ-07122,CUST-01081,2026-01-15,2026-01-15T11:00:00,2026-01,Referral,Broker Referral,referral,Mobile,VIC,3,5,1,1,1,0,0,0,0,,,,,20,0,voicemail,qualified,lost
+INT-00247,CALL-030246,,ENQ-07123,CUST-01090,2026-01-06,2026-01-06T08:41:00,2026-01,Direct,Returning Visitors,direct,Desktop,SA,3,2,1,0,1,0,0,0,0,,,,,0,0,voicemail,closed_won,no_answer
+INT-00248,CALL-030247,LEAD-050279,ENQ-07123,CUST-01091,2025-12-30,2025-12-30T10:37:00,2025-12,Paid Search,Emergency Lead Capture,cpc,Desktop,WA,3,2,1,0,1,0,0,0,0,277.66,,,,,0,voicemail,opportunity,lost
+INT-00249,CALL-030248,LEAD-050280,ENQ-07124,CUST-01099,2026-03-26,2026-03-26T13:52:00,2026-03,referral,Broker Referral,referral,Mobile,NSW,2,3,1,1,1,0,0,0,0,,,,,33.33,0,missed,qualified,won
+INT-00250,CALL-030249,,ENQ-07124,CUST-01087,2026-01-31,2026-01-31T09:19:00,2026-01,Email,Newsletter Promo,email,Tablet,TAS,2,0,3,0,1,0,0,1,1,,,911.65,,,,voicemail,closed_won,booked
+INT-00251,CALL-030250,,ENQ-07125,CUST-01095,2026-03-15,2026-03-15T08:56:00,2026-03,Paid Social,Retargeting Social,cpc,Tablet,TAS,1,3,0,1,1,0,0,0,0,185.18,,,,33.33,0,voicemail,qualified,won
+INT-00252,CALL-030251,LEAD-050283,ENQ-07125,CUST-01090,2026-03-06,2026-03-06T10:01:00,2026-03,Paid Search,High Intent Search,cpc,Tablet,TAS,4,0,2,0,1,0,0,1,1,432.38,,695.02,,,,abandoned,closed_won,booked
+INT-00253,CALL-030252,LEAD-050284,ENQ-07126,CUST-01095,2026-01-20,2026-01-20T08:39:00,2026-01,Paid Search,Brand Protect AU,cpc,Tablet,QLD,4,5,2,2,1,1,0,0,0,739.9,,,,40,,abandoned,opportunity,won
+INT-00254,,,ENQ-07126,CUST-DUP-05,2026-03-15,2026-03-15T08:39:00,2026-03,Email,Newsletter Promo,email,Desktop,NSW,3,6,1,1,1,0,0,1,1,,,529.66,,16.67,0,abandoned,qualified,booked
+INT-00255,,LEAD-050287,ENQ-07127,CUST-01096,2026-02-24,2026-02-24T10:59:00,2026-02,Paid Search,High Intent Search,cpc,Tablet,VIC,2,5,1,2,1,2,0,0,0,306.2,1395.02,,,40,0,answered,opportunity,no_answer
+INT-00256,CALL-030255,LEAD-050288,ENQ-DUP-015,CUST-01087,2026-01-25,2026-01-25T11:26:00,2026-01,Paid Social,Retargeting Social,cpc,Tablet,SA,5,2,2,0,1,0,0,0,0,480.94,,,,0,0,answered,disqualified,pending
+INT-00257,CALL-030256,LEAD-050289,ENQ-07128,CUST-01092,2026-01-13,2026-01-13T17:34:00,2026-01,Paid Search,High Intent Search,cpc,Tablet,SA,0,6,0,3,1,1,0,0,0,322.9,896.56,,,50,0,answered,opportunity,no_answer
+INT-00258,CALL-030257,,ENQ-07128,CUST-01096,2026-01-21,2026-01-21T13:41:00,2026-01,Display,YouTube Display,display,Mobile,TAS,1,2,0,1,1,1,0,0,0,110.04,1726.04,,,50,0,answered,opportunity,no_answer
+INT-00259,CALL-030258,LEAD-050291,ENQ-07129,CUST-01086,2025-12-24,2025-12-24T09:31:00,2025-12,Organic Search,SEO Local Pages,organic,Desktop,NSW,0,1,0,0,0,0,0,0,0,,,,,0,0,voicemail,disqualified,pending
+INT-00260,CALL-030259,LEAD-050292,ENQ-07129,CUST-01087,2026-02-20,2026-02-20T12:53:00,2026-02,Display,Display Awareness,DISPLAY,Mobile,TAS,4,4,2,1,1,0,0,0,0,507.54,,,,25,,voicemail,qualified,booked
+INT-00261,CALL-030260,LEAD-050293,ENQ-07130,CUST-01103,2026-02-16,2026-02-16T12:52:00,2026-02,Referral,Partner Network,referral,Tablet,TAS,0,5,0,2,1,1,0,0,0,,,,,40,0,answered,opportunity,no_answer
+INT-00262,CALL-030261,LEAD-050294,ENQ-07130,CUST-01095,2026-03-19,2026-03-19T14:30:00,2026-03,Paid Social,RETARGETING SOCIAL,cpc,Mobile,WA,4,3,0,1,1,0,0,1,1,493.83,,587.96,,33.33,0,answered,qualified,booked
+INT-00263,CALL-030262,LEAD-050296,ENQ-07131,CUST-01099,2026-01-31,2026-01-31T11:45:00,2026-01,Paid Social,Lookalike Call Trial,cpc,Tablet,VIC,5,3,3,1,1,0,0,0,0,732.74,,,,33.33,,abandoned,qualified,booked
+INT-00264,,LEAD-050297,ENQ-07131,CUST-01096,2025-12-18,2025-12-18T16:14:00,2025-12,Paid Social,Lookalike Call Trial,cpc,Desktop,TAS,5,3,0,2,1,0,0,0,0,459.61,,,,66.67,0,missed,qualified,lost
+INT-00265,CALL-030264,LEAD-050298,ENQ-07132,CUST-DUP-06,2026-01-31,2026-01-31T10:12:00,2026-01,Paid Search,Brand Protect AU,cpc,Desktop,NSW,0,0,0,0,0,0,0,0,0,0,,,,,,voicemail,closed_won,won
+INT-00266,,LEAD-050299,ENQ-07132,CUST-01100,2026-01-20,2026-01-20T16:11:00,2026-01,Paid Social,Retargeting Social,cpc,Mobile,WA,3,4,1,1,1,0,0,1,1,464.66,,881.2,,25,0,missed,qualified,booked
+INT-00267,CALL-030266,,ENQ-07133,CUST-01102,2026-03-08,2026-03-08T08:53:00,2026-03,Paid Search,High Intent Search,cpc,Tablet,TAS,4,6,1,4,1,1,0,0,0,421.84,,,,66.67,0,answered,opportunity,no_answer
+INT-00268,CALL-030267,LEAD-050301,ENQ-07133,CUST-01106,2026-01-13,2026-01-13T14:54:00,2026-01,Paid Search,Brand Protect AU,cpc,Mobile,WA,3,1,2,0,1,0,0,0,0,207.05,,,,0,0,answered,qualified,won
+INT-00269,CALL-030268,LEAD-050302,ENQ-07134,CUST-01101,2026-02-24,2026-02-24T11:27:00,2026-02,Direct,Direct / Unknown,direct,Tablet,WA,1,0,0,0,0,1,0,0,0,,770.81,,,,,missed,opportunity,lost
+INT-00270,CALL-030269,,ENQ-07134,CUST-01106,2026-03-08,2026-03-08T08:23:00,2026-03,Referral,Partner Network,referral,Desktop,TAS,1,2,0,1,1,0,0,0,0,,,,,50,0,missed,qualified,pending
+INT-00271,CALL-030270,,ENQ-07135,CUST-01095,2025-12-17,2025-12-17T14:24:00,2025-12,Email,Quote Follow Up,email,Mobile,VIC,0,4,0,2,1,0,0,0,0,,,,,50,0,abandoned,qualified,won
+INT-00272,CALL-030271,LEAD-050306,ENQ-07135,CUST-01101,2026-03-17,2026-03-17T11:56:00,2026-03,Paid Search,Emergency Lead Capture,cpc,Desktop,NSW,2,4,0,1,1,0,0,0,0,390.73,,,,25,0,voicemail,qualified,pending
+INT-00273,CALL-030272,LEAD-050307,ENQ-DUP-016,CUST-01096,2026-03-05,2026-03-05T16:11:00,2026-03,Display,Programmatic Retargeting,display,Tablet,QLD,5,0,1,0,1,0,0,0,0,433.7,,,,,,abandoned,qualified,booked
+INT-00274,,LEAD-050308,ENQ-07136,CUST-01096,2026-03-23,2026-03-23T14:06:00,2026-03,Organic Search,Organic Maps,organic,Desktop,SA,0,3,0,2,1,1,0,0,0,,1776.27,,,66.67,0,missed,opportunity,pending
+INT-00275,CALL-030274,,ENQ-07137,CUST-01102,2026-03-29,2026-03-29T15:04:00,2026-03,Email,Nurture Reactivation,email,Tablet,QLD,2,4,0,1,1,0,0,0,0,,,,,25,0,answered,qualified,lost
+INT-00276,CALL-030275,,ENQ-07137,CUST-DUP-07,2026-02-13,2026-02-13T15:43:00,2026-02,Email,Nurture Reactivation,email,Mobile,QLD,3,3,2,0,1,0,0,0,0,,,,,0,,abandoned,closed_lost,lost
+INT-00277,,LEAD-050311,ENQ-07138,CUST-01098,2026-03-17,2026-03-17T11:49:00,2026-03,Organic Search,Content Hub,organic,Mobile,NSW,0,0,0,0,0,0,0,0,0,,,,,,,abandoned,opportunity,booked
+INT-00278,CALL-030277,LEAD-050313,ENQ-07138,CUST-01109,2026-04-01,2026-04-01T11:11:00,2026-04,Referral,Broker Referral,referral,Tablet,NSW,3,3,0,1,1,0,0,0,0,,,,,33.33,0,missed,qualified,booked
+INT-00279,CALL-030278,LEAD-050314,ENQ-07139,CUST-01093,2026-02-19,2026-02-19T10:19:00,2026-02,Email,Nurture Reactivation,email,Desktop,VIC,0,4,0,1,1,0,0,0,0,,,,,25,0,missed,qualified,lost
+INT-00280,,LEAD-050315,ENQ-07139,CUST-01107,2026-01-31,2026-01-31T17:53:00,2026-01,organic search,Content Hub,organic,Tablet,VIC,2,2,1,0,1,0,0,0,0,,,,,0,0,abandoned,new,pending
+INT-00281,CALL-030280,LEAD-050316,ENQ-07140,CUST-01110,2026-01-03,2026-01-03T08:24:00,2026-01,Direct,Returning Visitors,direct,Tablet,SA,4,1,1,0,1,0,0,0,0,,,,,0,0,abandoned,closed_lost,booked
+INT-00282,,LEAD-050317,ENQ-07140,CUST-01110,2025-12-27,2025-12-27T16:20:00,2025-12,Organic Search,Organic Maps,organic,Mobile,WA,2,2,1,1,1,0,0,0,0,,,,,50,0,voicemail,qualified,won
+INT-00283,,,ENQ-07141,CUST-01094,2025-12-19,2025-12-19T14:12:00,2025-12,Email,Quote Follow Up,email,Tablet,SA,0,3,0,0,0,1,0,0,0,,1253.33,,,0,,abandoned,opportunity,won
+INT-00284,,LEAD-050319,ENQ-07141,CUST-01102,2026-03-11,2026-03-11T08:57:00,2026-03,Referral,Partner Network,referral,Desktop,TAS,3,5,1,1,1,0,0,0,0,,,,,20,0,abandoned,qualified,lost
+INT-00285,,LEAD-050320,ENQ-07142,CUST-01102,2026-03-16,2026-03-16T15:06:00,2026-03,Paid Search,High Intent Search,cpc,Desktop,VIC,5,4,3,2,1,0,0,0,0,634.48,,,,50,0,answered,qualified,no_answer
+INT-00286,CALL-030285,LEAD-050322,ENQ-07142,CUST-01103,2026-03-22,2026-03-22T15:50:00,2026-03,Direct,Direct / Unknown,direct,Tablet,QLD,0,0,0,0,0,0,0,0,0,,,,,,,missed,new,booked
+INT-00287,CALL-030286,LEAD-050323,ENQ-07143,CUST-DUP-08,2026-03-01,2026-03-01T17:25:00,2026-03,Paid Social,Meta Lead Gen NSW,cpc,Desktop,TAS,4,5,1,1,1,0,0,0,0,503.89,,,,20,0,missed,qualified,no_answer
+INT-00288,,,ENQ-07143,CUST-01106,2026-01-21,2026-01-21T16:48:00,2026-01,Direct,Direct / Unknown,direct,Tablet,WA,3,2,1,0,1,0,0,0,0,,,,,0,0,abandoned,closed_won,booked
+INT-00289,,,ENQ-07144,CUST-01111,2025-12-15,2025-12-15T16:30:00,2025-12,Email,Quote Follow Up,email,Mobile,WA,2,7,0,3,1,1,0,1,1,,1977.7,2140.24,,42.86,0,voicemail,opportunity,booked
+INT-00290,CALL-030289,LEAD-050326,ENQ-DUP-017,CUST-01097,2026-01-28,2026-01-28T13:07:00,2026-01,Organic Search,Organic Maps,organic,Desktop,WA,2,4,0,1,1,0,0,0,0,,,,,25,0,abandoned,qualified,pending
+INT-00291,CALL-030290,,ENQ-07145,CUST-01109,2026-02-23,2026-02-23T08:29:00,2026-02,Email,NURTURE REACTIVATION,email,Desktop,VIC,1,5,0,1,1,0,0,0,0,,,,,20,0,voicemail,qualified,won
+INT-00292,CALL-030291,LEAD-050328,ENQ-07145,CUST-01111,2026-02-05,2026-02-05T16:39:00,2026-02,Paid Search,Brand Protect AU,cpc,Mobile,VIC,0,3,0,4,1,2,1,1,1,112.25,4135.71,3193.35,2657.33,133.33,33.33,answered,closed_won,booked
+INT-00293,CALL-030292,LEAD-050329,ENQ-07146,CUST-01105,2026-03-31,2026-03-31T14:01:00,2026-03,Paid Search,Brand Protect AU,cpc,Mobile,SA,2,1,1,0,1,0,0,0,0,226.85,,,,0,0,voicemail,new,pending
+INT-00294,,LEAD-050331,ENQ-07146,CUST-01102,2026-01-21,2026-01-21T12:45:00,2026-01,Paid Search,Brand Protect AU,cpc,Desktop,SA,2,2,1,1,1,1,0,0,0,358.46,585.11,,,50,0,voicemail,opportunity,lost
+INT-00295,CALL-030294,LEAD-050332,ENQ-07147,CUST-01103,2025-12-25,2025-12-25T15:15:00,2025-12,Organic Search,Content Hub,organic,Tablet,WA,1,7,0,4,1,2,0,0,0,,938.78,,,57.14,0,voicemail,opportunity,no_answer
+INT-00296,CALL-030295,LEAD-050333,ENQ-07147,CUST-01107,2026-01-26,2026-01-26T17:55:00,2026-01,Paid Social,Retargeting Social,cpc,Desktop,SA,3,0,1,0,1,0,0,0,0,289.24,,,,,,answered,new,pending
+INT-00297,CALL-030296,,ENQ-07148,CUST-01112,2025-12-20,2025-12-20T13:49:00,2025-12,Paid Search,Brand Protect AU,CPC,Tablet,SA,3,6,0,3,1,1,0,0,0,511.87,689.53,,,50,0,abandoned,opportunity,booked
+INT-00298,CALL-030297,LEAD-050335,ENQ-07148,CUST-DUP-00,2026-03-18,2026-03-18T12:36:00,2026-03,Paid Search,Brand Protect AU,cpc,Mobile,WA,4,0,2,0,1,0,0,1,1,229.57,,2075.61,,,,missed,disqualified,booked
+INT-00299,,LEAD-050336,ENQ-07149,CUST-01113,2026-01-18,2026-01-18T12:50:00,2026-01,Organic Search,SEO Local Pages,organic,Mobile,QLD,1,3,0,1,1,0,0,0,0,,,,,33.33,0,voicemail,qualified,lost
+INT-00300,CALL-030299,LEAD-050337,ENQ-07149,CUST-01103,2026-02-11,2026-02-11T11:42:00,2026-02,Display,Programmatic Retargeting,display,Tablet,QLD,3,2,1,1,1,0,0,1,1,383.14,,1456.38,,,0,voicemail,qualified,booked
+INT-00301,,LEAD-050338,ENQ-07150,CUST-01114,2026-01-27,2026-01-27T09:00:00,2026-01,Referral,Partner Network,referral,Tablet,VIC,3,6,1,4,1,2,1,1,1,,,3635.19,1461.79,66.67,16.67,missed,closed_won,booked
+INT-00302,,LEAD-050340,ENQ-07150,CUST-01110,2025-12-17,2025-12-17T15:18:00,2025-12,Paid Search,High Intent Search,cpc,Tablet,QLD,4,2,2,0,1,0,0,0,0,328.13,,,,0,0,missed,new,pending
+INT-00303,CALL-030302,LEAD-050341,ENQ-07151,CUST-01107,2026-04-01,2026-04-01T14:52:00,2026-04,Paid Social,Lookalike Call Trial,cpc,Desktop,TAS,2,3,1,2,1,0,0,1,1,374.71,,606.53,,66.67,0,missed,qualified,booked
+INT-00304,CALL-030303,LEAD-050342,ENQ-07151,CUST-01116,2026-02-26,2026-02-26T09:19:00,2026-02,Direct,Returning Visitors,direct,Tablet,TAS,1,0,0,0,1,0,0,0,0,,,,,146,,missed,new,no_answer
+INT-00305,CALL-030304,,ENQ-07152,CUST-01114,2026-04-01,2026-04-01T12:31:00,2026-04,Email,Nurture Reactivation,email,Tablet,NSW,0,5,0,2,1,1,0,0,0,,,,,40,,voicemail,opportunity,no_answer
+INT-00306,CALL-030305,LEAD-050344,ENQ-07152,CUST-01112,2026-01-23,2026-01-23T12:41:00,2026-01,Email,Newsletter Promo,email,Tablet,TAS,0,2,0,0,1,0,0,0,0,,,,,0,0,missed,opportunity,booked
+INT-00307,CALL-030306,LEAD-050345,ENQ-DUP-018,CUST-01107,2026-02-04,2026-02-04T09:45:00,2026-02,Referral,Partner Network,referral,Desktop,WA,3,7,1,1,1,0,0,0,0,,,,,14.29,0,voicemail,qualified,lost
+INT-00308,CALL-030307,,ENQ-07153,CUST-01113,2025-12-30,2025-12-30T16:50:00,2025-12,Display,YouTube Display,display,Mobile,QLD,2,5,0,3,1,1,0,0,0,,1818.06,,,60,0,voicemail,opportunity,no_answer
+INT-00309,CALL-030308,LEAD-050348,ENQ-07154,CUST-DUP-01,2026-02-09,2026-02-09T12:25:00,2026-02,Referral,Affiliate Warm Leads,referral,Tablet,WA,1,2,0,0,0,0,0,1,1,,,2348.42,,0,0,missed,new,booked
+INT-00310,,LEAD-050349,ENQ-07154,CUST-01119,2026-02-03,2026-02-03T11:48:00,2026-02,Email,Nurture Reactivation,email,Mobile,SA,3,1,1,0,1,0,0,0,0,,,,,0,0,voicemail,disqualified,booked
+INT-00311,CALL-030310,LEAD-050350,ENQ-07155,CUST-01119,2026-03-19,2026-03-19T11:47:00,2026-03,paid search,Brand Protect AU,cpc,Tablet,NSW,3,2,1,0,1,0,0,0,0,231.93,,,,0,0,answered,qualified,no_answer
+INT-00312,CALL-030311,LEAD-050351,ENQ-07155,CUST-01108,2025-12-22,2025-12-22T15:51:00,2025-12,Organic Search,Content Hub,organic,Desktop,SA,0,3,0,2,1,0,0,0,0,,,,,66.67,0,voicemail,qualified,no_answer
+INT-00313,CALL-030312,LEAD-050352,ENQ-07156,CUST-01107,2026-02-20,2026-02-20T10:30:00,2026-02,Email,Quote Follow Up,email,Tablet,QLD,2,2,0,0,0,1,0,0,0,,1308.63,,,0,0,missed,opportunity,lost
+INT-00314,,LEAD-050353,ENQ-07156,CUST-01118,2026-03-24,2026-03-24T14:56:00,2026-03,Organic Search,Content Hub,organic,Tablet,TAS,2,4,1,2,1,1,0,0,0,,852.35,,,50,0,voicemail,opportunity,won
+INT-00315,CALL-030314,LEAD-050354,ENQ-07157,CUST-01119,2026-03-04,2026-03-04T15:29:00,2026-03,Organic Search,SEO Local Pages,organic,Mobile,SA,2,6,1,2,1,1,0,0,0,,1943.24,,,33.33,,abandoned,opportunity,no_answer
+INT-00316,CALL-030315,,ENQ-07157,CUST-01107,2026-03-31,2026-03-31T15:16:00,2026-03,Paid Search,Brand Protect AU,cpc,Tablet,TAS,4,3,1,1,1,0,0,1,1,501.38,,2165.12,,33.33,,abandoned,qualified,booked
+INT-00317,CALL-030316,,ENQ-07158,CUST-01118,2026-03-02,2026-03-02T12:35:00,2026-03,Organic Search,SEO Local Pages,organic,Mobile,SA,1,4,0,0,0,0,0,0,0,,,,,0,,voicemail,new,won
+INT-00318,CALL-030317,,ENQ-07158,CUST-01120,2026-01-26,2026-01-26T13:05:00,2026-01,Direct,Direct / Unknown,direct,Desktop,WA,5,4,1,0,1,0,0,0,0,,,,,0,0,voicemail,opportunity,booked
+INT-00319,,LEAD-050359,ENQ-07159,CUST-01122,2026-01-20,2026-01-20T08:24:00,2026-01,Email,Quote Follow Up,email,Desktop,WA,0,2,0,1,1,0,0,0,0,,,,,50,0,abandoned,qualified,booked
+INT-00320,CALL-030319,LEAD-050360,ENQ-07159,CUST-DUP-02,2026-03-10,2026-03-10T15:20:00,2026-03,Paid Search,BRAND PROTECT AU,cpc,Tablet,TAS,4,4,0,1,1,0,0,0,0,547.81,,,,25,0,abandoned,qualified,lost
+INT-00321,,LEAD-050361,ENQ-07160,CUST-01112,2026-01-09,2026-01-09T12:05:00,2026-01,Email,Newsletter Promo,email,Tablet,QLD,1,3,0,2,1,1,0,1,1,,1192.99,2091.97,,66.67,0,voicemail,opportunity,booked
+INT-00322,,LEAD-050362,ENQ-07160,CUST-01123,2026-03-29,2026-03-29T12:15:00,2026-03,Paid Search,Brand Protect AU,cpc,Tablet,TAS,3,3,1,1,1,0,0,0,0,305.84,,,,33.33,0,missed,qualified,pending
+INT-00323,CALL-030322,LEAD-050363,ENQ-07161,CUST-01124,2026-01-05,2026-01-05T09:22:00,2026-01,Paid Social,Retargeting Social,cpc,Mobile,VIC,4,1,2,0,1,0,0,0,0,193.98,,,,0,0,voicemail,opportunity,pending
+INT-00324,,LEAD-050364,ENQ-DUP-019,CUST-01116,2026-03-11,2026-03-11T17:11:00,2026-03,Paid Search,High Intent Search,cpc,Desktop,NSW,4,2,1,0,1,0,0,0,0,503.56,,,,0,0,answered,opportunity,won
+INT-00325,CALL-030324,LEAD-050366,ENQ-07162,CUST-01124,2026-01-13,2026-01-13T16:19:00,2026-01,Paid Search,Emergency Lead Capture,cpc,Mobile,SA,3,4,1,2,1,0,0,1,1,523.72,,1233.26,,50,0,answered,qualified,booked
+INT-00326,,LEAD-050367,ENQ-07162,CUST-01117,2026-01-22,2026-01-22T09:32:00,2026-01,Organic Search,Content Hub,organic,Desktop,SA,2,1,0,0,0,0,0,0,0,27.32,,,,0,0,voicemail,closed_won,lost
+INT-00327,CALL-030326,,ENQ-07163,CUST-01111,2025-12-24,2025-12-24T14:28:00,2025-12,Email,Nurture Reactivation,email,Mobile,WA,3,4,0,2,1,1,0,0,0,,721.41,,,50,0,answered,opportunity,won
+INT-00328,CALL-030327,LEAD-050369,ENQ-07163,CUST-01125,2026-03-06,2026-03-06T08:24:00,2026-03,Referral,Partner Network,referral,Desktop,TAS,2,5,0,3,1,1,0,0,0,,953.02,,,60,0,missed,opportunity,won
+INT-00329,CALL-030328,,ENQ-07164,CUST-01122,2026-03-18,2026-03-18T12:43:00,2026-03,Paid Search,Brand Protect AU,cpc,Tablet,WA,0,0,0,0,0,0,0,0,0,,,,,,,answered,closed_won,won
+INT-00330,CALL-030329,LEAD-050371,ENQ-07164,CUST-01114,2025-12-25,2025-12-25T08:21:00,2025-12,Direct,Phone Number Recall,direct,Tablet,WA,0,3,0,2,1,0,0,0,0,,,,,66.67,0,voicemail,qualified,booked
+INT-00331,,,ENQ-07165,CUST-DUP-03,2025-12-24,2025-12-24T11:17:00,2025-12,Direct,Returning Visitors,direct,Desktop,SA,3,4,1,2,1,0,0,0,0,,,,,50,0,answered,qualified,booked
+INT-00332,,LEAD-050374,ENQ-07165,CUST-01110,2026-03-18,2026-03-18T11:44:00,2026-03,Paid Social,Lookalike Call Trial,cpc,Desktop,SA,6,3,4,1,1,0,0,0,0,710.42,,,,33.33,0,missed,qualified,no_answer
+INT-00333,CALL-030332,LEAD-050375,ENQ-07166,CUST-01126,2025-12-20,2025-12-20T09:08:00,2025-12,Paid Search,Brand Protect AU,cpc,Mobile,SA,2,4,4,2,1,1,0,1,1,350.01,1105.62,1740.15,,50,0,abandoned,opportunity,booked
+INT-00334,CALL-030333,LEAD-050376,ENQ-07166,CUST-01115,2025-12-25,2025-12-25T09:10:00,2025-12,Referral,Partner Network,REFERRAL,Mobile,WA,0,7,0,3,1,1,0,0,0,,1482.82,,,42.86,0,missed,opportunity,pending
+INT-00335,CALL-030334,LEAD-050377,ENQ-07167,CUST-01120,2026-03-08,2026-03-08T16:00:00,2026-03,Paid Search,High Intent Search,cpc,Mobile,TAS,5,2,3,1,1,0,0,0,0,321.45,,,,50,0,abandoned,qualified,booked
+INT-00336,CALL-030335,,ENQ-07167,CUST-01117,2026-01-06,2026-01-06T15:16:00,2026-01,Paid Search,Brand Protect AU,cpc,Mobile,QLD,0,0,0,0,1,0,0,0,0,0,,,,,,missed,new,lost
+INT-00337,CALL-030336,LEAD-050379,ENQ-07168,CUST-01115,2026-01-13,2026-01-13T14:44:00,2026-01,Paid Social,Lookalike Call Trial,cpc,Desktop,TAS,3,0,1,0,1,0,0,0,0,216.39,,,,,,voicemail,new,no_answer
+INT-00338,CALL-030337,LEAD-050380,ENQ-07168,CUST-01123,2026-02-15,2026-02-15T17:14:00,2026-02,Direct,Direct / Unknown,direct,Tablet,VIC,3,1,1,0,1,0,0,0,0,,,,,0,0,voicemail,opportunity,pending
+INT-00339,CALL-030338,LEAD-050381,ENQ-07169,CUST-01124,2026-03-22,2026-03-22T15:01:00,2026-03,Organic Search,Content Hub,organic,Tablet,VIC,2,1,0,0,0,0,0,0,0,,,,,0,0,voicemail,disqualified,booked
+INT-00340,CALL-030339,,ENQ-07169,CUST-01120,2025-12-19,2025-12-19T15:29:00,2025-12,Direct,Returning Visitors,direct,Mobile,NSW,1,2,0,0,0,0,0,0,0,,,,,0,122,voicemail,new,lost
+INT-00341,CALL-030340,LEAD-050384,ENQ-DUP-020,CUST-01119,2026-02-26,2026-02-26T10:01:00,2026-02,Organic Search,Organic Maps,organic,Desktop,NSW,0,1,0,0,0,0,0,0,0,,,,,0,0,answered,disqualified,no_answer
+INT-00342,,LEAD-050385,ENQ-07170,CUST-DUP-04,2026-01-02,2026-01-02T17:24:00,2026-01,organic search,SEO Local Pages,organic,Tablet,QLD,2,2,0,0,1,0,0,0,0,,,,,0,0,missed,closed_won,pending
+INT-00343,CALL-030342,,ENQ-07171,CUST-01125,2026-01-27,2026-01-27T15:48:00,2026-01,Paid Search,High Intent Search,cpc,Mobile,QLD,2,3,1,1,1,1,0,0,0,359.97,1666.75,,,33.33,0,voicemail,opportunity,pending
+INT-00344,CALL-030343,LEAD-050387,ENQ-07171,CUST-01123,2026-01-05,2026-01-05T12:29:00,2026-01,Paid Social,Meta Lead Gen NSW,cpc,Mobile,TAS,5,1,3,0,1,1,0,0,0,,1930.62,,,0,0,voicemail,opportunity,won
+INT-00345,CALL-030344,,ENQ-07172,CUST-01129,2026-03-25,2026-03-25T17:16:00,2026-03,Email,Nurture Reactivation,email,Desktop,NSW,3,4,2,2,1,1,0,1,1,,393.04,511.8,,50,,missed,opportunity,booked
+INT-00346,CALL-030345,LEAD-050389,ENQ-07172,CUST-01123,2026-02-04,2026-02-04T08:24:00,2026-02,Organic Search,Content Hub,organic,Desktop,TAS,0,5,0,1,1,0,0,0,0,,,,,,0,voicemail,qualified,lost
+INT-00347,,LEAD-050390,ENQ-07173,CUST-01120,2026-03-15,2026-03-15T13:00:00,2026-03,Email,Nurture Reactivation,email,Tablet,WA,3,6,0,1,1,0,0,0,0,,,,,16.67,0,abandoned,qualified,booked
+INT-00348,CALL-030347,LEAD-050392,ENQ-07173,CUST-01127,2026-01-21,2026-01-21T09:42:00,2026-01,Organic Search,SEO Local Pages,organic,Tablet,SA,3,2,2,0,1,0,0,0,0,,,,,0,0,answered,new,won
+INT-00349,CALL-030348,,ENQ-07174,CUST-01121,2026-01-06,2026-01-06T10:53:00,2026-01,Paid Social,LOOKALIKE CALL TRIAL,cpc,Mobile,QLD,5,2,2,1,1,0,0,1,1,318.84,,1607.28,,50,0,answered,qualified,booked
+INT-00350,CALL-030349,LEAD-050394,ENQ-07174,CUST-01133,2026-02-02,2026-02-02T16:15:00,2026-02,Paid Search,Brand Protect AU,cpc,Desktop,SA,3,3,0,0,0,0,0,0,0,278.58,,,,0,0,voicemail,opportunity,pending
+INT-00351,CALL-030350,,ENQ-07175,CUST-01119,2026-01-23,2026-01-23T10:09:00,2026-01,Paid Social,Meta Lead Gen NSW,cpc,Desktop,NSW,3,5,0,1,1,0,0,1,1,579.56,,1937.07,,20,0,abandoned,qualified,booked
+INT-00352,CALL-030351,LEAD-050396,ENQ-07175,CUST-01117,2025-12-22,2025-12-22T09:32:00,2025-12,Paid Social,Meta Lead Gen NSW,cpc,Desktop,WA,3,4,1,1,1,0,0,0,0,374.31,,,,25,,missed,qualified,no_answer
+INT-00353,CALL-030352,LEAD-050397,ENQ-07176,CUST-DUP-05,2025-12-22,2025-12-22T12:24:00,2025-12,Organic Search,Organic Maps,organic,Tablet,WA,3,4,1,1,1,0,0,0,0,,,,,25,0,voicemail,qualified,no_answer
+INT-00354,CALL-030353,LEAD-050398,ENQ-07176,CUST-01120,2026-03-18,2026-03-18T10:53:00,2026-03,Paid Search,Emergency Lead Capture,cpc,Mobile,NSW,5,6,3,3,1,1,0,0,0,681.88,1279.26,,,50,0,abandoned,opportunity,won
+INT-00355,CALL-030354,LEAD-050400,ENQ-07177,CUST-01122,2026-02-14,2026-02-14T10:10:00,2026-02,Email,Newsletter Promo,email,Mobile,QLD,2,0,0,0,0,0,0,0,0,,,,,,,voicemail,disqualified,no_answer
+INT-00356,,LEAD-050401,ENQ-07177,CUST-01133,2026-03-08,2026-03-08T13:58:00,2026-03,Direct,Direct / Unknown,direct,Tablet,WA,1,0,0,0,0,0,0,1,1,,,901.76,,,,missed,closed_lost,booked
+INT-00357,CALL-030356,LEAD-050402,ENQ-07178,CUST-01119,2026-02-14,2026-02-14T10:22:00,2026-02,Paid Search,Brand Protect AU,cpc,Mobile,QLD,3,3,1,2,1,2,0,0,0,382.97,3402.43,,,66.67,0,abandoned,opportunity,lost
+INT-00358,,LEAD-050403,ENQ-DUP-021,CUST-01127,2026-01-02,2026-01-02T16:16:00,2026-01,Display,Display Awareness,display,Tablet,SA,4,3,2,1,1,0,0,0,0,386.79,,,,33.33,0,voicemail,qualified,booked
+INT-00359,CALL-030358,,ENQ-07179,CUST-01125,2026-01-04,2026-01-04T13:16:00,2026-01,Paid Search,High Intent Search,cpc,Tablet,SA,2,5,1,1,1,0,0,0,0,,,,,20,0,missed,qualified,no_answer
+INT-00360,CALL-030359,LEAD-050405,ENQ-07179,CUST-01132,2025-12-28,2025-12-28T11:39:00,2025-12,Organic Search,SEO Local Pages,organic,Mobile,SA,2,4,0,0,0,0,0,0,0,,,,,0,0,voicemail,disqualified,won
+INT-00361,CALL-030360,LEAD-050406,ENQ-07180,CUST-01122,2026-01-06,2026-01-06T16:12:00,2026-01,Direct,Direct / Unknown,direct,Mobile,VIC,2,1,1,0,1,0,0,0,0,,,,,0,0,missed,opportunity,pending
+INT-00362,CALL-030361,LEAD-050407,ENQ-07180,CUST-01122,2026-03-25,2026-03-25T09:05:00,2026-03,Paid Search,High Intent Search,cpc,Tablet,WA,4,1,2,0,1,0,0,0,0,,,,,0,0,missed,disqualified,won
+INT-00363,CALL-030362,LEAD-050409,ENQ-07181,CUST-01137,2026-02-09,2026-02-09T15:46:00,2026-02,Direct,Returning Visitors,direct,Tablet,NSW,2,4,1,1,1,0,0,0,0,,,,,25,0,answered,qualified,won
+INT-00364,CALL-030363,,ENQ-07181,CUST-DUP-06,2026-02-12,2026-02-12T15:56:00,2026-02,Paid Social,Lookalike Call Trial,cpc,Desktop,TAS,5,4,2,1,1,0,0,1,1,871.62,,2153.88,,25,0,answered,qualified,booked
+INT-00365,CALL-030364,LEAD-050411,ENQ-07182,CUST-01121,2026-01-12,2026-01-12T08:54:00,2026-01,Paid Social,Retargeting Social,cpc,Mobile,VIC,1,6,0,2,1,0,0,0,0,350.94,,,,33.33,0,abandoned,qualified,won
+INT-00366,,LEAD-050412,ENQ-07182,CUST-01137,2026-02-16,2026-02-16T12:48:00,2026-02,Referral,Broker Referral,referral,Desktop,SA,2,6,0,2,1,1,0,0,0,,1707.18,,,33.33,0,abandoned,opportunity,won
+INT-00367,CALL-030366,LEAD-050413,ENQ-07183,CUST-01123,2026-01-01,2026-01-01T09:55:00,2026-01,Paid Search,Emergency Lead Capture,cpc,Desktop,WA,5,1,2,0,1,1,0,0,0,510.41,,,,0,0,abandoned,opportunity,won
+INT-00368,,LEAD-050414,ENQ-07183,CUST-01130,2026-03-18,2026-03-18T14:51:00,2026-03,Paid Search,Brand Protect AU,cpc,Tablet,QLD,4,4,2,2,1,0,0,0,0,421.65,,,,50,0,missed,qualified,no_answer
+INT-00369,,,ENQ-07184,CUST-01129,2025-12-30,2025-12-30T08:46:00,2025-12,Referral,Partner Network,referral,Mobile,WA,2,5,0,1,1,0,0,0,0,,,,,20,0,answered,qualified,lost
+INT-00370,CALL-030369,LEAD-050416,ENQ-07184,CUST-01132,2026-01-19,2026-01-19T15:15:00,2026-01,Email,Quote Follow Up,email,Desktop,NSW,2,2,0,0,1,0,0,0,0,,,,,0,0,missed,disqualified,booked
+INT-00371,,,ENQ-07185,CUST-01128,2026-02-27,2026-02-27T14:12:00,2026-02,Paid Search,Emergency Lead Capture,CPC,Tablet,QLD,5,2,3,0,1,0,0,0,0,344.1,,,,0,0,answered,closed_won,booked
+INT-00372,CALL-030371,LEAD-050419,ENQ-07185,CUST-01137,2025-12-18,2025-12-18T10:44:00,2025-12,Paid Search,Emergency Lead Capture,cpc,Tablet,VIC,3,3,0,1,1,0,0,0,0,291.83,,,,33.33,0,answered,qualified,won
+INT-00373,CALL-030372,LEAD-050420,ENQ-07186,CUST-01128,2026-01-21,2026-01-21T10:16:00,2026-01,paid search,Brand Protect AU,cpc,Desktop,VIC,5,1,2,0,1,1,0,0,0,,819.58,,,0,0,missed,opportunity,lost
+INT-00374,CALL-030373,,ENQ-07186,CUST-01126,2026-01-29,2026-01-29T13:07:00,2026-01,Email,Quote Follow Up,email,Desktop,NSW,3,4,0,1,1,0,0,0,0,,,,,,0,abandoned,qualified,booked
+INT-00375,CALL-030374,,ENQ-DUP-022,CUST-DUP-07,2026-03-27,2026-03-27T12:46:00,2026-03,Display,Programmatic Retargeting,display,Desktop,VIC,1,2,0,1,1,0,0,0,0,138.32,,,,50,0,answered,qualified,pending
+INT-00376,CALL-030375,,ENQ-07187,CUST-01139,2026-02-06,2026-02-06T17:56:00,2026-02,Paid Search,Emergency Lead Capture,cpc,Tablet,WA,3,5,1,3,1,1,0,1,1,618.58,,2446.33,,60,0,abandoned,opportunity,booked
+INT-00377,CALL-030376,LEAD-050424,ENQ-07188,CUST-01125,2026-01-06,2026-01-06T17:13:00,2026-01,Paid Search,Emergency Lead Capture,cpc,Desktop,VIC,0,4,0,1,1,0,0,0,0,228.28,,,,25,0,abandoned,qualified,won
+INT-00378,,,ENQ-07188,CUST-01129,2026-02-15,2026-02-15T15:50:00,2026-02,Referral,BROKER REFERRAL,referral,Mobile,SA,3,1,1,0,1,0,0,0,0,,,,,0,0,voicemail,new,booked
+INT-00379,CALL-030378,LEAD-050427,ENQ-07189,CUST-01139,2026-02-13,2026-02-13T16:44:00,2026-02,Organic Search,Organic Maps,organic,Tablet,QLD,3,4,1,1,1,0,0,0,0,,,,,25,0,missed,qualified,no_answer
+INT-00380,CALL-030379,,ENQ-07189,CUST-01129,2025-12-16,2025-12-16T16:23:00,2025-12,Referral,Affiliate Warm Leads,referral,Mobile,SA,2,6,1,2,1,1,0,0,0,,769.14,,,33.33,0,voicemail,opportunity,won
+INT-00381,CALL-030380,LEAD-050429,ENQ-07190,CUST-01142,2026-01-10,2026-01-10T10:28:00,2026-01,Email,Quote Follow Up,email,Tablet,VIC,2,4,0,1,1,0,0,0,0,,,,,25,0,answered,qualified,pending
+INT-00382,,LEAD-050430,ENQ-07190,CUST-01144,2026-02-13,2026-02-13T10:34:00,2026-02,Organic Search,Organic Maps,organic,Mobile,SA,1,3,0,1,1,1,0,0,0,,1088.07,,,33.33,0,answered,opportunity,no_answer
+INT-00383,CALL-030382,LEAD-050431,ENQ-07191,CUST-01144,2026-01-02,2026-01-02T10:56:00,2026-01,Paid Search,Emergency Lead Capture,cpc,Desktop,SA,2,3,1,1,1,0,0,0,0,299.99,,,,33.33,0,voicemail,qualified,lost
+INT-00384,CALL-030383,LEAD-050432,ENQ-07191,CUST-01140,2026-03-26,2026-03-26T10:11:00,2026-03,Paid Search,Brand Protect AU,cpc,Tablet,WA,6,3,3,0,1,0,0,0,0,596.57,,,,0,0,abandoned,new,no_answer
+INT-00385,CALL-030384,LEAD-050433,ENQ-07192,CUST-01135,2026-01-06,2026-01-06T10:01:00,2026-01,Paid Search,Brand Protect AU,cpc,Desktop,SA,4,2,2,0,1,0,0,0,0,615.16,,,,0,0,abandoned,opportunity,no_answer
+INT-00386,,LEAD-050435,ENQ-07192,CUST-DUP-08,2026-02-20,2026-02-20T11:31:00,2026-02,Paid Search,Emergency Lead Capture,cpc,Desktop,SA,3,1,1,0,1,0,0,0,0,170.74,,,,0,0,voicemail,closed_lost,booked
+INT-00387,,LEAD-050436,ENQ-07193,CUST-01141,2026-02-24,2026-02-24T14:48:00,2026-02,Paid Search,High Intent Search,cpc,Mobile,SA,1,2,0,1,1,0,0,0,0,160.58,,,,50,0,answered,qualified,booked
+INT-00388,,LEAD-050437,ENQ-07193,CUST-01134,2025-12-17,2025-12-17T17:37:00,2025-12,Direct,Returning Visitors,direct,Desktop,SA,3,1,1,0,1,0,0,0,0,,,,,0,0,answered,closed_won,won
+INT-00389,CALL-030388,LEAD-050438,ENQ-07194,CUST-01138,2026-02-03,2026-02-03T09:19:00,2026-02,Paid Search,Emergency Lead Capture,cpc,Mobile,QLD,2,4,1,5,1,3,1,2,1,,2776.58,6076.98,,,25,missed,closed_won,booked
+INT-00390,CALL-030389,LEAD-050439,ENQ-07194,CUST-01142,2026-02-20,2026-02-20T14:42:00,2026-02,Paid Search,High Intent Search,cpc,Tablet,TAS,4,3,2,2,1,1,0,0,0,613.07,,,,66.67,0,voicemail,opportunity,lost
+INT-00391,CALL-030390,,ENQ-07195,CUST-01143,2026-01-16,2026-01-16T10:15:00,2026-01,Direct,Phone Number Recall,direct,Mobile,NSW,2,3,0,2,1,1,0,0,0,,1200.79,,,66.67,0,voicemail,opportunity,booked
+INT-00392,CALL-030391,,ENQ-DUP-023,CUST-01143,2025-12-23,2025-12-23T13:14:00,2025-12,Paid Search,High Intent Search,cpc,Mobile,QLD,4,4,2,2,1,1,0,0,0,440.25,,,,50,0,abandoned,opportunity,no_answer
+INT-00393,CALL-030392,LEAD-050442,ENQ-07196,CUST-01137,2026-01-27,2026-01-27T16:04:00,2026-01,Paid Search,High Intent Search,cpc,Desktop,QLD,3,5,1,3,1,1,0,1,1,512.57,,2408.43,,60,0,abandoned,opportunity,booked
+INT-00394,CALL-030393,LEAD-050444,ENQ-07196,CUST-01145,2025-12-29,2025-12-29T16:15:00,2025-12,Paid Search,Emergency Lead Capture,cpc,Desktop,VIC,3,3,0,2,1,1,0,0,0,,1230.02,,,66.67,0,voicemail,opportunity,no_answer
+INT-00395,CALL-030394,LEAD-050445,ENQ-07197,CUST-01143,2026-01-01,2026-01-01T12:07:00,2026-01,Display,Display Awareness,display,Mobile,NSW,2,4,0,1,1,0,0,1,1,,,657.48,,25,0,abandoned,qualified,booked
+INT-00396,CALL-030395,,ENQ-07197,CUST-01135,2026-03-09,2026-03-09T14:07:00,2026-03,Display,Display Awareness,display,Mobile,WA,2,2,1,0,1,0,0,0,0,204.75,,,,0,0,answered,new,no_answer
+INT-00397,CALL-030396,LEAD-050447,ENQ-07198,CUST-DUP-00,2026-01-27,2026-01-27T08:05:00,2026-01,Direct,Direct / Unknown,direct,Mobile,WA,1,1,0,0,0,1,0,0,0,,938.19,,,0,0,abandoned,opportunity,pending
+INT-00398,CALL-030397,LEAD-050448,ENQ-07198,CUST-01141,2026-02-19,2026-02-19T15:45:00,2026-02,Paid Social,Retargeting Social,cpc,Tablet,NSW,2,5,0,2,1,1,0,1,1,380.47,1476.41,761.27,,40,0,abandoned,opportunity,booked
+INT-00399,CALL-030398,,ENQ-07199,CUST-01142,2026-02-24,2026-02-24T13:24:00,2026-02,Organic Search,Organic Maps,organic,Mobile,QLD,2,4,0,1,1,0,0,0,0,,,,,,0,answered,qualified,no_answer
+INT-00400,,LEAD-050450,ENQ-07199,CUST-01137,2026-01-21,2026-01-21T11:59:00,2026-01,Paid Social,Retargeting Social,cpc,Tablet,NSW,5,0,1,0,1,0,0,0,0,401.77,,,,,,voicemail,disqualified,pending
+INT-00401,,,ENQ-07200,CUST-01136,2026-03-19,2026-03-19T11:25:00,2026-03,Organic Search,Organic Maps,organic,Tablet,QLD,2,4,1,1,1,0,0,0,0,,,,,25,,answered,qualified,won
+INT-00402,,LEAD-050453,ENQ-07200,CUST-01149,2026-01-04,2026-01-04T08:43:00,2026-01,Organic Search,Organic Maps,organic,Tablet,NSW,3,4,1,1,1,0,0,0,0,,,,,25,0,answered,qualified,no_answer
+INT-00403,,LEAD-050454,ENQ-07201,CUST-01148,2026-01-29,2026-01-29T15:41:00,2026-01,Paid Social,Retargeting Social,cpc,Mobile,WA,1,6,0,2,1,1,0,0,0,415.62,509.24,,,33.33,,abandoned,opportunity,pending
+INT-00404,,LEAD-050455,ENQ-07201,CUST-01147,2025-12-15,2025-12-15T08:09:00,2025-12,paid social,Meta Lead Gen NSW,cpc,Tablet,NSW,2,2,1,0,1,0,0,0,0,297.22,,,,0,0,missed,disqualified,lost
+INT-00405,CALL-030404,LEAD-050456,ENQ-07202,CUST-01148,2025-12-23,2025-12-23T12:38:00,2025-12,Email,Newsletter Promo,email,Mobile,QLD,3,5,1,3,1,1,0,0,0,,,,,142,0,abandoned,opportunity,booked
+INT-00406,CALL-030405,LEAD-050457,ENQ-07202,CUST-01147,2026-02-28,2026-02-28T17:55:00,2026-02,Paid Social,Meta Lead Gen NSW,cpc,Desktop,SA,1,4,0,1,1,0,0,0,0,232.64,,,,25,0,voicemail,qualified,lost
+INT-00407,,LEAD-050458,ENQ-07203,CUST-01149,2026-02-03,2026-02-03T10:19:00,2026-02,Organic Search,ORGANIC MAPS,organic,Tablet,NSW,2,3,0,2,1,1,0,0,0,,1192,,,66.67,0,answered,opportunity,won
+INT-00408,CALL-030407,LEAD-050459,ENQ-07203,CUST-DUP-01,2026-01-26,2026-01-26T12:37:00,2026-01,Paid Social,Lookalike Call Trial,CPC,Mobile,SA,1,0,0,0,0,0,0,0,0,113.25,,,,,,missed,qualified,pending
+INT-00409,,LEAD-050461,ENQ-DUP-024,CUST-01136,2026-02-04,2026-02-04T08:40:00,2026-02,Direct,Direct / Unknown,direct,Mobile,NSW,4,1,1,0,1,0,0,0,0,,,,,0,0,missed,qualified,won
+INT-00410,,,ENQ-07204,CUST-01141,2025-12-30,2025-12-30T10:05:00,2025-12,Paid Search,High Intent Search,cpc,Tablet,VIC,5,1,2,0,1,0,0,0,0,658.37,,,,0,0,missed,opportunity,won
+INT-00411,CALL-030410,LEAD-050463,ENQ-07205,CUST-01145,2026-03-19,2026-03-19T12:06:00,2026-03,Organic Search,Organic Maps,organic,Mobile,NSW,0,2,0,0,0,0,0,0,0,,,,,0,0,answered,closed_won,won
+INT-00412,,LEAD-050464,ENQ-07205,CUST-01145,2026-01-05,2026-01-05T09:46:00,2026-01,Organic Search,SEO Local Pages,organic,Tablet,WA,0,2,0,1,1,0,0,0,0,,,,,50,0,missed,qualified,pending
+INT-00413,,,ENQ-07206,CUST-01145,2026-01-01,2026-01-01T13:32:00,2026-01,Email,Quote Follow Up,email,Mobile,TAS,2,1,0,0,0,0,0,1,1,,,2020.53,,0,0,missed,new,booked
+INT-00414,CALL-030413,LEAD-050466,ENQ-07206,CUST-01138,2026-01-28,2026-01-28T09:18:00,2026-01,Organic Search,Content Hub,organic,Tablet,VIC,0,0,0,0,1,0,0,0,0,,,,,,,abandoned,qualified,no_answer
+INT-00415,CALL-030414,,ENQ-07207,CUST-01142,2026-03-29,2026-03-29T14:30:00,2026-03,Paid Search,Emergency Lead Capture,cpc,Tablet,TAS,4,3,2,1,1,0,0,0,0,467.87,,,,,0,answered,qualified,won
+INT-00416,CALL-030415,,ENQ-07207,CUST-01138,2026-03-25,2026-03-25T12:41:00,2026-03,Email,Newsletter Promo,email,Tablet,NSW,0,5,0,1,1,0,0,0,0,,,,,20,0,answered,qualified,booked
+INT-00417,CALL-030416,LEAD-050470,ENQ-07208,CUST-01147,2026-03-14,2026-03-14T14:15:00,2026-03,Direct,Returning Visitors,direct,Mobile,VIC,4,1,2,0,1,0,0,0,0,,,,,0,0,voicemail,new,no_answer
+INT-00418,CALL-030417,,ENQ-07208,CUST-01151,2025-12-16,2025-12-16T17:05:00,2025-12,Paid Search,Emergency Lead Capture,cpc,Tablet,VIC,4,5,1,1,1,0,0,1,1,419.76,,1812.66,,20,0,abandoned,qualified,booked
+INT-00419,,LEAD-050472,ENQ-07209,CUST-DUP-02,2026-01-25,2026-01-25T14:47:00,2026-01,Email,Newsletter Promo,email,Tablet,VIC,2,5,1,1,1,0,0,0,0,,,,,20,0,missed,qualified,won
+INT-00420,,,ENQ-07209,CUST-01142,2026-02-04,2026-02-04T09:00:00,2026-02,Paid Search,High Intent Search,cpc,Desktop,TAS,1,2,0,1,1,1,0,0,0,151.67,2099.27,,,50,0,answered,opportunity,no_answer
+INT-00421,CALL-030420,LEAD-050474,ENQ-07210,CUST-01157,2026-03-30,2026-03-30T11:39:00,2026-03,Paid Search,Brand Protect AU,cpc,Tablet,SA,3,2,0,1,1,0,0,0,0,252.51,,,,50,0,voicemail,qualified,lost
+INT-00422,,LEAD-050475,ENQ-07210,CUST-01145,2026-02-02,2026-02-02T10:20:00,2026-02,Paid Social,Meta Lead Gen NSW,cpc,Mobile,NSW,4,3,2,2,1,1,0,1,1,510.97,,1212.48,,66.67,0,missed,opportunity,booked
+INT-00423,,,ENQ-07211,CUST-01146,2026-03-27,2026-03-27T13:41:00,2026-03,Organic Search,SEO Local Pages,organic,Tablet,QLD,1,4,0,2,1,1,0,0,0,,338.16,,,50,0,answered,opportunity,won
+INT-00424,,LEAD-050477,ENQ-07211,CUST-01155,2026-01-26,2026-01-26T14:09:00,2026-01,Direct,Phone Number Recall,direct,Tablet,VIC,0,1,0,0,0,0,0,0,0,2,,,,0,0,answered,closed_lost,pending
+INT-00425,,LEAD-050479,ENQ-07212,CUST-01155,2026-01-01,2026-01-01T17:37:00,2026-01,Organic Search,Organic Maps,organic,Tablet,WA,0,3,0,1,1,0,0,0,0,,,,,33.33,0,voicemail,qualified,lost
+INT-00426,,LEAD-050480,ENQ-DUP-025,CUST-01152,2026-02-20,2026-02-20T13:36:00,2026-02,Display,Programmatic Retargeting,display,Tablet,TAS,6,5,2,1,1,0,0,0,0,943.51,,,,20,0,voicemail,qualified,no_answer
+INT-00427,CALL-030426,LEAD-050481,ENQ-07213,CUST-01149,2026-01-01,2026-01-01T15:47:00,2026-01,Paid Social,Meta Lead Gen NSW,cpc,Tablet,TAS,2,4,0,2,1,0,0,0,0,507.83,,,,50,0,abandoned,qualified,no_answer
+INT-00428,,LEAD-050482,ENQ-07213,CUST-01151,2026-02-21,2026-02-21T12:10:00,2026-02,Email,Nurture Reactivation,email,Mobile,SA,0,4,0,2,1,1,0,0,0,,624.57,,,50,0,voicemail,opportunity,won
+INT-00429,,,ENQ-07214,CUST-01142,2025-12-27,2025-12-27T12:23:00,2025-12,Organic Search,Organic Maps,organic,Tablet,VIC,3,3,1,1,1,0,0,0,0,,,,,33.33,0,missed,qualified,won
+INT-00430,CALL-030429,LEAD-050484,ENQ-07214,CUST-DUP-03,2026-01-31,2026-01-31T16:46:00,2026-01,Display,YouTube Display,display,Tablet,WA,0,5,0,3,1,3,1,1,1,234.29,,1919.02,1980.9,60,20,answered,closed_won,booked
+INT-00431,,LEAD-050485,ENQ-07215,CUST-01152,2026-01-15,2026-01-15T14:47:00,2026-01,Paid Search,Brand Protect AU,cpc,Tablet,TAS,1,0,0,0,0,0,0,1,1,101.45,,2072.08,,,,voicemail,closed_lost,booked
+INT-00432,,,ENQ-07215,CUST-01154,2026-03-24,2026-03-24T09:12:00,2026-03,Paid Social,Lookalike Call Trial,cpc,Tablet,QLD,5,6,1,3,1,2,1,2,1,586.45,3097.17,1455.49,2178.06,50,16.67,abandoned,closed_won,booked
+INT-00433,,LEAD-050488,ENQ-07216,CUST-01158,2026-02-03,2026-02-03T15:35:00,2026-02,Paid Social,Lookalike Call Trial,cpc,Desktop,VIC,2,1,1,0,1,0,0,1,1,297.68,,1406.44,,0,0,missed,closed_won,booked
+INT-00434,CALL-030433,LEAD-050489,ENQ-07216,CUST-01155,2026-02-27,2026-02-27T12:59:00,2026-02,Paid Social,Lookalike Call Trial,cpc,Mobile,QLD,2,2,0,1,1,0,0,0,0,286.48,,,,50,0,answered,qualified,booked
+INT-00435,CALL-030434,LEAD-050490,ENQ-07217,CUST-01145,2025-12-15,2025-12-15T14:25:00,2025-12,direct,Direct / Unknown,direct,Mobile,WA,2,3,0,1,1,0,0,0,0,,,,,33.33,0,answered,qualified,booked
+INT-00436,CALL-030435,LEAD-050491,ENQ-07217,CUST-01160,2025-12-25,2025-12-25T17:34:00,2025-12,Paid Search,HIGH INTENT SEARCH,cpc,Mobile,NSW,2,1,0,0,0,0,0,1,1,183.23,,784.62,,0,0,abandoned,opportunity,booked
+INT-00437,CALL-030436,LEAD-050492,ENQ-07218,CUST-01161,2026-01-18,2026-01-18T13:29:00,2026-01,Paid Search,Emergency Lead Capture,cpc,Tablet,WA,3,2,1,1,1,0,0,0,0,434.99,,,,50,0,answered,qualified,no_answer
+INT-00438,,LEAD-050493,ENQ-07218,CUST-01159,2026-01-25,2026-01-25T09:57:00,2026-01,Paid Search,Emergency Lead Capture,cpc,Tablet,SA,6,2,1,1,1,0,0,0,0,421.19,,,,,0,missed,qualified,lost
+INT-00439,CALL-030438,LEAD-050494,ENQ-07219,CUST-01150,2026-01-30,2026-01-30T09:36:00,2026-01,Paid Search,Emergency Lead Capture,cpc,Mobile,TAS,5,4,2,1,1,0,0,0,0,415.16,,,,,0,abandoned,qualified,no_answer
+INT-00440,CALL-030439,LEAD-050496,ENQ-07219,CUST-01156,2025-12-28,2025-12-28T14:21:00,2025-12,Referral,Affiliate Warm Leads,referral,Tablet,NSW,1,1,0,0,0,0,0,0,0,,,,,0,0,voicemail,closed_won,no_answer
+INT-00441,CALL-030440,LEAD-050497,ENQ-07220,CUST-DUP-04,2026-01-23,2026-01-23T13:37:00,2026-01,Paid Search,Brand Protect AU,cpc,Desktop,WA,4,5,1,3,1,1,0,0,0,815.33,1975.39,,,60,0,answered,opportunity,pending
+INT-00442,,LEAD-050498,ENQ-07220,CUST-01157,2026-03-11,2026-03-11T09:30:00,2026-03,Email,Quote Follow Up,email,Mobile,WA,3,7,1,5,1,2,0,0,0,,,,,71.43,0,missed,opportunity,lost
+INT-00443,CALL-030442,LEAD-050499,ENQ-DUP-026,CUST-01156,2026-03-15,2026-03-15T12:17:00,2026-03,Paid Search,Brand Protect AU,cpc,Mobile,NSW,3,0,0,0,0,0,0,0,0,332.18,,,,,,voicemail,disqualified,no_answer
+INT-00444,CALL-030443,LEAD-050500,ENQ-07221,CUST-01158,2026-03-11,2026-03-11T15:18:00,2026-03,Organic Search,SEO Local Pages,organic,Desktop,WA,1,3,0,2,1,1,0,1,1,,2099.78,1804.82,,66.67,0,answered,opportunity,booked
+INT-00445,CALL-030444,,ENQ-07222,CUST-01162,2026-01-21,2026-01-21T16:42:00,2026-01,Paid Social,Retargeting Social,CPC,Mobile,NSW,5,1,1,0,1,0,0,0,0,304.1,,,,0,0,answered,closed_won,pending
+INT-00446,CALL-030445,LEAD-050502,ENQ-07222,CUST-01156,2026-02-20,2026-02-20T10:08:00,2026-02,Email,Nurture Reactivation,email,Tablet,WA,3,4,0,1,1,0,0,0,0,,,,,25,0,voicemail,qualified,pending
+INT-00447,,,ENQ-07223,CUST-01156,2026-03-12,2026-03-12T08:01:00,2026-03,Paid Search,Emergency Lead Capture,cpc,Tablet,WA,3,2,0,1,1,0,0,0,0,374.65,,,,50,0,abandoned,qualified,won
+INT-00448,CALL-030447,LEAD-050505,ENQ-07223,CUST-01158,2026-01-22,2026-01-22T12:03:00,2026-01,Paid Social,Lookalike Call Trial,cpc,Mobile,QLD,3,4,0,1,1,0,0,0,0,345.66,,,,25,0,answered,qualified,pending
+INT-00449,CALL-030448,LEAD-050506,ENQ-07224,CUST-01153,2026-02-07,2026-02-07T10:04:00,2026-02,Email,Newsletter Promo,email,Tablet,WA,0,2,0,0,0,0,0,0,0,,,,,0,0,missed,closed_lost,won
+INT-00450,CALL-030449,LEAD-050507,ENQ-07224,CUST-01159,2026-03-08,2026-03-08T16:00:00,2026-03,Direct,Phone Number Recall,direct,Desktop,TAS,2,1,1,0,1,0,0,0,0,,,,,0,0,missed,disqualified,booked
+INT-00451,CALL-030450,,ENQ-07225,CUST-01153,2026-02-27,2026-02-27T10:21:00,2026-02,Paid Social,Meta Lead Gen NSW,cpc,Desktop,SA,3,6,1,2,1,2,0,0,0,456.92,4230.53,,,33.33,0,voicemail,opportunity,lost
+INT-00452,CALL-030451,,ENQ-07225,CUST-DUP-05,2026-01-25,2026-01-25T13:34:00,2026-01,Referral,Partner Network,referral,Mobile,WA,3,3,0,2,1,1,0,0,0,,1594.59,,,66.67,0,voicemail,opportunity,no_answer
+INT-00453,,LEAD-050510,ENQ-07226,CUST-01158,2026-03-04,2026-03-04T15:08:00,2026-03,Organic Search,Content Hub,organic,Tablet,VIC,1,4,0,1,1,0,0,0,0,,,,,25,132,answered,qualified,no_answer
+INT-00454,,LEAD-050511,ENQ-07226,CUST-01159,2026-01-20,2026-01-20T14:23:00,2026-01,Paid Search,Emergency Lead Capture,cpc,Mobile,WA,3,4,0,1,1,0,0,0,0,,,,,25,0,abandoned,qualified,no_answer
+INT-00455,CALL-030454,LEAD-050513,ENQ-07227,CUST-01159,2025-12-28,2025-12-28T11:01:00,2025-12,Organic Search,SEO Local Pages,organic,Mobile,NSW,0,4,0,2,1,1,0,0,0,,1467.62,,,50,,answered,opportunity,lost
+INT-00456,CALL-030455,LEAD-050514,ENQ-07227,CUST-01165,2026-03-04,2026-03-04T16:46:00,2026-03,Display,YouTube Display,display,Tablet,NSW,4,3,2,0,1,0,0,0,0,406.87,,,,0,0,missed,opportunity,no_answer
+INT-00457,CALL-030456,LEAD-050515,ENQ-07228,CUST-01152,2026-01-25,2026-01-25T17:04:00,2026-01,Display,Display Awareness,display,Mobile,VIC,3,2,0,0,0,0,0,0,0,332,,,,0,,missed,disqualified,won
+INT-00458,CALL-030457,LEAD-050516,ENQ-07228,CUST-01155,2026-01-09,2026-01-09T13:21:00,2026-01,Paid Social,Meta Lead Gen NSW,cpc,Tablet,VIC,5,5,3,1,1,0,0,0,0,868.97,,,,,0,missed,qualified,booked
+INT-00459,,LEAD-050517,ENQ-07229,CUST-01160,2026-03-12,2026-03-12T10:51:00,2026-03,Email,Quote Follow Up,email,Mobile,NSW,2,4,1,1,1,0,0,0,0,,,,,25,0,missed,qualified,booked
+INT-00460,CALL-030459,LEAD-050518,ENQ-DUP-027,CUST-01167,2025-12-19,2025-12-19T17:34:00,2025-12,Organic Search,SEO Local Pages,organic,Mobile,TAS,0,0,0,0,0,0,0,0,0,,,,,,,missed,closed_won,booked
+INT-00461,CALL-030460,LEAD-050519,ENQ-07230,CUST-01160,2026-02-14,2026-02-14T08:35:00,2026-02,Email,Quote Follow Up,email,Tablet,SA,0,6,0,3,1,1,0,0,0,,1820.19,,,50,0,answered,opportunity,lost
+INT-00462,CALL-030461,LEAD-050520,ENQ-07230,CUST-01164,2026-03-28,2026-03-28T17:47:00,2026-03,Paid Search,Brand Protect AU,cpc,Mobile,QLD,4,4,2,1,1,0,0,0,0,461.48,,,,25,0,voicemail,qualified,booked
+INT-00463,CALL-030462,LEAD-050522,ENQ-07231,CUST-DUP-06,2026-03-28,2026-03-28T14:13:00,2026-03,Paid Search,High Intent Search,cpc,Desktop,VIC,6,1,3,0,1,1,0,0,0,296,533.2,,,0,0,abandoned,opportunity,no_answer
+INT-00464,CALL-030463,LEAD-050523,ENQ-07231,CUST-01169,2026-02-20,2026-02-20T12:59:00,2026-02,Referral,Broker Referral,referral,Mobile,VIC,1,7,0,2,1,1,0,0,0,,,,,28.57,0,answered,opportunity,booked
+INT-00465,,LEAD-050524,ENQ-07232,CUST-01154,2025-12-30,2025-12-30T15:26:00,2025-12,Referral,AFFILIATE WARM LEADS,referral,Mobile,NSW,0,3,0,0,0,0,0,0,0,,,,,0,0,voicemail,qualified,pending
+INT-00466,CALL-030465,LEAD-050525,ENQ-07232,CUST-01162,2026-02-04,2026-02-04T16:38:00,2026-02,paid search,High Intent Search,cpc,Tablet,TAS,2,4,0,2,1,1,0,0,0,356.03,,,,50,0,voicemail,opportunity,no_answer
+INT-00467,CALL-030466,,ENQ-07233,CUST-01157,2026-01-10,2026-01-10T17:55:00,2026-01,Direct,Phone Number Recall,direct,Desktop,WA,2,1,1,0,1,0,0,0,0,,,,,,0,answered,qualified,pending
+INT-00468,,LEAD-050527,ENQ-07233,CUST-01168,2026-01-08,2026-01-08T14:09:00,2026-01,Email,Newsletter Promo,email,Tablet,TAS,1,6,0,3,1,2,0,0,0,,2177.23,,,50,0,missed,opportunity,booked
+INT-00469,,LEAD-050528,ENQ-07234,CUST-01166,2026-01-23,2026-01-23T13:43:00,2026-01,Paid Social,Retargeting Social,cpc,Tablet,VIC,5,4,0,1,1,0,0,0,0,553.19,,,,25,0,missed,qualified,pending
+INT-00470,CALL-030469,,ENQ-07234,CUST-01173,2025-12-20,2025-12-20T08:42:00,2025-12,Display,Display Awareness,display,Tablet,NSW,3,1,1,0,1,0,0,0,0,243.87,,,,0,0,answered,disqualified,no_answer
+INT-00471,CALL-030470,LEAD-050531,ENQ-07235,CUST-01158,2026-03-23,2026-03-23T17:01:00,2026-03,Paid Social,Meta Lead Gen NSW,cpc,Desktop,SA,0,0,0,0,0,0,0,0,0,,,,,,,missed,disqualified,no_answer
+INT-00472,,LEAD-050532,ENQ-07235,CUST-01174,2026-01-12,2026-01-12T10:02:00,2026-01,Email,Nurture Reactivation,email,Mobile,NSW,1,3,0,1,1,0,0,0,0,,,,,33.33,0,abandoned,qualified,lost
+INT-00473,,LEAD-050533,ENQ-07236,CUST-01172,2026-01-27,2026-01-27T09:14:00,2026-01,Paid Search,Emergency Lead Capture,cpc,Desktop,VIC,2,0,1,0,1,1,0,1,1,271.24,401.23,1617.09,,,,voicemail,opportunity,booked
+INT-00474,,LEAD-050534,ENQ-07236,CUST-DUP-07,2025-12-21,2025-12-21T15:16:00,2025-12,Direct,Phone Number Recall,direct,Desktop,WA,4,3,1,1,1,0,0,0,0,,,,,33.33,0,answered,qualified,lost
+INT-00475,,LEAD-050535,ENQ-07237,CUST-01171,2026-02-27,2026-02-27T15:42:00,2026-02,Referral,Partner Network,referral,Tablet,NSW,1,1,0,0,0,0,0,0,0,,,,,0,0,abandoned,closed_won,won
+INT-00476,CALL-030475,,ENQ-07237,CUST-01169,2025-12-24,2025-12-24T17:51:00,2025-12,Paid Search,High Intent Search,cpc,Desktop,WA,3,5,1,3,1,1,0,0,0,710.72,723.49,,,60,0,answered,opportunity,won
+INT-00477,CALL-030476,LEAD-050537,ENQ-DUP-028,CUST-01163,2026-03-08,2026-03-08T12:31:00,2026-03,Referral,Partner Network,referral,Desktop,QLD,2,3,1,1,1,0,0,0,0,,,,,33.33,0,abandoned,qualified,lost
+INT-00478,,LEAD-050539,ENQ-07238,CUST-01172,2025-12-20,2025-12-20T15:26:00,2025-12,Organic Search,SEO Local Pages,organic,Mobile,WA,1,0,0,0,1,0,0,0,0,,,,,,,answered,qualified,no_answer
+INT-00479,,LEAD-050540,ENQ-07239,CUST-01165,2026-02-23,2026-02-23T15:32:00,2026-02,Email,Nurture Reactivation,email,Tablet,SA,0,4,0,0,0,0,0,0,0,,,,,0,0,missed,disqualified,no_answer
+INT-00480,CALL-030479,LEAD-050541,ENQ-07239,CUST-01163,2026-02-01,2026-02-01T12:15:00,2026-02,Paid Search,Emergency Lead Capture,cpc,Tablet,NSW,2,3,0,1,1,0,0,0,0,422.18,,,,33.33,0,voicemail,qualified,no_answer
+INT-00481,,LEAD-050542,ENQ-07240,CUST-01177,2026-03-16,2026-03-16T08:21:00,2026-03,Organic Search,SEO Local Pages,organic,Desktop,TAS,3,1,0,0,0,0,0,0,0,,,,,0,0,answered,disqualified,lost
+INT-00482,CALL-030481,,ENQ-07240,CUST-01161,2026-02-10,2026-02-10T08:00:00,2026-02,Referral,Partner Network,REFERRAL,Tablet,TAS,3,1,0,0,1,0,0,1,1,,,670.49,,0,0,answered,disqualified,booked
+INT-00483,CALL-030482,LEAD-050544,ENQ-07241,CUST-01170,2026-01-08,2026-01-08T15:24:00,2026-01,Display,Programmatic Retargeting,display,Desktop,SA,0,2,0,1,1,0,0,0,0,,,,,50,0,abandoned,qualified,won
+INT-00484,,LEAD-050545,ENQ-07241,CUST-01177,2026-02-19,2026-02-19T08:12:00,2026-02,Paid Search,Emergency Lead Capture,cpc,Tablet,WA,3,3,1,1,1,0,0,0,0,459.66,,,,33.33,0,answered,qualified,no_answer
+INT-00485,CALL-030484,LEAD-050546,ENQ-07242,CUST-DUP-08,2025-12-31,2025-12-31T13:41:00,2025-12,Organic Search,SEO Local Pages,organic,Desktop,WA,2,6,0,2,1,1,0,0,0,,651.64,,,33.33,0,voicemail,opportunity,booked
+INT-00486,CALL-030485,LEAD-050548,ENQ-07242,CUST-01177,2025-12-15,2025-12-15T08:21:00,2025-12,Email,Quote Follow Up,email,Desktop,QLD,3,1,1,2,1,0,0,0,0,,,,,200,0,voicemail,qualified,won
+INT-00487,CALL-030486,,ENQ-07243,CUST-01164,2026-02-28,2026-02-28T17:27:00,2026-02,Paid Social,Meta Lead Gen NSW,cpc,Tablet,TAS,5,5,3,1,1,0,0,0,0,664.22,,,,20,0,voicemail,qualified,no_answer
+INT-00488,CALL-030487,LEAD-050550,ENQ-07243,CUST-01163,2026-01-11,2026-01-11T17:06:00,2026-01,Organic Search,Organic Maps,organic,Desktop,VIC,0,3,0,1,1,1,0,0,0,,1170.81,,,33.33,0,answered,opportunity,lost
+INT-00489,CALL-030488,LEAD-050551,ENQ-07244,CUST-01172,2026-02-02,2026-02-02T13:08:00,2026-02,Display,YouTube Display,display,Desktop,SA,4,3,1,0,1,1,0,0,0,,1621.41,,,0,,answered,opportunity,pending
+INT-00490,CALL-030489,LEAD-050552,ENQ-07244,CUST-01168,2025-12-26,2025-12-26T16:33:00,2025-12,Paid Social,Meta Lead Gen NSW,cpc,Desktop,TAS,5,1,1,0,1,0,0,0,0,274.17,,,,0,0,answered,opportunity,lost
+INT-00491,,LEAD-050553,ENQ-07245,CUST-01177,2026-03-11,2026-03-11T15:04:00,2026-03,Paid Search,High Intent Search,cpc,Tablet,WA,2,5,0,1,1,0,0,0,0,431.05,,,,20,0,voicemail,qualified,pending
+INT-00492,,LEAD-050554,ENQ-07245,CUST-01166,2025-12-16,2025-12-16T11:24:00,2025-12,Organic Search,Content Hub,organic,Mobile,SA,2,2,1,1,1,0,0,0,0,,,,,50,0,voicemail,qualified,won
+INT-00493,,LEAD-050555,ENQ-07246,CUST-01173,2026-03-23,2026-03-23T09:17:00,2026-03,Paid Social,Lookalike Call Trial,cpc,Desktop,TAS,5,4,2,2,1,0,0,0,0,685.59,,,,50,0,abandoned,qualified,lost
+INT-00494,,,ENQ-DUP-029,CUST-01180,2025-12-16,2025-12-16T09:53:00,2025-12,Organic Search,ORGANIC MAPS,organic,Tablet,TAS,1,3,0,2,1,1,0,1,1,,,2007,,,,missed,opportunity,booked
+INT-00495,CALL-030494,LEAD-050558,ENQ-07247,CUST-01170,2026-03-15,2026-03-15T13:37:00,2026-03,Paid Search,High Intent Search,cpc,Tablet,WA,0,3,0,1,1,0,0,0,0,78.44,,,,33.33,0,abandoned,qualified,lost
+INT-00496,CALL-030495,LEAD-050559,ENQ-07247,CUST-DUP-00,2025-12-28,2025-12-28T11:45:00,2025-12,Direct,Returning Visitors,direct,Mobile,VIC,3,4,0,1,1,0,0,0,0,,,,,25,0,answered,qualified,booked
+INT-00497,CALL-030496,,ENQ-07248,CUST-01182,2025-12-26,2025-12-26T14:00:00,2025-12,paid search,Brand Protect AU,cpc,Mobile,WA,2,2,1,0,1,0,0,0,0,262.55,,,,0,0,abandoned,new,pending
+INT-00498,,LEAD-050561,ENQ-07248,CUST-01167,2026-03-09,2026-03-09T12:48:00,2026-03,Paid Search,Emergency Lead Capture,cpc,Mobile,WA,4,2,1,1,1,0,0,0,0,383.75,,,,50,0,answered,qualified,lost
+INT-00499,CALL-030498,LEAD-050562,ENQ-07249,CUST-01173,2026-02-24,2026-02-24T13:28:00,2026-02,Paid Search,High Intent Search,cpc,Desktop,QLD,2,6,4,1,1,0,0,0,0,283.19,,,,16.67,0,abandoned,qualified,lost
+INT-00500,CALL-030499,,ENQ-07249,CUST-01176,2025-12-31,2025-12-31T10:31:00,2025-12,Paid Search,Brand Protect AU,cpc,Desktop,NSW,2,3,0,1,1,0,0,0,0,290.91,,,,33.33,0,answered,qualified,no_answer
+INT-00501,CALL-030500,LEAD-050565,ENQ-07250,CUST-01167,2026-03-23,2026-03-23T12:21:00,2026-03,Direct,Returning Visitors,direct,Desktop,WA,4,3,2,1,1,0,0,0,0,,,,,33.33,0,missed,qualified,pending
+INT-00502,CALL-030501,LEAD-050566,ENQ-07250,CUST-01173,2025-12-20,2025-12-20T12:39:00,2025-12,Paid Search,High Intent Search,cpc,Mobile,SA,2,5,1,1,1,0,0,0,0,,,,,20,0,answered,qualified,lost
+INT-00503,CALL-030502,LEAD-050567,ENQ-07251,CUST-01182,2025-12-30,2025-12-30T11:01:00,2025-12,Email,Nurture Reactivation,email,Tablet,WA,1,1,0,0,1,0,0,0,0,,,,,0,0,abandoned,closed_won,no_answer
+INT-00504,,,ENQ-07251,CUST-01182,2026-03-03,2026-03-03T15:36:00,2026-03,Referral,Affiliate Warm Leads,referral,Mobile,VIC,3,1,1,0,1,0,0,0,0,,,,,0,0,answered,closed_lost,no_answer
+INT-00505,,LEAD-050569,ENQ-07252,CUST-01169,2026-01-01,2026-01-01T08:58:00,2026-01,Paid Search,High Intent Search,cpc,Tablet,NSW,2,3,0,1,1,1,0,0,0,330.86,1052.66,,,33.33,0,answered,opportunity,won
+INT-00506,CALL-030505,LEAD-050570,ENQ-07252,CUST-01178,2026-02-11,2026-02-11T16:08:00,2026-02,Paid Social,Meta Lead Gen NSW,cpc,Tablet,VIC,2,5,1,2,1,1,0,0,0,408.06,1507.7,,,149,0,answered,opportunity,no_answer
+INT-00507,CALL-030506,LEAD-050571,ENQ-07253,CUST-DUP-01,2025-12-31,2025-12-31T15:45:00,2025-12,Paid Social,Meta Lead Gen NSW,cpc,Desktop,SA,3,1,0,0,0,0,0,1,1,223.3,,1473.87,,0,,missed,opportunity,booked
+INT-00508,CALL-030507,LEAD-050572,ENQ-07253,CUST-01178,2026-03-28,2026-03-28T08:08:00,2026-03,Organic Search,Organic Maps,organic,Tablet,NSW,2,4,0,2,1,0,0,1,1,,,1268.52,,50,0,answered,qualified,booked
+INT-00509,CALL-030508,LEAD-050574,ENQ-07254,CUST-01177,2026-01-07,2026-01-07T14:41:00,2026-01,Paid Social,Lookalike Call Trial,cpc,Desktop,VIC,3,1,0,0,1,0,0,1,1,396.11,,1529.47,,0,0,voicemail,disqualified,booked
+INT-00510,CALL-030509,LEAD-050575,ENQ-07254,CUST-01175,2026-01-08,2026-01-08T08:48:00,2026-01,Paid Search,Brand Protect AU,cpc,Desktop,NSW,1,5,0,3,1,1,0,0,0,248.91,,,,60,0,missed,opportunity,pending
+INT-00511,,,ENQ-DUP-030,CUST-01187,2026-02-07,2026-02-07T14:57:00,2026-02,Referral,Partner Network,referral,Desktop,WA,0,1,0,0,0,0,0,0,0,,,,,0,0,abandoned,new,lost
+INT-00512,CALL-030511,,ENQ-07255,CUST-01178,2026-02-17,2026-02-17T17:55:00,2026-02,Direct,Direct / Unknown,direct,Tablet,TAS,4,0,2,0,1,1,0,1,1,,444.62,1625.6,,,,missed,opportunity,booked
+INT-00513,,LEAD-050578,ENQ-07256,CUST-01186,2026-02-18,2026-02-18T16:21:00,2026-02,Email,Quote Follow Up,email,Desktop,SA,0,1,0,0,0,0,0,0,0,,,,,0,0,missed,closed_won,won
+INT-00514,,LEAD-050579,ENQ-07256,CUST-01173,2026-03-25,2026-03-25T14:24:00,2026-03,Paid Social,Lookalike Call Trial,cpc,Mobile,VIC,2,3,0,0,1,0,0,0,0,360.36,,,,,0,voicemail,new,won
+INT-00515,,LEAD-050580,ENQ-07257,CUST-01177,2026-02-23,2026-02-23T17:54:00,2026-02,Referral,Broker Referral,referral,Mobile,TAS,3,4,0,1,1,0,0,1,1,,,696.58,,25,0,missed,qualified,booked
+INT-00516,CALL-030515,LEAD-050581,ENQ-07257,CUST-01173,2026-02-02,2026-02-02T08:10:00,2026-02,Email,Newsletter Promo,email,Tablet,QLD,3,0,2,0,1,0,0,0,0,,,,,,,abandoned,new,lost
+INT-00517,,LEAD-050583,ENQ-07258,CUST-01172,2025-12-28,2025-12-28T11:19:00,2025-12,Direct,Direct / Unknown,direct,Tablet,NSW,2,1,1,0,1,0,0,0,0,,,,,0,0,missed,opportunity,won
+INT-00518,,LEAD-050584,ENQ-07258,CUST-DUP-02,2025-12-21,2025-12-21T11:20:00,2025-12,Display,YouTube Display,display,Mobile,NSW,0,4,0,2,1,0,0,0,0,197.42,,,,50,0,missed,qualified,lost
+INT-00519,,LEAD-050585,ENQ-07259,CUST-01187,2026-03-30,2026-03-30T11:48:00,2026-03,Organic Search,Organic Maps,ORGANIC,Desktop,WA,3,0,0,0,1,0,0,0,0,,,,,,,missed,disqualified,no_answer
+INT-00520,CALL-030519,,ENQ-07259,CUST-01189,2025-12-22,2025-12-22T13:47:00,2025-12,Referral,Partner Network,referral,Desktop,SA,0,6,0,3,1,1,0,0,0,,1003.32,,,50,0,answered,opportunity,won

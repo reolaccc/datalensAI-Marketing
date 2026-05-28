@@ -617,7 +617,16 @@ const EXPLICIT_CALL_COUNT_ALIASES = [
   "call_volume",
   "total call volume",
   "inbound calls",
-  "inbound_calls"
+  "inbound_calls",
+  "lead count",
+  "lead_count",
+  "total leads",
+  "total_leads",
+  "leads",
+  "lead volume",
+  "opportunity count",
+  "opportunity_count",
+  "opportunities"
 ];
 
 const EXPLICIT_QUALIFIED_CALL_COUNT_ALIASES = [
@@ -1818,6 +1827,20 @@ function parseFlagValue(value: PrimitiveValue, semanticRole?: string) {
 
   if (typeof value === "string") {
     const normalized = normalizeName(value);
+    if (["true", "yes", "y", "1"].includes(normalized)) {
+      return 1;
+    }
+    if (["false", "no", "n", "0"].includes(normalized)) {
+      return 0;
+    }
+
+    if (semanticRole) {
+      const roleValue = classifyOutcomeSemanticRole(value, semanticRole);
+      if (roleValue !== null) {
+        return roleValue;
+      }
+    }
+
     if (BOOLEAN_TRUE_VALUES.has(normalized)) {
       return 1;
     }

@@ -13,12 +13,20 @@ import type {
   WorkspaceSnapshot
 } from "../types";
 
+interface PendingQuestionTurn {
+  question: string;
+  requestId: string;
+  submittedAt: string;
+}
+
 interface AnalysisState {
   fileName: string | null;
   lastFile: File | null;
   draftQuestion: string;
   loading: boolean;
   asking: boolean;
+  activeQuestionRequestId: string | null;
+  pendingQuestion: PendingQuestionTurn | null;
   error: string | null;
   analysis: AnalysisResponse | null;
   questionAnswer: QuestionAnswer | null;
@@ -30,6 +38,7 @@ interface AnalysisState {
   analyzeFile: (file: File) => Promise<void>;
   askQuestion: (question: string, context?: QuestionContextInput) => Promise<void>;
   setDraftQuestion: (question: string) => void;
+  clearQuestionHistory: () => void;
   pinCurrentAnswer: () => void;
   removePinnedInsight: (id: string) => void;
   clearCurrentAnalysis: () => void;
@@ -133,6 +142,8 @@ export const useAnalysisStore = create<AnalysisState>()(
       draftQuestion: DEFAULT_DRAFT_QUESTION,
       loading: false,
       asking: false,
+      activeQuestionRequestId: null,
+      pendingQuestion: null,
       error: null,
       analysis: null,
       questionAnswer: null,
@@ -150,6 +161,8 @@ export const useAnalysisStore = create<AnalysisState>()(
           draftQuestion: DEFAULT_DRAFT_QUESTION,
           questionAnswer: null,
           questionHistory: [],
+          activeQuestionRequestId: null,
+          pendingQuestion: null,
           pinnedInsights: [],
           activeWorkspaceSnapshotId: null
         });
@@ -183,7 +196,17 @@ export const useAnalysisStore = create<AnalysisState>()(
           return;
         }
 
-        set({ asking: true, error: null });
+        const requestId = createSnapshotId();
+        set({
+          asking: true,
+          error: null,
+          activeQuestionRequestId: requestId,
+          pendingQuestion: {
+            question,
+            requestId,
+            submittedAt: new Date().toISOString()
+          }
+        });
         const sanitizedContext = sanitizeQuestionContext(context);
 
         async function requestQuestionAnswer(analysisId: string) {
@@ -232,6 +255,7 @@ export const useAnalysisStore = create<AnalysisState>()(
           const questionContext = buildQuestionContextSnapshot(sanitizedContext);
           const mergedQuestionAnswer: QuestionAnswer = {
             ...questionAnswer,
+            question,
             questionContext
           };
           const enhancedQuestionAnswer: QuestionAnswer = {
@@ -245,21 +269,42 @@ export const useAnalysisStore = create<AnalysisState>()(
             )
           };
 
+          if (get().activeQuestionRequestId !== requestId) {
+            return;
+          }
+
           set((state) => ({
             draftQuestion: question,
             questionAnswer: enhancedQuestionAnswer,
             asking: false,
+            activeQuestionRequestId: null,
+            pendingQuestion: null,
             questionHistory: [enhancedQuestionAnswer, ...state.questionHistory].slice(0, 6)
           }));
         } catch (error) {
+          if (get().activeQuestionRequestId !== requestId) {
+            return;
+          }
+
           set({
             asking: false,
+            activeQuestionRequestId: null,
+            pendingQuestion: null,
             error: error instanceof Error ? error.message : "Unknown question error"
           });
         }
       },
       setDraftQuestion: (question) => {
         set({ draftQuestion: question });
+      },
+      clearQuestionHistory: () => {
+        set({
+          asking: false,
+          activeQuestionRequestId: null,
+          pendingQuestion: null,
+          questionAnswer: null,
+          questionHistory: []
+        });
       },
       pinCurrentAnswer: () => {
         const { questionAnswer } = get();
@@ -296,6 +341,8 @@ export const useAnalysisStore = create<AnalysisState>()(
           draftQuestion: DEFAULT_DRAFT_QUESTION,
           loading: false,
           asking: false,
+          activeQuestionRequestId: null,
+          pendingQuestion: null,
           error: null,
           analysis: null,
           questionAnswer: null,
@@ -345,6 +392,8 @@ export const useAnalysisStore = create<AnalysisState>()(
           draftQuestion: snapshot.questionAnswer?.question ?? "",
           loading: false,
           asking: false,
+          activeQuestionRequestId: null,
+          pendingQuestion: null,
           error: null,
           analysis: snapshot.analysis,
           questionAnswer: snapshot.questionAnswer,
@@ -400,6 +449,8 @@ export const useAnalysisStore = create<AnalysisState>()(
             draftQuestion: snapshot.questionAnswer?.question ?? "",
             loading: false,
             asking: false,
+            activeQuestionRequestId: null,
+            pendingQuestion: null,
             error: null,
             analysis: snapshot.analysis,
             questionAnswer: snapshot.questionAnswer,

@@ -185,6 +185,61 @@ function buildChartFromSuggestion(questionFacts: TrustedQuestionFacts, chartSugg
   };
 }
 
+function normalizeMetricToken(value: string | null | undefined) {
+  return (value ?? "").toLowerCase().replace(/[_-]/g, " ");
+}
+
+function questionOrPrimaryMetricAllowsTerm(question: string, questionFacts: TrustedQuestionFacts, term: "roas" | "revenue" | "spend" | "cpqc" | "qualified") {
+  const normalizedQuestion = normalizeMetricToken(question);
+  const primaryMetric = normalizeMetricToken(questionFacts.evidence.primaryMetric);
+
+  if (term === "roas") {
+    return /\broas\b/.test(normalizedQuestion) || /\broas\b/.test(primaryMetric);
+  }
+
+  if (term === "revenue") {
+    return /\b(revenue|sales|sale value|booked value)\b/.test(normalizedQuestion) || /\brevenue\b|\bsales\b/.test(primaryMetric);
+  }
+
+  if (term === "spend") {
+    return /\b(spend|budget|media cost|ad cost)\b/.test(normalizedQuestion) || /\bspend\b/.test(primaryMetric);
+  }
+
+  if (term === "cpqc") {
+    return /\b(cpqc|cost per qualified)\b/.test(normalizedQuestion) || /\bcost per qualified\b|\bcpqc\b/.test(primaryMetric);
+  }
+
+  return /\bqualified\b/.test(normalizedQuestion) || /\bqualified\b/.test(primaryMetric);
+}
+
+function answerLeaksUnrequestedNarrative(text: string, question: string, questionFacts: TrustedQuestionFacts) {
+  if (/\b(commercial performance|business score|semantic score|strongest score|strongest signal|anchored signal)\b/i.test(text)) {
+    return true;
+  }
+
+  if (/\bcombines\b/i.test(text) && !/\b(versus|vs|while|without|relative to|compared to|and)\b/i.test(question)) {
+    return true;
+  }
+
+  const checks: Array<[RegExp, "roas" | "revenue" | "spend" | "cpqc" | "qualified"]> = [
+    [/\broas\b/i, "roas"],
+    [/\brevenue\b/i, "revenue"],
+    [/\bspend\b/i, "spend"],
+    [/\bcpqc\b/i, "cpqc"],
+    [/\bqualified calls?\b/i, "qualified"]
+  ];
+
+  return checks.some(([pattern, term]) => pattern.test(text) && !questionOrPrimaryMetricAllowsTerm(question, questionFacts, term));
+}
+
+function publicSafeAskAnswer(narrativeAnswer: string, question: string, questionFacts: TrustedQuestionFacts) {
+  if (!answerLeaksUnrequestedNarrative(narrativeAnswer, question, questionFacts)) {
+    return narrativeAnswer;
+  }
+
+  return questionFacts.answer.directAnswer;
+}
+
 function buildChartSelectionQuestion(questionFacts: TrustedQuestionFacts) {
   const request = questionFacts.chartSupportRequest;
   if (!request || request.kind === "none" || questionFacts.answerability.status === "unsupported") {
@@ -425,10 +480,11 @@ export async function answerDatasetQuestion(question: string, context: QuestionC
   const narrative = allowAiRewrite
     ? await generateAskAnswer(narrativeInput)
     : buildFallbackAskAnswerNarrative(narrativeInput);
+  const directAnswer = publicSafeAskAnswer(narrative.directAnswer, question, trustedQuestion.facts);
 
   return {
     ...trustedQuestion.queryAnswer,
-    answer: narrative.directAnswer,
+    answer: directAnswer,
     detectedIntent: chartSelection.intent,
     analysisSummary: narrative.analysisSummary,
     chartSelectionSummary: narrative.chartSelectionSummary,
@@ -437,7 +493,7 @@ export async function answerDatasetQuestion(question: string, context: QuestionC
     chartSuggestion: alignedChartSuggestion,
     recommendedCharts: chartsWithNarratives,
     narrative: {
-      directAnswer: narrative.directAnswer,
+      directAnswer,
       evidence: narrative.evidence,
       caution: narrative.caution,
       suggestedNextQuestion: narrative.suggestedNextQuestion,

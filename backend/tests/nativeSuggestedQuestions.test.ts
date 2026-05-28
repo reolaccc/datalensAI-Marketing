@@ -41,6 +41,18 @@ function keptQuestionsForRows(rows: DatasetRow[]) {
   };
 }
 
+function questionTemplateFamily(question: string) {
+  const text = question.toLowerCase().replace(/_/g, " ").replace(/\s+/g, " ").trim();
+  if (/reliability limitations|decision confidence/.test(text)) return "dataset_reliability";
+  if (/can .+ compared reliably/.test(text)) return "metric_reliability";
+  if (/change over time|trend shift/.test(text)) return "trend_change";
+  if (/without matching|imbalanced|look high without|rise without/.test(text)) return "relationship_imbalance";
+  if (/vary most|behave differently/.test(text)) return "segment_variance";
+  if (/look inconsistent/.test(text)) return "metric_inconsistency";
+  if (/concentrated risk|too concentrated|pressure appear concentrated/.test(text)) return "concentration";
+  return "general_investigation";
+}
+
 test("native suggested questions are grounded for call-tracking datasets without visual lookups", () => {
   const result = keptQuestions("datasets/datalens_chart_blindtest_call_tracking_320rows.csv");
 
@@ -80,15 +92,37 @@ test("native suggested questions stay conservative for generic weak-CRM datasets
 
 test("native suggested questions use neutral language for energy-style datasets", () => {
   const result = keptQuestionsForRows([
-    { site: "North", solar_kwh: 1200, load_kwh: 980, grid_import_kwh: 140, grid_export_kwh: 360 },
-    { site: "South", solar_kwh: 820, load_kwh: 1120, grid_import_kwh: 420, grid_export_kwh: 90 },
-    { site: "West", solar_kwh: 1040, load_kwh: 1005, grid_import_kwh: 210, grid_export_kwh: 245 }
+    { date: "2026-01-01", site: "North", channel: "north meter", revenue: 10, spend: 2, solar_kwh: 1200, load_kwh: 980, grid_import_kwh: 140, grid_export_kwh: 360 },
+    { date: "2026-01-02", site: "South", channel: "south meter", revenue: 12, spend: 3, solar_kwh: 820, load_kwh: 1120, grid_import_kwh: 420, grid_export_kwh: 90 },
+    { date: "2026-01-03", site: "West", channel: "west meter", revenue: 8, spend: 1, solar_kwh: 1040, load_kwh: 1005, grid_import_kwh: 210, grid_export_kwh: 245 }
   ]);
 
   assert.ok(result.questions.length >= 1);
   assert.ok(result.questions.some((question) => /solar|load|grid|reliability|inconsistent|imbalanced/i.test(question)));
   assert.ok(!/\b(roas|campaign|qualified|marketing attribution)\b/i.test(result.text));
   assert.ok(result.decisions.filter((decision) => decision.kept).every((decision) => decision.facts?.answerability.status !== "unsupported"));
+});
+
+test("native suggested questions balance templates and avoid trust-heavy output", () => {
+  const results = [
+    keptQuestions("datasets/datalens_chart_blindtest_call_tracking_320rows.csv"),
+    keptQuestions("datasets/blind-qa/blind_test_v4_callcentre_ops.csv"),
+    keptQuestions("tests/fixtures/retail_inventory_blind.csv"),
+    keptQuestions("datasets/blind-qa/blind_test_v4_weird_crm_export.csv"),
+    keptQuestionsForRows([
+      { date: "2026-01-01", site: "North", channel: "north meter", revenue: 10, spend: 2, solar_kwh: 1200, load_kwh: 980 },
+      { date: "2026-01-02", site: "South", channel: "south meter", revenue: 12, spend: 3, solar_kwh: 820, load_kwh: 1120 },
+      { date: "2026-01-03", site: "West", channel: "west meter", revenue: 8, spend: 1, solar_kwh: 1040, load_kwh: 1005 }
+    ])
+  ];
+  const families = new Set(results.flatMap((result) => result.questions.map(questionTemplateFamily)));
+
+  assert.ok(families.size > 5);
+  for (const result of results) {
+    const keptDecisions = result.decisions.filter((decision) => decision.kept);
+    const trustCount = keptDecisions.filter((decision) => decision.candidate.intentType === "trust_caveat").length;
+    assert.ok(trustCount <= 2);
+  }
 });
 
 test("Ask follow-up validation removes unsafe marketing questions from operations data", () => {

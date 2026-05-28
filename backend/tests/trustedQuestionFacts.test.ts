@@ -57,7 +57,8 @@ test("TrustedQuestionFacts marks weak fallback questions explicitly", () => {
   const trustedQuestion = buildTrustedQuestionFacts("Summarize the business performance.", context);
 
   assert.equal(trustedQuestion.facts.answerability.status, "weak");
-  assert.match(trustedQuestion.facts.answer.directAnswer, /too broad for a reliable ranking/i);
+  assert.match(trustedQuestion.facts.answer.directAnswer, /Performance is too broad/i);
+  assert.doesNotMatch(trustedQuestion.facts.answer.directAnswer, /segment comparison|choose a winner/i);
   assert.equal(trustedQuestion.facts.chartSupportRequest?.kind, "none");
 });
 
@@ -80,7 +81,9 @@ test("TrustedQuestionFacts gives dataset-level reliability wording when no metri
 
   assert.equal(trustedQuestion.facts.routing.mode, "trust");
   assert.equal(trustedQuestion.facts.answerability.status, "weak");
-  assert.match(answer.answer, /dataset-level reliability question/i);
+  assert.match(answer.answer, /Main reliability limitations/i);
+  assert.match(answer.answer, /missing values|semantic|coverage|ratio|directional/i);
+  assert.doesNotMatch(answer.answer, /not a ranking|does not name one metric|choose a winner/i);
   assert.doesNotMatch(answer.answer, /changing the metric being answered/i);
 });
 

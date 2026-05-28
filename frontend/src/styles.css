@@ -903,6 +903,30 @@ small {
   transform: translateX(16px);
 }
 
+.clear-history-button {
+  box-sizing: border-box;
+  height: 22px;
+  min-height: 0;
+  padding: 0 18px;
+  border: 1px solid rgba(236, 250, 248, 0.18);
+  border-radius: 999px;
+  background: rgba(236, 250, 248, 0.08);
+  color: #b8d6d3;
+  font-size: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.clear-history-button:hover:not(:disabled) {
+  border-color: rgba(156, 244, 239, 0.3);
+  color: #ecfaf8;
+}
+
+.clear-history-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
 .starter-row {
   display: flex;
   gap: 10px;
@@ -1148,6 +1172,10 @@ small {
 .ask-answer-direct {
   font-size: 0.98rem;
   font-weight: 600;
+}
+
+.ask-answer-pending {
+  color: #a8d8d4;
 }
 
 .ask-evidence-block {

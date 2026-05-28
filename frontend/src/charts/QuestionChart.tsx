@@ -22,7 +22,8 @@ import {
   getTimeSeriesAxisLabel,
   getTimeSeriesYearContext,
   humanizeLabel,
-  isTimeSeriesChartAxis
+  isTimeSeriesChartAxis,
+  shouldRotateTimeSeriesTicks
 } from "./chartFormatting";
 
 const LINE_AXIS_TITLE_STYLE = {
@@ -50,10 +51,11 @@ export function QuestionChart({ chartSuggestion, height = 240 }: Props) {
     isTimeSeriesChartAxis(chartSuggestion.xKey, chartSuggestion.xKey);
   const timeSeriesYearContext = isTimeSeriesChart ? getTimeSeriesYearContext(chartSuggestion.data, chartSuggestion.xKey) : null;
   const xAxisLabel = isTimeSeriesChart
-    ? getTimeSeriesAxisLabel(chartSuggestion.xKey, chartSuggestion.xKey, timeSeriesYearContext?.axisYearLabel)
+    ? getTimeSeriesAxisLabel(chartSuggestion.xKey, chartSuggestion.xKey)
     : getAxisLabel(chartSuggestion.xKey, null);
   const yAxisLabel = getAxisLabel(metricLabel, dimensionLabel);
   const lineTicks = isTimeSeriesChart ? buildTimeSeriesTicks(chartSuggestion.data, chartSuggestion.xKey) : undefined;
+  const shouldRotateLineTicks = isTimeSeriesChart ? shouldRotateTimeSeriesTicks(chartSuggestion.data, chartSuggestion.xKey) : false;
   const longestCategoryLabel = chartSuggestion.data.reduce((longest, entry) => {
     const label = humanizeLabel(String(entry[chartSuggestion.xKey] ?? ""));
     return Math.max(longest, label.length);
@@ -72,7 +74,7 @@ export function QuestionChart({ chartSuggestion, height = 240 }: Props) {
   return (
     <ResponsiveContainer width="100%" height={height}>
       {chartSuggestion.chartType === "line" ? (
-        <LineChart data={chartSuggestion.data} margin={{ top: 10, right: 18, bottom: timeSeriesYearContext?.includeYearInTicks ? 28 : 18, left: DEFAULT_LEFT_MARGIN }}>
+        <LineChart data={chartSuggestion.data} margin={{ top: 10, right: 18, bottom: shouldRotateLineTicks ? 42 : 22, left: DEFAULT_LEFT_MARGIN }}>
           <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
           <XAxis
             dataKey={chartSuggestion.xKey}
@@ -80,9 +82,11 @@ export function QuestionChart({ chartSuggestion, height = 240 }: Props) {
             interval={isTimeSeriesChart ? 0 : "preserveEnd"}
             stroke={AXIS_COLOR}
             tickFormatter={(value) => isTimeSeriesChart ? formatChartDateLabel(value, "axis", { includeYear: Boolean(timeSeriesYearContext?.includeYearInTicks) }) : humanizeLabel(String(value ?? ""))}
+            angle={shouldRotateLineTicks ? -24 : 0}
+            textAnchor={shouldRotateLineTicks ? "end" : "middle"}
             minTickGap={24}
             tickMargin={12}
-            height={timeSeriesYearContext?.includeYearInTicks ? 54 : 42}
+            height={shouldRotateLineTicks ? 72 : 42}
             label={{ value: xAxisLabel, position: "insideBottom", offset: -2, ...LINE_AXIS_TITLE_STYLE }}
           />
           <YAxis stroke={AXIS_COLOR} width={DEFAULT_Y_AXIS_WIDTH} tickMargin={8} tickFormatter={(value) => formatChartValue(value, metricLabel)} label={{ value: yAxisLabel, angle: -90, position: "insideLeft", dx: -6, ...LINE_AXIS_TITLE_STYLE }} />

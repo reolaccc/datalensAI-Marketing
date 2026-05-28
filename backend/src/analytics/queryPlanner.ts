@@ -1062,7 +1062,7 @@ export function planQuery(
   const metrics = [...new Set([...explicitMetrics, ...semanticMetrics])];
   const metric = metrics[0] ?? null;
   const comparisonValues = extractComparisonValues(resolvedQuestion, profile);
-  const dimension = resolveDimension(
+  const resolvedDimension = resolveDimension(
     resolvedQuestion,
     profile,
     input,
@@ -1075,8 +1075,9 @@ export function planQuery(
     semanticProfile,
     conversationAnchor,
     explicitMetrics.length > 0,
-    Boolean(dimension)
+    Boolean(resolvedDimension)
   );
+  const dimension = intent === "trend" ? null : resolvedDimension;
   const dimensionTrendValues = extractDimensionTopValues(resolvedQuestion, profile, dimension);
   const standardFilters = [
     ...extractFilters(resolvedQuestion, profile),

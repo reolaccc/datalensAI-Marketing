@@ -1337,7 +1337,7 @@ export function buildFallbackAskAnswerNarrative(input: QuestionNarrativeInput): 
           }
         }
 
-        return "The current dataset does not expose a single clear metric, so this answer is based on the strongest available business signals.";
+        return "The current dataset does not expose a single clear metric, so the safest answer is to ask for a specific metric and segment.";
       }
 
       return input.answer;

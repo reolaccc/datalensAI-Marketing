@@ -12,6 +12,7 @@ import type {
   DatasetRow
 } from "./types.js";
 import { buildSemanticDatasetContract } from "./semanticContract.js";
+import { parseDateValue } from "../utils/inference.js";
 
 interface TrustedQuestionFactsContext {
   rows: DatasetRow[];
@@ -43,12 +44,296 @@ function humanizeMetric(metric: string | null | undefined) {
 
 function normalizeMetricText(value: string) {
   return value
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
     .toLowerCase()
     .replace(/-/g, " ")
     .replace(/_/g, " ")
     .replace(/\bpct\b/g, "percent")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function profileSignalText(profile: DatasetProfile) {
+  const contract = profile.semanticContract;
+  return normalizeMetricText(
+    [
+      ...profile.numericColumns,
+      ...profile.categoricalColumns,
+      ...profile.datetimeColumns,
+      ...(contract?.availableMetrics ?? []),
+      ...(contract?.availableDimensions ?? []),
+      ...(contract?.derivedMetrics ?? []),
+      ...(contract?.roleMappings?.map((mapping) => mapping.semanticRole ?? "") ?? []),
+      ...(contract?.detectedDomain?.detectedCapabilities ?? [])
+    ].join(" ")
+  );
+}
+
+function hasSignal(profile: DatasetProfile, pattern: RegExp) {
+  return pattern.test(profileSignalText(profile));
+}
+
+function extractMentionedYear(question: string) {
+  const match = question.match(/\b(19\d{2}|20\d{2})\b/);
+  return match ? Number(match[1]) : null;
+}
+
+function datasetHasYear(rows: DatasetRow[], profile: DatasetProfile, year: number) {
+  if (profile.datetimeColumns.length === 0) {
+    return false;
+  }
+
+  return rows.some((row) =>
+    profile.datetimeColumns.some((column) => parseDateValue(row[column])?.getUTCFullYear() === year)
+  );
+}
+
+function domainMetricExamples(profile: DatasetProfile) {
+  const domain = profile.semanticContract?.detectedDomain?.domain;
+  if (hasSignal(profile, /\b(solar|grid|load|kwh|generation|export|import)\b/)) {
+    return "solar generation, load, grid import, grid export, or usage trend";
+  }
+  if (hasSignal(profile, /\b(stock|inventory|backorder|fulfillment|warehouse|supplier|sku|margin|return|markdown)\b/)) {
+    return "units sold, margin, stockout rate, return rate, or fulfillment delay";
+  }
+  if (domain === "call_tracking" || domain === "mixed_call_tracking_attribution" || domain === "marketing_attribution") {
+    return "calls, qualified rate, revenue, missed-call rate, or ROAS reliability";
+  }
+  if (hasSignal(profile, /\b(queue|service line|resolution|response|reopen|escalation|csat|satisfaction|ticket|case|agent|workload)\b/)) {
+    return "response time, resolution time, reopen rate, workload, or service quality";
+  }
+  if (domain === "call_operations") {
+    return "response time, resolution time, reopen rate, or workload";
+  }
+  const availableMetricText = new Set(
+    [...profile.numericColumns, ...(profile.semanticContract?.availableMetrics ?? [])]
+      .map((metric) => normalizeMetricText(metric))
+      .join(" ")
+      .split(/\s+/)
+  );
+  if (availableMetricText.has("solar") || availableMetricText.has("load") || availableMetricText.has("grid")) {
+    return "solar generation, load, grid import, grid export, or usage trend";
+  }
+  if (availableMetricText.has("stock") || availableMetricText.has("inventory") || availableMetricText.has("margin")) {
+    return "units sold, margin, stockout rate, return rate, or fulfillment delay";
+  }
+
+  return "volume, value, rate, or trend";
+}
+
+function detectGuidanceDomain(profile: DatasetProfile) {
+  const domain = profile.semanticContract?.detectedDomain?.domain;
+  if (hasSignal(profile, /\b(solar|grid|load|kwh|generation|export|import)\b/)) {
+    return "energy" as const;
+  }
+  if (hasSignal(profile, /\b(stock|inventory|backorder|fulfillment|warehouse|supplier|sku|margin|return|markdown)\b/)) {
+    return "retail" as const;
+  }
+  if (domain === "call_tracking" || domain === "mixed_call_tracking_attribution" || domain === "marketing_attribution") {
+    return "call_tracking" as const;
+  }
+  if (hasSignal(profile, /\b(queue|service line|resolution|response|reopen|escalation|csat|satisfaction|ticket|case|agent|workload)\b/)) {
+    return "operations" as const;
+  }
+  if (hasSignal(profile, /\b(call|campaign|channel|source|qualified|missed|spend|revenue|roas|cpqc)\b/)) {
+    return "call_tracking" as const;
+  }
+  return "generic" as const;
+}
+
+function buildGuidanceDirections(profile: DatasetProfile) {
+  const directions: string[] = [];
+  const domain = detectGuidanceDomain(profile);
+  const add = (condition: boolean, direction: string) => {
+    if (condition && !directions.includes(direction)) {
+      directions.push(direction);
+    }
+  };
+
+  if (domain === "call_tracking") {
+    add(hasSignal(profile, /\b(missed|missed call|no answer|abandoned|voicemail)\b/), "missed-call pressure by channel or campaign");
+    add(hasSignal(profile, /\b(qualified|qualified call|qualified lead|qualified rate)\b/), "qualified-call rate variation by channel or campaign");
+    add(hasSignal(profile, /\b(call|calls|volume|call id|enquiry)\b/), "call volume concentration across available segments");
+    add(hasSignal(profile, /\b(roas|revenue|spend|cost)\b/), "revenue, spend, or ROAS reliability before budget decisions");
+    add(hasSignal(profile, /\b(cpqc|cost per qualified|spend qualified)\b/), "CPQC reliability before cost-efficiency decisions");
+    add(hasSignal(profile, /\b(duration|talk time|wait time|handle time|ring time)\b/), "call duration patterns that may point to operational leakage");
+  } else if (domain === "operations") {
+    add(hasSignal(profile, /\b(response|wait|talk time|duration|handle time)\b/), "response-time or wait-time pressure");
+    add(hasSignal(profile, /\b(resolution|resolve|duration)\b/), "resolution-time bottlenecks");
+    add(hasSignal(profile, /\b(reopen|escalation|callback|failed|abandoned|missed|error)\b/), "reopen, escalation, missed, or failed-interaction risk");
+    add(hasSignal(profile, /\b(queue|team|service line|agent|department|shift|region)\b/), "workload concentration by queue, team, service line, or shift");
+    add(hasSignal(profile, /\b(csat|satisfaction|quality|score)\b/), "service-quality or CSAT reliability");
+  } else if (domain === "retail") {
+    add(hasSignal(profile, /\b(stockout|backorder|inventory|stock)\b/), "stockout, backorder, or inventory pressure");
+    add(hasSignal(profile, /\b(fulfillment|delay|ship|delivery)\b/), "fulfillment-delay risk");
+    add(hasSignal(profile, /\b(return|refund)\b/), "return-rate or refund risk");
+    add(hasSignal(profile, /\b(margin|markdown|profit)\b/), "margin or markdown reliability");
+    add(hasSignal(profile, /\b(warehouse|supplier|category|sku|product)\b/), "warehouse, supplier, category, or product inconsistency");
+  } else if (domain === "energy") {
+    add(hasSignal(profile, /\b(solar|generation|production)\b/), "solar generation trend");
+    add(hasSignal(profile, /\b(load|demand|consumption)\b/), "load or demand variation");
+    add(hasSignal(profile, /\b(grid|import|export)\b/), "grid import/export reliance");
+    add(hasSignal(profile, /\b(site|region|location)\b/), "site-level usage imbalance");
+    add(profile.missingCells > 0 || profile.datetimeColumns.length > 0, "data coverage and time-period reliability");
+  } else {
+    add(profile.missingCells > 0, "metric completeness and missing data");
+    add(profile.numericColumns.length > 0, "available volume, value, or rate metrics");
+    add(profile.datetimeColumns.length > 0, "trendable metrics over time");
+    add(profile.categoricalColumns.length > 0, "segment concentration across populated category fields");
+    add(hasSignal(profile, /\b(rate|ratio|percent|roas|cost|efficiency)\b/), "rate or ratio reliability");
+  }
+
+  if (directions.length === 0 && profile.numericColumns.length > 0) {
+    directions.push("available numeric metrics with good coverage");
+  }
+  if (directions.length === 0 && profile.categoricalColumns.length > 0) {
+    directions.push("populated segment fields before drawing performance conclusions");
+  }
+
+  return directions.slice(0, 4);
+}
+
+function isBroadInvestigationGuidanceQuestion(question: string) {
+  const normalized = normalizeMetricText(question);
+  if (extractMentionedYear(question)) {
+    return false;
+  }
+  return /\b(biggest problem|where should we optimize|what should i look at first|what should we look at first|areas deserve further investigation|deserve further investigation|where should we focus|what should we focus|campaign should i focus|performance look weak|performance looks weak|performance look inconsistent|performance looks inconsistent|where does performance|how did we perform|performance overall|how is performance)\b/.test(normalized);
+}
+
+function buildBroadInvestigationGuidance(
+  question: string,
+  profile: DatasetProfile
+): { status: TrustedQuestionFacts["answerability"]["status"]; directAnswer: string; reason: string } | null {
+  if (!isBroadInvestigationGuidanceQuestion(question)) {
+    return null;
+  }
+
+  const directions = buildGuidanceDirections(profile);
+  const reason = "The question is broad, so the safe answer is investigation guidance rather than a winner.";
+  if (directions.length === 0) {
+    return {
+      status: "weak",
+      directAnswer: "This dataset does not contain enough grounded metrics to identify a business problem reliably. Start by adding a clear outcome metric, such as calls, revenue, response time, margin, or another measurable result.",
+      reason
+    };
+  }
+
+  const normalized = normalizeMetricText(question);
+  const directionText = directions.join(", ");
+  if (/\boptimize|focus\b/.test(normalized)) {
+    return {
+      status: "weak",
+      directAnswer: `Optimization should start with grounded risk signals, not a broad inferred ranking. In this dataset, check ${directionText}; then use metric-specific questions before choosing where to focus.`,
+      reason
+    };
+  }
+  if (/\bbiggest problem|problem|weak|risky\b/.test(normalized)) {
+    return {
+      status: "weak",
+      directAnswer: `This is broad, so I would not choose a single "biggest problem" without a metric. The safest areas to investigate in this dataset are ${directionText}.`,
+      reason
+    };
+  }
+
+  return {
+    status: "weak",
+    directAnswer: `The strongest next investigations are: ${directionText}. These are grounded in the available fields, but they should be checked with metric-specific questions before making decisions.`,
+    reason
+  };
+}
+
+function isProbablyMalformedFragment(question: string, plan: PlannedQuery) {
+  const normalized = normalizeMetricText(question).replace(/[?.!]+$/g, "").trim();
+  const tokens = normalized.split(/\s+/).filter(Boolean);
+
+  if (/^would name\b/.test(normalized) || /\bmetric and (?:the )?segment\b/.test(normalized)) {
+    return true;
+  }
+  if (/^by\s+[a-z0-9 _-]+$/.test(normalized)) {
+    return true;
+  }
+  if (/^(compare|ranking|segment|metric|dimension)$/.test(normalized)) {
+    return true;
+  }
+  if (tokens.length <= 2 && !plan.metric && !plan.dimension && !extractMentionedYear(question)) {
+    return true;
+  }
+
+  return false;
+}
+
+function isBroadPerformanceQuestion(question: string, plan: PlannedQuery) {
+  const normalized = normalizeMetricText(question);
+  return (
+    /\bperform(?:ance|ed|ing|ace)?\b|\bhow did we do\b|\bhow are we doing\b|\bwhat should i look at\b|\bwhat should we look at\b/.test(normalized) &&
+    !plan.metric &&
+    plan.metrics.length === 0
+  );
+}
+
+function buildClarificationOverride(
+  question: string,
+  plan: PlannedQuery,
+  profile: DatasetProfile,
+  rows: DatasetRow[]
+): { status: TrustedQuestionFacts["answerability"]["status"]; directAnswer: string; reason: string } | null {
+  const year = extractMentionedYear(question);
+  const metricExamples = domainMetricExamples(profile);
+
+  if (year) {
+    if (profile.datetimeColumns.length === 0) {
+      const reason = `This dataset does not contain enough date/time information to assess ${year} performance reliably.`;
+      return {
+        status: "unsupported",
+        directAnswer: reason,
+        reason
+      };
+    }
+
+    if (!datasetHasYear(rows, profile, year)) {
+      const reason = `This dataset does not appear to contain records for ${year}, so I cannot assess ${year} performance from the current data.`;
+      return {
+        status: "unsupported",
+        directAnswer: reason,
+        reason
+      };
+    }
+
+    if (!plan.metric || isBroadPerformanceQuestion(question, plan)) {
+      const reason = `${year} is present, but "performance" is broad without a metric.`;
+      return {
+        status: "weak",
+        directAnswer: `The dataset contains ${year} records, but "performance" is broad. Choose a metric such as ${metricExamples}.`,
+        reason
+      };
+    }
+  }
+
+  if (isProbablyMalformedFragment(question, plan)) {
+    const reason = "The submitted text looks like an incomplete question.";
+    return {
+      status: "weak",
+      directAnswer: `This looks like an incomplete question. Try asking about a specific metric and segment, such as "How did calls vary by channel?" or "Which channel had the highest qualified rate?"`,
+      reason
+    };
+  }
+
+  const broadGuidance = buildBroadInvestigationGuidance(question, profile);
+  if (broadGuidance) {
+    return broadGuidance;
+  }
+
+  if (isBroadPerformanceQuestion(question, plan)) {
+    const reason = "Performance is too broad without a metric.";
+    return {
+      status: "weak",
+      directAnswer: `Performance is too broad to rank reliably without a metric. Ask about a specific outcome such as ${metricExamples}.`,
+      reason
+    };
+  }
+
+  return null;
 }
 
 function detectTrustRouting(question: string) {
@@ -603,22 +888,7 @@ function buildTrustExplanation(
   }
 
   if (!requestedMetric) {
-    const reliabilityReasons = groundingConfidence?.reliabilityGrounding.reasons ?? [];
-    if (reliabilityReasons.length > 0) {
-      return {
-        status: "weak" as const,
-        directAnswer: `This is a dataset-level reliability question, not a ranking. The main trust limits are: ${reliabilityReasons.slice(0, 2).join(" ")}`,
-        reasons: reliabilityReasons,
-        caution: reliabilityReasons[0]
-      };
-    }
-
-    return {
-      status: "weak" as const,
-      directAnswer: "This is a dataset-level reliability question, not a ranking. The current question does not name one metric to validate, so the safest answer is to treat comparisons as directional and ask a metric-specific trust question before choosing a winner.",
-      reasons: ["No explicit metric was grounded for this trust question."],
-      caution: "A metric-specific trust question is needed for a stronger reliability assessment."
-    };
+    return buildDatasetReliabilityExplanation(profile, contract, groundingConfidence);
   }
 
   if (semanticAlignment.status === "none" || semanticAlignment.status === "weak") {
@@ -633,6 +903,16 @@ function buildTrustExplanation(
   const caveats: string[] = [];
   if (resolution?.resolution === "derived" || resolution?.aggregation === "ratio" || isKnownDerivedReliabilityMetric(requestedMetric)) {
     caveats.push(`${humanizeMetric(requestedMetric)} is derived rather than directly observed.`);
+  }
+  const normalizedRequestedMetric = normalizeMetricText(requestedMetric);
+  if (normalizedRequestedMetric === "roas") {
+    caveats.push("ROAS is calculated as revenue divided by spend, so each segment needs populated revenue and spend before comparisons are decision-grade.");
+  }
+  if (normalizedRequestedMetric === "roas" && resolution?.sourceColumns && resolutionHasMissingSource(profile, resolution.sourceColumns)) {
+    caveats.push("Partial revenue or spend coverage makes ROAS comparisons directional rather than final.");
+  }
+  if (normalizedRequestedMetric === "cost per qualified call" && resolution?.sourceColumns && resolutionHasMissingSource(profile, resolution.sourceColumns)) {
+    caveats.push("CPQC requires populated spend and qualified-call fields; partial coverage makes comparisons directional.");
   }
   if (typeof resolution?.confidence === "number" && resolution.confidence < 0.8) {
     caveats.push(`${humanizeMetric(requestedMetric)} is only partially supported by the available fields.`);
@@ -664,6 +944,137 @@ function firstReason(...groups: string[][]) {
   return groups.flat().find((reason) => reason.trim().length > 0);
 }
 
+function uniqueNonEmpty(values: string[], limit = 4) {
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const value of values) {
+    const normalized = value.trim().replace(/\s+/g, " ");
+    if (!normalized || seen.has(normalized.toLowerCase())) {
+      continue;
+    }
+    seen.add(normalized.toLowerCase());
+    result.push(normalized);
+    if (result.length >= limit) {
+      break;
+    }
+  }
+
+  return result;
+}
+
+function hasMetricResolution(contract: ReturnType<typeof buildSemanticDatasetContract>, metric: string) {
+  return Boolean(
+    contract.metricResolutions[metric] ||
+    contract.availableMetrics.includes(metric) ||
+    contract.derivedMetrics.includes(metric)
+  );
+}
+
+function resolutionHasMissingSource(profile: DatasetProfile, sourceColumns: string[]) {
+  return sourceColumns.some((sourceColumn) => (profile.columns.find((column) => column.name === sourceColumn)?.missingCount ?? 0) > 0);
+}
+
+function buildDatasetReliabilityExplanation(
+  profile: DatasetProfile,
+  contract: ReturnType<typeof buildSemanticDatasetContract>,
+  groundingConfidence?: TrustedQuestionFacts["groundingConfidence"]
+) {
+  const coverageReasons = groundingConfidence?.reliabilityGrounding.coverageWarnings ?? [];
+  const ratioReasons = groundingConfidence?.reliabilityGrounding.ratioWarnings ?? [];
+  const semanticReasons = groundingConfidence?.reliabilityGrounding.semanticWarnings ?? [];
+  const limitations: string[] = [];
+  const saferMetrics: string[] = [];
+  const cautiousMetrics: string[] = [];
+
+  if (profile.missingCells > 0) {
+    const missingShare = profile.rowCount * profile.columnCount > 0
+      ? Math.round((profile.missingCells / (profile.rowCount * profile.columnCount)) * 100)
+      : 0;
+    limitations.push(`Missing values affect ${profile.missingCells} cells${missingShare > 0 ? `, about ${missingShare}% of the dataset` : ""}.`);
+  }
+
+  const lowConfidenceRoles = contract.roleMappings?.filter((mapping) => mapping.confidence < 0.7 && mapping.semanticRole) ?? [];
+  if (lowConfidenceRoles.length > 0 || semanticReasons.length > 0) {
+    limitations.push("Some business meanings are only partially grounded, so fields with ambiguous semantic mapping should be treated cautiously.");
+  }
+
+  const ratioMetrics = Object.values(contract.metricResolutions).filter((resolution) => resolution.aggregation === "ratio" || resolution.resolution === "derived");
+  if (ratioMetrics.length > 0 || ratioReasons.length > 0) {
+    limitations.push("Ratio and efficiency comparisons depend on complete numerator and denominator fields.");
+  }
+
+  const revenueResolution = contract.metricResolutions.revenue ?? contract.metricResolutions.total_revenue;
+  const spendResolution = contract.metricResolutions.spend ?? contract.metricResolutions.total_spend ?? contract.metricResolutions.cost;
+  const qualifiedResolution = contract.metricResolutions.qualifiedCall ?? contract.metricResolutions.qualified_calls;
+
+  if (revenueResolution && resolutionHasMissingSource(profile, revenueResolution.sourceColumns)) {
+    limitations.push("Revenue coverage is incomplete, so revenue-based comparisons should be directional.");
+    cautiousMetrics.push("revenue-based metrics");
+  }
+  if (spendResolution && resolutionHasMissingSource(profile, spendResolution.sourceColumns)) {
+    limitations.push("Spend or cost coverage is incomplete, so cost-efficiency comparisons should be directional.");
+    cautiousMetrics.push("cost-efficiency metrics");
+  }
+  if (qualifiedResolution && (qualifiedResolution.confidence < 0.8 || resolutionHasMissingSource(profile, qualifiedResolution.sourceColumns))) {
+    limitations.push("Qualified-rate conclusions depend on whether the qualified field is complete and clearly mapped.");
+    cautiousMetrics.push("qualified-rate metrics");
+  }
+
+  if (coverageReasons.length > 0) {
+    limitations.push(...coverageReasons);
+  }
+
+  if (hasMetricResolution(contract, "calls") || hasMetricResolution(contract, "total_calls")) {
+    saferMetrics.push("direct call or volume counts");
+  }
+  if (hasMetricResolution(contract, "missedCall") || hasMetricResolution(contract, "missed_call_rate")) {
+    saferMetrics.push("missed-call measures when their source field is populated");
+  }
+  if (profile.numericColumns.length > 0 && saferMetrics.length === 0) {
+    saferMetrics.push("direct numeric fields with good coverage");
+  }
+  if (profile.categoricalColumns.length > 0) {
+    saferMetrics.push("segment comparisons using populated category fields");
+  }
+
+  if (hasMetricResolution(contract, "roas")) {
+    cautiousMetrics.push("ROAS");
+  }
+  if (ratioMetrics.length > 0) {
+    cautiousMetrics.push("derived ratios");
+  }
+
+  const finalLimitations = uniqueNonEmpty(
+    limitations.length > 0
+      ? limitations
+      : [
+          "Decision confidence depends on field coverage, semantic grounding, denominator validity, segment completeness, and date coverage.",
+          "Comparisons are safer when the metric is directly observed rather than inferred or derived."
+        ],
+    3
+  );
+  const finalSaferMetrics = uniqueNonEmpty(saferMetrics, 2);
+  const finalCautiousMetrics = uniqueNonEmpty(cautiousMetrics.length > 0 ? cautiousMetrics : ["derived ratios and efficiency metrics"], 3);
+
+  const saferSubject = finalSaferMetrics.join(" and ");
+  const saferSentence = finalSaferMetrics.length > 0
+    ? `${saferSubject.charAt(0).toUpperCase()}${saferSubject.slice(1)} are safer than inferred business metrics.`
+    : "Directly observed metrics are safer than inferred business metrics.";
+  const cautiousSentence = `${finalCautiousMetrics.join(", ")} should be treated cautiously unless their supporting fields are complete.`;
+
+  return {
+    status: "weak" as const,
+    directAnswer: `Main reliability limitations: ${finalLimitations.join(" ")} ${saferSentence} ${cautiousSentence} Treat cross-segment comparisons as directional rather than decision-grade when coverage or grounding is partial.`,
+    reasons: finalLimitations,
+    caution: finalLimitations[0]
+  };
+}
+
+function hasExplicitMetricGrounding(plan: PlannedQuery) {
+  return Boolean(plan.explicitMetrics?.length);
+}
+
 function buildGroundingLimitedAnswer(
   groundingConfidence: TrustedQuestionFacts["groundingConfidence"],
   plan: PlannedQuery,
@@ -674,6 +1085,7 @@ function buildGroundingLimitedAnswer(
   const dimension = groundingConfidence.dimensionGrounding;
   const relationship = groundingConfidence.relationshipGrounding;
   const reliability = groundingConfidence.reliabilityGrounding;
+  const hasExplicitMetric = hasExplicitMetricGrounding(plan);
 
   if (groundingConfidence.overall === "unsupported") {
     const missingMetric = metric.missingMetrics[0] ?? metric.requestedMetrics[0];
@@ -687,10 +1099,14 @@ function buildGroundingLimitedAnswer(
 
   if (/too broad for a reliable ranking|high-level business read only/i.test(fallbackAnswer.answer)) {
     parts.push("This question is too broad for a reliable ranking from the current dataset.");
+  } else if (!hasExplicitMetric) {
+    parts.push("This question does not name a metric to rank, so I should not choose a winner from inferred signals alone.");
   }
 
-  if (metric.groundedMetrics.length > 0) {
+  if (hasExplicitMetric && metric.groundedMetrics.length > 0) {
     parts.push(`The dataset can partially support ${metric.groundedMetrics.map(humanizeMetric).join(", ")}.`);
+  } else if (!hasExplicitMetric && metric.groundedMetrics.length > 0) {
+    parts.push("The available fields point to multiple possible signals, but no single requested metric is strong enough for a reliable ranking.");
   }
 
   if (dimension.groundedDimensions.length > 0 && dimension.status !== "weak") {
@@ -709,8 +1125,10 @@ function buildGroundingLimitedAnswer(
     parts.push("The requested relationship is only partially supported, so a winner or ranking would overstate the data.");
   }
 
-  if (reliability.reasons.length > 0) {
+  if (hasExplicitMetric && reliability.reasons.length > 0) {
     parts.push(`Reliability caveat: ${reliability.reasons[0]}`);
+  } else if (!hasExplicitMetric && reliability.reasons.length > 0) {
+    parts.push("Some inferred signals have coverage or reliability caveats, so this should be treated as directional.");
   }
 
   if (parts.length === 0) {
@@ -718,7 +1136,7 @@ function buildGroundingLimitedAnswer(
   }
 
   const safeNextCheck =
-    metric.groundedMetrics[0] && dimension.groundedDimensions[0]
+    hasExplicitMetric && metric.groundedMetrics[0] && dimension.groundedDimensions[0]
       ? `A safer next check is to ask about ${humanizeMetric(metric.groundedMetrics[0])} by ${dimension.groundedDimensions[0]}.`
       : "A more reliable next question would name the metric and the segment you want to compare.";
 
@@ -940,7 +1358,15 @@ export function buildTrustedQuestionFacts(
   const answeredMetric = determineAnsweredMetric(plan, queryAnswer);
   const semanticAlignment = buildSemanticAlignment(question, plan, answeredMetric);
   const groundingConfidence = buildGroundingConfidence(question, plan, context.profile, queryAnswer, semanticAlignment);
-  const answerability = buildAnswerability(question, plan, context.profile, queryAnswer, routing, semanticAlignment, groundingConfidence);
+  const clarificationOverride = buildClarificationOverride(question, plan, context.profile, context.rows);
+  const baseAnswerability = buildAnswerability(question, plan, context.profile, queryAnswer, routing, semanticAlignment, groundingConfidence);
+  const answerability = clarificationOverride
+    ? {
+        status: clarificationOverride.status,
+        reasons: [clarificationOverride.reason],
+        caution: clarificationOverride.reason
+      }
+    : baseAnswerability;
   const detectedIntent = buildDetectedIntent(plan, answerability.status);
   const trustExplanation = routing.mode === "trust"
     ? buildTrustExplanation(question, plan, context.profile, answeredMetric, semanticAlignment, groundingConfidence)
@@ -961,7 +1387,9 @@ export function buildTrustedQuestionFacts(
     answer: {
       mode: mapPlanIntentToAnswerMode(plan.intent),
       directAnswer:
-        routing.mode === "trust"
+        clarificationOverride
+          ? clarificationOverride.directAnswer
+          : routing.mode === "trust"
           ? trustExplanation?.directAnswer ?? queryAnswer.answer
           : answerability.status === "answerable"
             ? queryAnswer.answer

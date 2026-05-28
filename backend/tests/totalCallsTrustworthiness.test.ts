@@ -40,7 +40,7 @@ test("row-level datasets keep total calls tied to row-level call counting", () =
   assert.equal(detectCallDatasetGrain(profile), "row_level_call_log");
   assert.equal(aggregateSemanticMetric(parsed.rows, "calls", profile), 3);
   assert.equal(card.value, 3);
-  assert.equal(card.formula, "count(callId)");
+  assert.equal(card.formula, "count(call_id)");
 
   const trend = aggregateByDate(parsed.rows, "call_datetime", "calls", minimalCapabilities, profile);
   assert.equal(

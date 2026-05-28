@@ -39,7 +39,8 @@ import {
   getTimeSeriesAxisLabel,
   getTimeSeriesYearContext,
   isTimeSeriesChartAxis,
-  humanizeLabel
+  humanizeLabel,
+  shouldRotateTimeSeriesTicks
 } from "./chartFormatting";
 import { formatCompactNumber } from "../utils/numberFormatting";
 
@@ -197,7 +198,7 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
   const xAxisLabel = isHistogram
     ? getAxisLabel(chart.xAxis ?? chart.xKey, dimensionLabel)
     : isTimeSeriesChart
-      ? getTimeSeriesAxisLabel(chart.xAxis ?? chart.dimension ?? chart.xKey, chart.xKey, timeSeriesYearContext?.axisYearLabel)
+      ? getTimeSeriesAxisLabel(chart.xAxis ?? chart.dimension ?? chart.xKey, chart.xKey)
       : chart.chartType === "horizontal_bar"
         ? getAxisLabel(chart.metric ?? chart.yAxis ?? chart.yKey, null)
         : getAxisLabel(chart.xAxis ?? chart.xKey, dimensionLabel);
@@ -210,6 +211,10 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
   const legendPayload = buildChartLegendPayload(presentationChart);
   const chartTitle = getSemanticDisplayLabel(chart.title) || humanizeLabel(chart.title);
   const chartRole = formatChartRole(chart.analysisRole ?? null);
+  const shouldShowChartRole = Boolean(
+    chartRole &&
+    chartRole.trim().toLowerCase() !== chartTitle.trim().toLowerCase()
+  );
   const chartInsight = buildChartInsightText(chart);
   const longestCategoryLabel = getLongestCategoryLabel(chartData, categoryKey);
   const hasLongCategoryLabels = longestCategoryLabel >= 14;
@@ -238,6 +243,7 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
     isTimeSeriesChart
       ? buildTimeSeriesTicks(chartData, chart.xKey)
       : undefined;
+  const shouldRotateLineTicks = isTimeSeriesChart ? shouldRotateTimeSeriesTicks(chartData, chart.xKey) : false;
   const barThickness = getBarThickness(chart, chartData.length);
   const chartHeight = compact
     ? 224
@@ -312,7 +318,7 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
   function renderChart() {
     if (chart.chartType === "line" || chart.chartType === "anomaly_trend") {
       return (
-        <LineChart data={chartData} margin={{ top: 10, right: 18, bottom: 18, left: WIDE_LEFT_MARGIN }}>
+        <LineChart data={chartData} margin={{ top: 10, right: 18, bottom: shouldRotateLineTicks ? 42 : 22, left: WIDE_LEFT_MARGIN }}>
           <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
           <XAxis
             dataKey={chart.xKey}
@@ -320,10 +326,12 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
             interval={isTimeSeriesChart ? 0 : "preserveEnd"}
             stroke={AXIS_COLOR}
             tickFormatter={(value) => isTimeSeriesChart ? formatChartDateLabel(value, "axis", { includeYear: Boolean(timeSeriesYearContext?.includeYearInTicks) }) : getSemanticDisplayLabel(String(value ?? "")) || String(value ?? "")}
+            angle={shouldRotateLineTicks ? -24 : 0}
+            textAnchor={shouldRotateLineTicks ? "end" : "middle"}
             minTickGap={24}
             tickMargin={14}
-            height={timeSeriesYearContext?.includeYearInTicks ? 58 : 48}
-            label={{ value: xAxisLabel || (isTimeSeriesChart ? "Date (Daily)" : "Category"), position: "insideBottom", offset: -8, ...LINE_AXIS_TITLE_STYLE }}
+            height={shouldRotateLineTicks ? 76 : 48}
+            label={{ value: xAxisLabel || (isTimeSeriesChart ? "Date" : "Category"), position: "insideBottom", offset: -8, ...LINE_AXIS_TITLE_STYLE }}
           />
           <YAxis stroke={AXIS_COLOR} width={DEFAULT_Y_AXIS_WIDTH} tickFormatter={(value) => formatChartValue(value, metricLabel)} tickMargin={10} label={{ value: yAxisLabel, angle: -90, position: "insideLeft", dx: -8, ...LINE_AXIS_TITLE_STYLE }} />
           <Tooltip content={renderTooltipContent} />
@@ -544,7 +552,7 @@ export function ChartCard({ chart, highlighted = false, compact = false }: Props
         <div className="chart-header-copy">
           <h3>{chartTitle}</h3>
           {!compact && highlighted ? <span className="chart-tag">Relevant to this question</span> : null}
-          {!compact && chartRole ? <span className="chart-tag">{chartRole}</span> : null}
+          {!compact && shouldShowChartRole ? <span className="chart-tag">{chartRole}</span> : null}
         </div>
       </div>
 

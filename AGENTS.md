@@ -4,6 +4,15 @@ Additional local instruction:
 - When the user gives a coding or implementation prompt, execute it directly by default and do not wait for confirmation unless the user explicitly says they do not want coding yet.
 - Do not require confirmation solely because a change touches architecture, multiple files, or module boundaries. If the user asks for implementation, proceed directly unless they explicitly ask for discussion first or the action is destructive/high-risk.
 
+Default safety boundaries:
+
+- Use localhost-only testing by default. Automated QA should target the local frontend/backend dev server unless the user explicitly asks for another environment.
+- Do not deploy to Render, production, or any hosted environment unless the user explicitly requests deployment.
+- Do not push to GitHub or any remote repository unless the user explicitly requests a push.
+- Do not read, print, modify, or regenerate `.env` files, API keys, tokens, or provider secrets.
+- Do not change API provider settings unless the user explicitly asks for that configuration change.
+- Use test, fixture, synthetic, sandbox, or explicitly provided local datasets for automated QA. Do not use real customer data for automated testing unless the user explicitly provides and authorizes it for that purpose.
+
 Long-term principles for DataLens:
 
 - Trust is the primary product requirement. If a metric, ratio, or ranking is not supported reliably by the dataset, prefer refusal, caveat, or omission over a confident-looking answer.
@@ -11,6 +20,20 @@ Long-term principles for DataLens:
 - Missing revenue, spend, qualified, converted, or denominator fields must not silently become `0`, and invalid ratios must not be ranked as if they were valid values.
 - Do not silently substitute metrics. If the user asks for one metric and that metric is unavailable or unreliable, explain that clearly before suggesting a nearby metric.
 - Do not force every dataset into marketing attribution semantics. Operations, CRM, mixed, and generic business datasets should keep their own domain boundaries.
+
+Blind QA and Anti-Overfitting Principles:
+
+- Blind QA datasets are used to expose semantic drift, metric substitution, trustworthiness failures, ratio or coverage bugs, domain over-assumption, UI wording problems, and generalization risks. They must not be used to hardcode behavior for one dataset.
+- When reporting blind QA results, classify the dataset type: targeted regression stress-test, realistic messy blind dataset, domain transfer dataset, or adversarial / edge-case dataset.
+- Separate findings into generalizable findings, dataset-specific findings, overfitting risks, recommended fixes, and what should not be changed.
+- Treat highly engineered datasets as regression stress-tests, not proof of real-world generalization.
+- Do not hardcode blind QA field names unless the feature is explicitly field-specific.
+- Prefer semantic roles, grounding confidence, coverage, and ratio validity over exact column-name rules.
+- Reject or redesign fixes that only work because a column has a particular test name, exact schema shape, hardcoded value, or curated blind QA example.
+- Do not loosen trust validation just to make one blind QA answer look better.
+- Do not broaden domain assumptions because one dataset happens to include revenue, spend, or channel fields.
+- Validate important fixes against at least one differently structured dataset when practical.
+- Prefer safe partial answers over fake confident answers.
 
 Module boundary principles:
 

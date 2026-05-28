@@ -23,6 +23,42 @@ function humanizeDimension(value: string) {
   return humanize(cleaned);
 }
 
+function publicMetricLabel(metric: string) {
+  const normalized = metric.toLowerCase();
+  const labels: Record<string, string> = {
+    callduration: "call duration",
+    call_duration: "call duration",
+    duration_sec: "call duration",
+    talktime: "talk time",
+    waittime: "wait time",
+    qualified_call_rate: "qualified call rate",
+    missed_call_rate: "missed call rate",
+    conversion_rate: "conversion rate",
+    answered_call_rate: "answered call rate",
+    cost_per_qualified_call: "cost per qualified call",
+    solar: "solar generation",
+    solar_kwh: "solar generation",
+    grid_import: "grid import",
+    grid_import_kwh: "grid import",
+    grid_export: "grid export",
+    grid_export_kwh: "grid export",
+    load_kwh: "load",
+    roas: "ROAS"
+  };
+
+  return labels[normalized] ?? humanize(metric).toLowerCase();
+}
+
+function publicMetricSentenceLabel(metric: string) {
+  const label = publicMetricLabel(metric);
+  return label === "ROAS" ? label : label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+function isDurationMetric(metric: string) {
+  const normalized = metric.toLowerCase();
+  return normalized.includes("duration") || normalized.includes("talktime") || normalized.includes("talk_time") || normalized.includes("handle") || normalized.includes("wait") || normalized.includes("ring");
+}
+
 function formatCompactNumber(value: number) {
   if (!Number.isFinite(value)) {
     return String(value);
@@ -72,6 +108,9 @@ function metricUnit(metric: string) {
   if (normalized.includes("click")) {
     return "clicks";
   }
+  if (isDurationMetric(metric)) {
+    return "seconds";
+  }
   return humanize(metric).toLowerCase();
 }
 
@@ -90,13 +129,77 @@ function formatMetricValue(metric: string, value: number) {
     return `$${formatCompactNumber(value)}`;
   }
 
+  if (isDurationMetric(metric)) {
+    return `${formatCompactNumber(value)} seconds`;
+  }
+
   return `${formatCompactNumber(value)} ${metricUnit(metric)}`;
+}
+
+function formatTrendMetricValue(metric: string, value: number) {
+  const unit = metricUnit(metric);
+  const label = publicMetricLabel(metric);
+  if (unit === label || unit === humanize(metric).toLowerCase()) {
+    return formatCompactNumber(value);
+  }
+
+  return formatMetricValue(metric, value);
+}
+
+function trendPhrase(direction: "upward" | "downward" | "flat") {
+  if (direction === "upward") {
+    return "an upward trend, rising";
+  }
+  if (direction === "downward") {
+    return "a downward trend, falling";
+  }
+  return "a flat trend, moving";
+}
+
+function trendVerb(metric: string) {
+  const label = publicMetricLabel(metric).toLowerCase();
+  return label === "calls" || label.endsWith(" calls") || label.endsWith(" leads") || label.endsWith("records")
+    ? "show"
+    : "shows";
 }
 
 function formatPercent(value: number) {
   return `${new Intl.NumberFormat(undefined, {
     maximumFractionDigits: Math.abs(value * 100) >= 10 ? 1 : 2
   }).format(value * 100)}%`;
+}
+
+function isPercentageMetric(metric: string) {
+  const normalized = metric.toLowerCase();
+  return normalized.includes("ctr") || normalized.includes("cvr") || normalized.includes("rate") || normalized.includes("percent");
+}
+
+function isValidRateValue(value: number) {
+  if (!Number.isFinite(value) || value < 0) {
+    return false;
+  }
+
+  // Derived rates are represented as 0-1 decimals. Explicit percent columns may
+  // arrive as 0-100. Anything above 100% is suspicious and should not be ranked.
+  return value <= 100;
+}
+
+function isVariationQuestion(question: string) {
+  return /\b(vary|varies|variation|inconsistent|inconsistency|uneven|spread|differ|different|outlier|outliers|concentrated|concentration)\b/i.test(question);
+}
+
+function formatPointSpread(metric: string, spread: number) {
+  if (!isPercentageMetric(metric)) {
+    return formatMetricValue(metric, spread);
+  }
+
+  const pointValue = Math.abs(spread) <= 1.5 ? spread * 100 : spread;
+  return `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(pointValue)} percentage points`;
+}
+
+function isEffectivelyZeroSpread(metric: string, spread: number) {
+  const tolerance = isPercentageMetric(metric) ? 0.0001 : 0.01;
+  return Math.abs(spread) <= tolerance;
 }
 
 type RankingFocus = "concentration" | "efficiency" | "budget" | "conversion" | "revenue" | "generic";
@@ -169,6 +272,27 @@ function pickPrimaryMetric(metrics: string[], focus: RankingFocus, question?: st
   return priority.find((metric) => metrics.some((candidate) => candidate.toLowerCase() === metric)) ?? metrics[0];
 }
 
+function hasExplicitMetricRequest(question: string, query: PlannedQuery, metric: string) {
+  return Boolean(query.explicitMetrics?.length) || questionUsesDirectMetricFocus(question, metric);
+}
+
+function isBroadInvestigationQuestion(question: string) {
+  return /\b(performance|efficiency|efficient|uneven|inconsistent|imbalance|investigate|investigation|deserve further|look first|risk|bottleneck|opportunit)/i.test(question);
+}
+
+function buildCompositeRankingCaveat(question: string, dimension: string | null) {
+  const segmentText = dimension ? ` across ${humanizeDimension(dimension).toLowerCase()}` : "";
+  const nextStep = dimension
+    ? `A more reliable next question would name the metric to compare${segmentText}.`
+    : "A more reliable next question would name both the metric and the segment to compare.";
+  return {
+    question,
+    interpretation: "broad investigation metric not specified",
+    answer: `This question is too broad for a reliable segment ranking from the current dataset. The available fields point to multiple possible signals, but no single grounded metric is strong enough to choose a winner${segmentText}. ${nextStep}`,
+    supportingData: []
+  };
+}
+
 function matchesFilter(row: DatasetRow, filter: PlannedQuery["filters"][number]) {
   const rawValue = row[filter.column];
 
@@ -208,8 +332,9 @@ function matchesFilter(row: DatasetRow, filter: PlannedQuery["filters"][number])
 }
 
 function formatFilterScope(query: PlannedQuery) {
-  return query.filters.length > 0
-    ? ` within ${query.filters
+  const filters = effectiveFilters(query);
+  return filters.length > 0
+    ? ` within ${filters
         .map((filter) => {
           if (filter.operator === "eq") {
             return `${filter.column}=${filter.value}`;
@@ -224,7 +349,35 @@ function formatFilterScope(query: PlannedQuery) {
 }
 
 function applyFilters(rows: DatasetRow[], query: PlannedQuery) {
-  return rows.filter((row) => query.filters.every((filter) => matchesFilter(row, filter)));
+  const filters = effectiveFilters(query);
+  return rows.filter((row) => filters.every((filter) => matchesFilter(row, filter)));
+}
+
+function effectiveFilters(query: PlannedQuery) {
+  return query.filters.filter((filter) => !isMetricSelfFilter(query, filter));
+}
+
+function isMetricSelfFilter(query: PlannedQuery, filter: PlannedQuery["filters"][number]) {
+  const metric = (query.metric ?? "").toLowerCase();
+  if (!isPercentageMetric(metric)) {
+    return false;
+  }
+
+  const value = String(filter.value ?? "").toLowerCase();
+  if (metric.includes("missed") && /\b(missed|abandoned|no answer|voicemail)\b/.test(value)) {
+    return true;
+  }
+  if (metric.includes("qualified") && /\b(qualified|sales qualified|qualified no sale)\b/.test(value)) {
+    return true;
+  }
+  if ((metric.includes("conversion") || metric.includes("converted")) && /\b(converted|closed won|booked|won)\b/.test(value)) {
+    return true;
+  }
+  if (metric.includes("answered") && /\b(answered|connected)\b/.test(value)) {
+    return true;
+  }
+
+  return false;
 }
 
 function aggregateValues(values: number[], operation: PlannedQuery["aggregateOperation"]) {
@@ -376,22 +529,21 @@ function aggregateSemanticMetric(metric: string, values: number[]) {
 function aggregateMetricForRows(rows: DatasetRow[], metric: string, profile: DatasetProfile) {
   const normalizedMetric = metric.toLowerCase();
 
-  if (normalizedMetric === "qualified_call_rate") {
-    const qualifiedCalls = aggregateSemanticRowsMetric(rows, "qualifiedCall", profile);
-    const calls = aggregateSemanticRowsMetric(rows, "calls", profile);
-    if (qualifiedCalls === null || calls === null || calls <= 0) {
+  const rateNumeratorByMetric: Record<string, string> = {
+    qualified_call_rate: "qualifiedCall",
+    conversion_rate: "convertedCall",
+    missed_call_rate: "missedCall",
+    answered_call_rate: "answeredCall",
+    repeat_caller_rate: "repeatCaller"
+  };
+  const rateNumerator = rateNumeratorByMetric[normalizedMetric];
+  if (rateNumerator) {
+    const numerator = aggregateSemanticRowsMetric(rows, rateNumerator, profile);
+    const denominator = aggregateSemanticRowsMetric(rows, "calls", profile);
+    if (numerator === null || denominator === null || denominator <= 0 || numerator < 0 || numerator > denominator) {
       return null;
     }
-    return Number(((qualifiedCalls / calls) * 100).toFixed(2));
-  }
-
-  if (normalizedMetric === "conversion_rate") {
-    const convertedCalls = aggregateSemanticRowsMetric(rows, "convertedCall", profile);
-    const calls = aggregateSemanticRowsMetric(rows, "calls", profile);
-    if (convertedCalls === null || calls === null || calls <= 0) {
-      return null;
-    }
-    return Number(((convertedCalls / calls) * 100).toFixed(2));
+    return Number((numerator / denominator).toFixed(4));
   }
 
   if (semanticMetricAggregation(metric) === "sum") {
@@ -401,7 +553,12 @@ function aggregateMetricForRows(rows: DatasetRow[], metric: string, profile: Dat
     return values.reduce((sum, value) => sum + value, 0);
   }
 
-  return aggregateSemanticRowsMetric(rows, metric, profile);
+  const aggregated = aggregateSemanticRowsMetric(rows, metric, profile);
+  if (aggregated !== null && isPercentageMetric(metric) && !isValidRateValue(aggregated)) {
+    return null;
+  }
+
+  return aggregated;
 }
 
 function isRankableRatioMetric(metric: string) {
@@ -454,19 +611,22 @@ function questionUsesDirectMetricFocus(question: string, metric: string) {
   if (normalizedMetric === "qualified_call_rate") {
     return /\b(highest qualified rate|lowest qualified rate|highest qualified call rate|lowest qualified call rate|qualified rate)\b/.test(normalizedQuestion);
   }
-  if (normalizedMetric === "callDuration") {
+  if (normalizedMetric === "missed_call_rate") {
+    return /\b(missed call rate|missed-call rate|missed call pressure|missed-call pressure)\b/.test(normalizedQuestion);
+  }
+  if (normalizedMetric === "callduration") {
     return /\b(longest calls?|shortest calls?|call duration)\b/.test(normalizedQuestion);
   }
-  if (normalizedMetric === "talkTime") {
+  if (normalizedMetric === "talktime") {
     return /\b(longest calls?|shortest calls?|call duration|talk time)\b/.test(normalizedQuestion);
   }
-  if (normalizedMetric === "handleTime") {
+  if (normalizedMetric === "handletime") {
     return /\b(longest calls?|shortest calls?|call duration|handle time)\b/.test(normalizedQuestion);
   }
-  if (normalizedMetric === "waitTime") {
+  if (normalizedMetric === "waittime") {
     return /\b(longest calls?|shortest calls?|call duration|wait time)\b/.test(normalizedQuestion);
   }
-  if (normalizedMetric === "ringTime") {
+  if (normalizedMetric === "ringtime") {
     return /\b(longest calls?|shortest calls?|call duration|ring time)\b/.test(normalizedQuestion);
   }
   if (normalizedMetric === "revenue") {
@@ -725,6 +885,7 @@ function buildSemanticRanking(
   }
 
   const useCompositeRanking =
+    !hasExplicitMetricRequest(question, query, rankingMetric) &&
     !questionUsesDirectMetricFocus(question, rankingMetric) &&
     !questionUsesDirectMetricFocus(question, primaryMetric) &&
     (focus === "generic" ||
@@ -736,6 +897,11 @@ function buildSemanticRanking(
     query.semanticProfile?.businessIntent === "high_potential" ||
     query.semanticProfile?.businessIntent === "best_performing" ||
     query.semanticProfile?.businessIntent === "efficient");
+  const shouldSuppressCompositeNarrative =
+    useCompositeRanking &&
+    isBroadInvestigationQuestion(question) &&
+    !hasExplicitMetricRequest(question, query, rankingMetric) &&
+    !hasExplicitMetricRequest(question, query, primaryMetric);
 
   const rankableRows =
     isRankableRatioMetric(rankingMetric)
@@ -754,20 +920,111 @@ function buildSemanticRanking(
     return null;
   }
 
+  if (isVariationQuestion(question) && (questionUsesDirectMetricFocus(question, rankingMetric) || hasExplicitMetricRequest(question, query, rankingMetric))) {
+    const spreadRows = [...rankedRows]
+      .filter((entry) => Number.isFinite(entry.metrics[rankingMetric]))
+      .sort((left, right) => (right.metrics[rankingMetric] ?? 0) - (left.metrics[rankingMetric] ?? 0));
+    const highest = spreadRows[0];
+    const lowest = spreadRows[spreadRows.length - 1];
+    if (highest && lowest && highest.label !== lowest.label) {
+      const highestValue = highest.metrics[rankingMetric] ?? 0;
+      const lowestValue = lowest.metrics[rankingMetric] ?? 0;
+      const spread = Math.abs(highestValue - lowestValue);
+      const metricLabelForAnswer = publicMetricLabel(rankingMetric);
+      const dimensionLabelForAnswer = humanizeDimension(query.dimension).toLowerCase();
+
+      if (isEffectivelyZeroSpread(rankingMetric, spread) || (rankingMetric.toLowerCase() === "missed_call_rate" && highestValue <= 0)) {
+        return {
+          question,
+          interpretation: `no meaningful variation in ${metricLabelForAnswer} by ${dimensionLabelForAnswer}`,
+          answer: `No ${dimensionLabelForAnswer} segment clearly stands out on ${metricLabelForAnswer}. The available data does not show meaningful variation across ${dimensionLabelForAnswer} for this question.`,
+          supportingData: [
+            { label: "highest", value: `${highest.label}: ${formatMetricValue(rankingMetric, highestValue)}` },
+            { label: "lowest", value: `${lowest.label}: ${formatMetricValue(rankingMetric, lowestValue)}` },
+            { label: "spread", value: formatPointSpread(rankingMetric, spread) }
+          ],
+          resultTable: {
+            columns: [query.dimension, rankingMetric],
+            rows: spreadRows.slice(0, query.limit).map((entry) => ({
+              [query.dimension!]: entry.label,
+              [rankingMetric]: entry.metrics[rankingMetric] ?? null
+            }))
+          }
+        };
+      }
+
+      return {
+        question,
+        interpretation: `variation in ${metricLabelForAnswer} by ${dimensionLabelForAnswer}`,
+        answer: `${publicMetricSentenceLabel(rankingMetric)} varies across ${dimensionLabelForAnswer}. ${highest.label} is highest at ${formatMetricValue(rankingMetric, highestValue)}, while ${lowest.label} is lowest at ${formatMetricValue(rankingMetric, lowestValue)}, giving a spread of roughly ${formatPointSpread(rankingMetric, spread)}. Treat this as directional if coverage is incomplete.`,
+        supportingData: [
+          { label: "highest", value: `${highest.label}: ${formatMetricValue(rankingMetric, highestValue)}` },
+          { label: "lowest", value: `${lowest.label}: ${formatMetricValue(rankingMetric, lowestValue)}` },
+          { label: "spread", value: formatPointSpread(rankingMetric, spread) }
+        ],
+        resultTable: {
+          columns: [query.dimension, rankingMetric],
+          rows: spreadRows.slice(0, query.limit).map((entry) => ({
+            [query.dimension!]: entry.label,
+            [rankingMetric]: entry.metrics[rankingMetric] ?? null
+          }))
+        },
+        chartSuggestion: {
+          chartType: "bar",
+          xKey: query.dimension,
+          yKey: rankingMetric,
+          data: spreadRows.slice(0, query.limit).map((entry) => ({
+            [query.dimension!]: entry.label,
+            [rankingMetric]: Number(entry.metrics[rankingMetric]?.toFixed?.(4) ?? entry.metrics[rankingMetric] ?? 0)
+          }))
+        }
+      };
+    }
+  }
+
+  if (shouldSuppressCompositeNarrative) {
+    return buildCompositeRankingCaveat(question, query.dimension);
+  }
+
   const leader = rankedRows[0];
   const runnerUp = rankedRows[1];
   const leaderValue = leader.metrics[rankingMetric] ?? 0;
   const runnerUpValue = runnerUp?.metrics[rankingMetric] ?? 0;
   const dimensionLabel = humanizeDimension(query.dimension).toLowerCase();
-  const metricLabel = humanize(rankingMetric).toLowerCase();
-  const highlightedSignals = [...metricDetails]
-    .sort((left, right) => right.weight - left.weight)
-    .slice(0, 3)
-    .map((detail) => `${humanize(detail.metric).toLowerCase()} ${formatMetricValue(detail.metric, leader.metrics[detail.metric] ?? 0)}`);
+  const metricLabel = publicMetricLabel(rankingMetric);
+  const comparisonDelta = Math.abs(leaderValue - runnerUpValue);
   const comparisonText =
-    runnerUp && Number.isFinite(runnerUpValue)
+    runnerUp && Number.isFinite(runnerUpValue) && !isEffectivelyZeroSpread(rankingMetric, comparisonDelta)
       ? ` It is ${questionPrefersLowerValues ? "below" : "ahead of"} ${runnerUp.label} by ${formatMetricValue(rankingMetric, Math.abs(leaderValue - runnerUpValue))}.`
       : "";
+
+  if (rankingMetric.toLowerCase() === "missed_call_rate") {
+    return {
+      question,
+      interpretation: `missed-call pressure by ${dimensionLabel}`,
+      answer: `${leader.label} shows the highest missed-call pressure at ${formatMetricValue(rankingMetric, leaderValue)}.${comparisonText} Treat this as directional if missed-call coverage is incomplete.`,
+      supportingData: rankedRows.slice(0, query.limit).map((entry) => ({
+        label: entry.label,
+        value: formatMetricValue(rankingMetric, entry.metrics[rankingMetric] ?? 0)
+      })),
+      resultTable: {
+        columns: [query.dimension, rankingMetric],
+        rows: rankedRows.slice(0, query.limit).map((entry) => ({
+          [query.dimension!]: entry.label,
+          [rankingMetric]: entry.metrics[rankingMetric] ?? null
+        }))
+      },
+      chartSuggestion: {
+        chartType: "bar",
+        xKey: query.dimension,
+        yKey: rankingMetric,
+        data: rankedRows.slice(0, query.limit).map((entry) => ({
+          [query.dimension!]: entry.label,
+          [rankingMetric]: Number(entry.metrics[rankingMetric]?.toFixed?.(4) ?? entry.metrics[rankingMetric] ?? 0)
+        }))
+      }
+    };
+  }
 
   if (focus === "concentration") {
     const leaderShare = totalRankingMetric > 0 ? leaderValue / totalRankingMetric : 0;
@@ -908,7 +1165,7 @@ function buildSemanticRanking(
     return {
       question,
       interpretation: `semantic ranking for revenue`,
-      answer: `${leader.label} leads ${metricLabel} at ${formatMetricValue(rankingMetric, leaderValue)}, ahead of ${runnerUp?.label ?? "the next segment"} by ${formatMetricValue(rankingMetric, Math.abs(leaderValue - runnerUpValue))}.`,
+      answer: `${leader.label} leads ${metricLabel} at ${formatMetricValue(rankingMetric, leaderValue)}${comparisonText || "."}`,
       supportingData: rankedRows.slice(0, query.limit).map((entry) => ({
         label: entry.label,
         value: formatMetricValue(rankingMetric, entry.metrics[rankingMetric] ?? 0)
@@ -938,7 +1195,7 @@ function buildSemanticRanking(
     return {
       question,
       interpretation: `semantic ranking for ${humanize(rankingMetric).toLowerCase()}`,
-      answer: `${leader.label} has the ${questionPrefersLowerValues ? "lowest" : "highest"} ${humanize(rankingMetric).toLowerCase()} at ${formatMetricValue(rankingMetric, leaderValue)}.${comparisonText}`,
+      answer: `${leader.label} has the ${questionPrefersLowerValues ? "lowest" : "highest"} ${metricLabel} at ${formatMetricValue(rankingMetric, leaderValue)}.${comparisonText}`,
       supportingData: rankedRows.slice(0, query.limit).map((entry) => ({
         label: entry.label,
         value: formatMetricValue(rankingMetric, entry.metrics[rankingMetric] ?? 0)
@@ -967,27 +1224,25 @@ function buildSemanticRanking(
   return {
     question,
     interpretation: `semantic ranking for ${questionPrefersLowerValues ? "weaker performance" : "broad performance"}`,
-    answer: `${leader.label} shows the strongest ${humanize(primaryMetric).toLowerCase()}-anchored signal because it combines ${highlightedSignals.join(", ")}.${comparisonText}`,
+    answer: `${leader.label} stands out on ${publicMetricLabel(primaryMetric)} at ${formatMetricValue(primaryMetric, leader.metrics[primaryMetric] ?? leaderValue)}.${comparisonText} Treat this as directional unless you ask for a specific ranking rule.`,
     supportingData: rankedRows.slice(0, query.limit).map((entry) => ({
       label: entry.label,
-      value: formatMetricValue(rankingMetric, entry.metrics[rankingMetric] ?? 0)
+      value: formatMetricValue(primaryMetric, entry.metrics[primaryMetric] ?? 0)
     })),
     resultTable: {
-      columns: [query.dimension, "semantic_score", ...query.metrics],
+      columns: [query.dimension, primaryMetric],
       rows: rankedRows.slice(0, query.limit).map((entry) => ({
         [query.dimension!]: entry.label,
-        semantic_score: Number(entry.score.toFixed(4)),
-        ...entry.metrics
+        [primaryMetric]: entry.metrics[primaryMetric] ?? null
       }))
     },
     chartSuggestion: {
       chartType: "bar",
       xKey: query.dimension,
-      yKey: "semantic_score",
+      yKey: primaryMetric,
       data: rankedRows.slice(0, query.limit).map((entry) => ({
         [query.dimension!]: entry.label,
-        semantic_score: Number(entry.score.toFixed(4)),
-        ...entry.metrics
+        [primaryMetric]: Number(entry.metrics[primaryMetric]?.toFixed?.(2) ?? entry.metrics[primaryMetric] ?? 0)
       }))
     }
   };
@@ -1028,7 +1283,7 @@ function answerTrend(question: string, rows: DatasetRow[], query: PlannedQuery, 
   }
 
   if (query.metrics.length > 1) {
-    const grouped = new Map<string, Record<string, number>>();
+    const grouped = new Map<string, DatasetRow[]>();
     for (const row of rows) {
       const date = parseDateValue(row[query.datetimeColumn]);
       if (!date) {
@@ -1036,28 +1291,22 @@ function answerTrend(question: string, rows: DatasetRow[], query: PlannedQuery, 
       }
 
       const key = date.toISOString().slice(0, 10);
-      const current = grouped.get(key) ?? {};
-
-      for (const metric of query.metrics) {
-        const metricValue = getSemanticMetricValue(row, metric, profile);
-        if (metricValue === null) {
-          continue;
-        }
-        current[metric] = (current[metric] ?? 0) + metricValue;
-      }
-
+      const current = grouped.get(key) ?? [];
+      current.push(row);
       grouped.set(key, current);
     }
 
     const data = [...grouped.entries()]
       .sort(([left], [right]) => left.localeCompare(right))
-      .map(([date, metricMap]) => {
+      .map(([date, dateRows]) => {
         const row: Record<string, string | number> = { date };
         for (const metric of query.metrics) {
-          row[metric] = Number((metricMap[metric] ?? 0).toFixed(2));
+          const value = aggregateMetricForRows(dateRows, metric, profile);
+          row[metric] = value === null ? Number.NaN : Number(value.toFixed(2));
         }
         return row;
-      });
+      })
+      .filter((row) => Number.isFinite(Number(row[query.metrics[0]])));
 
     const primaryMetric = query.metrics[0];
     const first = data[0];
@@ -1079,9 +1328,9 @@ function answerTrend(question: string, rows: DatasetRow[], query: PlannedQuery, 
     return {
       question,
       interpretation: `trend of ${query.metrics.join(", ")}`,
-      answer: `${humanize(primaryMetric)} shows a ${direction} trend${filterText} from ${formatMetricValue(primaryMetric, firstValue)} on ${String(first.date)} to ${formatMetricValue(primaryMetric, lastValue)} on ${String(last.date)}, alongside ${query.metrics
+      answer: `${publicMetricSentenceLabel(primaryMetric)} ${trendVerb(primaryMetric)} ${trendPhrase(direction)}${filterText} from ${formatTrendMetricValue(primaryMetric, firstValue)} on ${String(first.date)} to ${formatTrendMetricValue(primaryMetric, lastValue)} on ${String(last.date)}, alongside ${query.metrics
         .slice(1)
-        .map((metric) => `${humanize(metric).toLowerCase()} ${formatMetricValue(metric, Number(last[metric] ?? 0))} at the latest point`)
+        .map((metric) => `${publicMetricLabel(metric)} ${formatTrendMetricValue(metric, Number(last[metric] ?? 0))} at the latest point`)
         .join(" and ")}.`,
       supportingData: query.metrics.map((metric) => ({
         label: metric,
@@ -1097,20 +1346,25 @@ function answerTrend(question: string, rows: DatasetRow[], query: PlannedQuery, 
     };
   }
 
-  const grouped = new Map<string, number>();
+  const grouped = new Map<string, DatasetRow[]>();
   for (const row of rows) {
     const date = parseDateValue(row[query.datetimeColumn]);
-    const metricValue = getSemanticMetricValue(row, query.metric, profile);
-    if (!date || metricValue === null) {
+    if (!date) {
       continue;
     }
     const key = date.toISOString().slice(0, 10);
-    grouped.set(key, (grouped.get(key) ?? 0) + metricValue);
+    const current = grouped.get(key) ?? [];
+    current.push(row);
+    grouped.set(key, current);
   }
 
   const data = [...grouped.entries()]
     .sort(([left], [right]) => left.localeCompare(right))
-    .map(([date, value]) => ({ date, value }));
+    .map(([date, dateRows]) => {
+      const value = aggregateMetricForRows(dateRows, query.metric!, profile);
+      return value === null ? null : { date, value };
+    })
+    .filter((entry): entry is { date: string; value: number } => entry !== null && Number.isFinite(entry.value));
 
   const first = data[0];
   const last = data[data.length - 1];
@@ -1129,7 +1383,7 @@ function answerTrend(question: string, rows: DatasetRow[], query: PlannedQuery, 
   return {
     question,
     interpretation: `trend of ${query.metric}`,
-    answer: `${humanize(query.metric)} shows a ${direction} trend${filterText} from ${formatMetricValue(query.metric, first.value)} on ${first.date} to ${formatMetricValue(query.metric, last.value)} on ${last.date}.`,
+    answer: `${isDurationMetric(query.metric) ? `Average ${publicMetricLabel(query.metric)}` : publicMetricSentenceLabel(query.metric)} ${isDurationMetric(query.metric) ? "shows" : trendVerb(query.metric)} ${trendPhrase(direction)}${filterText} from ${formatTrendMetricValue(query.metric, first.value)} on ${first.date} to ${formatTrendMetricValue(query.metric, last.value)} on ${last.date}.`,
     supportingData: data.slice(-5).map((entry) => ({
       label: entry.date,
       value: Number(entry.value.toFixed(2))
@@ -1564,11 +1818,67 @@ function answerAggregateSegments(question: string, rows: DatasetRow[], query: Pl
   const leader = grouped[0];
   const filterText = formatFilterScope(query);
 
+  if (isVariationQuestion(question) && grouped.length > 1) {
+    const sortedHighToLow = [...grouped].sort((left, right) => right.value - left.value);
+    const highest = sortedHighToLow[0];
+    const lowest = sortedHighToLow[sortedHighToLow.length - 1];
+    const spread = Math.abs((highest?.value ?? 0) - (lowest?.value ?? 0));
+    const metricLabel = publicMetricLabel(query.metric);
+    const dimensionLabel = humanizeDimension(query.dimension).toLowerCase();
+
+    if (isEffectivelyZeroSpread(query.metric, spread) || (query.metric.toLowerCase() === "missed_call_rate" && (highest?.value ?? 0) <= 0)) {
+      return {
+        question,
+        interpretation: `no meaningful variation in ${metricLabel} by ${dimensionLabel}`,
+        answer: `No ${dimensionLabel} segment clearly stands out on ${metricLabel}${filterText}. The available data does not show meaningful variation for this question.`,
+        supportingData: [
+          { label: "highest", value: `${highest.label}: ${formatMetricValue(query.metric, highest.value)}` },
+          { label: "lowest", value: `${lowest.label}: ${formatMetricValue(query.metric, lowest.value)}` },
+          { label: "spread", value: formatPointSpread(query.metric, spread) }
+        ],
+        resultTable: {
+          columns: [query.dimension, query.metric],
+          rows: sortedHighToLow.slice(0, query.limit).map((entry) => ({
+            [query.dimension!]: entry.label,
+            [query.metric!]: Number(entry.value.toFixed(4))
+          }))
+        }
+      };
+    }
+
+    return {
+      question,
+      interpretation: `${query.metric} variation by ${query.dimension}`,
+      answer: `${publicMetricSentenceLabel(query.metric)} varies across ${dimensionLabel}${filterText}. ${highest.label} is highest at ${formatMetricValue(query.metric, highest.value)}, while ${lowest.label} is lowest at ${formatMetricValue(query.metric, lowest.value)}, giving a spread of roughly ${formatPointSpread(query.metric, spread)}.`,
+      supportingData: [
+        { label: "highest", value: `${highest.label}: ${formatMetricValue(query.metric, highest.value)}` },
+        { label: "lowest", value: `${lowest.label}: ${formatMetricValue(query.metric, lowest.value)}` },
+        { label: "spread", value: formatPointSpread(query.metric, spread) }
+      ],
+      resultTable: {
+        columns: [query.dimension, query.metric],
+        rows: sortedHighToLow.slice(0, query.limit).map((entry) => ({
+          [query.dimension!]: entry.label,
+          [query.metric!]: Number(entry.value.toFixed(4))
+        }))
+      },
+      chartSuggestion: {
+        chartType: "bar",
+        xKey: query.dimension,
+        yKey: query.metric,
+        data: sortedHighToLow.slice(0, query.limit).map((entry) => ({
+          [query.dimension!]: entry.label,
+          [query.metric!]: Number(entry.value.toFixed(4))
+        }))
+      }
+    };
+  }
+
   return {
     question,
     interpretation: `${query.aggregateOperation} ${query.metric} by ${query.dimension}`,
     answer: leader
-      ? `${leader.label} has the ${query.sortDirection === "asc" ? "lowest" : "highest"} ${query.aggregateOperation} ${humanize(query.metric).toLowerCase()}${filterText} at ${formatMetricValue(query.metric, leader.value)}.`
+      ? `${leader.label} has the ${query.sortDirection === "asc" ? "lowest" : "highest"} ${query.aggregateOperation} ${publicMetricLabel(query.metric)}${filterText} at ${formatMetricValue(query.metric, leader.value)}.`
       : `No grouped aggregate could be computed${filterText}.`,
     supportingData: grouped.map((entry) => ({
       label: entry.label,

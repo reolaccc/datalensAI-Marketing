@@ -303,6 +303,13 @@ export function getTimeSeriesYearContext(data: Record<string, PrimitiveValue>[],
   };
 }
 
+export function shouldRotateTimeSeriesTicks(data: Record<string, PrimitiveValue>[], key: string) {
+  const labels = buildTimeSeriesTicks(data, key).map((value) => formatChartDateLabel(value, "axis", {
+    includeYear: getTimeSeriesYearContext(data, key).includeYearInTicks
+  }));
+  return labels.length >= 4 || labels.some((label) => label.length >= 9);
+}
+
 export function buildTimeSeriesTicks(data: Record<string, PrimitiveValue>[], key: string, targetCount = 6) {
   const labels = data
     .map((entry) => String(entry[key] ?? "").trim())
@@ -331,31 +338,19 @@ export function isTimeSeriesChartAxis(source?: string | null, xKey?: string | nu
   return xKey === "date" || isTimeLikeLabel(source) || isTimeLikeLabel(xKey);
 }
 
-export function getTimeSeriesAxisLabel(source?: string | null, xKey?: string | null, yearLabel = "") {
+export function getTimeSeriesAxisLabel(source?: string | null, _xKey?: string | null) {
   const normalizedSource = normalize(String(source ?? ""));
-  const normalizedKey = normalize(String(xKey ?? ""));
-  const suffix = yearLabel ? ` (${yearLabel})` : "";
-  const dailySuffix = yearLabel ? ` (${yearLabel}, Daily)` : " (Daily)";
 
   if (normalizedSource.includes("month")) {
-    return `Month${suffix}`;
+    return "Month";
   }
   if (normalizedSource.includes("week")) {
-    return `Week${suffix}`;
-  }
-  if (normalizedKey === "date") {
-    return normalizedSource.includes("call") ? `Call Date${dailySuffix}` : `Date${dailySuffix}`;
+    return "Week";
   }
   if (normalizedSource.includes("hour")) {
     return "Hour of Day";
   }
-  if (normalizedSource.includes("time") || normalizedSource.includes("timestamp")) {
-    return `Call Date / Time${suffix}`;
-  }
-  if (normalizedKey === "date") {
-    return `Date${dailySuffix}`;
-  }
-  return `Date${suffix}`;
+  return "Date";
 }
 
 export function formatHistogramRangeLabel(entry: Record<string, PrimitiveValue> | null | undefined) {
